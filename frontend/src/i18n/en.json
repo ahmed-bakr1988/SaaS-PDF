@@ -1,0 +1,96 @@
+{
+  "common": {
+    "appName": "SaaS-PDF",
+    "tagline": "Free Online File Tools",
+    "upload": "Upload File",
+    "download": "Download",
+    "processing": "Processing...",
+    "dragDrop": "Drag & drop your file here, or click to browse",
+    "maxSize": "Maximum file size: {{size}}MB",
+    "tryOtherTools": "Try Other Tools",
+    "error": "Error",
+    "success": "Success",
+    "loading": "Loading...",
+    "startOver": "Start Over",
+    "home": "Home",
+    "about": "About",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "language": "Language",
+    "allTools": "All Tools"
+  },
+  "home": {
+    "hero": "Transform Your Files Instantly",
+    "heroSub": "Free online tools for PDF, image, video, and text processing. No registration required.",
+    "popularTools": "Popular Tools",
+    "pdfTools": "PDF Tools",
+    "imageTools": "Image Tools",
+    "videoTools": "Video Tools",
+    "textTools": "Text Tools"
+  },
+  "tools": {
+    "pdfToWord": {
+      "title": "PDF to Word",
+      "description": "Convert PDF files to editable Word documents online for free.",
+      "shortDesc": "PDF → Word"
+    },
+    "wordToPdf": {
+      "title": "Word to PDF",
+      "description": "Convert Word documents (DOC, DOCX) to PDF format online for free.",
+      "shortDesc": "Word → PDF"
+    },
+    "compressPdf": {
+      "title": "Compress PDF",
+      "description": "Reduce PDF file size while maintaining quality. Choose your compression level.",
+      "shortDesc": "Compress PDF",
+      "qualityLow": "Maximum Compression",
+      "qualityMedium": "Balanced",
+      "qualityHigh": "High Quality"
+    },
+    "imageConvert": {
+      "title": "Image Converter",
+      "description": "Convert images between JPG, PNG, and WebP formats instantly.",
+      "shortDesc": "Convert Images"
+    },
+    "videoToGif": {
+      "title": "Video to GIF",
+      "description": "Create animated GIFs from video clips. Customize start time, duration, and quality.",
+      "shortDesc": "Video → GIF",
+      "startTime": "Start Time (seconds)",
+      "duration": "Duration (seconds)",
+      "fps": "Frames Per Second",
+      "width": "Width (pixels)"
+    },
+    "wordCounter": {
+      "title": "Word Counter",
+      "description": "Count words, characters, sentences, and paragraphs in your text instantly.",
+      "shortDesc": "Count Words",
+      "words": "Words",
+      "characters": "Characters",
+      "sentences": "Sentences",
+      "paragraphs": "Paragraphs",
+      "placeholder": "Type or paste your text here..."
+    },
+    "textCleaner": {
+      "title": "Text Cleaner",
+      "description": "Remove extra spaces, convert text case, and clean up your text instantly.",
+      "shortDesc": "Clean Text",
+      "removeSpaces": "Remove Extra Spaces",
+      "toUpperCase": "UPPER CASE",
+      "toLowerCase": "lower case",
+      "toTitleCase": "Title Case",
+      "toSentenceCase": "Sentence case",
+      "removeDiacritics": "Remove Arabic Diacritics",
+      "copyResult": "Copy Result"
+    }
+  },
+  "result": {
+    "conversionComplete": "Conversion Complete!",
+    "compressionComplete": "Compression Complete!",
+    "originalSize": "Original Size",
+    "newSize": "New Size",
+    "reduction": "Reduction",
+    "downloadReady": "Your file is ready for download.",
+    "linkExpiry": "Download link expires in 30 minutes."
+  }
+}

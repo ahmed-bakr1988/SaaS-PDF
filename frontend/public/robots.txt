@@ -1,0 +1,6 @@
+# robots.txt — SaaS-PDF
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://yourdomain.com/sitemap.xml

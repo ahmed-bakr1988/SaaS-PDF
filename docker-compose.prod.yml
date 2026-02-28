@@ -1,0 +1,107 @@
+services:
+  # --- Redis ---
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    restart: always
+
+  # --- Flask Backend ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+
+  # --- Celery Worker ---
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=warning
+      --concurrency=4
+      -Q default,convert,compress,image,video
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+
+  # --- Celery Beat (Scheduled Tasks) ---
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery beat
+      --loglevel=warning
+    env_file:
+      - .env
+    environment:
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: always
+
+  # --- Nginx (serves built frontend + reverse proxy) ---
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - frontend_build:/usr/share/nginx/html:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - backend
+      - frontend_build_step
+    restart: always
+
+  # --- Frontend Build (one-shot) ---
+  frontend_build_step:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: build
+    volumes:
+      - frontend_build:/app/dist
+
+volumes:
+  redis_data:
+  upload_data:
+  output_data:
+  frontend_build:

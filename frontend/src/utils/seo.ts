@@ -1,0 +1,69 @@
+/**
+ * SEO utility functions for structured data generation.
+ */
+
+export interface ToolSeoData {
+  name: string;
+  description: string;
+  url: string;
+  category?: string;
+}
+
+/**
+ * Generate WebApplication JSON-LD structured data for a tool page.
+ */
+export function generateToolSchema(tool: ToolSeoData): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: tool.name,
+    url: tool.url,
+    applicationCategory: tool.category || 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    offers: {
+      '@type': 'Offer',
+      price: '0',
+      priceCurrency: 'USD',
+    },
+    description: tool.description,
+    inLanguage: ['en', 'ar'],
+  };
+}
+
+/**
+ * Generate BreadcrumbList JSON-LD.
+ */
+export function generateBreadcrumbs(
+  items: { name: string; url: string }[]
+): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.url,
+    })),
+  };
+}
+
+/**
+ * Generate FAQ structured data.
+ */
+export function generateFAQ(
+  questions: { question: string; answer: string }[]
+): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: questions.map((q) => ({
+      '@type': 'Question',
+      name: q.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: q.answer,
+      },
+    })),
+  };
+}

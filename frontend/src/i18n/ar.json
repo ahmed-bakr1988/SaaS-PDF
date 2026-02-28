@@ -1,0 +1,96 @@
+{
+  "common": {
+    "appName": "SaaS-PDF",
+    "tagline": "أدوات ملفات مجانية على الإنترنت",
+    "upload": "رفع ملف",
+    "download": "تحميل",
+    "processing": "جاري المعالجة...",
+    "dragDrop": "اسحب الملف وأفلته هنا، أو اضغط للاختيار",
+    "maxSize": "الحد الأقصى لحجم الملف: {{size}} ميجابايت",
+    "tryOtherTools": "جرب أدوات أخرى",
+    "error": "خطأ",
+    "success": "تم بنجاح",
+    "loading": "جاري التحميل...",
+    "startOver": "ابدأ من جديد",
+    "home": "الرئيسية",
+    "about": "عن الموقع",
+    "privacy": "سياسة الخصوصية",
+    "terms": "شروط الاستخدام",
+    "language": "اللغة",
+    "allTools": "كل الأدوات"
+  },
+  "home": {
+    "hero": "حوّل ملفاتك فوراً",
+    "heroSub": "أدوات مجانية لمعالجة ملفات PDF والصور والفيديو والنصوص. بدون تسجيل.",
+    "popularTools": "الأدوات الشائعة",
+    "pdfTools": "أدوات PDF",
+    "imageTools": "أدوات الصور",
+    "videoTools": "أدوات الفيديو",
+    "textTools": "أدوات النصوص"
+  },
+  "tools": {
+    "pdfToWord": {
+      "title": "PDF إلى Word",
+      "description": "حوّل ملفات PDF إلى مستندات Word قابلة للتعديل مجاناً.",
+      "shortDesc": "PDF → Word"
+    },
+    "wordToPdf": {
+      "title": "Word إلى PDF",
+      "description": "حوّل مستندات Word (DOC, DOCX) إلى صيغة PDF مجاناً.",
+      "shortDesc": "Word → PDF"
+    },
+    "compressPdf": {
+      "title": "ضغط PDF",
+      "description": "قلّل حجم ملف PDF مع الحفاظ على الجودة. اختر مستوى الضغط.",
+      "shortDesc": "ضغط PDF",
+      "qualityLow": "أقصى ضغط",
+      "qualityMedium": "متوازن",
+      "qualityHigh": "جودة عالية"
+    },
+    "imageConvert": {
+      "title": "محوّل الصور",
+      "description": "حوّل الصور بين صيغ JPG و PNG و WebP فوراً.",
+      "shortDesc": "تحويل الصور"
+    },
+    "videoToGif": {
+      "title": "فيديو إلى GIF",
+      "description": "أنشئ صور GIF متحركة من مقاطع الفيديو. خصّص وقت البداية والمدة والجودة.",
+      "shortDesc": "فيديو → GIF",
+      "startTime": "وقت البداية (ثوانٍ)",
+      "duration": "المدة (ثوانٍ)",
+      "fps": "إطارات في الثانية",
+      "width": "العرض (بكسل)"
+    },
+    "wordCounter": {
+      "title": "عدّاد الكلمات",
+      "description": "عُد الكلمات والحروف والجمل والفقرات في نصك فوراً.",
+      "shortDesc": "عد الكلمات",
+      "words": "كلمات",
+      "characters": "حروف",
+      "sentences": "جمل",
+      "paragraphs": "فقرات",
+      "placeholder": "اكتب أو الصق نصك هنا..."
+    },
+    "textCleaner": {
+      "title": "منظّف النصوص",
+      "description": "أزل المسافات الزائدة، حوّل حالة الحروف، ونظّف نصك فوراً.",
+      "shortDesc": "تنظيف النص",
+      "removeSpaces": "إزالة المسافات الزائدة",
+      "toUpperCase": "أحرف كبيرة",
+      "toLowerCase": "أحرف صغيرة",
+      "toTitleCase": "حروف العنوان",
+      "toSentenceCase": "حالة الجملة",
+      "removeDiacritics": "إزالة التشكيل العربي",
+      "copyResult": "نسخ النتيجة"
+    }
+  },
+  "result": {
+    "conversionComplete": "اكتمل التحويل!",
+    "compressionComplete": "اكتمل الضغط!",
+    "originalSize": "الحجم الأصلي",
+    "newSize": "الحجم الجديد",
+    "reduction": "نسبة التقليل",
+    "downloadReady": "ملفك جاهز للتحميل.",
+    "linkExpiry": "رابط التحميل ينتهي خلال 30 دقيقة."
+  }
+}
