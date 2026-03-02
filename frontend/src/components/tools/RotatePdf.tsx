@@ -1,0 +1,155 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Helmet } from 'react-helmet-async';
+import { RotateCw } from 'lucide-react';
+import FileUploader from '@/components/shared/FileUploader';
+import ProgressBar from '@/components/shared/ProgressBar';
+import DownloadButton from '@/components/shared/DownloadButton';
+import AdSlot from '@/components/layout/AdSlot';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useTaskPolling } from '@/hooks/useTaskPolling';
+import { generateToolSchema } from '@/utils/seo';
+
+type Rotation = 90 | 180 | 270;
+
+export default function RotatePdf() {
+  const { t } = useTranslation();
+  const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
+  const [rotation, setRotation] = useState<Rotation>(90);
+
+  const {
+    file,
+    uploadProgress,
+    isUploading,
+    taskId,
+    error: uploadError,
+    selectFile,
+    startUpload,
+    reset,
+  } = useFileUpload({
+    endpoint: '/pdf-tools/rotate',
+    maxSizeMB: 20,
+    acceptedTypes: ['pdf'],
+    extraData: { rotation: rotation.toString(), pages: 'all' },
+  });
+
+  const { status, result, error: taskError } = useTaskPolling({
+    taskId,
+    onComplete: () => setPhase('done'),
+    onError: () => setPhase('done'),
+  });
+
+  const handleUpload = async () => {
+    const id = await startUpload();
+    if (id) setPhase('processing');
+  };
+
+  const handleReset = () => {
+    reset();
+    setPhase('upload');
+  };
+
+  const rotations: { value: Rotation; label: string }[] = [
+    { value: 90, label: '90°' },
+    { value: 180, label: '180°' },
+    { value: 270, label: '270°' },
+  ];
+
+  const schema = generateToolSchema({
+    name: t('tools.rotatePdf.title'),
+    description: t('tools.rotatePdf.description'),
+    url: `${window.location.origin}/tools/rotate-pdf`,
+  });
+
+  return (
+    <>
+      <Helmet>
+        <title>{t('tools.rotatePdf.title')} — {t('common.appName')}</title>
+        <meta name="description" content={t('tools.rotatePdf.description')} />
+        <link rel="canonical" href={`${window.location.origin}/tools/rotate-pdf`} />
+        <script type="application/ld+json">{JSON.stringify(schema)}</script>
+      </Helmet>
+
+      <div className="mx-auto max-w-2xl">
+        <div className="mb-8 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-100">
+            <RotateCw className="h-8 w-8 text-cyan-600" />
+          </div>
+          <h1 className="section-heading">{t('tools.rotatePdf.title')}</h1>
+          <p className="mt-2 text-slate-500">{t('tools.rotatePdf.description')}</p>
+        </div>
+
+        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
+
+        {phase === 'upload' && (
+          <div className="space-y-4">
+            <FileUploader
+              onFileSelect={selectFile}
+              file={file}
+              accept={{ 'application/pdf': ['.pdf'] }}
+              maxSizeMB={20}
+              isUploading={isUploading}
+              uploadProgress={uploadProgress}
+              error={uploadError}
+              onReset={handleReset}
+              acceptLabel="PDF (.pdf)"
+            />
+
+            {file && !isUploading && (
+              <>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-slate-700">
+                    {t('tools.rotatePdf.rotationAngle')}
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {rotations.map((r) => (
+                      <button
+                        key={r.value}
+                        onClick={() => setRotation(r.value)}
+                        className={`rounded-xl p-3 text-center ring-1 transition-all ${
+                          rotation === r.value
+                            ? 'bg-primary-50 ring-primary-300 text-primary-700 font-semibold'
+                            : 'bg-white ring-slate-200 text-slate-600 hover:bg-slate-50'
+                        }`}
+                      >
+                        <RotateCw className={`mx-auto h-5 w-5 mb-1 ${
+                          rotation === r.value ? 'text-primary-600' : 'text-slate-400'
+                        }`} />
+                        {r.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button onClick={handleUpload} className="btn-primary w-full">
+                  {t('tools.rotatePdf.shortDesc')}
+                </button>
+              </>
+            )}
+          </div>
+        )}
+
+        {phase === 'processing' && !result && (
+          <ProgressBar state={status?.state || 'PENDING'} message={status?.progress} />
+        )}
+
+        {phase === 'done' && result && result.status === 'completed' && (
+          <DownloadButton result={result} onStartOver={handleReset} />
+        )}
+
+        {phase === 'done' && taskError && (
+          <div className="space-y-4">
+            <div className="rounded-xl bg-red-50 p-4 ring-1 ring-red-200">
+              <p className="text-sm text-red-700">{taskError}</p>
+            </div>
+            <button onClick={handleReset} className="btn-secondary w-full">
+              {t('common.startOver')}
+            </button>
+          </div>
+        )}
+
+        <AdSlot slot="bottom-banner" className="mt-8" />
+      </div>
+    </>
+  );
+}

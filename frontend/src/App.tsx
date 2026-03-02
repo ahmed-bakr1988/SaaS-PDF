@@ -19,6 +19,15 @@ const ImageConverter = lazy(() => import('@/components/tools/ImageConverter'));
 const VideoToGif = lazy(() => import('@/components/tools/VideoToGif'));
 const WordCounter = lazy(() => import('@/components/tools/WordCounter'));
 const TextCleaner = lazy(() => import('@/components/tools/TextCleaner'));
+const MergePdf = lazy(() => import('@/components/tools/MergePdf'));
+const SplitPdf = lazy(() => import('@/components/tools/SplitPdf'));
+const RotatePdf = lazy(() => import('@/components/tools/RotatePdf'));
+const PdfToImages = lazy(() => import('@/components/tools/PdfToImages'));
+const ImagesToPdf = lazy(() => import('@/components/tools/ImagesToPdf'));
+const WatermarkPdf = lazy(() => import('@/components/tools/WatermarkPdf'));
+const ProtectPdf = lazy(() => import('@/components/tools/ProtectPdf'));
+const UnlockPdf = lazy(() => import('@/components/tools/UnlockPdf'));
+const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
 
 function LoadingFallback() {
   return (
@@ -48,6 +57,15 @@ export default function App() {
             <Route path="/tools/pdf-to-word" element={<PdfToWord />} />
             <Route path="/tools/word-to-pdf" element={<WordToPdf />} />
             <Route path="/tools/compress-pdf" element={<PdfCompressor />} />
+            <Route path="/tools/merge-pdf" element={<MergePdf />} />
+            <Route path="/tools/split-pdf" element={<SplitPdf />} />
+            <Route path="/tools/rotate-pdf" element={<RotatePdf />} />
+            <Route path="/tools/pdf-to-images" element={<PdfToImages />} />
+            <Route path="/tools/images-to-pdf" element={<ImagesToPdf />} />
+            <Route path="/tools/watermark-pdf" element={<WatermarkPdf />} />
+            <Route path="/tools/protect-pdf" element={<ProtectPdf />} />
+            <Route path="/tools/unlock-pdf" element={<UnlockPdf />} />
+            <Route path="/tools/page-numbers" element={<AddPageNumbers />} />
 
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />

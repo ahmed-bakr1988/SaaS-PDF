@@ -25,6 +25,8 @@ class BaseConfig:
         "jpg": ["image/jpeg"],
         "jpeg": ["image/jpeg"],
         "webp": ["image/webp"],
+        "tiff": ["image/tiff"],
+        "bmp": ["image/bmp"],
         "mp4": ["video/mp4"],
         "webm": ["video/webm"],
     }
@@ -38,6 +40,8 @@ class BaseConfig:
         "jpg": 10 * 1024 * 1024,       # 10MB
         "jpeg": 10 * 1024 * 1024,      # 10MB
         "webp": 10 * 1024 * 1024,      # 10MB
+        "tiff": 15 * 1024 * 1024,      # 15MB
+        "bmp": 15 * 1024 * 1024,       # 15MB
         "mp4": 50 * 1024 * 1024,       # 50MB
         "webm": 50 * 1024 * 1024,      # 50MB
     }

@@ -82,6 +82,92 @@
       "toSentenceCase": "Sentence case",
       "removeDiacritics": "Remove Arabic Diacritics",
       "copyResult": "Copy Result"
+    },
+    "mergePdf": {
+      "title": "Merge PDF",
+      "description": "Combine multiple PDF files into a single document. Free and fast.",
+      "shortDesc": "Merge PDFs",
+      "selectFiles": "Select PDF Files",
+      "addMore": "Add More Files",
+      "filesSelected": "{{count}} files selected",
+      "dragToReorder": "Drag files to reorder them"
+    },
+    "splitPdf": {
+      "title": "Split PDF",
+      "description": "Split a PDF into individual pages or extract specific page ranges.",
+      "shortDesc": "Split PDF",
+      "allPages": "All Pages",
+      "pageRange": "Page Range",
+      "rangeHint": "e.g. 1,3,5-8",
+      "rangePlaceholder": "Enter pages: 1,3,5-8"
+    },
+    "rotatePdf": {
+      "title": "Rotate PDF",
+      "description": "Rotate all pages of a PDF by 90°, 180°, or 270° degrees.",
+      "shortDesc": "Rotate PDF",
+      "angle": "Rotation Angle",
+      "90": "90° Clockwise",
+      "180": "180° Flip",
+      "270": "270° Counter-clockwise"
+    },
+    "pdfToImages": {
+      "title": "PDF to Images",
+      "description": "Convert each page of a PDF into high-quality images (PNG or JPG).",
+      "shortDesc": "PDF → Images",
+      "format": "Image Format",
+      "dpi": "Resolution (DPI)",
+      "dpiLow": "72 — Screen",
+      "dpiMedium": "150 — Standard",
+      "dpiHigh": "200 — Good",
+      "dpiUltra": "300 — Print Quality"
+    },
+    "imagesToPdf": {
+      "title": "Images to PDF",
+      "description": "Combine multiple images into a single PDF document.",
+      "shortDesc": "Images → PDF",
+      "selectImages": "Select Images",
+      "addMore": "Add More Images",
+      "imagesSelected": "{{count}} images selected"
+    },
+    "watermarkPdf": {
+      "title": "Watermark PDF",
+      "description": "Add a custom text watermark to every page of your PDF.",
+      "shortDesc": "Add Watermark",
+      "text": "Watermark Text",
+      "textPlaceholder": "Enter watermark text",
+      "opacity": "Opacity",
+      "light": "Light",
+      "heavy": "Heavy"
+    },
+    "protectPdf": {
+      "title": "Protect PDF",
+      "description": "Add password protection to your PDF to prevent unauthorized access.",
+      "shortDesc": "Protect PDF",
+      "password": "Password",
+      "passwordPlaceholder": "Enter a strong password",
+      "confirmPassword": "Confirm Password",
+      "confirmPlaceholder": "Re-enter the password",
+      "mismatch": "Passwords do not match"
+    },
+    "unlockPdf": {
+      "title": "Unlock PDF",
+      "description": "Remove password protection from your PDF file.",
+      "shortDesc": "Unlock PDF",
+      "password": "Current Password",
+      "passwordPlaceholder": "Enter the PDF password"
+    },
+    "pageNumbers": {
+      "title": "Add Page Numbers",
+      "description": "Add page numbers to every page of your PDF. Choose position and starting number.",
+      "shortDesc": "Add Page Numbers",
+      "position": "Number Position",
+      "startNumber": "Start From",
+      "bottomCenter": "Bottom Center",
+      "bottomRight": "Bottom Right",
+      "bottomLeft": "Bottom Left",
+      "topCenter": "Top Center",
+      "topRight": "Top Right",
+      "topLeft": "Top Left"
     }
   },
   "result": {

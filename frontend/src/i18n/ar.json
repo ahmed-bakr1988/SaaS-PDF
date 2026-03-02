@@ -82,6 +82,92 @@
       "toSentenceCase": "حالة الجملة",
       "removeDiacritics": "إزالة التشكيل العربي",
       "copyResult": "نسخ النتيجة"
+    },
+    "mergePdf": {
+      "title": "دمج PDF",
+      "description": "ادمج عدة ملفات PDF في مستند واحد. مجاني وسريع.",
+      "shortDesc": "دمج PDF",
+      "selectFiles": "اختر ملفات PDF",
+      "addMore": "أضف ملفات أخرى",
+      "filesSelected": "{{count}} ملفات مختارة",
+      "dragToReorder": "اسحب الملفات لإعادة ترتيبها"
+    },
+    "splitPdf": {
+      "title": "تقسيم PDF",
+      "description": "قسّم ملف PDF إلى صفحات فردية أو استخرج نطاقات صفحات محددة.",
+      "shortDesc": "تقسيم PDF",
+      "allPages": "كل الصفحات",
+      "pageRange": "نطاق الصفحات",
+      "rangeHint": "مثال: 1,3,5-8",
+      "rangePlaceholder": "أدخل الصفحات: 1,3,5-8"
+    },
+    "rotatePdf": {
+      "title": "تدوير PDF",
+      "description": "دوّر جميع صفحات ملف PDF بزاوية 90° أو 180° أو 270° درجة.",
+      "shortDesc": "تدوير PDF",
+      "angle": "زاوية التدوير",
+      "90": "90° مع عقارب الساعة",
+      "180": "180° قلب",
+      "270": "270° عكس عقارب الساعة"
+    },
+    "pdfToImages": {
+      "title": "PDF إلى صور",
+      "description": "حوّل كل صفحة من ملف PDF إلى صور عالية الجودة (PNG أو JPG).",
+      "shortDesc": "PDF → صور",
+      "format": "صيغة الصورة",
+      "dpi": "الدقة (DPI)",
+      "dpiLow": "72 — شاشة",
+      "dpiMedium": "150 — قياسي",
+      "dpiHigh": "200 — جيد",
+      "dpiUltra": "300 — جودة طباعة"
+    },
+    "imagesToPdf": {
+      "title": "صور إلى PDF",
+      "description": "ادمج عدة صور في مستند PDF واحد.",
+      "shortDesc": "صور → PDF",
+      "selectImages": "اختر الصور",
+      "addMore": "أضف صور أخرى",
+      "imagesSelected": "{{count}} صور مختارة"
+    },
+    "watermarkPdf": {
+      "title": "علامة مائية PDF",
+      "description": "أضف علامة مائية نصية مخصصة لكل صفحة من ملف PDF.",
+      "shortDesc": "إضافة علامة مائية",
+      "text": "نص العلامة المائية",
+      "textPlaceholder": "أدخل نص العلامة المائية",
+      "opacity": "الشفافية",
+      "light": "خفيف",
+      "heavy": "كثيف"
+    },
+    "protectPdf": {
+      "title": "حماية PDF",
+      "description": "أضف حماية بكلمة مرور لملف PDF لمنع الوصول غير المصرّح به.",
+      "shortDesc": "حماية PDF",
+      "password": "كلمة المرور",
+      "passwordPlaceholder": "أدخل كلمة مرور قوية",
+      "confirmPassword": "تأكيد كلمة المرور",
+      "confirmPlaceholder": "أعد إدخال كلمة المرور",
+      "mismatch": "كلمات المرور غير متطابقة"
+    },
+    "unlockPdf": {
+      "title": "فك حماية PDF",
+      "description": "أزل حماية كلمة المرور من ملف PDF.",
+      "shortDesc": "فك حماية PDF",
+      "password": "كلمة المرور الحالية",
+      "passwordPlaceholder": "أدخل كلمة مرور الملف"
+    },
+    "pageNumbers": {
+      "title": "إضافة أرقام الصفحات",
+      "description": "أضف أرقام الصفحات لكل صفحة في ملف PDF. اختر الموضع ورقم البداية.",
+      "shortDesc": "أرقام الصفحات",
+      "position": "موضع الرقم",
+      "startNumber": "ابدأ من",
+      "bottomCenter": "أسفل الوسط",
+      "bottomRight": "أسفل اليمين",
+      "bottomLeft": "أسفل اليسار",
+      "topCenter": "أعلى الوسط",
+      "topRight": "أعلى اليمين",
+      "topLeft": "أعلى اليسار"
     }
   },
   "result": {

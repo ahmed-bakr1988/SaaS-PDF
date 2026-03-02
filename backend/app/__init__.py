@@ -61,12 +61,14 @@ def create_app(config_name=None):
     from app.routes.video import video_bp
     from app.routes.tasks import tasks_bp
     from app.routes.download import download_bp
+    from app.routes.pdf_tools import pdf_tools_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(convert_bp, url_prefix="/api/convert")
     app.register_blueprint(compress_bp, url_prefix="/api/compress")
     app.register_blueprint(image_bp, url_prefix="/api/image")
     app.register_blueprint(video_bp, url_prefix="/api/video")
+    app.register_blueprint(pdf_tools_bp, url_prefix="/api/pdf-tools")
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
     app.register_blueprint(download_bp, url_prefix="/api/download")
 
