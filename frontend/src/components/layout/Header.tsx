@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Globe, Moon, Sun, Menu, X, ChevronDown } from 'lucide-react';
-
+import { FileText, Moon, Sun, Menu, X, ChevronDown } from 'lucide-react';
+// ...existing code...
 interface LangOption {
   code: string;
   label: string;
