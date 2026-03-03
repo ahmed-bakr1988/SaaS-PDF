@@ -15,17 +15,17 @@ export default function ProgressBar({ state, message }: ProgressBarProps) {
   const isComplete = state === 'SUCCESS';
 
   return (
-    <div className="rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200">
+    <div className="rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
       <div className="flex items-center gap-3">
         {isActive && (
-          <Loader2 className="h-6 w-6 animate-spin text-primary-600" />
+          <Loader2 className="h-6 w-6 animate-spin text-primary-600 dark:text-primary-400" />
         )}
         {isComplete && (
           <CheckCircle2 className="h-6 w-6 text-emerald-600" />
         )}
 
         <div className="flex-1">
-          <p className="text-sm font-medium text-slate-700">
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
             {message || t('common.processing')}
           </p>
         </div>
@@ -33,7 +33,7 @@ export default function ProgressBar({ state, message }: ProgressBarProps) {
 
       {/* Animated progress bar for active states */}
       {isActive && (
-        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200">
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
           <div className="progress-bar-animated h-full w-2/3 rounded-full bg-primary-500 transition-all" />
         </div>
       )}

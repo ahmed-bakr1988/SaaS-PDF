@@ -32,7 +32,7 @@ const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
 function LoadingFallback() {
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400" />
     </div>
   );
 }
@@ -41,7 +41,7 @@ export default function App() {
   useDirection();
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
       <Header />
 
       <main className="container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8">

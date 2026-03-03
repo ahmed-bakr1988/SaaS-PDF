@@ -74,10 +74,10 @@ export default function HomePage() {
 
       {/* Hero Section */}
       <section className="py-12 text-center sm:py-16">
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl">
+        <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-5xl dark:text-white">
           {t('home.hero')}
         </h1>
-        <p className="mx-auto mt-4 max-w-xl text-lg text-slate-500">
+        <p className="mx-auto mt-4 max-w-xl text-lg text-slate-500 dark:text-slate-400">
           {t('home.heroSub')}
         </p>
       </section>
@@ -87,7 +87,7 @@ export default function HomePage() {
 
       {/* Tools Grid */}
       <section>
-        <h2 className="mb-6 text-center text-xl font-semibold text-slate-800">
+        <h2 className="mb-6 text-center text-xl font-semibold text-slate-800 dark:text-slate-200">
           {t('home.popularTools')}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

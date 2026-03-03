@@ -6,11 +6,11 @@ export default function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="border-t border-slate-200 bg-slate-50">
+    <footer className="border-t border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           {/* Brand */}
-          <div className="flex items-center gap-2 text-slate-600">
+          <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
             <FileText className="h-5 w-5" />
             <span className="text-sm font-medium">
               © {new Date().getFullYear()} {t('common.appName')}
@@ -21,19 +21,19 @@ export default function Footer() {
           <div className="flex items-center gap-6">
             <Link
               to="/privacy"
-              className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+              className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
             >
               {t('common.privacy')}
             </Link>
             <Link
               to="/terms"
-              className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+              className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
             >
               {t('common.terms')}
             </Link>
             <Link
               to="/about"
-              className="text-sm text-slate-500 transition-colors hover:text-primary-600"
+              className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
             >
               {t('common.about')}
             </Link>

@@ -69,13 +69,13 @@ export default function FileUploader({
               isDragActive ? 'text-primary-500' : 'text-slate-400'
             }`}
           />
-          <p className="mb-2 text-base font-medium text-slate-700">
+          <p className="mb-2 text-base font-medium text-slate-700 dark:text-slate-300">
             {t('common.dragDrop')}
           </p>
           {acceptLabel && (
-            <p className="text-sm text-slate-500">{acceptLabel}</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">{acceptLabel}</p>
           )}
-          <p className="mt-1 text-xs text-slate-400">
+          <p className="mt-1 text-xs text-slate-400 dark:text-slate-500">
             {t('common.maxSize', { size: maxSizeMB })}
           </p>
         </div>
@@ -83,13 +83,13 @@ export default function FileUploader({
 
       {/* Selected File */}
       {file && !isUploading && (
-        <div className="flex items-center gap-3 rounded-xl bg-primary-50 p-4 ring-1 ring-primary-200">
-          <File className="h-8 w-8 flex-shrink-0 text-primary-600" />
+        <div className="flex items-center gap-3 rounded-xl bg-primary-50 p-4 ring-1 ring-primary-200 dark:bg-primary-900/20 dark:ring-primary-800">
+          <File className="h-8 w-8 flex-shrink-0 text-primary-600 dark:text-primary-400" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-slate-900">
+            <p className="truncate text-sm font-medium text-slate-900 dark:text-slate-100">
               {file.name}
             </p>
-            <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{formatFileSize(file.size)}</p>
           </div>
           {onReset && (
             <button
@@ -105,12 +105,12 @@ export default function FileUploader({
 
       {/* Upload Progress */}
       {isUploading && (
-        <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200">
+        <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-sm font-medium text-slate-700">
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
               {t('common.upload')}...
             </span>
-            <span className="text-sm text-slate-500">{uploadProgress}%</span>
+            <span className="text-sm text-slate-500 dark:text-slate-400">{uploadProgress}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200">
             <div
@@ -123,8 +123,8 @@ export default function FileUploader({
 
       {/* Error */}
       {error && (
-        <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200">
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200 dark:bg-red-900/20 dark:ring-red-800">
+          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
         </div>
       )}
     </div>

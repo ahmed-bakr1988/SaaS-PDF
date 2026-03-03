@@ -11,12 +11,20 @@
     --color-border: #e2e8f0;
   }
 
+  .dark {
+    --color-bg: #0f172a;
+    --color-surface: #1e293b;
+    --color-text: #f1f5f9;
+    --color-text-secondary: #94a3b8;
+    --color-border: #334155;
+  }
+
   html {
     scroll-behavior: smooth;
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased;
+    @apply bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
     font-family: 'Inter', 'Tajawal', system-ui, sans-serif;
   }
 
@@ -32,46 +40,46 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-500 dark:hover:bg-primary-600;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600 dark:hover:bg-slate-700;
   }
 
   .btn-success {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-500 dark:hover:bg-emerald-600;
   }
 
   .card {
-    @apply rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md;
+    @apply rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md dark:bg-slate-800 dark:ring-slate-700;
   }
 
   .tool-card {
-    @apply card cursor-pointer hover:ring-primary-300 hover:shadow-lg transition-all duration-200;
+    @apply card cursor-pointer hover:ring-primary-300 hover:shadow-lg transition-all duration-200 dark:hover:ring-primary-600;
   }
 
   .input-field {
-    @apply block w-full rounded-xl border-0 py-3 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6;
+    @apply block w-full rounded-xl border-0 py-3 px-4 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-600 sm:text-sm sm:leading-6 dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600 dark:placeholder:text-slate-500;
   }
 
   .section-heading {
-    @apply text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl;
+    @apply text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl dark:text-slate-100;
   }
 }
 
 /* Upload zone styles */
 .upload-zone {
-  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center transition-colors cursor-pointer;
+  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-800/50;
 }
 
 .upload-zone:hover,
 .upload-zone.drag-active {
-  @apply border-primary-400 bg-primary-50;
+  @apply border-primary-400 bg-primary-50 dark:border-primary-500 dark:bg-primary-900/20;
 }
 
 .upload-zone.drag-active {
-  @apply ring-2 ring-primary-300;
+  @apply ring-2 ring-primary-300 dark:ring-primary-600;
 }
 
 /* Progress bar animation */
@@ -86,5 +94,21 @@
 
 /* Ad slot container */
 .ad-slot {
-  @apply flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 min-h-[90px] overflow-hidden;
+  @apply flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 min-h-[90px] overflow-hidden dark:bg-slate-800 dark:border-slate-700;
+}
+
+/* Dropdown animation */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeSlideIn 0.15s ease-out;
 }

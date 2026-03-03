@@ -1,0 +1,184 @@
+{
+  "common": {
+    "appName": "SaaS-PDF",
+    "tagline": "Outils de fichiers en ligne gratuits",
+    "upload": "Télécharger un fichier",
+    "download": "Télécharger",
+    "processing": "Traitement en cours...",
+    "dragDrop": "Glissez-déposez votre fichier ici, ou cliquez pour parcourir",
+    "maxSize": "Taille maximale du fichier : {{size}} Mo",
+    "tryOtherTools": "Essayer d'autres outils",
+    "error": "Erreur",
+    "success": "Succès",
+    "loading": "Chargement...",
+    "startOver": "Recommencer",
+    "home": "Accueil",
+    "about": "À propos",
+    "privacy": "Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "language": "Langue",
+    "allTools": "Tous les outils",
+    "darkMode": "Mode sombre",
+    "lightMode": "Mode clair"
+  },
+  "home": {
+    "hero": "Transformez vos fichiers instantanément",
+    "heroSub": "Outils en ligne gratuits pour le traitement de PDF, images, vidéos et textes. Aucune inscription requise.",
+    "popularTools": "Outils populaires",
+    "pdfTools": "Outils PDF",
+    "imageTools": "Outils d'images",
+    "videoTools": "Outils vidéo",
+    "textTools": "Outils de texte"
+  },
+  "tools": {
+    "pdfToWord": {
+      "title": "PDF vers Word",
+      "description": "Convertissez gratuitement des fichiers PDF en documents Word modifiables.",
+      "shortDesc": "PDF → Word"
+    },
+    "wordToPdf": {
+      "title": "Word vers PDF",
+      "description": "Convertissez gratuitement des documents Word (DOC, DOCX) au format PDF.",
+      "shortDesc": "Word → PDF"
+    },
+    "compressPdf": {
+      "title": "Compresser PDF",
+      "description": "Réduisez la taille du fichier PDF tout en maintenant la qualité. Choisissez votre niveau de compression.",
+      "shortDesc": "Compresser PDF",
+      "qualityLow": "Compression maximale",
+      "qualityMedium": "Équilibré",
+      "qualityHigh": "Haute qualité"
+    },
+    "imageConvert": {
+      "title": "Convertisseur d'images",
+      "description": "Convertissez instantanément des images entre les formats JPG, PNG et WebP.",
+      "shortDesc": "Convertir des images"
+    },
+    "videoToGif": {
+      "title": "Vidéo en GIF",
+      "description": "Créez des GIFs animés à partir de clips vidéo. Personnalisez le temps de début, la durée et la qualité.",
+      "shortDesc": "Vidéo → GIF",
+      "startTime": "Temps de début (secondes)",
+      "duration": "Durée (secondes)",
+      "fps": "Images par seconde",
+      "width": "Largeur (pixels)"
+    },
+    "wordCounter": {
+      "title": "Compteur de mots",
+      "description": "Comptez instantanément les mots, caractères, phrases et paragraphes de votre texte.",
+      "shortDesc": "Compter les mots",
+      "words": "Mots",
+      "characters": "Caractères",
+      "sentences": "Phrases",
+      "paragraphs": "Paragraphes",
+      "placeholder": "Tapez ou collez votre texte ici..."
+    },
+    "textCleaner": {
+      "title": "Nettoyeur de texte",
+      "description": "Supprimez les espaces en trop, convertissez la casse et nettoyez votre texte instantanément.",
+      "shortDesc": "Nettoyer le texte",
+      "removeSpaces": "Supprimer les espaces en trop",
+      "toUpperCase": "MAJUSCULES",
+      "toLowerCase": "minuscules",
+      "toTitleCase": "Casse Du Titre",
+      "toSentenceCase": "Casse de phrase",
+      "removeDiacritics": "Supprimer les signes diacritiques arabes",
+      "copyResult": "Copier le résultat"
+    },
+    "mergePdf": {
+      "title": "Fusionner PDF",
+      "description": "Combinez plusieurs fichiers PDF en un seul document. Gratuit et rapide.",
+      "shortDesc": "Fusionner PDF",
+      "selectFiles": "Sélectionner des fichiers PDF",
+      "addMore": "Ajouter plus de fichiers",
+      "filesSelected": "{{count}} fichiers sélectionnés",
+      "dragToReorder": "Glissez les fichiers pour les réorganiser"
+    },
+    "splitPdf": {
+      "title": "Diviser PDF",
+      "description": "Divisez un PDF en pages individuelles ou extrayez des plages de pages spécifiques.",
+      "shortDesc": "Diviser PDF",
+      "allPages": "Toutes les pages",
+      "pageRange": "Plage de pages",
+      "rangeHint": "ex. 1,3,5-8",
+      "rangePlaceholder": "Entrez les pages : 1,3,5-8"
+    },
+    "rotatePdf": {
+      "title": "Pivoter PDF",
+      "description": "Pivotez toutes les pages d'un PDF de 90°, 180° ou 270° degrés.",
+      "shortDesc": "Pivoter PDF",
+      "angle": "Angle de rotation",
+      "90": "90° Sens horaire",
+      "180": "180° Retourner",
+      "270": "270° Sens anti-horaire"
+    },
+    "pdfToImages": {
+      "title": "PDF en images",
+      "description": "Convertissez chaque page d'un PDF en images haute qualité (PNG ou JPG).",
+      "shortDesc": "PDF → Images",
+      "format": "Format d'image",
+      "dpi": "Résolution (DPI)",
+      "dpiLow": "72 — Écran",
+      "dpiMedium": "150 — Standard",
+      "dpiHigh": "200 — Bon",
+      "dpiUltra": "300 — Qualité d'impression"
+    },
+    "imagesToPdf": {
+      "title": "Images en PDF",
+      "description": "Combinez plusieurs images en un seul document PDF.",
+      "shortDesc": "Images → PDF",
+      "selectImages": "Sélectionner des images",
+      "addMore": "Ajouter plus d'images",
+      "imagesSelected": "{{count}} images sélectionnées"
+    },
+    "watermarkPdf": {
+      "title": "Filigrane PDF",
+      "description": "Ajoutez un filigrane de texte personnalisé à chaque page de votre PDF.",
+      "shortDesc": "Ajouter un filigrane",
+      "text": "Texte du filigrane",
+      "textPlaceholder": "Entrez le texte du filigrane",
+      "opacity": "Opacité",
+      "light": "Léger",
+      "heavy": "Dense"
+    },
+    "protectPdf": {
+      "title": "Protéger PDF",
+      "description": "Ajoutez une protection par mot de passe à votre PDF pour empêcher tout accès non autorisé.",
+      "shortDesc": "Protéger PDF",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez un mot de passe fort",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPlaceholder": "Ressaisissez le mot de passe",
+      "mismatch": "Les mots de passe ne correspondent pas"
+    },
+    "unlockPdf": {
+      "title": "Déverrouiller PDF",
+      "description": "Supprimez la protection par mot de passe de votre fichier PDF.",
+      "shortDesc": "Déverrouiller PDF",
+      "password": "Mot de passe actuel",
+      "passwordPlaceholder": "Entrez le mot de passe du PDF"
+    },
+    "pageNumbers": {
+      "title": "Ajouter des numéros de page",
+      "description": "Ajoutez des numéros de page à chaque page de votre PDF. Choisissez la position et le numéro de début.",
+      "shortDesc": "Numéros de page",
+      "position": "Position du numéro",
+      "startNumber": "Commencer à partir de",
+      "bottomCenter": "Bas centre",
+      "bottomRight": "Bas droite",
+      "bottomLeft": "Bas gauche",
+      "topCenter": "Haut centre",
+      "topRight": "Haut droite",
+      "topLeft": "Haut gauche"
+    }
+  },
+  "result": {
+    "conversionComplete": "Conversion terminée !",
+    "compressionComplete": "Compression terminée !",
+    "originalSize": "Taille originale",
+    "newSize": "Nouvelle taille",
+    "reduction": "Réduction",
+    "downloadReady": "Votre fichier est prêt à être téléchargé.",
+    "linkExpiry": "Le lien de téléchargement expire dans 30 minutes."
+  }
+}

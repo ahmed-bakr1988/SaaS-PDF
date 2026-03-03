@@ -17,7 +17,9 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "language": "Language",
-    "allTools": "All Tools"
+    "allTools": "All Tools",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode"
   },
   "home": {
     "hero": "Transform Your Files Instantly",
