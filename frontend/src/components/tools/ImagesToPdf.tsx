@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { FileImage } from 'lucide-react';
@@ -7,6 +7,7 @@ import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
+import { useFileStore } from '@/stores/fileStore';
 
 export default function ImagesToPdf() {
   const { t } = useTranslation();
@@ -21,6 +22,16 @@ export default function ImagesToPdf() {
     onComplete: () => setPhase('done'),
     onError: () => setPhase('done'),
   });
+
+  // Accept file from homepage smart upload
+  const storeFile = useFileStore((s) => s.file);
+  const clearStoreFile = useFileStore((s) => s.clearFile);
+  useEffect(() => {
+    if (storeFile) {
+      setFiles((prev) => [...prev, storeFile]);
+      clearStoreFile();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const acceptedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/bmp'];
 

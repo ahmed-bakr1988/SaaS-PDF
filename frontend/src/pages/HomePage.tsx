@@ -19,6 +19,7 @@ import {
   ListOrdered,
 } from 'lucide-react';
 import ToolCard from '@/components/shared/ToolCard';
+import HeroUploadZone from '@/components/shared/HeroUploadZone';
 import AdSlot from '@/components/layout/AdSlot';
 
 interface ToolInfo {
@@ -80,6 +81,9 @@ export default function HomePage() {
         <p className="mx-auto mt-4 max-w-xl text-lg text-slate-500 dark:text-slate-400">
           {t('home.heroSub')}
         </p>
+
+        {/* Smart Upload Zone */}
+        <HeroUploadZone />
       </section>
 
       {/* Ad Slot */}

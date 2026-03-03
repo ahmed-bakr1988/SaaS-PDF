@@ -28,7 +28,18 @@
     "pdfTools": "PDF Tools",
     "imageTools": "Image Tools",
     "videoTools": "Video Tools",
-    "textTools": "Text Tools"
+    "textTools": "Text Tools",
+    "uploadCta": "Upload Your File",
+    "uploadOr": "or drag & drop your file here",
+    "uploadSubtitle": "We auto-detect your file type and show matching tools",
+    "selectTool": "Choose a Tool",
+    "fileDetected": "We detected a {{type}} file",
+    "unsupportedFile": "This file type is not supported. Try PDF, Word, images, or video.",
+    "fileTypes": {
+      "image": "Image",
+      "video": "Video",
+      "unknown": "Unknown"
+    }
   },
   "tools": {
     "pdfToWord": {

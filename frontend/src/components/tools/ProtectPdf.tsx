@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Lock } from 'lucide-react';
@@ -9,6 +9,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
+import { useFileStore } from '@/stores/fileStore';
 
 export default function ProtectPdf() {
   const { t } = useTranslation();
@@ -39,6 +40,16 @@ export default function ProtectPdf() {
     onComplete: () => setPhase('done'),
     onError: () => setPhase('done'),
   });
+
+  // Accept file from homepage smart upload
+  const storeFile = useFileStore((s) => s.file);
+  const clearStoreFile = useFileStore((s) => s.clearFile);
+  useEffect(() => {
+    if (storeFile) {
+      selectFile(storeFile);
+      clearStoreFile();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpload = async () => {
     if (!passwordsMatch) return;

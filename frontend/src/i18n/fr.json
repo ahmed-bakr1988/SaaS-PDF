@@ -28,7 +28,18 @@
     "pdfTools": "Outils PDF",
     "imageTools": "Outils d'images",
     "videoTools": "Outils vidéo",
-    "textTools": "Outils de texte"
+    "textTools": "Outils de texte",
+    "uploadCta": "Téléchargez votre fichier",
+    "uploadOr": "ou glissez-déposez votre fichier ici",
+    "uploadSubtitle": "Nous détectons automatiquement le type de fichier et affichons les outils adaptés",
+    "selectTool": "Choisir un outil",
+    "fileDetected": "Nous avons détecté un fichier {{type}}",
+    "unsupportedFile": "Ce type de fichier n'est pas pris en charge. Essayez PDF, Word, images ou vidéo.",
+    "fileTypes": {
+      "image": "Image",
+      "video": "Vidéo",
+      "unknown": "Inconnu"
+    }
   },
   "tools": {
     "pdfToWord": {

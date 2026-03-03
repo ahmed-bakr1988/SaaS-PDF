@@ -28,7 +28,18 @@
     "pdfTools": "أدوات PDF",
     "imageTools": "أدوات الصور",
     "videoTools": "أدوات الفيديو",
-    "textTools": "أدوات النصوص"
+    "textTools": "أدوات النصوص",
+    "uploadCta": "ارفع ملفك",
+    "uploadOr": "أو اسحب وأفلت ملفك هنا",
+    "uploadSubtitle": "نكتشف نوع ملفك تلقائياً ونعرض الأدوات المناسبة",
+    "selectTool": "اختر أداة",
+    "fileDetected": "اكتشفنا ملف {{type}}",
+    "unsupportedFile": "نوع الملف غير مدعوم. جرب PDF أو Word أو صور أو فيديو.",
+    "fileTypes": {
+      "image": "صورة",
+      "video": "فيديو",
+      "unknown": "غير معروف"
+    }
   },
   "tools": {
     "pdfToWord": {

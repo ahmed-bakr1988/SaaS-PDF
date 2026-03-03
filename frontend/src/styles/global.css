@@ -112,3 +112,45 @@
 .animate-in {
   animation: fadeSlideIn 0.15s ease-out;
 }
+
+/* Hero upload zone — larger variant for the homepage */
+.hero-upload-zone {
+  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-b from-slate-50 to-white p-10 text-center transition-all duration-200 cursor-pointer sm:p-12 dark:border-slate-600 dark:from-slate-800/60 dark:to-slate-800/30;
+}
+
+.hero-upload-zone:hover {
+  @apply border-primary-400 bg-gradient-to-b from-primary-50 to-white shadow-lg dark:border-primary-500 dark:from-primary-900/20 dark:to-slate-800/30;
+}
+
+.hero-upload-zone.drag-active {
+  @apply border-primary-500 bg-gradient-to-b from-primary-100 to-primary-50 ring-2 ring-primary-300 shadow-xl dark:border-primary-400 dark:from-primary-900/30 dark:to-primary-900/10 dark:ring-primary-600;
+}
+
+/* Modal animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop {
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+.modal-content {
+  animation: modalSlideUp 0.25s ease-out;
+}

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Layers } from 'lucide-react';
@@ -9,6 +9,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { uploadFile, type TaskResponse } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
+import { useFileStore } from '@/stores/fileStore';
 
 export default function MergePdf() {
   const { t } = useTranslation();
@@ -24,6 +25,16 @@ export default function MergePdf() {
     onComplete: () => setPhase('done'),
     onError: () => setPhase('done'),
   });
+
+  // Accept file from homepage smart upload
+  const storeFile = useFileStore((s) => s.file);
+  const clearStoreFile = useFileStore((s) => s.clearFile);
+  useEffect(() => {
+    if (storeFile) {
+      setFiles((prev) => [...prev, storeFile]);
+      clearStoreFile();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleFilesSelect = (newFiles: FileList | File[]) => {
     const fileArray = Array.from(newFiles).filter(
