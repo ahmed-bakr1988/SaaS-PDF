@@ -140,20 +140,75 @@ def split_pdf(
 
 def _parse_page_range(spec: str, total: int) -> list[int]:
     """Parse a page specification like '1,3,5-8' into 0-based indices."""
+    if not spec or not spec.strip():
+        raise PDFToolsError("Please specify at least one page (e.g. 1,3,5-8).")
+
     indices = set()
-    for part in spec.split(","):
-        part = part.strip()
+    invalid_tokens = []
+    out_of_range_tokens = []
+
+    for raw_part in spec.split(","):
+        part = raw_part.strip()
+
+        if not part:
+            continue
+
         if "-" in part:
+            if part.count("-") != 1:
+                invalid_tokens.append(part)
+                continue
+
             start_s, end_s = part.split("-", 1)
-            start = max(1, int(start_s.strip()))
-            end = min(total, int(end_s.strip()))
+            start_s = start_s.strip()
+            end_s = end_s.strip()
+
+            if not start_s.isdigit() or not end_s.isdigit():
+                invalid_tokens.append(part)
+                continue
+
+            start = int(start_s)
+            end = int(end_s)
+
+            if start > end:
+                invalid_tokens.append(part)
+                continue
+
+            if start < 1 or end > total:
+                out_of_range_tokens.append(f"{start}-{end}")
+                continue
+
             indices.update(range(start - 1, end))
         else:
+            if not part.isdigit():
+                invalid_tokens.append(part)
+                continue
+
             page = int(part)
-            if 1 <= page <= total:
-                indices.add(page - 1)
+            if page < 1 or page > total:
+                out_of_range_tokens.append(str(page))
+                continue
+
+            indices.add(page - 1)
+
+    if invalid_tokens:
+        tokens = ", ".join(invalid_tokens)
+        raise PDFToolsError(
+            f"Invalid page format: {tokens}. Use a format like 1,3,5-8."
+        )
+
+    if out_of_range_tokens:
+        tokens = ", ".join(out_of_range_tokens)
+        page_word = "page" if total == 1 else "pages"
+        raise PDFToolsError(
+            f"Selected pages ({tokens}) are out of range. This PDF has only {total} {page_word}."
+        )
+
     if not indices:
-        raise PDFToolsError("No valid pages specified.")
+        page_word = "page" if total == 1 else "pages"
+        raise PDFToolsError(
+            f"No pages selected. This PDF has {total} {page_word}."
+        )
+
     return sorted(indices)
 
 

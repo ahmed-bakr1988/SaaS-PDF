@@ -19,7 +19,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
-      const message = error.response.data?.error || 'An error occurred.';
+      if (error.response.status === 429) {
+        return Promise.reject(new Error('Too many requests. Please wait a moment and try again.'));
+      }
+
+      const responseData = error.response.data;
+      const message =
+        responseData?.error ||
+        responseData?.message ||
+        (typeof responseData === 'string' && responseData.trim()
+          ? responseData.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+          : null) ||
+        `Request failed (${error.response.status}).`;
       return Promise.reject(new Error(message));
     }
     if (error.request) {
@@ -58,6 +69,12 @@ export interface TaskResult {
   duration?: number;
   fps?: number;
   format?: string;
+  // Flowchart-specific fields
+  procedures?: Array<{ id: string; title: string; description: string; pages: number[]; step_count: number }>;
+  flowcharts?: Array<{ id: string; procedureId: string; title: string; steps: Array<{ id: string; type: string; title: string; description: string; connections: string[] }> }>;
+  pages?: Array<{ page: number; text: string }>;
+  procedures_count?: number;
+  total_pages?: number;
 }
 
 /**

@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Upload, Sparkles } from 'lucide-react';
+import { Upload, Sparkles, PenLine } from 'lucide-react';
 import ToolSelectorModal from '@/components/shared/ToolSelectorModal';
+import { useFileStore } from '@/stores/fileStore';
 import { getToolsForFile, detectFileCategory, getCategoryLabel } from '@/utils/fileRouting';
 import type { ToolOption } from '@/utils/fileRouting';
 
@@ -23,6 +25,8 @@ const ACCEPTED_TYPES = {
 
 export default function HeroUploadZone() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const setStoreFile = useFileStore((s) => s.setFile);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [matchedTools, setMatchedTools] = useState<ToolOption[]>([]);
   const [fileTypeLabel, setFileTypeLabel] = useState('');
@@ -102,11 +106,50 @@ export default function HeroUploadZone() {
           </div>
 
           {/* CTA Text */}
-          <p className="mb-1 text-lg font-semibold text-slate-800 dark:text-slate-200">
-            {t('home.uploadCta')}
-          </p>
+          <div className="mb-6 flex gap-3 justify-center z-10 relative">
+            <button
+              type="button"
+              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = Object.values(ACCEPTED_TYPES).flat().join(',');
+                input.onchange = (ev) => {
+                  const fileInput = ev.target as HTMLInputElement;
+                  const f = fileInput.files?.[0];
+                  if (f) onDrop([f]);
+                };
+                input.click();
+              }}
+            >
+              {t('home.uploadCta', 'Choose File')}
+            </button>
+            <button
+               onClick={(e) => {
+                 e.stopPropagation();
+                 const input = document.createElement('input');
+                 input.type = 'file';
+                 input.accept = '.pdf';
+                 input.onchange = (ev) => {
+                   const fileInput = ev.target as HTMLInputElement;
+                   const f = fileInput.files?.[0];
+                   if (f) {
+                     setStoreFile(f);
+                     navigate('/tools/pdf-editor');
+                   }
+                 };
+                 input.click();
+               }}
+               className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-colors flex items-center gap-2"
+            >
+              <PenLine className="h-5 w-5" />
+              {t('home.editNow')}
+            </button>
+          </div>
+
           <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
-            {t('home.uploadOr')}
+            {t('common.dragDrop', 'or drop files here')}
           </p>
 
           {/* Supported formats */}

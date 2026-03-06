@@ -18,6 +18,7 @@ export default function SplitPdf() {
   const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
   const [mode, setMode] = useState<SplitMode>('all');
   const [pages, setPages] = useState('');
+  const [validationError, setValidationError] = useState('');
 
   const {
     file,
@@ -52,7 +53,12 @@ export default function SplitPdf() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpload = async () => {
-    if (mode === 'range' && !pages.trim()) return;
+    if (mode === 'range' && !pages.trim()) {
+      setValidationError(t('tools.splitPdf.errors.requiredPages'));
+      return;
+    }
+
+    setValidationError('');
     const id = await startUpload();
     if (id) setPhase('processing');
   };
@@ -62,6 +68,7 @@ export default function SplitPdf() {
     setPhase('upload');
     setMode('all');
     setPages('');
+    setValidationError('');
   };
 
   const schema = generateToolSchema({
@@ -69,6 +76,45 @@ export default function SplitPdf() {
     description: t('tools.splitPdf.description'),
     url: `${window.location.origin}/tools/split-pdf`,
   });
+
+  const getLocalizedSplitError = (message: string) => {
+    const outOfRangeMatch = message.match(
+      /^Selected pages \((.+)\) are out of range\. This PDF has only (\d+) page(?:s)?\.$/i
+    );
+    if (outOfRangeMatch) {
+      return t('tools.splitPdf.errors.outOfRange', {
+        selected: outOfRangeMatch[1],
+        total: Number(outOfRangeMatch[2]),
+      });
+    }
+
+    const invalidFormatMatch = message.match(
+      /^Invalid page format: (.+)\. Use a format like 1,3,5-8\.$/i
+    );
+    if (invalidFormatMatch) {
+      return t('tools.splitPdf.errors.invalidFormat', {
+        tokens: invalidFormatMatch[1],
+      });
+    }
+
+    const noPagesSelectedMatch = message.match(
+      /^No pages selected\. This PDF has (\d+) page(?:s)?\.$/i
+    );
+    if (noPagesSelectedMatch) {
+      return t('tools.splitPdf.errors.noPagesSelected', {
+        total: Number(noPagesSelectedMatch[1]),
+      });
+    }
+
+    if (
+      /Please specify which pages to extract/i.test(message) ||
+      /Please specify at least one page/i.test(message)
+    ) {
+      return t('tools.splitPdf.errors.requiredPages');
+    }
+
+    return message;
+  };
 
   return (
     <>
@@ -109,7 +155,10 @@ export default function SplitPdf() {
                 {/* Mode Selector */}
                 <div className="grid grid-cols-2 gap-3">
                   <button
-                    onClick={() => setMode('all')}
+                    onClick={() => {
+                      setMode('all');
+                      setValidationError('');
+                    }}
                     className={`rounded-xl p-3 text-center ring-1 transition-all ${
                       mode === 'all'
                         ? 'bg-primary-50 ring-primary-300 text-primary-700 font-semibold'
@@ -120,7 +169,10 @@ export default function SplitPdf() {
                     <p className="text-xs text-slate-400 mt-0.5">{t('tools.splitPdf.allPagesDesc')}</p>
                   </button>
                   <button
-                    onClick={() => setMode('range')}
+                    onClick={() => {
+                      setMode('range');
+                      setValidationError('');
+                    }}
                     className={`rounded-xl p-3 text-center ring-1 transition-all ${
                       mode === 'range'
                         ? 'bg-primary-50 ring-primary-300 text-primary-700 font-semibold'
@@ -141,13 +193,19 @@ export default function SplitPdf() {
                     <input
                       type="text"
                       value={pages}
-                      onChange={(e) => setPages(e.target.value)}
-                      placeholder="1, 3, 5-8"
+                      onChange={(e) => {
+                        setPages(e.target.value);
+                        if (validationError) setValidationError('');
+                      }}
+                      placeholder={t('tools.splitPdf.rangePlaceholder')}
                       className="input-field"
                     />
                     <p className="mt-1 text-xs text-slate-400">
-                      {t('tools.splitPdf.pageRangeHint')}
+                      {t('tools.splitPdf.rangeHint')}
                     </p>
+                    {validationError && (
+                      <p className="mt-2 text-sm text-red-600">{validationError}</p>
+                    )}
                   </div>
                 )}
 
@@ -170,7 +228,7 @@ export default function SplitPdf() {
         {phase === 'done' && taskError && (
           <div className="space-y-4">
             <div className="rounded-xl bg-red-50 p-4 ring-1 ring-red-200">
-              <p className="text-sm text-red-700">{taskError}</p>
+              <p className="text-sm text-red-700">{getLocalizedSplitError(taskError)}</p>
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">
               {t('common.startOver')}

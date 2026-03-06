@@ -93,6 +93,11 @@ def split_pdf_route():
     if mode not in ("all", "range"):
         mode = "all"
 
+    if mode == "range" and (not pages or not pages.strip()):
+        return jsonify({
+            "error": "Please specify which pages to extract (e.g. 1,3,5-8)."
+        }), 400
+
     try:
         original_filename, ext = validate_file(file, allowed_types=["pdf"])
     except FileValidationError as e:

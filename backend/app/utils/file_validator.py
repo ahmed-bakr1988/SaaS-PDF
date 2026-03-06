@@ -1,7 +1,12 @@
 """File validation utilities — multi-layer security checks."""
 import os
 
-import magic
+try:
+    import magic
+    HAS_MAGIC = True
+except (ImportError, OSError):
+    HAS_MAGIC = False
+
 from flask import current_app
 from werkzeug.utils import secure_filename
 
@@ -72,18 +77,19 @@ def validate_file(file_storage, allowed_types: list[str] | None = None):
     if file_size == 0:
         raise FileValidationError("File is empty.")
 
-    # Layer 4: Check MIME type using magic bytes
+    # Layer 4: Check MIME type using magic bytes (if libmagic is available)
     file_header = file_storage.read(8192)
     file_storage.seek(0)
 
-    detected_mime = magic.from_buffer(file_header, mime=True)
-    expected_mimes = valid_extensions.get(ext, [])
+    if HAS_MAGIC:
+        detected_mime = magic.from_buffer(file_header, mime=True)
+        expected_mimes = valid_extensions.get(ext, [])
 
-    if detected_mime not in expected_mimes:
-        raise FileValidationError(
-            f"File content does not match extension '.{ext}'. "
-            f"Detected type: {detected_mime}"
-        )
+        if detected_mime not in expected_mimes:
+            raise FileValidationError(
+                f"File content does not match extension '.{ext}'. "
+                f"Detected type: {detected_mime}"
+            )
 
     # Layer 5: Additional content checks for specific types
     if ext == "pdf":

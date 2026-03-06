@@ -44,7 +44,7 @@ services:
       celery -A celery_worker.celery worker
       --loglevel=info
       --concurrency=2
-      -Q default,convert,compress,image,video
+      -Q default,convert,compress,image,video,pdf_tools
     env_file:
       - .env
     environment:

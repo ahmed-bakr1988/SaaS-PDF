@@ -28,6 +28,8 @@ const WatermarkPdf = lazy(() => import('@/components/tools/WatermarkPdf'));
 const ProtectPdf = lazy(() => import('@/components/tools/ProtectPdf'));
 const UnlockPdf = lazy(() => import('@/components/tools/UnlockPdf'));
 const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
+const PdfEditor = lazy(() => import('@/components/tools/PdfEditor'));
+const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
 
 function LoadingFallback() {
   return (
@@ -66,6 +68,8 @@ export default function App() {
             <Route path="/tools/protect-pdf" element={<ProtectPdf />} />
             <Route path="/tools/unlock-pdf" element={<UnlockPdf />} />
             <Route path="/tools/page-numbers" element={<AddPageNumbers />} />
+            <Route path="/tools/pdf-editor" element={<PdfEditor />} />
+            <Route path="/tools/pdf-flowchart" element={<PdfFlowchart />} />
 
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />

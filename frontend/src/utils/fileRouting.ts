@@ -13,6 +13,8 @@ import {
   ListOrdered,
   ImageIcon,
   Film,
+  PenLine,
+  GitBranch,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 
@@ -41,6 +43,8 @@ const pdfTools: ToolOption[] = [
   { key: 'protectPdf', path: '/tools/protect-pdf', icon: Lock, bgColor: 'bg-red-100 dark:bg-red-900/30', iconColor: 'text-red-600 dark:text-red-400' },
   { key: 'unlockPdf', path: '/tools/unlock-pdf', icon: Unlock, bgColor: 'bg-green-100 dark:bg-green-900/30', iconColor: 'text-green-600 dark:text-green-400' },
   { key: 'pageNumbers', path: '/tools/page-numbers', icon: ListOrdered, bgColor: 'bg-sky-100 dark:bg-sky-900/30', iconColor: 'text-sky-600 dark:text-sky-400' },
+  { key: 'pdfEditor', path: '/tools/pdf-editor', icon: PenLine, bgColor: 'bg-rose-100 dark:bg-rose-900/30', iconColor: 'text-rose-600 dark:text-rose-400' },
+  { key: 'pdfFlowchart', path: '/tools/pdf-flowchart', icon: GitBranch, bgColor: 'bg-indigo-100 dark:bg-indigo-900/30', iconColor: 'text-indigo-600 dark:text-indigo-400' },
 ];
 
 /** Image tools available when an image is uploaded */

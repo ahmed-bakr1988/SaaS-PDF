@@ -22,7 +22,8 @@ WORKDIR /app
 
 # Copy requirements first for Docker layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt \
+    && python -c "import PyPDF2; print('PyPDF2 OK')"
 
 # Copy application code
 COPY . .

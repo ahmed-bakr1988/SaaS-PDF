@@ -3,11 +3,13 @@ from flask import Blueprint, jsonify
 from celery.result import AsyncResult
 
 from app.extensions import celery
+from app.middleware.rate_limiter import limiter
 
 tasks_bp = Blueprint("tasks", __name__)
 
 
 @tasks_bp.route("/<task_id>/status", methods=["GET"])
+@limiter.limit("300/minute", override_defaults=True)
 def get_task_status(task_id: str):
     """
     Get the status of an async task.

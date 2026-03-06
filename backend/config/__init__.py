@@ -66,6 +66,13 @@ class BaseConfig:
     RATELIMIT_STORAGE_URI = os.getenv("REDIS_URL", "redis://redis:6379/0")
     RATELIMIT_DEFAULT = "100/hour"
 
+    # OpenRouter AI
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct")
+    OPENROUTER_BASE_URL = os.getenv(
+        "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
+    )
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
@@ -87,6 +94,15 @@ class TestingConfig(BaseConfig):
     TESTING = True
     UPLOAD_FOLDER = "/tmp/test_uploads"
     OUTPUT_FOLDER = "/tmp/test_outputs"
+
+    # Disable Redis-backed rate limiting; use in-memory instead
+    RATELIMIT_STORAGE_URI = "memory://"
+    RATELIMIT_ENABLED = False
+
+    # Use in-memory transport for Celery so tests don't need Redis
+    CELERY_BROKER_URL = "memory://"
+    CELERY_RESULT_BACKEND = "cache+memory://"
+    REDIS_URL = "memory://"
 
 
 config = {
