@@ -118,6 +118,118 @@ Features:
 - `src/pages/HomePage.tsx` — Image Resize tool card
 - `src/pages/AccountPage.tsx` — "Forgot password?" link
 - `src/utils/fileRouting.ts` — imageResize in tool list
+
+---
+
+## Block B — OCR, Background Removal, PDF Editor (Sprint 2)
+
+All Block B routes are gated behind `FEATURE_EDITOR=true`. Returns 403 when disabled.
+
+### B1 — OCR (Optical Character Recognition)
+
+**Backend:**
+- Service: `app/services/ocr_service.py` — `ocr_image()`, `ocr_pdf()` using pytesseract
+- Tasks: `app/tasks/ocr_tasks.py` — `ocr_image_task`, `ocr_pdf_task`
+- Route: `app/routes/ocr.py` — Blueprint `ocr_bp` at `/api/ocr`
+
+| Method | Path | Rate limit | Description |
+|---|---|---|---|
+| `POST` | `/api/ocr/image` | 10/min | Extract text from image |
+| `POST` | `/api/ocr/pdf` | 5/min | Extract text from scanned PDF |
+| `GET` | `/api/ocr/languages` | — | List supported OCR languages |
+
+Supported languages: English (`eng`), Arabic (`ara`), French (`fra`).
+
+**Frontend:** `src/components/tools/OcrTool.tsx` — `/tools/ocr`
+- Mode selector (Image / PDF), language selector, text preview with copy, download.
+
+### B2 — Background Removal
+
+**Backend:**
+- Service: `app/services/removebg_service.py` — `remove_background()` using rembg + onnxruntime
+- Task: `app/tasks/removebg_tasks.py` — `remove_bg_task`
+- Route: `app/routes/removebg.py` — Blueprint `removebg_bp` at `/api/remove-bg`
+
+| Method | Path | Rate limit | Description |
+|---|---|---|---|
+| `POST` | `/api/remove-bg` | 5/min | Remove background (outputs transparent PNG) |
+
+**Frontend:** `src/components/tools/RemoveBackground.tsx` — `/tools/remove-background`
+- Upload image → AI processing → download PNG with transparency.
+
+### B3 — PDF Editor (Text Annotations)
+
+**Backend:**
+- Service: `app/services/pdf_editor_service.py` — `apply_pdf_edits()` using ReportLab overlay + PyPDF2
+- Task: `app/tasks/pdf_editor_tasks.py` — `edit_pdf_task`
+- Route: `app/routes/pdf_editor.py` — Blueprint `pdf_editor_bp` at `/api/pdf-editor`
+
+| Method | Path | Rate limit | Description |
+|---|---|---|---|
+| `POST` | `/api/pdf-editor/edit` | 10/min | Apply text annotations to PDF |
+
+Accepts `file` (PDF) + `edits` (JSON array, max 500). Each edit: `{ type, page, x, y, content, fontSize, color }`.
+
+### DevOps Changes
+
+**Dependencies added** (`requirements.txt`):
+- `pytesseract>=0.3.10,<1.0`
+- `rembg>=2.0,<3.0`
+- `onnxruntime>=1.16,<2.0`
+
+**Dockerfile:** Added `tesseract-ocr`, `tesseract-ocr-eng`, `tesseract-ocr-ara`, `tesseract-ocr-fra` to apt-get.
+
+**Celery task routing** (`extensions.py`):
+- `ocr_tasks.*` → `image` queue
+- `removebg_tasks.*` → `image` queue
+- `pdf_editor_tasks.*` → `pdf_tools` queue
+
+### Block B Test Coverage
+
+| File | Tests | Status |
+|---|---|---|
+| `test_ocr.py` | 8 | ✅ Passed |
+| `test_removebg.py` | 3 | ✅ Passed |
+| `test_pdf_editor.py` | 7 | ✅ Passed |
+| `test_ocr_service.py` | 4 | ✅ Passed |
+| **Full suite** | **180** | **✅ All passed** |
+
+### Block B Files Created
+
+**Backend — New:**
+- `app/services/ocr_service.py`
+- `app/services/removebg_service.py`
+- `app/services/pdf_editor_service.py`
+- `app/tasks/ocr_tasks.py`
+- `app/tasks/removebg_tasks.py`
+- `app/tasks/pdf_editor_tasks.py`
+- `app/routes/ocr.py`
+- `app/routes/removebg.py`
+- `app/routes/pdf_editor.py`
+- `tests/test_ocr.py`
+- `tests/test_removebg.py`
+- `tests/test_pdf_editor.py`
+- `tests/test_ocr_service.py`
+
+**Frontend — New:**
+- `src/components/tools/OcrTool.tsx`
+- `src/components/tools/RemoveBackground.tsx`
+
+**Backend — Modified:**
+- `app/__init__.py` — registered 3 new blueprints (18 total)
+- `app/extensions.py` — 3 new task routing rules
+- `celery_worker.py` — 3 new task module imports
+- `requirements.txt` — pytesseract, rembg, onnxruntime
+- `Dockerfile` — tesseract-ocr packages
+
+**Frontend — Modified:**
+- `src/App.tsx` — 2 new lazy routes (`/tools/ocr`, `/tools/remove-background`)
+- `src/pages/HomePage.tsx` — OCR + RemoveBG tool cards
+- `src/utils/fileRouting.ts` — OCR + RemoveBG in tool arrays
+- `src/i18n/en.json` — `tools.ocr` + `tools.removeBg` keys
+- `src/i18n/ar.json` — Arabic translations
+- `src/i18n/fr.json` — French translations
+- `src/services/api.ts` — `text` + `char_count` added to `TaskResult`
 - `src/i18n/en.json`, `ar.json`, `fr.json` — new keys
 
 ### Infrastructure

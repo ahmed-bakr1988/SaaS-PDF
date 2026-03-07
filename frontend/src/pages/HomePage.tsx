@@ -20,6 +20,7 @@ import {
   PenLine,
   GitBranch,
   Scaling,
+  ScanText,
 } from 'lucide-react';
 import ToolCard from '@/components/shared/ToolCard';
 import HeroUploadZone from '@/components/shared/HeroUploadZone';
@@ -52,6 +53,8 @@ const pdfTools: ToolInfo[] = [
 const otherTools: ToolInfo[] = [
   { key: 'imageConvert', path: '/tools/image-converter', icon: <ImageIcon className="h-6 w-6 text-purple-600" />, bgColor: 'bg-purple-50' },
   { key: 'imageResize', path: '/tools/image-resize', icon: <Scaling className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
+  { key: 'ocr', path: '/tools/ocr', icon: <ScanText className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
+  { key: 'removeBg', path: '/tools/remove-background', icon: <Eraser className="h-6 w-6 text-fuchsia-600" />, bgColor: 'bg-fuchsia-50' },
   { key: 'videoToGif', path: '/tools/video-to-gif', icon: <Film className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
   { key: 'wordCounter', path: '/tools/word-counter', icon: <Hash className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
   { key: 'textCleaner', path: '/tools/text-cleaner', icon: <Eraser className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },

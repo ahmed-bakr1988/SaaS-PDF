@@ -76,6 +76,9 @@ export interface TaskResult {
   pages?: Array<{ page: number; text: string }>;
   procedures_count?: number;
   total_pages?: number;
+  // OCR-specific fields
+  text?: string;
+  char_count?: number;
 }
 
 export interface AuthUser {

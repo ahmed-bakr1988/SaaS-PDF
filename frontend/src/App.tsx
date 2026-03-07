@@ -36,6 +36,8 @@ const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
 const PdfEditor = lazy(() => import('@/components/tools/PdfEditor'));
 const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
 const ImageResize = lazy(() => import('@/components/tools/ImageResize'));
+const OcrTool = lazy(() => import('@/components/tools/OcrTool'));
+const RemoveBackground = lazy(() => import('@/components/tools/RemoveBackground'));
 
 function LoadingFallback() {
   return (
@@ -94,6 +96,8 @@ export default function App() {
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />
             <Route path="/tools/image-resize" element={<ImageResize />} />
+            <Route path="/tools/ocr" element={<OcrTool />} />
+            <Route path="/tools/remove-background" element={<RemoveBackground />} />
 
             {/* Video Tools */}
             <Route path="/tools/video-to-gif" element={<VideoToGif />} />

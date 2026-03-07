@@ -13,6 +13,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libmagic1 \
     imagemagick \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-ara \
+    tesseract-ocr-fra \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*

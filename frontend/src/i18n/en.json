@@ -110,6 +110,25 @@
       "lockAspect": "Lock aspect ratio",
       "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio."
     },
+    "ocr": {
+      "title": "OCR — Text Recognition",
+      "description": "Extract text from images and scanned PDF documents using optical character recognition.",
+      "shortDesc": "Extract Text",
+      "sourceType": "Source Type",
+      "modeImage": "Image",
+      "modePdf": "PDF",
+      "language": "OCR Language",
+      "extract": "Extract Text",
+      "charsExtracted": "{{count}} characters extracted",
+      "copyText": "Copy Text"
+    },
+    "removeBg": {
+      "title": "Remove Background",
+      "description": "Remove the background from images automatically using AI. Get a transparent PNG in seconds.",
+      "shortDesc": "Remove BG",
+      "remove": "Remove Background",
+      "success": "Background removed successfully!"
+    },
     "videoToGif": {
       "title": "Video to GIF",
       "description": "Create animated GIFs from video clips. Customize start time, duration, and quality.",

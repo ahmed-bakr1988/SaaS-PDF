@@ -12,3 +12,6 @@ import app.tasks.video_tasks  # noqa: F401
 import app.tasks.pdf_tools_tasks  # noqa: F401
 import app.tasks.flowchart_tasks  # noqa: F401
 import app.tasks.maintenance_tasks  # noqa: F401
+import app.tasks.ocr_tasks  # noqa: F401
+import app.tasks.removebg_tasks  # noqa: F401
+import app.tasks.pdf_editor_tasks  # noqa: F401

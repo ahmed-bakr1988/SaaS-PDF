@@ -110,6 +110,25 @@
       "lockAspect": "Verrouiller le rapport d'aspect",
       "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect."
     },
+    "ocr": {
+      "title": "OCR — Reconnaissance de texte",
+      "description": "Extrayez le texte des images et des documents PDF numérisés grâce à la reconnaissance optique de caractères.",
+      "shortDesc": "Extraire le texte",
+      "sourceType": "Type de source",
+      "modeImage": "Image",
+      "modePdf": "PDF",
+      "language": "Langue OCR",
+      "extract": "Extraire le texte",
+      "charsExtracted": "{{count}} caractères extraits",
+      "copyText": "Copier le texte"
+    },
+    "removeBg": {
+      "title": "Supprimer l'arrière-plan",
+      "description": "Supprimez l'arrière-plan des images automatiquement grâce à l'IA. Obtenez un PNG transparent en quelques secondes.",
+      "shortDesc": "Suppr. arrière-plan",
+      "remove": "Supprimer l'arrière-plan",
+      "success": "Arrière-plan supprimé avec succès !"
+    },
     "videoToGif": {
       "title": "Vidéo en GIF",
       "description": "Créez des GIFs animés à partir de clips vidéo. Personnalisez le temps de début, la durée et la qualité.",

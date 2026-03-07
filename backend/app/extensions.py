@@ -32,6 +32,9 @@ def init_celery(app):
         "app.tasks.video_tasks.*": {"queue": "video"},
         "app.tasks.pdf_tools_tasks.*": {"queue": "pdf_tools"},
         "app.tasks.flowchart_tasks.*": {"queue": "flowchart"},
+        "app.tasks.ocr_tasks.*": {"queue": "image"},
+        "app.tasks.removebg_tasks.*": {"queue": "image"},
+        "app.tasks.pdf_editor_tasks.*": {"queue": "pdf_tools"},
     }
 
     # Celery Beat — periodic tasks
