@@ -2,7 +2,15 @@
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
-from app.utils.file_validator import validate_file, FileValidationError
+from app.services.policy_service import (
+    assert_quota_available,
+    build_task_tracking_kwargs,
+    PolicyError,
+    record_accepted_usage,
+    resolve_web_actor,
+    validate_actor_file,
+)
+from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.video_tasks import create_gif_task
 
@@ -49,20 +57,28 @@ def video_to_gif_route():
     if width < 100 or width > 640:
         return jsonify({"error": "Width must be between 100 and 640 pixels."}), 400
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=ALLOWED_VIDEO_TYPES)
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=ALLOWED_VIDEO_TYPES, actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
-    # Save file
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    # Dispatch task
     task = create_gif_task.delay(
         input_path, task_id, original_filename,
         start_time, duration, fps, width,
+        **build_task_tracking_kwargs(actor),
     )
+    record_accepted_usage(actor, "video-to-gif", task.id)
 
     return jsonify({
         "task_id": task.id,

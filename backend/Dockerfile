@@ -28,8 +28,8 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copy application code
 COPY . .
 
-# Create temp directories
-RUN mkdir -p /tmp/uploads /tmp/outputs
+# Create temp and persistence directories
+RUN mkdir -p /tmp/uploads /tmp/outputs /app/data
 
 # Expose port
 EXPOSE 5000

@@ -20,7 +20,11 @@ class FileValidationError(Exception):
         super().__init__(self.message)
 
 
-def validate_file(file_storage, allowed_types: list[str] | None = None):
+def validate_file(
+    file_storage,
+    allowed_types: list[str] | None = None,
+    size_limit_overrides: dict[str, int] | None = None,
+):
     """
     Validate an uploaded file through multiple security layers.
 
@@ -65,7 +69,7 @@ def validate_file(file_storage, allowed_types: list[str] | None = None):
     file_size = file_storage.tell()
     file_storage.seek(0)
 
-    size_limits = config.get("FILE_SIZE_LIMITS", {})
+    size_limits = size_limit_overrides or config.get("FILE_SIZE_LIMITS", {})
     max_size = size_limits.get(ext, 20 * 1024 * 1024)  # Default 20MB
 
     if file_size > max_size:

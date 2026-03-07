@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { getTaskStatus, type TaskStatus, type TaskResult } from '@/services/api';
+import { trackEvent } from '@/services/analytics';
 
 interface UseTaskPollingOptions {
   taskId: string | null;
@@ -54,22 +55,26 @@ export function useTaskPolling({
 
           if (taskResult?.status === 'completed') {
             setResult(taskResult);
+            trackEvent('task_completed', { task_id: taskId });
             onComplete?.(taskResult);
           } else {
             const errMsg = taskResult?.error || 'Processing failed.';
             setError(errMsg);
+            trackEvent('task_failed', { task_id: taskId, reason: 'result_failed' });
             onError?.(errMsg);
           }
         } else if (taskStatus.state === 'FAILURE') {
           stopPolling();
           const errMsg = taskStatus.error || 'Task failed.';
           setError(errMsg);
+          trackEvent('task_failed', { task_id: taskId, reason: 'state_failure' });
           onError?.(errMsg);
         }
       } catch (err) {
         stopPolling();
         const errMsg = err instanceof Error ? err.message : 'Polling failed.';
         setError(errMsg);
+        trackEvent('task_failed', { task_id: taskId, reason: 'polling_error' });
         onError?.(errMsg);
       }
     };

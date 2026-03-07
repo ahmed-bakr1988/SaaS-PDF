@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, Bot, User, Sparkles, X, Loader2 } from 'lucide-react';
 import type { Flowchart, ChatMessage } from './types';
+import api from '@/services/api';
 
 interface FlowChatProps {
   flow: Flowchart;
@@ -42,16 +43,12 @@ export default function FlowChat({ flow, onClose, onFlowUpdate }: FlowChatProps)
     setIsTyping(true);
 
     try {
-      const res = await fetch('/api/flowchart/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const res = await api.post('/flowchart/chat', {
           message: text,
           flow_id: flow.id,
           flow_data: flow,
-        }),
       });
-      const data = await res.json();
+      const data = res.data;
 
       const assistantMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),

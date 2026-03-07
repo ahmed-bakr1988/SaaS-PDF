@@ -30,6 +30,7 @@ def init_celery(app):
         "app.tasks.image_tasks.*": {"queue": "image"},
         "app.tasks.video_tasks.*": {"queue": "video"},
         "app.tasks.pdf_tools_tasks.*": {"queue": "pdf_tools"},
+        "app.tasks.flowchart_tasks.*": {"queue": "flowchart"},
     }
 
     class ContextTask(celery.Task):

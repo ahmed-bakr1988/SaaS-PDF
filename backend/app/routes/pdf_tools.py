@@ -2,10 +2,18 @@
 import os
 import uuid
 
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app
 
 from app.extensions import limiter
-from app.utils.file_validator import validate_file, FileValidationError
+from app.services.policy_service import (
+    assert_quota_available,
+    build_task_tracking_kwargs,
+    PolicyError,
+    record_accepted_usage,
+    resolve_web_actor,
+    validate_actor_file,
+)
+from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.pdf_tools_tasks import (
     merge_pdfs_task,
@@ -43,24 +51,36 @@ def merge_pdfs_route():
     if len(files) > 20:
         return jsonify({"error": "Maximum 20 files allowed."}), 400
 
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task_id = str(uuid.uuid4())
     input_paths = []
     original_filenames = []
 
     for f in files:
         try:
-            original_filename, ext = validate_file(f, allowed_types=["pdf"])
+            original_filename, ext = validate_actor_file(f, allowed_types=["pdf"], actor=actor)
         except FileValidationError as e:
             return jsonify({"error": e.message}), e.code
 
-        upload_dir = os.path.join("/tmp/uploads", task_id)
+        upload_dir = os.path.join(current_app.config["UPLOAD_FOLDER"], task_id)
         os.makedirs(upload_dir, exist_ok=True)
         file_path = os.path.join(upload_dir, f"{uuid.uuid4()}.{ext}")
         f.save(file_path)
         input_paths.append(file_path)
         original_filenames.append(original_filename)
 
-    task = merge_pdfs_task.delay(input_paths, task_id, original_filenames)
+    task = merge_pdfs_task.delay(
+        input_paths,
+        task_id,
+        original_filenames,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "merge-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -98,15 +118,29 @@ def split_pdf_route():
             "error": "Please specify which pages to extract (e.g. 1,3,5-8)."
         }), 400
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = split_pdf_task.delay(input_path, task_id, original_filename, mode, pages)
+    task = split_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        mode,
+        pages,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "split-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -144,15 +178,29 @@ def rotate_pdf_route():
 
     pages = request.form.get("pages", "all")
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = rotate_pdf_task.delay(input_path, task_id, original_filename, rotation, pages)
+    task = rotate_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        rotation,
+        pages,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "rotate-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -193,8 +241,14 @@ def add_page_numbers_route():
     except ValueError:
         start_number = 1
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
@@ -202,8 +256,14 @@ def add_page_numbers_route():
     file.save(input_path)
 
     task = add_page_numbers_task.delay(
-        input_path, task_id, original_filename, position, start_number
+        input_path,
+        task_id,
+        original_filename,
+        position,
+        start_number,
+        **build_task_tracking_kwargs(actor),
     )
+    record_accepted_usage(actor, "page-numbers", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -239,8 +299,14 @@ def pdf_to_images_route():
     except ValueError:
         dpi = 200
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
@@ -248,8 +314,14 @@ def pdf_to_images_route():
     file.save(input_path)
 
     task = pdf_to_images_task.delay(
-        input_path, task_id, original_filename, output_format, dpi
+        input_path,
+        task_id,
+        original_filename,
+        output_format,
+        dpi,
+        **build_task_tracking_kwargs(actor),
     )
+    record_accepted_usage(actor, "pdf-to-images", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -276,24 +348,38 @@ def images_to_pdf_route():
     if len(files) > 50:
         return jsonify({"error": "Maximum 50 images allowed."}), 400
 
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task_id = str(uuid.uuid4())
     input_paths = []
     original_filenames = []
 
     for f in files:
         try:
-            original_filename, ext = validate_file(f, allowed_types=ALLOWED_IMAGE_TYPES)
+            original_filename, ext = validate_actor_file(
+                f, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+            )
         except FileValidationError as e:
             return jsonify({"error": e.message}), e.code
 
-        upload_dir = os.path.join("/tmp/uploads", task_id)
+        upload_dir = os.path.join(current_app.config["UPLOAD_FOLDER"], task_id)
         os.makedirs(upload_dir, exist_ok=True)
         file_path = os.path.join(upload_dir, f"{uuid.uuid4()}.{ext}")
         f.save(file_path)
         input_paths.append(file_path)
         original_filenames.append(original_filename)
 
-    task = images_to_pdf_task.delay(input_paths, task_id, original_filenames)
+    task = images_to_pdf_task.delay(
+        input_paths,
+        task_id,
+        original_filenames,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "images-to-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -333,8 +419,14 @@ def watermark_pdf_route():
     except ValueError:
         opacity = 0.3
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
@@ -342,8 +434,14 @@ def watermark_pdf_route():
     file.save(input_path)
 
     task = watermark_pdf_task.delay(
-        input_path, task_id, original_filename, watermark_text, opacity
+        input_path,
+        task_id,
+        original_filename,
+        watermark_text,
+        opacity,
+        **build_task_tracking_kwargs(actor),
     )
+    record_accepted_usage(actor, "watermark-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -377,15 +475,28 @@ def protect_pdf_route():
     if len(password) < 4:
         return jsonify({"error": "Password must be at least 4 characters."}), 400
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = protect_pdf_task.delay(input_path, task_id, original_filename, password)
+    task = protect_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        password,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "protect-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,
@@ -416,15 +527,28 @@ def unlock_pdf_route():
     if not password:
         return jsonify({"error": "Password is required."}), 400
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = unlock_pdf_task.delay(input_path, task_id, original_filename, password)
+    task = unlock_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        password,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "unlock-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,

@@ -2,14 +2,48 @@
 import os
 import logging
 
+from flask import current_app
+
 from app.extensions import celery
 from app.services.image_service import convert_image, resize_image, ImageProcessingError
 from app.services.storage_service import storage
+from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
 
 
 def _cleanup(task_id: str):
     cleanup_task_files(task_id, keep_outputs=not storage.use_s3)
+
+
+def _get_output_dir(task_id: str) -> str:
+    """Resolve output directory from app config."""
+    output_dir = os.path.join(current_app.config["OUTPUT_FOLDER"], task_id)
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
+
+
+def _finalize_task(
+    task_id: str,
+    user_id: int | None,
+    tool: str,
+    original_filename: str,
+    result: dict,
+    usage_source: str,
+    api_key_id: int | None,
+    celery_task_id: str | None,
+):
+    """Persist optional history and cleanup task files."""
+    finalize_task_tracking(
+        user_id=user_id,
+        tool=tool,
+        original_filename=original_filename,
+        result=result,
+        usage_source=usage_source,
+        api_key_id=api_key_id,
+        celery_task_id=celery_task_id,
+    )
+    _cleanup(task_id)
+    return result
 
 logger = logging.getLogger(__name__)
 
@@ -22,6 +56,9 @@ def convert_image_task(
     original_filename: str,
     output_format: str,
     quality: int = 85,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """
     Async task: Convert an image to a different format.
@@ -36,8 +73,7 @@ def convert_image_task(
     Returns:
         dict with download_url and conversion stats
     """
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}.{output_format}")
 
     try:
@@ -70,20 +106,43 @@ def convert_image_task(
             "format": stats["format"],
         }
 
-        _cleanup(task_id)
-
         logger.info(f"Task {task_id}: Image conversion to {output_format} completed")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-convert",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except ImageProcessingError as e:
         logger.error(f"Task {task_id}: Image error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-convert",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-convert",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 @celery.task(bind=True, name="app.tasks.image_tasks.resize_image_task")
@@ -95,6 +154,9 @@ def resize_image_task(
     width: int | None = None,
     height: int | None = None,
     quality: int = 85,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """
     Async task: Resize an image.
@@ -111,8 +173,7 @@ def resize_image_task(
         dict with download_url and resize info
     """
     ext = os.path.splitext(original_filename)[1].lstrip(".")
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}.{ext}")
 
     try:
@@ -144,17 +205,40 @@ def resize_image_task(
             "new_height": stats["new_height"],
         }
 
-        _cleanup(task_id)
-
         logger.info(f"Task {task_id}: Image resize completed")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-resize",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except ImageProcessingError as e:
         logger.error(f"Task {task_id}: Image error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-resize",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-resize",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )

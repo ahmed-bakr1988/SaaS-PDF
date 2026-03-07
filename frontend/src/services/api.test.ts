@@ -103,14 +103,13 @@ describe('API Service — Endpoint Format Tests', () => {
   // PDF Tools endpoints
   // ----------------------------------------------------------
   describe('PDF Tools API', () => {
-    it('Merge: should POST multiple files to /api/pdf-tools/merge', () => {
-      // MergePdf.tsx uses fetch('/api/pdf-tools/merge') directly, not api.post
+    it('Merge: should POST multiple files to /pdf-tools/merge', () => {
       const formData = new FormData();
       formData.append('files', new Blob(['%PDF-1.4']), 'a.pdf');
       formData.append('files', new Blob(['%PDF-1.4']), 'b.pdf');
-      const url = '/api/pdf-tools/merge';
+      const url = '/pdf-tools/merge';
 
-      expect(url).toBe('/api/pdf-tools/merge');
+      expect(url).toBe('/pdf-tools/merge');
       expect(formData.getAll('files').length).toBe(2);
     });
 
@@ -159,14 +158,13 @@ describe('API Service — Endpoint Format Tests', () => {
       expect(formData.get('format')).toBe('png');
     });
 
-    it('Images to PDF: should POST multiple files to /api/pdf-tools/images-to-pdf', () => {
-      // ImagesToPdf.tsx uses fetch('/api/pdf-tools/images-to-pdf') directly
+    it('Images to PDF: should POST multiple files to /pdf-tools/images-to-pdf', () => {
       const formData = new FormData();
       formData.append('files', new Blob(['\x89PNG']), 'img1.png');
       formData.append('files', new Blob(['\x89PNG']), 'img2.png');
-      const url = '/api/pdf-tools/images-to-pdf';
+      const url = '/pdf-tools/images-to-pdf';
 
-      expect(url).toBe('/api/pdf-tools/images-to-pdf');
+      expect(url).toBe('/pdf-tools/images-to-pdf');
       expect(formData.getAll('files').length).toBe(2);
     });
 
@@ -264,9 +262,8 @@ describe('Frontend Tool → Backend Endpoint Mapping', () => {
     AddPageNumbers:  { method: 'POST', endpoint: '/pdf-tools/page-numbers',   fieldName: 'file' },
     PdfToImages:     { method: 'POST', endpoint: '/pdf-tools/pdf-to-images',  fieldName: 'file' },
     VideoToGif:      { method: 'POST', endpoint: '/video/to-gif',             fieldName: 'file' },
-    // Multi-file tools use fetch() directly with full path:
-    MergePdf:        { method: 'POST', endpoint: '/api/pdf-tools/merge',      fieldName: 'files' },
-    ImagesToPdf:     { method: 'POST', endpoint: '/api/pdf-tools/images-to-pdf', fieldName: 'files' },
+    MergePdf:        { method: 'POST', endpoint: '/pdf-tools/merge',      fieldName: 'files' },
+    ImagesToPdf:     { method: 'POST', endpoint: '/pdf-tools/images-to-pdf', fieldName: 'files' },
   };
 
   Object.entries(toolEndpointMap).forEach(([tool, config]) => {

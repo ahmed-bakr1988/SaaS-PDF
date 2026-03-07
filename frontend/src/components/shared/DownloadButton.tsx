@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Download, RotateCcw, Clock } from 'lucide-react';
 import type { TaskResult } from '@/services/api';
 import { formatFileSize } from '@/utils/textTools';
+import { trackEvent } from '@/services/analytics';
 
 interface DownloadButtonProps {
   /** Task result containing download URL */
@@ -61,6 +62,9 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
       <a
         href={result.download_url}
         download={result.filename}
+        onClick={() => {
+          trackEvent('download_clicked', { filename: result.filename || 'unknown' });
+        }}
         className="btn-success w-full"
         target="_blank"
         rel="noopener noreferrer"

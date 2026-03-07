@@ -10,8 +10,8 @@ class TestConvertTaskRoutes:
         mock_task.id = 'convert-pdf-word-id'
 
         monkeypatch.setattr(
-            'app.routes.convert.validate_file',
-            lambda f, allowed_types: ('document.pdf', 'pdf'),
+            'app.routes.convert.validate_actor_file',
+            lambda f, allowed_types, actor: ('document.pdf', 'pdf'),
         )
         monkeypatch.setattr(
             'app.routes.convert.generate_safe_path',
@@ -39,8 +39,8 @@ class TestConvertTaskRoutes:
         mock_task.id = 'convert-word-pdf-id'
 
         monkeypatch.setattr(
-            'app.routes.convert.validate_file',
-            lambda f, allowed_types: ('report.docx', 'docx'),
+            'app.routes.convert.validate_actor_file',
+            lambda f, allowed_types, actor: ('report.docx', 'docx'),
         )
         monkeypatch.setattr(
             'app.routes.convert.generate_safe_path',

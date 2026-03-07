@@ -20,8 +20,8 @@ def _mock_validate_and_task(monkeypatch, task_module_path, task_name):
 
     # Mock file validator to accept any file
     monkeypatch.setattr(
-        'app.routes.pdf_tools.validate_file',
-        lambda f, allowed_types: ('test.pdf', 'pdf'),
+        'app.routes.pdf_tools.validate_actor_file',
+        lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
     )
     monkeypatch.setattr(
         'app.routes.pdf_tools.generate_safe_path',
@@ -62,8 +62,8 @@ class TestMergePdfs:
         mock_task = MagicMock()
         mock_task.id = 'merge-task-id'
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         monkeypatch.setattr(
             'app.routes.pdf_tools.merge_pdfs_task.delay',
@@ -95,8 +95,8 @@ class TestMergePdfs:
     def test_merge_too_many_files(self, client, monkeypatch):
         """Should return 400 when more than 20 files provided."""
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'files': [
@@ -166,8 +166,8 @@ class TestSplitPdf:
     def test_split_range_mode_requires_pages(self, client, monkeypatch):
         """Should return 400 when range mode is selected without pages."""
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
 
         data = {
@@ -195,8 +195,8 @@ class TestRotatePdf:
     def test_rotate_invalid_degrees(self, client, monkeypatch):
         """Should reject invalid rotation angles."""
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
@@ -327,8 +327,8 @@ class TestImagesToPdf:
         mock_task = MagicMock()
         mock_task.id = 'images-task-id'
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.png', 'png'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.png', 'png'),
         )
         monkeypatch.setattr(
             'app.routes.pdf_tools.images_to_pdf_task.delay',
@@ -356,8 +356,8 @@ class TestImagesToPdf:
 
     def test_images_to_pdf_too_many(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.png', 'png'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.png', 'png'),
         )
         data = {
             'files': [
@@ -384,8 +384,8 @@ class TestWatermarkPdf:
 
     def test_watermark_no_text(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
@@ -401,8 +401,8 @@ class TestWatermarkPdf:
 
     def test_watermark_text_too_long(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
@@ -443,8 +443,8 @@ class TestProtectPdf:
 
     def test_protect_no_password(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
@@ -460,8 +460,8 @@ class TestProtectPdf:
 
     def test_protect_short_password(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
@@ -501,8 +501,8 @@ class TestUnlockPdf:
 
     def test_unlock_no_password(self, client, monkeypatch):
         monkeypatch.setattr(
-            'app.routes.pdf_tools.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         data = {
             'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),

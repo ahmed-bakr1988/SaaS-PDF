@@ -3,9 +3,20 @@ import logging
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
-from app.utils.file_validator import validate_file, FileValidationError
+from app.services.policy_service import (
+    assert_quota_available,
+    build_task_tracking_kwargs,
+    PolicyError,
+    record_accepted_usage,
+    resolve_web_actor,
+    validate_actor_file,
+)
+from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.flowchart_tasks import extract_flowchart_task
+from app.tasks.flowchart_tasks import (
+    extract_flowchart_task,
+    extract_sample_flowchart_task,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -26,19 +37,54 @@ def extract_flowchart_route():
 
     file = request.files["file"]
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext)
     file.save(input_path)
 
-    task = extract_flowchart_task.delay(input_path, task_id, original_filename)
+    task = extract_flowchart_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "pdf-flowchart", task.id)
 
     return jsonify({
         "task_id": task.id,
         "message": "Flowchart extraction started.",
+    }), 202
+
+
+@flowchart_bp.route("/extract-sample", methods=["POST"])
+@limiter.limit("20/minute")
+def extract_sample_flowchart_route():
+    """
+    Generate a sample flowchart payload for demo/testing flows.
+
+    Returns: JSON with task_id for polling
+    """
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    task = extract_sample_flowchart_task.delay(**build_task_tracking_kwargs(actor))
+    record_accepted_usage(actor, "pdf-flowchart-sample", task.id)
+
+    return jsonify({
+        "task_id": task.id,
+        "message": "Sample flowchart generation started.",
     }), 202
 
 

@@ -1,18 +1,31 @@
 import os
+from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
+
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
+    INTERNAL_ADMIN_SECRET = os.getenv("INTERNAL_ADMIN_SECRET", "")
 
     # File upload settings
-    MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH_MB", 50)) * 1024 * 1024
+    MAX_CONTENT_LENGTH = int(
+        os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 100)
+    ) * 1024 * 1024
     UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "/tmp/uploads")
     OUTPUT_FOLDER = os.getenv("OUTPUT_FOLDER", "/tmp/outputs")
     FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
+    DATABASE_PATH = os.getenv(
+        "DATABASE_PATH", os.path.join(BASE_DIR, "data", "saas_pdf.db")
+    )
+    PERMANENT_SESSION_LIFETIME = timedelta(days=30)
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = False
 
     # Allowed file extensions and MIME types
     ALLOWED_EXTENSIONS = {
@@ -84,6 +97,7 @@ class ProductionConfig(BaseConfig):
     """Production configuration."""
     DEBUG = False
     TESTING = False
+    SESSION_COOKIE_SECURE = True
     # Stricter rate limits in production
     RATELIMIT_DEFAULT = "60/hour"
 
@@ -94,6 +108,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     UPLOAD_FOLDER = "/tmp/test_uploads"
     OUTPUT_FOLDER = "/tmp/test_outputs"
+    DATABASE_PATH = "/tmp/test_saas_pdf.db"
 
     # Disable Redis-backed rate limiting; use in-memory instead
     RATELIMIT_STORAGE_URI = "memory://"

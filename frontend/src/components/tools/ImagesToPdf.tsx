@@ -6,6 +6,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
+import { uploadFiles } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 
@@ -61,20 +62,7 @@ export default function ImagesToPdf() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      files.forEach((f) => formData.append('files', f));
-
-      const response = await fetch('/api/pdf-tools/images-to-pdf', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed.');
-      }
-
+      const data = await uploadFiles('/pdf-tools/images-to-pdf', files, 'files');
       setTaskId(data.task_id);
       setPhase('processing');
     } catch (err) {

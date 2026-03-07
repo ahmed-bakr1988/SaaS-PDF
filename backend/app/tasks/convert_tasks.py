@@ -2,9 +2,12 @@
 import os
 import logging
 
+from flask import current_app
+
 from app.extensions import celery
 from app.services.pdf_service import pdf_to_word, word_to_pdf, PDFConversionError
 from app.services.storage_service import storage
+from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
 
 
@@ -12,11 +15,50 @@ def _cleanup(task_id: str):
     """Cleanup with local-aware flag."""
     cleanup_task_files(task_id, keep_outputs=not storage.use_s3)
 
+
+def _get_output_dir(task_id: str) -> str:
+    """Resolve output directory from app config."""
+    output_dir = os.path.join(current_app.config["OUTPUT_FOLDER"], task_id)
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
+
+
+def _finalize_task(
+    task_id: str,
+    user_id: int | None,
+    tool: str,
+    original_filename: str,
+    result: dict,
+    usage_source: str,
+    api_key_id: int | None,
+    celery_task_id: str | None,
+):
+    """Persist optional history and cleanup task files."""
+    finalize_task_tracking(
+        user_id=user_id,
+        tool=tool,
+        original_filename=original_filename,
+        result=result,
+        usage_source=usage_source,
+        api_key_id=api_key_id,
+        celery_task_id=celery_task_id,
+    )
+    _cleanup(task_id)
+    return result
+
 logger = logging.getLogger(__name__)
 
 
 @celery.task(bind=True, name="app.tasks.convert_tasks.convert_pdf_to_word")
-def convert_pdf_to_word(self, input_path: str, task_id: str, original_filename: str):
+def convert_pdf_to_word(
+    self,
+    input_path: str,
+    task_id: str,
+    original_filename: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
     """
     Async task: Convert PDF to Word document.
 
@@ -28,7 +70,7 @@ def convert_pdf_to_word(self, input_path: str, task_id: str, original_filename: 
     Returns:
         dict with download_url and file info
     """
-    output_dir = os.path.join("/tmp/outputs", task_id)
+    output_dir = _get_output_dir(task_id)
 
     try:
         self.update_state(state="PROCESSING", meta={"step": "Converting PDF to Word..."})
@@ -58,24 +100,55 @@ def convert_pdf_to_word(self, input_path: str, task_id: str, original_filename: 
         }
 
         # Cleanup local files
-        _cleanup(task_id)
-
         logger.info(f"Task {task_id}: PDF→Word conversion completed")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-word",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFConversionError as e:
         logger.error(f"Task {task_id}: Conversion error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-word",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-word",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 @celery.task(bind=True, name="app.tasks.convert_tasks.convert_word_to_pdf")
-def convert_word_to_pdf(self, input_path: str, task_id: str, original_filename: str):
+def convert_word_to_pdf(
+    self,
+    input_path: str,
+    task_id: str,
+    original_filename: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
     """
     Async task: Convert Word document to PDF.
 
@@ -87,7 +160,7 @@ def convert_word_to_pdf(self, input_path: str, task_id: str, original_filename: 
     Returns:
         dict with download_url and file info
     """
-    output_dir = os.path.join("/tmp/outputs", task_id)
+    output_dir = _get_output_dir(task_id)
 
     try:
         self.update_state(state="PROCESSING", meta={"step": "Converting Word to PDF..."})
@@ -112,17 +185,40 @@ def convert_word_to_pdf(self, input_path: str, task_id: str, original_filename: 
             "output_size": os.path.getsize(output_path),
         }
 
-        _cleanup(task_id)
-
         logger.info(f"Task {task_id}: Word→PDF conversion completed")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "word-to-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFConversionError as e:
         logger.error(f"Task {task_id}: Conversion error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "word-to-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "word-to-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )

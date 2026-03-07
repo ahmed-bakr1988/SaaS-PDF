@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Moon, Sun, Menu, X, ChevronDown } from 'lucide-react';
-// ...existing code...
+import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
 interface LangOption {
   code: string;
   label: string;
@@ -40,6 +40,7 @@ function useDarkMode() {
 export default function Header() {
   const { t, i18n } = useTranslation();
   const { isDark, toggle: toggleDark } = useDarkMode();
+  const user = useAuthStore((state) => state.user);
   const [langOpen, setLangOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
@@ -85,10 +86,24 @@ export default function Header() {
           >
             {t('common.about')}
           </Link>
+          <Link
+            to="/account"
+            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
+          >
+            {t('common.account')}
+          </Link>
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          <Link
+            to="/account"
+            className="hidden max-w-[220px] items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 md:flex dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            <UserRound className="h-4 w-4" />
+            <span className="truncate">{user?.email || t('common.account')}</span>
+          </Link>
+
           {/* Dark Mode Toggle */}
           <button
             onClick={toggleDark}
@@ -166,6 +181,13 @@ export default function Header() {
             className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             {t('common.about')}
+          </Link>
+          <Link
+            to="/account"
+            onClick={() => setMobileOpen(false)}
+            className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {user?.email || t('common.account')}
           </Link>
         </nav>
       )}

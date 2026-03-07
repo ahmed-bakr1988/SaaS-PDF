@@ -1,21 +1,35 @@
 import io
 import os
 import shutil
+import tempfile
 import pytest
 from unittest.mock import patch, MagicMock
 from app import create_app
+from app.services.account_service import init_account_db
 
 
 @pytest.fixture
 def app():
     """Create application for testing."""
     os.environ['FLASK_ENV'] = 'testing'
+    test_root = tempfile.mkdtemp(prefix='saas-pdf-tests-')
+    db_path = os.path.join(test_root, 'test_saas_pdf.db')
+    upload_folder = os.path.join(test_root, 'uploads')
+    output_folder = os.path.join(test_root, 'outputs')
+    os.environ['DATABASE_PATH'] = db_path
+    os.environ['UPLOAD_FOLDER'] = upload_folder
+    os.environ['OUTPUT_FOLDER'] = output_folder
+
     app = create_app('testing')
     app.config.update({
         'TESTING': True,
-        'UPLOAD_FOLDER': '/tmp/test_uploads',
-        'OUTPUT_FOLDER': '/tmp/test_outputs',
+        'UPLOAD_FOLDER': upload_folder,
+        'OUTPUT_FOLDER': output_folder,
+        'DATABASE_PATH': db_path,
     })
+    with app.app_context():
+        init_account_db()
+
     # Create temp directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
     os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
@@ -23,8 +37,10 @@ def app():
     yield app
 
     # Cleanup temp directories
-    shutil.rmtree(app.config['UPLOAD_FOLDER'], ignore_errors=True)
-    shutil.rmtree(app.config['OUTPUT_FOLDER'], ignore_errors=True)
+    shutil.rmtree(test_root, ignore_errors=True)
+    os.environ.pop('DATABASE_PATH', None)
+    os.environ.pop('UPLOAD_FOLDER', None)
+    os.environ.pop('OUTPUT_FOLDER', None)
 
 
 @pytest.fixture

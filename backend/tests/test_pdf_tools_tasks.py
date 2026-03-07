@@ -16,8 +16,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'split-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('split-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.split_pdf_task.delay', mock_delay)
@@ -41,8 +41,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'rotate-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('rotate-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.rotate_pdf_task.delay', mock_delay)
@@ -66,8 +66,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'wm-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('wm-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.watermark_pdf_task.delay', mock_delay)
@@ -91,8 +91,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'protect-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('protect-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.protect_pdf_task.delay', mock_delay)
@@ -113,8 +113,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'unlock-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('unlock-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.unlock_pdf_task.delay', mock_delay)
@@ -133,8 +133,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'pn-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('pn-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.add_page_numbers_task.delay', mock_delay)
@@ -157,8 +157,8 @@ class TestPdfToolsTaskRoutes:
         mock_task.id = 'p2i-id'
         mock_delay = MagicMock(return_value=mock_task)
 
-        monkeypatch.setattr('app.routes.pdf_tools.validate_file',
-                            lambda f, allowed_types: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
                             lambda ext, folder_type: ('p2i-id', '/tmp/test.pdf'))
         monkeypatch.setattr('app.routes.pdf_tools.pdf_to_images_task.delay', mock_delay)

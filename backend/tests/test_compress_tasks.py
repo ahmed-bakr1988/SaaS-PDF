@@ -16,8 +16,8 @@ class TestCompressTaskRoute:
         mock_task.id = 'compress-task-id'
 
         monkeypatch.setattr(
-            'app.routes.compress.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.compress.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         monkeypatch.setattr(
             'app.routes.compress.generate_safe_path',
@@ -47,8 +47,8 @@ class TestCompressTaskRoute:
         mock_delay = MagicMock(return_value=mock_task)
 
         monkeypatch.setattr(
-            'app.routes.compress.validate_file',
-            lambda f, allowed_types: ('test.pdf', 'pdf'),
+            'app.routes.compress.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
         )
         monkeypatch.setattr(
             'app.routes.compress.generate_safe_path',

@@ -2,7 +2,15 @@
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
-from app.utils.file_validator import validate_file, FileValidationError
+from app.services.policy_service import (
+    assert_quota_available,
+    build_task_tracking_kwargs,
+    PolicyError,
+    record_accepted_usage,
+    resolve_web_actor,
+    validate_actor_file,
+)
+from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.compress_tasks import compress_pdf_task
 
@@ -25,21 +33,31 @@ def compress_pdf_route():
     file = request.files["file"]
     quality = request.form.get("quality", "medium")
 
-    # Validate quality parameter
     if quality not in ("low", "medium", "high"):
         quality = "medium"
 
+    actor = resolve_web_actor()
     try:
-        original_filename, ext = validate_file(file, allowed_types=["pdf"])
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
-    # Save file to temp location
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    # Dispatch async task
-    task = compress_pdf_task.delay(input_path, task_id, original_filename, quality)
+    task = compress_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        quality,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "compress-pdf", task.id)
 
     return jsonify({
         "task_id": task.id,

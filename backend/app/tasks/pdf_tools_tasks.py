@@ -2,6 +2,8 @@
 import os
 import logging
 
+from flask import current_app
+
 from app.extensions import celery
 from app.services.pdf_tools_service import (
     merge_pdfs,
@@ -16,11 +18,43 @@ from app.services.pdf_tools_service import (
     PDFToolsError,
 )
 from app.services.storage_service import storage
+from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
 
 
 def _cleanup(task_id: str):
     cleanup_task_files(task_id, keep_outputs=not storage.use_s3)
+
+
+def _get_output_dir(task_id: str) -> str:
+    """Resolve output directory from app config."""
+    output_dir = os.path.join(current_app.config["OUTPUT_FOLDER"], task_id)
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
+
+
+def _finalize_task(
+    task_id: str,
+    user_id: int | None,
+    tool: str,
+    original_filename: str,
+    result: dict,
+    usage_source: str,
+    api_key_id: int | None,
+    celery_task_id: str | None,
+):
+    """Persist optional history and cleanup task files."""
+    finalize_task_tracking(
+        user_id=user_id,
+        tool=tool,
+        original_filename=original_filename,
+        result=result,
+        usage_source=usage_source,
+        api_key_id=api_key_id,
+        celery_task_id=celery_task_id,
+    )
+    _cleanup(task_id)
+    return result
 
 
 logger = logging.getLogger(__name__)
@@ -31,11 +65,16 @@ logger = logging.getLogger(__name__)
 # ---------------------------------------------------------------------------
 @celery.task(bind=True, name="app.tasks.pdf_tools_tasks.merge_pdfs_task")
 def merge_pdfs_task(
-    self, input_paths: list[str], task_id: str, original_filenames: list[str]
+    self,
+    input_paths: list[str],
+    task_id: str,
+    original_filenames: list[str],
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Merge multiple PDFs into one."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_merged.pdf")
 
     try:
@@ -56,18 +95,42 @@ def merge_pdfs_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Merge completed — {stats['files_merged']} files, {stats['total_pages']} pages")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "merge-pdf",
+            ", ".join(original_filenames),
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Merge error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "merge-pdf",
+            ", ".join(original_filenames),
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "merge-pdf",
+            ", ".join(original_filenames),
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -77,9 +140,12 @@ def merge_pdfs_task(
 def split_pdf_task(
     self, input_path: str, task_id: str, original_filename: str,
     mode: str = "all", pages: str | None = None,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Split a PDF into individual pages."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
+    output_dir = _get_output_dir(task_id)
 
     try:
         self.update_state(state="PROCESSING", meta={"step": "Splitting PDF..."})
@@ -102,18 +168,42 @@ def split_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Split completed — {stats['extracted_pages']} pages extracted")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "split-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Split error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "split-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "split-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -123,10 +213,12 @@ def split_pdf_task(
 def rotate_pdf_task(
     self, input_path: str, task_id: str, original_filename: str,
     rotation: int = 90, pages: str = "all",
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Rotate pages in a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_rotated.pdf")
 
     try:
@@ -150,18 +242,42 @@ def rotate_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Rotate completed — {stats['rotated_pages']} pages")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "rotate-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Rotate error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "rotate-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "rotate-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -171,10 +287,12 @@ def rotate_pdf_task(
 def add_page_numbers_task(
     self, input_path: str, task_id: str, original_filename: str,
     position: str = "bottom-center", start_number: int = 1,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Add page numbers to a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_numbered.pdf")
 
     try:
@@ -196,18 +314,42 @@ def add_page_numbers_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Page numbers added to {stats['total_pages']} pages")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "page-numbers",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Page numbers error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "page-numbers",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "page-numbers",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -217,9 +359,12 @@ def add_page_numbers_task(
 def pdf_to_images_task(
     self, input_path: str, task_id: str, original_filename: str,
     output_format: str = "png", dpi: int = 200,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Convert PDF pages to images."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
+    output_dir = _get_output_dir(task_id)
 
     try:
         self.update_state(state="PROCESSING", meta={"step": "Converting PDF to images..."})
@@ -243,18 +388,42 @@ def pdf_to_images_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: PDF→Images completed — {stats['page_count']} pages")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-images",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: PDF→Images error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-images",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "pdf-to-images",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -262,11 +431,16 @@ def pdf_to_images_task(
 # ---------------------------------------------------------------------------
 @celery.task(bind=True, name="app.tasks.pdf_tools_tasks.images_to_pdf_task")
 def images_to_pdf_task(
-    self, input_paths: list[str], task_id: str, original_filenames: list[str]
+    self,
+    input_paths: list[str],
+    task_id: str,
+    original_filenames: list[str],
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Combine images into a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_images.pdf")
 
     try:
@@ -286,18 +460,42 @@ def images_to_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Images→PDF completed — {stats['page_count']} pages")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "images-to-pdf",
+            ", ".join(original_filenames),
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Images→PDF error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "images-to-pdf",
+            ", ".join(original_filenames),
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "images-to-pdf",
+            ", ".join(original_filenames),
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -307,10 +505,12 @@ def images_to_pdf_task(
 def watermark_pdf_task(
     self, input_path: str, task_id: str, original_filename: str,
     watermark_text: str, opacity: float = 0.3,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Add watermark to a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_watermarked.pdf")
 
     try:
@@ -332,18 +532,42 @@ def watermark_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: Watermark added")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "watermark-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Watermark error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "watermark-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "watermark-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -353,10 +577,12 @@ def watermark_pdf_task(
 def protect_pdf_task(
     self, input_path: str, task_id: str, original_filename: str,
     password: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Add password protection to a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_protected.pdf")
 
     try:
@@ -378,18 +604,42 @@ def protect_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: PDF protected")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "protect-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Protect error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "protect-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "protect-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -399,10 +649,12 @@ def protect_pdf_task(
 def unlock_pdf_task(
     self, input_path: str, task_id: str, original_filename: str,
     password: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """Async task: Remove password from a PDF."""
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_unlocked.pdf")
 
     try:
@@ -424,15 +676,39 @@ def unlock_pdf_task(
             "output_size": stats["output_size"],
         }
 
-        _cleanup(task_id)
         logger.info(f"Task {task_id}: PDF unlocked")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            "unlock-pdf",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except PDFToolsError as e:
         logger.error(f"Task {task_id}: Unlock error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "unlock-pdf",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            "unlock-pdf",
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )

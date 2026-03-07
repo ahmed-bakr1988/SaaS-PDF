@@ -1,8 +1,10 @@
-import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { lazy, Suspense, useEffect } from 'react';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useDirection } from '@/hooks/useDirection';
+import { initAnalytics, trackPageView } from '@/services/analytics';
+import { useAuthStore } from '@/stores/authStore';
 
 // Pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
@@ -10,6 +12,7 @@ const AboutPage = lazy(() => import('@/pages/AboutPage'));
 const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
+const AccountPage = lazy(() => import('@/pages/AccountPage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -41,6 +44,17 @@ function LoadingFallback() {
 
 export default function App() {
   useDirection();
+  const location = useLocation();
+  const refreshUser = useAuthStore((state) => state.refreshUser);
+
+  useEffect(() => {
+    initAnalytics();
+    void refreshUser();
+  }, [refreshUser]);
+
+  useEffect(() => {
+    trackPageView(`${location.pathname}${location.search}`);
+  }, [location.pathname, location.search]);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
@@ -52,6 +66,7 @@ export default function App() {
             {/* Pages */}
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/account" element={<AccountPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
 

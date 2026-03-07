@@ -7,7 +7,7 @@ import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
-import { uploadFile, type TaskResponse } from '@/services/api';
+import { uploadFiles } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 
@@ -62,20 +62,7 @@ export default function MergePdf() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      files.forEach((f) => formData.append('files', f));
-
-      const response = await fetch('/api/pdf-tools/merge', {
-        method: 'POST',
-        body: formData,
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Upload failed.');
-      }
-
+      const data = await uploadFiles('/pdf-tools/merge', files, 'files');
       setTaskId(data.task_id);
       setPhase('processing');
     } catch (err) {

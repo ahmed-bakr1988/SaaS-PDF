@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { GitBranch } from 'lucide-react';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
+import { startTask, uploadFile } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 
@@ -65,8 +66,8 @@ export default function PdfFlowchart() {
         setUploading(false);
       }
     },
-    onError: () => {
-      setError(taskError || t('common.error'));
+    onError: (err) => {
+      setError(err || t('common.error'));
       setStep(0);
       setUploading(false);
     },
@@ -86,16 +87,7 @@ export default function PdfFlowchart() {
     setError(null);
 
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const res = await fetch('/api/flowchart/extract', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data.error || 'Upload failed.');
+      const data = await uploadFile('/flowchart/extract', file);
       setTaskId(data.task_id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Upload failed.');
@@ -108,11 +100,7 @@ export default function PdfFlowchart() {
     setError(null);
 
     try {
-      const res = await fetch('/api/flowchart/extract-sample', {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Sample failed.');
+      const data = await startTask('/flowchart/extract-sample');
       setTaskId(data.task_id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Sample failed.');

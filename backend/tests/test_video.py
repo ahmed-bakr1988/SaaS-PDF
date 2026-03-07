@@ -14,8 +14,8 @@ class TestVideoToGif:
     def test_to_gif_invalid_params(self, client, monkeypatch):
         """Should return 400 for non-numeric parameters."""
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         data = {
             'file': (io.BytesIO(b'\x00\x00\x00\x1cftyp'), 'test.mp4'),
@@ -32,8 +32,8 @@ class TestVideoToGif:
     def test_to_gif_negative_start(self, client, monkeypatch):
         """Should reject negative start time."""
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         data = {
             'file': (io.BytesIO(b'\x00\x00\x00\x1cftyp'), 'test.mp4'),
@@ -52,8 +52,8 @@ class TestVideoToGif:
     def test_to_gif_duration_too_long(self, client, monkeypatch):
         """Should reject duration > 15 seconds."""
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         data = {
             'file': (io.BytesIO(b'\x00\x00\x00\x1cftyp'), 'test.mp4'),
@@ -73,8 +73,8 @@ class TestVideoToGif:
     def test_to_gif_fps_out_of_range(self, client, monkeypatch):
         """Should reject FPS > 20."""
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         data = {
             'file': (io.BytesIO(b'\x00\x00\x00\x1cftyp'), 'test.mp4'),
@@ -93,8 +93,8 @@ class TestVideoToGif:
     def test_to_gif_width_out_of_range(self, client, monkeypatch):
         """Should reject width > 640."""
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         data = {
             'file': (io.BytesIO(b'\x00\x00\x00\x1cftyp'), 'test.mp4'),
@@ -116,8 +116,8 @@ class TestVideoToGif:
         mock_task.id = 'gif-task-id'
 
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('test.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: (r'test.mp4', r'mp4'),
         )
         monkeypatch.setattr(
             'app.routes.video.generate_safe_path',

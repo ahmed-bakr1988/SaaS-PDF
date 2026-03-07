@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
+
+const LAST_UPDATED = '2026-03-06';
 
 export default function TermsPage() {
   const { t } = useTranslation();
@@ -13,7 +16,7 @@ export default function TermsPage() {
 
       <div className="prose mx-auto max-w-2xl dark:prose-invert">
         <h1>{t('common.terms')}</h1>
-        <p><em>Last updated: {new Date().toISOString().split('T')[0]}</em></p>
+        <p><em>Last updated: {LAST_UPDATED}</em></p>
 
         <h2>1. Acceptance of Terms</h2>
         <p>
@@ -37,7 +40,7 @@ export default function TermsPage() {
 
         <h2>4. File Handling</h2>
         <ul>
-          <li>All uploaded and processed files are automatically deleted within 2 hours.</li>
+          <li>All uploaded and processed files are automatically deleted within {FILE_RETENTION_MINUTES} minutes.</li>
           <li>We are not responsible for any data loss during processing.</li>
           <li>You are responsible for maintaining your own file backups.</li>
         </ul>

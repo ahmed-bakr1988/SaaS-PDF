@@ -10,8 +10,8 @@ class TestImageTaskRoutes:
         mock_task.id = 'img-convert-id'
 
         monkeypatch.setattr(
-            'app.routes.image.validate_file',
-            lambda f, allowed_types: ('photo.png', 'png'),
+            'app.routes.image.validate_actor_file',
+            lambda f, allowed_types, actor: ('photo.png', 'png'),
         )
         monkeypatch.setattr(
             'app.routes.image.generate_safe_path',
@@ -55,8 +55,8 @@ class TestImageTaskRoutes:
         mock_task.id = 'img-resize-id'
 
         monkeypatch.setattr(
-            'app.routes.image.validate_file',
-            lambda f, allowed_types: ('photo.jpg', 'jpg'),
+            'app.routes.image.validate_actor_file',
+            lambda f, allowed_types, actor: ('photo.jpg', 'jpg'),
         )
         monkeypatch.setattr(
             'app.routes.image.generate_safe_path',
@@ -83,8 +83,8 @@ class TestImageTaskRoutes:
     def test_resize_image_no_dimensions(self, client, monkeypatch):
         """Should return 400 when both width and height are missing."""
         monkeypatch.setattr(
-            'app.routes.image.validate_file',
-            lambda f, allowed_types: ('photo.jpg', 'jpg'),
+            'app.routes.image.validate_actor_file',
+            lambda f, allowed_types, actor: ('photo.jpg', 'jpg'),
         )
         data = {
             'file': (io.BytesIO(b'\xff\xd8\xff'), 'photo.jpg'),
@@ -100,8 +100,8 @@ class TestImageTaskRoutes:
     def test_resize_image_invalid_width(self, client, monkeypatch):
         """Should return 400 for width out of range."""
         monkeypatch.setattr(
-            'app.routes.image.validate_file',
-            lambda f, allowed_types: ('photo.jpg', 'jpg'),
+            'app.routes.image.validate_actor_file',
+            lambda f, allowed_types, actor: ('photo.jpg', 'jpg'),
         )
         data = {
             'file': (io.BytesIO(b'\xff\xd8\xff'), 'photo.jpg'),

@@ -2,13 +2,18 @@
 
 A free SaaS platform offering PDF, image, video, and text processing tools. Built with **Python Flask** (backend) and **React + Vite** (frontend), powered by **Celery + Redis** for async processing, and deployed on **AWS**.
 
-## 🛠 Tools (MVP)
+## 🛠 Tools (Current)
 
-1. **PDF to Word / Word to PDF** — Convert between PDF and Word documents
-2. **PDF Compressor** — Reduce PDF file size with quality options
-3. **Image Converter** — Convert between JPG, PNG, WebP formats
-4. **Video to GIF** — Create animated GIFs from video clips
-5. **Text Tools** — Word counter, text cleaner, case converter (client-side)
+1. **PDF Conversion** — PDF↔Word
+2. **PDF Optimization** — Compress PDF
+3. **PDF Utilities** — Merge, split, rotate, page numbers, watermark
+4. **PDF Security** — Protect and unlock PDF
+5. **PDF/Image Tools** — PDF→Images, Images→PDF
+6. **Image Tools** — Convert and resize images
+7. **Video Tools** — Video→GIF
+8. **Text Tools** — Word counter and text cleaner
+9. **Flowchart Tools** — Extract procedures from PDF and generate flowcharts (+ sample mode)
+10. **Accounts & History** — Email/password sign-in with recent generated-file history
 
 ## 🏗 Tech Stack
 
@@ -19,7 +24,7 @@ A free SaaS platform offering PDF, image, video, and text processing tools. Buil
 | File Processing | LibreOffice, Ghostscript, Pillow, ffmpeg |
 | Frontend | React 18 + Vite 5 + TypeScript |
 | Styling | Tailwind CSS (RTL support) |
-| i18n | react-i18next (Arabic + English) |
+| i18n | react-i18next (Arabic + English + French) |
 | Storage | AWS S3 (temp files with auto-cleanup) |
 | CDN | AWS CloudFront |
 | Server | AWS EC2 + Nginx |
@@ -33,6 +38,7 @@ cd SaaS-PDF
 
 # 2. Copy environment file
 cp .env.example .env
+cp frontend/.env.example frontend/.env
 
 # 3. Start all services with Docker
 docker-compose up --build
@@ -42,6 +48,31 @@ docker-compose up --build
 # Backend API: http://localhost:5000/api
 # Celery Flower: http://localhost:5555
 ```
+
+## ⚙️ Runtime Limits (Default)
+
+- File retention: **30 minutes** (`FILE_EXPIRY_SECONDS=1800`)
+- PDF max size: **20MB**
+- Word max size: **15MB**
+- Image max size: **10MB**
+- Video max size: **50MB**
+
+## 🔐 Accounts & Sessions
+
+- Session-backed authentication via `/api/auth/*`
+- Free account creation with email + password
+- Recent generated-file history via `/api/history`
+- Persistent SQLite storage at `DATABASE_PATH` (defaults to `backend/data/saas_pdf.db` locally)
+
+## 📈 Analytics & Ads Env
+
+- `VITE_GA_MEASUREMENT_ID`
+- `VITE_ADSENSE_CLIENT_ID`
+- `VITE_ADSENSE_SLOT_HOME_TOP`
+- `VITE_ADSENSE_SLOT_HOME_BOTTOM`
+- `VITE_ADSENSE_SLOT_TOP_BANNER`
+- `VITE_ADSENSE_SLOT_BOTTOM_BANNER`
+- `DATABASE_PATH`
 
 ## 📁 Project Structure
 
@@ -59,7 +90,7 @@ SaaS-PDF/
 ## 💰 Revenue Model
 
 - **Google AdSense** — Ads on result/download pages
-- **Freemium** (planned) — Pro features: no ads, higher limits, API access
+- **Freemium** (next phase) — Pro features: no ads, higher limits, API access
 
 ## 📄 License
 

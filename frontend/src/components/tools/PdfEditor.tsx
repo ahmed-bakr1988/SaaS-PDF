@@ -4,14 +4,6 @@ import { Helmet } from 'react-helmet-async';
 import {
   PenLine,
   Save,
-  Download,
-  Undo2,
-  Redo2,
-  PlusCircle,
-  Trash2,
-  RotateCw,
-  FileOutput,
-  PanelLeft,
   Share2,
   ShieldCheck,
   Info,
@@ -24,6 +16,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { TOOL_LIMITS_MB } from '@/config/toolLimits';
 
 export default function PdfEditor() {
   const { t } = useTranslation();
@@ -40,7 +33,7 @@ export default function PdfEditor() {
     reset,
   } = useFileUpload({
     endpoint: '/compress/pdf',
-    maxSizeMB: 200,
+    maxSizeMB: TOOL_LIMITS_MB.pdf,
     acceptedTypes: ['pdf'],
     extraData: { quality: 'high' },
   });
@@ -77,16 +70,6 @@ export default function PdfEditor() {
     url: `${window.location.origin}/tools/pdf-editor`,
   });
 
-  const toolbarButtons = [
-    { icon: Undo2, label: t('tools.pdfEditor.undo'), shortcut: 'Ctrl+Z' },
-    { icon: Redo2, label: t('tools.pdfEditor.redo'), shortcut: 'Ctrl+Y' },
-    { icon: PlusCircle, label: t('tools.pdfEditor.addPage') },
-    { icon: Trash2, label: t('tools.pdfEditor.deletePage') },
-    { icon: RotateCw, label: t('tools.pdfEditor.rotate') },
-    { icon: FileOutput, label: t('tools.pdfEditor.extractPage') },
-    { icon: PanelLeft, label: t('tools.pdfEditor.thumbnails') },
-  ];
-
   return (
     <>
       <Helmet>
@@ -117,7 +100,7 @@ export default function PdfEditor() {
               onFileSelect={selectFile}
               file={file}
               accept={{ 'application/pdf': ['.pdf'] }}
-              maxSizeMB={200}
+              maxSizeMB={TOOL_LIMITS_MB.pdf}
               isUploading={isUploading}
               uploadProgress={uploadProgress}
               error={uploadError}
@@ -143,28 +126,6 @@ export default function PdfEditor() {
                       {t('tools.pdfEditor.steps.step3')}
                     </li>
                   </ol>
-                </div>
-
-                {/* Toolbar Preview */}
-                <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                  <p className="mb-3 text-xs font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                    {t('tools.pdfEditor.thumbnails')}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {toolbarButtons.map((btn) => {
-                      const Icon = btn.icon;
-                      return (
-                        <div
-                          key={btn.label}
-                          className="flex items-center gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600"
-                          title={btn.shortcut ? `${btn.label} (${btn.shortcut})` : btn.label}
-                        >
-                          <Icon className="h-4 w-4" />
-                          <span className="hidden sm:inline">{btn.label}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
                 </div>
 
                 {/* Upload Button */}

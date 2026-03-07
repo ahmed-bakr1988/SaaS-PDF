@@ -7,6 +7,7 @@ import ToolSelectorModal from '@/components/shared/ToolSelectorModal';
 import { useFileStore } from '@/stores/fileStore';
 import { getToolsForFile, detectFileCategory, getCategoryLabel } from '@/utils/fileRouting';
 import type { ToolOption } from '@/utils/fileRouting';
+import { TOOL_LIMITS_MB } from '@/config/toolLimits';
 
 /**
  * The MIME types we accept on the homepage smart upload zone.
@@ -62,11 +63,11 @@ export default function HeroUploadZone() {
     onDrop,
     accept: ACCEPTED_TYPES,
     maxFiles: 1,
-    maxSize: 100 * 1024 * 1024, // 100 MB (matches nginx config)
+    maxSize: TOOL_LIMITS_MB.homepageSmartUpload * 1024 * 1024,
     onDropRejected: (rejections) => {
       const rejection = rejections[0];
       if (rejection?.errors[0]?.code === 'file-too-large') {
-        setError(t('common.maxSize', { size: 100 }));
+        setError(t('common.maxSize', { size: TOOL_LIMITS_MB.homepageSmartUpload }));
       } else {
         setError(t('home.unsupportedFile'));
       }

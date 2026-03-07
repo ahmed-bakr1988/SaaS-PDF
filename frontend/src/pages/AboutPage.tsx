@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 export default function AboutPage() {
   const { t } = useTranslation();
@@ -22,20 +23,21 @@ export default function AboutPage() {
         <h2>Why use our tools?</h2>
         <ul>
           <li><strong>100% Free</strong> — No hidden charges, no sign-up required.</li>
-          <li><strong>Private & Secure</strong> — Files are auto-deleted within 2 hours.</li>
+          <li><strong>Private & Secure</strong> — Files are auto-deleted within {FILE_RETENTION_MINUTES} minutes.</li>
           <li><strong>Fast Processing</strong> — Server-side processing for reliable results.</li>
           <li><strong>Works Everywhere</strong> — Desktop, tablet, or mobile.</li>
         </ul>
 
         <h2>Available Tools</h2>
         <ul>
-          <li>PDF to Word Converter</li>
-          <li>Word to PDF Converter</li>
-          <li>PDF Compressor</li>
-          <li>Image Format Converter</li>
-          <li>Video to GIF Creator</li>
-          <li>Word Counter</li>
-          <li>Text Cleaner & Formatter</li>
+          <li>PDF conversion tools (PDF↔Word)</li>
+          <li>PDF optimization and utility tools (compress, merge, split, rotate, page numbers)</li>
+          <li>PDF security tools (watermark, protect, unlock)</li>
+          <li>PDF/image conversion tools (PDF→Images, Images→PDF)</li>
+          <li>Image processing tools (convert, resize)</li>
+          <li>Video to GIF tool</li>
+          <li>Text tools (word counter, cleaner)</li>
+          <li>PDF to flowchart extraction tool</li>
         </ul>
 
         <h2>Contact</h2>

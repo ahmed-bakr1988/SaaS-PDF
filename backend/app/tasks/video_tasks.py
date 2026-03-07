@@ -2,14 +2,47 @@
 import os
 import logging
 
+from flask import current_app
+
 from app.extensions import celery
 from app.services.video_service import video_to_gif, VideoProcessingError
 from app.services.storage_service import storage
+from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
 
 
 def _cleanup(task_id: str):
     cleanup_task_files(task_id, keep_outputs=not storage.use_s3)
+
+
+def _get_output_dir(task_id: str) -> str:
+    """Resolve output directory from app config."""
+    output_dir = os.path.join(current_app.config["OUTPUT_FOLDER"], task_id)
+    os.makedirs(output_dir, exist_ok=True)
+    return output_dir
+
+
+def _finalize_task(
+    task_id: str,
+    user_id: int | None,
+    original_filename: str,
+    result: dict,
+    usage_source: str,
+    api_key_id: int | None,
+    celery_task_id: str | None,
+):
+    """Persist optional history and cleanup task files."""
+    finalize_task_tracking(
+        user_id=user_id,
+        tool="video-to-gif",
+        original_filename=original_filename,
+        result=result,
+        usage_source=usage_source,
+        api_key_id=api_key_id,
+        celery_task_id=celery_task_id,
+    )
+    _cleanup(task_id)
+    return result
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +57,9 @@ def create_gif_task(
     duration: float = 5,
     fps: int = 10,
     width: int = 480,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
 ):
     """
     Async task: Convert video clip to animated GIF.
@@ -40,8 +76,7 @@ def create_gif_task(
     Returns:
         dict with download_url and GIF info
     """
-    output_dir = os.path.join("/tmp/outputs", task_id)
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}.gif")
 
     try:
@@ -80,17 +115,37 @@ def create_gif_task(
             "height": stats["height"],
         }
 
-        _cleanup(task_id)
-
         logger.info(f"Task {task_id}: Video→GIF creation completed")
-        return result
+        return _finalize_task(
+            task_id,
+            user_id,
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except VideoProcessingError as e:
         logger.error(f"Task {task_id}: Video error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": str(e)}
+        return _finalize_task(
+            task_id,
+            user_id,
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
 
     except Exception as e:
         logger.error(f"Task {task_id}: Unexpected error — {e}")
-        _cleanup(task_id)
-        return {"status": "failed", "error": "An unexpected error occurred."}
+        return _finalize_task(
+            task_id,
+            user_id,
+            original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )

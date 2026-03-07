@@ -11,8 +11,8 @@ class TestVideoTaskRoutes:
         mock_delay = MagicMock(return_value=mock_task)
 
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('video.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: ('video.mp4', 'mp4'),
         )
         monkeypatch.setattr(
             'app.routes.video.generate_safe_path',
@@ -53,8 +53,8 @@ class TestVideoTaskRoutes:
         mock_delay = MagicMock(return_value=mock_task)
 
         monkeypatch.setattr(
-            'app.routes.video.validate_file',
-            lambda f, allowed_types: ('video.mp4', 'mp4'),
+            'app.routes.video.validate_actor_file',
+            lambda f, allowed_types, actor: ('video.mp4', 'mp4'),
         )
         monkeypatch.setattr(
             'app.routes.video.generate_safe_path',

@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useAuthStore } from '@/stores/authStore';
 
 interface AdSlotProps {
   /** AdSense ad slot ID */
@@ -21,21 +22,50 @@ export default function AdSlot({
   responsive = true,
   className = '',
 }: AdSlotProps) {
+  const user = useAuthStore((s) => s.user);
   const adRef = useRef<HTMLModElement>(null);
   const isLoaded = useRef(false);
+  const clientId = (import.meta.env.VITE_ADSENSE_CLIENT_ID || '').trim();
+  const slotMap: Record<string, string | undefined> = {
+    'home-top': import.meta.env.VITE_ADSENSE_SLOT_HOME_TOP,
+    'home-bottom': import.meta.env.VITE_ADSENSE_SLOT_HOME_BOTTOM,
+    'top-banner': import.meta.env.VITE_ADSENSE_SLOT_TOP_BANNER,
+    'bottom-banner': import.meta.env.VITE_ADSENSE_SLOT_BOTTOM_BANNER,
+  };
+  const resolvedSlot = /^\d+$/.test(slot) ? slot : slotMap[slot];
 
   useEffect(() => {
-    if (isLoaded.current) return;
+    if (isLoaded.current || !clientId || !resolvedSlot) return;
+
+    const existingScript = document.querySelector<HTMLScriptElement>(
+      `script[data-adsense-client="${clientId}"]`
+    );
+
+    if (!existingScript) {
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${clientId}`;
+      script.crossOrigin = 'anonymous';
+      script.setAttribute('data-adsense-client', clientId);
+      document.head.appendChild(script);
+    }
 
     try {
       // Push ad to AdSense queue
-      const adsbygoogle = (window as any).adsbygoogle || [];
+      const adsWindow = window as Window & { adsbygoogle?: unknown[] };
+      const adsbygoogle = adsWindow.adsbygoogle || [];
       adsbygoogle.push({});
+      adsWindow.adsbygoogle = adsbygoogle;
       isLoaded.current = true;
     } catch {
       // AdSense not loaded (e.g., ad blocker)
     }
-  }, []);
+  }, [clientId, resolvedSlot]);
+
+  if (!clientId || !resolvedSlot) return null;
+
+  // Pro users see no ads
+  if (user?.plan === 'pro') return null;
 
   return (
     <div className={`ad-slot ${className}`}>
@@ -43,8 +73,8 @@ export default function AdSlot({
         ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
-        data-ad-client={import.meta.env.VITE_ADSENSE_CLIENT_ID || ''}
-        data-ad-slot={slot}
+        data-ad-client={clientId}
+        data-ad-slot={resolvedSlot}
         data-ad-format={format}
         data-full-width-responsive={responsive ? 'true' : 'false'}
       />

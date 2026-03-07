@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
+
+const LAST_UPDATED = '2026-03-06';
 
 export default function PrivacyPage() {
   const { t } = useTranslation();
@@ -13,7 +16,7 @@ export default function PrivacyPage() {
 
       <div className="prose mx-auto max-w-2xl dark:prose-invert">
         <h1>{t('common.privacy')}</h1>
-        <p><em>Last updated: {new Date().toISOString().split('T')[0]}</em></p>
+        <p><em>Last updated: {LAST_UPDATED}</em></p>
 
         <h2>1. Data Collection</h2>
         <p>
@@ -24,7 +27,7 @@ export default function PrivacyPage() {
         <h2>2. File Processing & Storage</h2>
         <ul>
           <li>Uploaded files are processed on our secure servers.</li>
-          <li>All uploaded and output files are <strong>automatically deleted within 2 hours</strong>.</li>
+          <li>All uploaded and output files are <strong>automatically deleted within {FILE_RETENTION_MINUTES} minutes</strong>.</li>
           <li>Files are stored in encrypted cloud storage during processing.</li>
           <li>We do not access, read, or share the content of your files.</li>
         </ul>

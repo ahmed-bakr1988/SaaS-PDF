@@ -76,7 +76,7 @@ class TestConcurrentRequests:
             return t
 
         # Apply all patches BEFORE threads start — avoids concurrent patch/unpatch
-        with patch('app.routes.compress.validate_file', return_value=('t.pdf', 'pdf')), \
+        with patch('app.routes.compress.validate_actor_file', return_value=('t.pdf', 'pdf')), \
              patch('app.routes.compress.generate_safe_path',
                    side_effect=lambda ext, folder_type: (f'tid-x', '/tmp/up/t.pdf')), \
              patch('werkzeug.datastructures.file_storage.FileStorage.save'), \
@@ -121,7 +121,7 @@ class TestConcurrentRequests:
         errors: list[Exception] = []
         lock = threading.Lock()
 
-        with patch('app.routes.pdf_tools.validate_file', return_value=('t.pdf', 'pdf')), \
+        with patch('app.routes.pdf_tools.validate_actor_file', return_value=('t.pdf', 'pdf')), \
              patch('app.routes.pdf_tools.generate_safe_path',
                    side_effect=lambda ext, folder_type: ('split-x', '/tmp/up/t.pdf')), \
              patch('werkzeug.datastructures.file_storage.FileStorage.save'), \
@@ -180,8 +180,8 @@ class TestFileSizeLimits:
     def test_normal_size_file_is_accepted(self, client, monkeypatch):
         """A file within the size limit reaches the route logic."""
         monkeypatch.setattr(
-            'app.routes.compress.validate_file',
-            lambda f, allowed_types: ('t.pdf', 'pdf'),
+            'app.routes.compress.validate_actor_file',
+            lambda f, allowed_types, actor: ('t.pdf', 'pdf'),
         )
         monkeypatch.setattr(
             'app.routes.compress.generate_safe_path',
