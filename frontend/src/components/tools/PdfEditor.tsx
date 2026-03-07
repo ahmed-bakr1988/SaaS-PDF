@@ -16,10 +16,11 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
-import { TOOL_LIMITS_MB } from '@/config/toolLimits';
+import { useConfig } from '@/hooks/useConfig';
 
 export default function PdfEditor() {
   const { t } = useTranslation();
+  const { limits } = useConfig();
   const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
 
   const {
@@ -33,7 +34,7 @@ export default function PdfEditor() {
     reset,
   } = useFileUpload({
     endpoint: '/compress/pdf',
-    maxSizeMB: TOOL_LIMITS_MB.pdf,
+    maxSizeMB: limits.pdf,
     acceptedTypes: ['pdf'],
     extraData: { quality: 'high' },
   });
@@ -100,7 +101,7 @@ export default function PdfEditor() {
               onFileSelect={selectFile}
               file={file}
               accept={{ 'application/pdf': ['.pdf'] }}
-              maxSizeMB={TOOL_LIMITS_MB.pdf}
+              maxSizeMB={limits.pdf}
               isUploading={isUploading}
               uploadProgress={uploadProgress}
               error={uploadError}

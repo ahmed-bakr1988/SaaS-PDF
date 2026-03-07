@@ -25,6 +25,25 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode"
   },
+  "auth": {
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "submit": "Send Reset Link",
+      "sent": "If that email is registered, a reset link has been sent. Check your inbox.",
+      "error": "Something went wrong. Please try again.",
+      "link": "Forgot your password?"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPassword": "New Password",
+      "submit": "Reset Password",
+      "success": "Password updated successfully! Redirecting to sign in...",
+      "error": "Failed to reset password. The link may have expired.",
+      "tooShort": "Password must be at least 8 characters.",
+      "noToken": "Invalid reset link. Please request a new one."
+    }
+  },
   "home": {
     "hero": "Everything You Need to Work with PDF Files — Instantly",
     "heroSub": "Upload or drag & drop your file, and we'll auto-detect its type and suggest the right tools — edit, convert, compress, and more. No registration required.",
@@ -79,6 +98,17 @@
       "title": "Image Converter",
       "description": "Convert images between JPG, PNG, and WebP formats instantly.",
       "shortDesc": "Convert Images"
+    },
+    "imageResize": {
+      "title": "Image Resize",
+      "description": "Resize images to exact dimensions while maintaining quality.",
+      "shortDesc": "Resize Image",
+      "dimensions": "Target Dimensions",
+      "width": "Width (px)",
+      "height": "Height (px)",
+      "quality": "Quality",
+      "lockAspect": "Lock aspect ratio",
+      "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio."
     },
     "videoToGif": {
       "title": "Video to GIF",

@@ -633,6 +633,14 @@ export default function AccountPage() {
                 <button type="submit" className="btn-primary w-full" disabled={authLoading}>
                   {mode === 'login' ? t('account.submitLogin') : t('account.submitRegister')}
                 </button>
+
+                {mode === 'login' && (
+                  <p className="text-center text-sm">
+                    <a href="/forgot-password" className="text-primary-600 hover:underline dark:text-primary-400">
+                      {t('auth.forgotPassword.link')}
+                    </a>
+                  </p>
+                )}
               </form>
             </div>
           </section>

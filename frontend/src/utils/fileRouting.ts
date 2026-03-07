@@ -15,6 +15,7 @@ import {
   Film,
   PenLine,
   GitBranch,
+  Scaling,
 } from 'lucide-react';
 import type { ComponentType, SVGProps } from 'react';
 
@@ -50,6 +51,7 @@ const pdfTools: ToolOption[] = [
 /** Image tools available when an image is uploaded */
 const imageTools: ToolOption[] = [
   { key: 'imageConvert', path: '/tools/image-converter', icon: ImageIcon, bgColor: 'bg-purple-100 dark:bg-purple-900/30', iconColor: 'text-purple-600 dark:text-purple-400' },
+  { key: 'imageResize', path: '/tools/image-resize', icon: Scaling, bgColor: 'bg-teal-100 dark:bg-teal-900/30', iconColor: 'text-teal-600 dark:text-teal-400' },
   { key: 'imagesToPdf', path: '/tools/images-to-pdf', icon: FileImage, bgColor: 'bg-lime-100 dark:bg-lime-900/30', iconColor: 'text-lime-600 dark:text-lime-400' },
 ];
 

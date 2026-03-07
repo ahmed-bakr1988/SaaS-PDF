@@ -89,6 +89,7 @@ def create_app(config_name=None):
     from app.routes.pdf_tools import pdf_tools_bp
     from app.routes.flowchart import flowchart_bp
     from app.routes.v1.tools import v1_bp
+    from app.routes.config import config_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -104,5 +105,6 @@ def create_app(config_name=None):
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
     app.register_blueprint(download_bp, url_prefix="/api/download")
     app.register_blueprint(v1_bp, url_prefix="/api/v1")
+    app.register_blueprint(config_bp, url_prefix="/api/config")
 
     return app

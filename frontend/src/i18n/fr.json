@@ -25,6 +25,25 @@
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair"
   },
+  "auth": {
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email et nous vous enverrons un lien de réinitialisation.",
+      "submit": "Envoyer le lien",
+      "sent": "Si cet email est enregistré, un lien de réinitialisation a été envoyé. Vérifiez votre boîte de réception.",
+      "error": "Une erreur s'est produite. Veuillez réessayer.",
+      "link": "Mot de passe oublié ?"
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "submit": "Réinitialiser",
+      "success": "Mot de passe mis à jour avec succès ! Redirection vers la connexion...",
+      "error": "Échec de la réinitialisation. Le lien a peut-être expiré.",
+      "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+      "noToken": "Lien invalide. Veuillez en demander un nouveau."
+    }
+  },
   "home": {
     "hero": "Tout ce dont vous avez besoin pour vos fichiers PDF — instantanément",
     "heroSub": "Déposez votre fichier ici, nous détecterons automatiquement son type et proposerons les outils adaptés — édition, conversion, compression et plus. Aucune inscription requise.",
@@ -79,6 +98,17 @@
       "title": "Convertisseur d'images",
       "description": "Convertissez instantanément des images entre les formats JPG, PNG et WebP.",
       "shortDesc": "Convertir des images"
+    },
+    "imageResize": {
+      "title": "Redimensionner l'image",
+      "description": "Redimensionnez vos images aux dimensions exactes tout en préservant la qualité.",
+      "shortDesc": "Redimensionner",
+      "dimensions": "Dimensions cibles",
+      "width": "Largeur (px)",
+      "height": "Hauteur (px)",
+      "quality": "Qualité",
+      "lockAspect": "Verrouiller le rapport d'aspect",
+      "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect."
     },
     "videoToGif": {
       "title": "Vidéo en GIF",

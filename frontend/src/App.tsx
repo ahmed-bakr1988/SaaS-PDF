@@ -13,6 +13,8 @@ const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
 const AccountPage = lazy(() => import('@/pages/AccountPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -33,6 +35,7 @@ const UnlockPdf = lazy(() => import('@/components/tools/UnlockPdf'));
 const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
 const PdfEditor = lazy(() => import('@/components/tools/PdfEditor'));
 const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
+const ImageResize = lazy(() => import('@/components/tools/ImageResize'));
 
 function LoadingFallback() {
   return (
@@ -67,6 +70,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
 
@@ -88,6 +93,7 @@ export default function App() {
 
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />
+            <Route path="/tools/image-resize" element={<ImageResize />} />
 
             {/* Video Tools */}
             <Route path="/tools/video-to-gif" element={<VideoToGif />} />

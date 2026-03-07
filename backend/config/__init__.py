@@ -86,6 +86,18 @@ class BaseConfig:
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
     )
 
+    # SMTP (for password reset emails)
+    SMTP_HOST = os.getenv("SMTP_HOST", "")
+    SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
+    SMTP_USER = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM = os.getenv("SMTP_FROM", "noreply@saas-pdf.com")
+    SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
+    # Feature flags
+    FEATURE_EDITOR = os.getenv("FEATURE_EDITOR", "false").lower() == "true"
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""

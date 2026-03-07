@@ -5,7 +5,7 @@ import logging
 import os
 import secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from flask import current_app
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -159,6 +159,35 @@ def init_account_db():
             conn.execute(
                 "ALTER TABLE users ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''"
             )
+
+        # Password reset tokens
+        conn.executescript(
+            """
+            CREATE TABLE IF NOT EXISTS password_reset_tokens (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token_hash TEXT NOT NULL UNIQUE,
+                expires_at TEXT NOT NULL,
+                used_at TEXT,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_prt_token_hash
+            ON password_reset_tokens(token_hash);
+
+            CREATE TABLE IF NOT EXISTS file_events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                event_type TEXT NOT NULL,
+                file_path TEXT,
+                detail TEXT,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE INDEX IF NOT EXISTS idx_file_events_created
+            ON file_events(created_at DESC);
+            """
+        )
 
 
 def create_user(email: str, password: str) -> dict:
@@ -515,3 +544,99 @@ def has_task_access(user_id: int, source: str, task_id: str) -> bool:
         ).fetchone()
 
     return row is not None
+
+
+# ---------------------------------------------------------------------------
+# Password reset tokens
+# ---------------------------------------------------------------------------
+
+def get_user_by_email(email: str) -> dict | None:
+    """Fetch a public user record by email."""
+    email = _normalize_email(email)
+    with _connect() as conn:
+        row = conn.execute(
+            "SELECT id, email, plan, created_at FROM users WHERE email = ?",
+            (email,),
+        ).fetchone()
+    return _serialize_user(row)
+
+
+def create_password_reset_token(user_id: int) -> str:
+    """Generate a password-reset token (returned raw) and store its hash."""
+    raw_token = secrets.token_urlsafe(48)
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    now = _utc_now()
+    # Expire in 1 hour
+    expires = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+
+    with _connect() as conn:
+        # Invalidate any previous unused tokens for this user
+        conn.execute(
+            "UPDATE password_reset_tokens SET used_at = ? WHERE user_id = ? AND used_at IS NULL",
+            (now, user_id),
+        )
+        conn.execute(
+            """
+            INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            (user_id, token_hash, expires, now),
+        )
+
+    return raw_token
+
+
+def verify_and_consume_reset_token(raw_token: str) -> int | None:
+    """Verify a reset token. Returns user_id if valid, else None. Marks it used."""
+    token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    now = _utc_now()
+
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT id, user_id, expires_at
+            FROM password_reset_tokens
+            WHERE token_hash = ? AND used_at IS NULL
+            """,
+            (token_hash,),
+        ).fetchone()
+
+        if row is None:
+            return None
+
+        # Check expiry
+        if row["expires_at"] < now:
+            conn.execute(
+                "UPDATE password_reset_tokens SET used_at = ? WHERE id = ?",
+                (now, row["id"]),
+            )
+            return None
+
+        # Mark used
+        conn.execute(
+            "UPDATE password_reset_tokens SET used_at = ? WHERE id = ?",
+            (now, row["id"]),
+        )
+
+        return row["user_id"]
+
+
+def update_user_password(user_id: int, new_password: str) -> bool:
+    """Update a user's password hash."""
+    now = _utc_now()
+    password_hash = generate_password_hash(new_password)
+    with _connect() as conn:
+        conn.execute(
+            "UPDATE users SET password_hash = ?, updated_at = ? WHERE id = ?",
+            (password_hash, now, user_id),
+        )
+    return True
+
+
+def log_file_event(event_type: str, file_path: str | None = None, detail: str | None = None) -> None:
+    """Record a file lifecycle event (upload, download, cleanup, etc.)."""
+    with _connect() as conn:
+        conn.execute(
+            "INSERT INTO file_events (event_type, file_path, detail, created_at) VALUES (?, ?, ?, ?)",
+            (event_type, file_path, detail, _utc_now()),
+        )
