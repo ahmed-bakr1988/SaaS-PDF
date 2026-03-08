@@ -1,5 +1,6 @@
 """Flask extensions initialization."""
 from celery import Celery
+from celery.schedules import crontab
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -31,6 +32,22 @@ def init_celery(app):
         "app.tasks.video_tasks.*": {"queue": "video"},
         "app.tasks.pdf_tools_tasks.*": {"queue": "pdf_tools"},
         "app.tasks.flowchart_tasks.*": {"queue": "flowchart"},
+        "app.tasks.ocr_tasks.*": {"queue": "image"},
+        "app.tasks.removebg_tasks.*": {"queue": "image"},
+        "app.tasks.pdf_editor_tasks.*": {"queue": "pdf_tools"},
+        "app.tasks.compress_image_tasks.*": {"queue": "image"},
+        "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_tools"},
+        "app.tasks.qrcode_tasks.*": {"queue": "default"},
+        "app.tasks.html_to_pdf_tasks.*": {"queue": "convert"},
+        "app.tasks.pdf_ai_tasks.*": {"queue": "default"},
+    }
+
+    # Celery Beat — periodic tasks
+    celery.conf.beat_schedule = {
+        "cleanup-expired-files": {
+            "task": "app.tasks.maintenance_tasks.cleanup_expired_files",
+            "schedule": crontab(minute="*/30"),
+        },
     }
 
     class ContextTask(celery.Task):

@@ -25,6 +25,9 @@ from app.tasks.pdf_tools_tasks import (
     watermark_pdf_task,
     protect_pdf_task,
     unlock_pdf_task,
+    remove_watermark_task,
+    reorder_pdf_task,
+    extract_pages_task,
 )
 
 pdf_tools_bp = Blueprint("pdf_tools", __name__)
@@ -553,4 +556,162 @@ def unlock_pdf_route():
     return jsonify({
         "task_id": task.id,
         "message": "Unlock started. Poll /api/tasks/{task_id}/status for progress.",
+    }), 202
+
+
+# ---------------------------------------------------------------------------
+# Remove Watermark  — POST /api/pdf-tools/remove-watermark
+# ---------------------------------------------------------------------------
+@pdf_tools_bp.route("/remove-watermark", methods=["POST"])
+@limiter.limit("10/minute")
+def remove_watermark_route():
+    """
+    Remove watermark from a PDF.
+
+    Accepts: multipart/form-data with:
+        - 'file': PDF file
+    Returns: JSON with task_id for polling
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+
+    task = remove_watermark_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "remove-watermark", task.id)
+
+    return jsonify({
+        "task_id": task.id,
+        "message": "Watermark removal started. Poll /api/tasks/{task_id}/status for progress.",
+    }), 202
+
+
+# ---------------------------------------------------------------------------
+# Reorder PDF Pages  — POST /api/pdf-tools/reorder
+# ---------------------------------------------------------------------------
+@pdf_tools_bp.route("/reorder", methods=["POST"])
+@limiter.limit("10/minute")
+def reorder_pdf_route():
+    """
+    Reorder pages in a PDF.
+
+    Accepts: multipart/form-data with:
+        - 'file': PDF file
+        - 'page_order': Comma-separated page numbers in desired order (e.g. "3,1,2")
+    Returns: JSON with task_id for polling
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    page_order_str = request.form.get("page_order", "").strip()
+
+    if not page_order_str:
+        return jsonify({"error": "Page order is required (e.g. '3,1,2')."}), 400
+
+    try:
+        page_order = [int(p.strip()) for p in page_order_str.split(",") if p.strip()]
+    except ValueError:
+        return jsonify({"error": "Invalid page order. Use comma-separated numbers (e.g. '3,1,2')."}), 400
+
+    if not page_order:
+        return jsonify({"error": "Page order is required."}), 400
+
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+
+    task = reorder_pdf_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        page_order,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "reorder-pdf", task.id)
+
+    return jsonify({
+        "task_id": task.id,
+        "message": "Reorder started. Poll /api/tasks/{task_id}/status for progress.",
+    }), 202
+
+
+# ---------------------------------------------------------------------------
+# Extract Pages  — POST /api/pdf-tools/extract-pages
+# ---------------------------------------------------------------------------
+@pdf_tools_bp.route("/extract-pages", methods=["POST"])
+@limiter.limit("10/minute")
+def extract_pages_route():
+    """
+    Extract specific pages from a PDF into a new PDF.
+
+    Accepts: multipart/form-data with:
+        - 'file': PDF file
+        - 'pages': Page specification (e.g. "1,3,5-8")
+    Returns: JSON with task_id for polling
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    pages = request.form.get("pages", "").strip()
+
+    if not pages:
+        return jsonify({"error": "Pages specification is required (e.g. '1,3,5-8')."}), 400
+
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor)
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+
+    task = extract_pages_task.delay(
+        input_path,
+        task_id,
+        original_filename,
+        pages,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "extract-pages", task.id)
+
+    return jsonify({
+        "task_id": task.id,
+        "message": "Page extraction started. Poll /api/tasks/{task_id}/status for progress.",
     }), 202

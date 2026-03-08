@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
@@ -13,6 +14,8 @@ const PrivacyPage = lazy(() => import('@/pages/PrivacyPage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const TermsPage = lazy(() => import('@/pages/TermsPage'));
 const AccountPage = lazy(() => import('@/pages/AccountPage'));
+const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -33,6 +36,20 @@ const UnlockPdf = lazy(() => import('@/components/tools/UnlockPdf'));
 const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
 const PdfEditor = lazy(() => import('@/components/tools/PdfEditor'));
 const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
+const ImageResize = lazy(() => import('@/components/tools/ImageResize'));
+const OcrTool = lazy(() => import('@/components/tools/OcrTool'));
+const RemoveBackground = lazy(() => import('@/components/tools/RemoveBackground'));
+const CompressImage = lazy(() => import('@/components/tools/CompressImage'));
+const PdfToExcel = lazy(() => import('@/components/tools/PdfToExcel'));
+const RemoveWatermark = lazy(() => import('@/components/tools/RemoveWatermark'));
+const ReorderPdf = lazy(() => import('@/components/tools/ReorderPdf'));
+const ExtractPages = lazy(() => import('@/components/tools/ExtractPages'));
+const QrCodeGenerator = lazy(() => import('@/components/tools/QrCodeGenerator'));
+const HtmlToPdf = lazy(() => import('@/components/tools/HtmlToPdf'));
+const ChatPdf = lazy(() => import('@/components/tools/ChatPdf'));
+const SummarizePdf = lazy(() => import('@/components/tools/SummarizePdf'));
+const TranslatePdf = lazy(() => import('@/components/tools/TranslatePdf'));
+const TableExtractor = lazy(() => import('@/components/tools/TableExtractor'));
 
 function LoadingFallback() {
   return (
@@ -61,12 +78,15 @@ export default function App() {
       <Header />
 
       <main className="container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <ErrorBoundary>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* Pages */}
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/account" element={<AccountPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
 
@@ -88,6 +108,28 @@ export default function App() {
 
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />
+            <Route path="/tools/image-resize" element={<ImageResize />} />
+            <Route path="/tools/compress-image" element={<CompressImage />} />
+            <Route path="/tools/ocr" element={<OcrTool />} />
+            <Route path="/tools/remove-background" element={<RemoveBackground />} />
+
+            {/* Convert Tools */}
+            <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
+            <Route path="/tools/html-to-pdf" element={<HtmlToPdf />} />
+
+            {/* PDF Extra Tools */}
+            <Route path="/tools/remove-watermark-pdf" element={<RemoveWatermark />} />
+            <Route path="/tools/reorder-pdf" element={<ReorderPdf />} />
+            <Route path="/tools/extract-pages" element={<ExtractPages />} />
+
+            {/* AI Tools */}
+            <Route path="/tools/chat-pdf" element={<ChatPdf />} />
+            <Route path="/tools/summarize-pdf" element={<SummarizePdf />} />
+            <Route path="/tools/translate-pdf" element={<TranslatePdf />} />
+            <Route path="/tools/extract-tables" element={<TableExtractor />} />
+
+            {/* Other Tools */}
+            <Route path="/tools/qr-code" element={<QrCodeGenerator />} />
 
             {/* Video Tools */}
             <Route path="/tools/video-to-gif" element={<VideoToGif />} />
@@ -100,6 +142,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
 
       <Footer />

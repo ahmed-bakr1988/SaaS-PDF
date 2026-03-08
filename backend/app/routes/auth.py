@@ -8,7 +8,12 @@ from app.services.account_service import (
     authenticate_user,
     create_user,
     get_user_by_id,
+    get_user_by_email,
+    create_password_reset_token,
+    verify_and_consume_reset_token,
+    update_user_password,
 )
+from app.services.email_service import send_password_reset_email
 from app.utils.auth import (
     get_current_user_id,
     login_user_session,
@@ -98,3 +103,48 @@ def me_route():
         return jsonify({"authenticated": False, "user": None}), 200
 
     return jsonify({"authenticated": True, "user": user}), 200
+
+
+@auth_bp.route("/forgot-password", methods=["POST"])
+@limiter.limit("5/hour")
+def forgot_password_route():
+    """Send a password reset email if the account exists.
+
+    Always returns 200 to avoid leaking whether an email is registered.
+    """
+    data = request.get_json(silent=True) or {}
+    email = str(data.get("email", "")).strip().lower()
+
+    if not email or not EMAIL_PATTERN.match(email):
+        return jsonify({"message": "If that email is registered, a reset link has been sent."}), 200
+
+    user = get_user_by_email(email)
+    if user is not None:
+        token = create_password_reset_token(user["id"])
+        send_password_reset_email(email, token)
+
+    return jsonify({"message": "If that email is registered, a reset link has been sent."}), 200
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+@limiter.limit("10/hour")
+def reset_password_route():
+    """Consume a reset token and set a new password."""
+    data = request.get_json(silent=True) or {}
+    token = str(data.get("token", "")).strip()
+    password = str(data.get("password", ""))
+
+    if not token:
+        return jsonify({"error": "Reset token is required."}), 400
+
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return jsonify({"error": f"Password must be at least {MIN_PASSWORD_LENGTH} characters."}), 400
+    if len(password) > MAX_PASSWORD_LENGTH:
+        return jsonify({"error": f"Password must be {MAX_PASSWORD_LENGTH} characters or less."}), 400
+
+    user_id = verify_and_consume_reset_token(token)
+    if user_id is None:
+        return jsonify({"error": "Invalid or expired reset token."}), 400
+
+    update_user_password(user_id, password)
+    return jsonify({"message": "Password updated successfully. You can now sign in."}), 200

@@ -23,7 +23,37 @@
     "email": "E-mail",
     "password": "Mot de passe",
     "darkMode": "Mode sombre",
-    "lightMode": "Mode clair"
+    "lightMode": "Mode clair",
+    "errors": {
+      "fileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : {{size}} Mo.",
+      "invalidFileType": "Type de fichier non valide. Formats acceptés : {{types}}",
+      "uploadFailed": "Téléchargement échoué. Veuillez réessayer.",
+      "processingFailed": "Échec du traitement. Veuillez réessayer.",
+      "quotaExceeded": "Limite d'utilisation mensuelle atteinte. Veuillez réessayer le mois prochain.",
+      "rateLimited": "Trop de requêtes. Veuillez attendre un moment et réessayer.",
+      "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard.",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+      "noFileSelected": "Aucun fichier sélectionné. Veuillez choisir un fichier à télécharger."
+    }
+  },
+  "auth": {
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email et nous vous enverrons un lien de réinitialisation.",
+      "submit": "Envoyer le lien",
+      "sent": "Si cet email est enregistré, un lien de réinitialisation a été envoyé. Vérifiez votre boîte de réception.",
+      "error": "Une erreur s'est produite. Veuillez réessayer.",
+      "link": "Mot de passe oublié ?"
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "newPassword": "Nouveau mot de passe",
+      "submit": "Réinitialiser",
+      "success": "Mot de passe mis à jour avec succès ! Redirection vers la connexion...",
+      "error": "Échec de la réinitialisation. Le lien a peut-être expiré.",
+      "tooShort": "Le mot de passe doit contenir au moins 8 caractères.",
+      "noToken": "Lien invalide. Veuillez en demander un nouveau."
+    }
   },
   "home": {
     "hero": "Tout ce dont vous avez besoin pour vos fichiers PDF — instantanément",
@@ -80,6 +110,36 @@
       "description": "Convertissez instantanément des images entre les formats JPG, PNG et WebP.",
       "shortDesc": "Convertir des images"
     },
+    "imageResize": {
+      "title": "Redimensionner l'image",
+      "description": "Redimensionnez vos images aux dimensions exactes tout en préservant la qualité.",
+      "shortDesc": "Redimensionner",
+      "dimensions": "Dimensions cibles",
+      "width": "Largeur (px)",
+      "height": "Hauteur (px)",
+      "quality": "Qualité",
+      "lockAspect": "Verrouiller le rapport d'aspect",
+      "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect."
+    },
+    "ocr": {
+      "title": "OCR — Reconnaissance de texte",
+      "description": "Extrayez le texte des images et des documents PDF numérisés grâce à la reconnaissance optique de caractères.",
+      "shortDesc": "Extraire le texte",
+      "sourceType": "Type de source",
+      "modeImage": "Image",
+      "modePdf": "PDF",
+      "language": "Langue OCR",
+      "extract": "Extraire le texte",
+      "charsExtracted": "{{count}} caractères extraits",
+      "copyText": "Copier le texte"
+    },
+    "removeBg": {
+      "title": "Supprimer l'arrière-plan",
+      "description": "Supprimez l'arrière-plan des images automatiquement grâce à l'IA. Obtenez un PNG transparent en quelques secondes.",
+      "shortDesc": "Suppr. arrière-plan",
+      "remove": "Supprimer l'arrière-plan",
+      "success": "Arrière-plan supprimé avec succès !"
+    },
     "videoToGif": {
       "title": "Vidéo en GIF",
       "description": "Créez des GIFs animés à partir de clips vidéo. Personnalisez le temps de début, la durée et la qualité.",
@@ -118,7 +178,9 @@
       "selectFiles": "Sélectionner des fichiers PDF",
       "addMore": "Ajouter plus de fichiers",
       "filesSelected": "{{count}} fichiers sélectionnés",
-      "dragToReorder": "Glissez les fichiers pour les réorganiser"
+      "dragToReorder": "Glissez les fichiers pour les réorganiser",
+      "invalidFiles": "Veuillez sélectionner des fichiers PDF valides.",
+      "minFiles": "Veuillez sélectionner au moins 2 fichiers PDF à fusionner."
     },
     "splitPdf": {
       "title": "Diviser PDF",
@@ -156,7 +218,13 @@
       "dpiLow": "72 — Écran",
       "dpiMedium": "150 — Standard",
       "dpiHigh": "200 — Bon",
-      "dpiUltra": "300 — Qualité d'impression"
+      "dpiUltra": "300 — Qualité d'impression",
+      "outputFormat": "Format de sortie",
+      "quality": "Qualité",
+      "lowQuality": "Écran",
+      "mediumQuality": "Standard",
+      "highQuality": "Bon",
+      "bestQuality": "Qualité impression"
     },
     "imagesToPdf": {
       "title": "Images en PDF",
@@ -164,7 +232,9 @@
       "shortDesc": "Images → PDF",
       "selectImages": "Sélectionner des images",
       "addMore": "Ajouter plus d'images",
-      "imagesSelected": "{{count}} images sélectionnées"
+      "imagesSelected": "{{count}} images sélectionnées",
+      "invalidFiles": "Veuillez sélectionner des fichiers images valides (JPG, PNG, WebP).",
+      "minFiles": "Veuillez sélectionner au moins une image."
     },
     "watermarkPdf": {
       "title": "Filigrane PDF",
@@ -334,6 +404,94 @@
       "chatSuggestion3": "Suggérer de meilleurs titres",
       "chatSuggestion4": "Ajouter la gestion des erreurs",
       "sendMessage": "Envoyer"
+    },
+    "compressImage": {
+      "title": "Compresser une image",
+      "description": "Réduisez la taille des images tout en préservant la qualité. Supporte PNG, JPG et WebP.",
+      "shortDesc": "Compresser l'image",
+      "quality": "Qualité"
+    },
+    "pdfToExcel": {
+      "title": "PDF vers Excel",
+      "description": "Extrayez les tableaux des fichiers PDF et convertissez-les en feuilles de calcul Excel.",
+      "shortDesc": "PDF → Excel",
+      "errors": {
+        "noTables": "Aucun tableau trouvé dans ce PDF. Veuillez utiliser un PDF contenant des données tabulaires.",
+        "processingFailed": "Échec de la conversion en Excel. Veuillez essayer un autre PDF.",
+        "invalidFile": "Fichier PDF invalide ou corrompu. Veuillez télécharger un PDF valide."
+      }
+    },
+    "removeWatermark": {
+      "title": "Supprimer le filigrane",
+      "description": "Supprimez automatiquement les filigranes textuels des fichiers PDF.",
+      "shortDesc": "Supprimer le filigrane"
+    },
+    "reorderPdf": {
+      "title": "Réorganiser les pages PDF",
+      "description": "Réorganisez les pages de votre PDF dans l'ordre souhaité.",
+      "shortDesc": "Réorganiser les pages",
+      "orderLabel": "Nouvel ordre des pages",
+      "orderPlaceholder": "ex. 3,1,2,5,4",
+      "orderHint": "Entrez les numéros de pages séparés par des virgules dans l'ordre souhaité."
+    },
+    "extractPages": {
+      "title": "Extraire des pages PDF",
+      "description": "Extrayez des pages spécifiques d'un PDF dans un nouveau document.",
+      "shortDesc": "Extraire les pages",
+      "pagesLabel": "Pages à extraire",
+      "pagesPlaceholder": "ex. 1,3,5-8",
+      "pagesHint": "Entrez les numéros de pages ou les plages séparés par des virgules."
+    },
+    "qrCode": {
+      "title": "Générateur de code QR",
+      "description": "Générez des codes QR à partir de texte, d'URL ou de données. Personnalisez la taille et téléchargez en PNG.",
+      "shortDesc": "Générer un code QR",
+      "dataLabel": "Texte ou URL",
+      "dataPlaceholder": "Entrez du texte, une URL ou des données...",
+      "sizeLabel": "Taille"
+    },
+    "htmlToPdf": {
+      "title": "HTML vers PDF",
+      "description": "Convertissez des fichiers HTML en documents PDF avec prise en charge complète du style.",
+      "shortDesc": "HTML → PDF"
+    },
+    "chatPdf": {
+      "title": "Discuter avec un PDF",
+      "description": "Posez des questions sur votre document PDF et obtenez des réponses par IA.",
+      "shortDesc": "Demander à l'IA",
+      "questionLabel": "Votre question",
+      "questionPlaceholder": "Que souhaitez-vous savoir sur ce document ?",
+      "answer": "Réponse de l'IA"
+    },
+    "summarizePdf": {
+      "title": "Résumer un PDF",
+      "description": "Obtenez un résumé généré par IA de votre document PDF en quelques secondes.",
+      "shortDesc": "Résumer le PDF",
+      "lengthLabel": "Longueur du résumé",
+      "short": "Court",
+      "medium": "Moyen",
+      "long": "Détaillé",
+      "resultTitle": "Résumé"
+    },
+    "translatePdf": {
+      "title": "Traduire un PDF",
+      "description": "Traduisez le contenu de votre document PDF dans n'importe quelle langue grâce à l'IA.",
+      "shortDesc": "Traduire le PDF",
+      "targetLang": "Langue cible",
+      "resultTitle": "Traduction"
+    },
+    "tableExtractor": {
+      "title": "Extraire les tableaux d'un PDF",
+      "description": "Détectez et extrayez les tableaux des documents PDF en données structurées.",
+      "shortDesc": "Extraire les tableaux",
+      "tablesFound": "{{count}} tableau(x) trouvé(s)",
+      "tablePage": "Page {{page}} — Tableau {{index}}",
+      "noTables": "Aucun tableau n'a été trouvé dans ce document.",
+      "errors": {
+        "noTables": "Aucun tableau trouvé dans ce PDF. Cet outil fonctionne mieux avec des PDF contenant des données tabulaires.",
+        "processingFailed": "Échec de l'extraction des tableaux. Veuillez essayer un autre PDF.",
+        "invalidFile": "Fichier PDF invalide ou corrompu. Veuillez télécharger un PDF valide."
+      }
     }
   },
   "account": {

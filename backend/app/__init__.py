@@ -89,6 +89,15 @@ def create_app(config_name=None):
     from app.routes.pdf_tools import pdf_tools_bp
     from app.routes.flowchart import flowchart_bp
     from app.routes.v1.tools import v1_bp
+    from app.routes.config import config_bp
+    from app.routes.ocr import ocr_bp
+    from app.routes.removebg import removebg_bp
+    from app.routes.pdf_editor import pdf_editor_bp
+    from app.routes.compress_image import compress_image_bp
+    from app.routes.pdf_to_excel import pdf_to_excel_bp
+    from app.routes.qrcode import qrcode_bp
+    from app.routes.html_to_pdf import html_to_pdf_bp
+    from app.routes.pdf_ai import pdf_ai_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -104,5 +113,14 @@ def create_app(config_name=None):
     app.register_blueprint(tasks_bp, url_prefix="/api/tasks")
     app.register_blueprint(download_bp, url_prefix="/api/download")
     app.register_blueprint(v1_bp, url_prefix="/api/v1")
+    app.register_blueprint(config_bp, url_prefix="/api/config")
+    app.register_blueprint(ocr_bp, url_prefix="/api/ocr")
+    app.register_blueprint(removebg_bp, url_prefix="/api/remove-bg")
+    app.register_blueprint(pdf_editor_bp, url_prefix="/api/pdf-editor")
+    app.register_blueprint(compress_image_bp, url_prefix="/api/image")
+    app.register_blueprint(pdf_to_excel_bp, url_prefix="/api/convert")
+    app.register_blueprint(qrcode_bp, url_prefix="/api/qrcode")
+    app.register_blueprint(html_to_pdf_bp, url_prefix="/api/convert")
+    app.register_blueprint(pdf_ai_bp, url_prefix="/api/pdf-ai")
 
     return app

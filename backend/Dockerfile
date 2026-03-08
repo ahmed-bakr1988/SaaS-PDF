@@ -13,9 +13,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libmagic1 \
     imagemagick \
+    tesseract-ocr \
+    tesseract-ocr-eng \
+    tesseract-ocr-ara \
+    tesseract-ocr-fra \
+    poppler-utils \
+    default-jre-headless \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Ensure Java is on PATH for tabula-py (extract-tables, pdf-to-excel)
+ENV JAVA_HOME=/usr/lib/jvm/default-java
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Set working directory
 WORKDIR /app

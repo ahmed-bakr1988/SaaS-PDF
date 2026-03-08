@@ -76,6 +76,18 @@ export interface TaskResult {
   pages?: Array<{ page: number; text: string }>;
   procedures_count?: number;
   total_pages?: number;
+  // OCR-specific fields
+  text?: string;
+  char_count?: number;
+  // AI PDF fields
+  reply?: string;
+  summary?: string;
+  translation?: string;
+  target_language?: string;
+  pages_analyzed?: number;
+  // Table extraction fields
+  tables?: Array<{ page: number; table_index: number; headers: string[]; rows: string[][] }>;
+  tables_found?: number;
 }
 
 export interface AuthUser {

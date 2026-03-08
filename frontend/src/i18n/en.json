@@ -23,7 +23,37 @@
     "email": "Email",
     "password": "Password",
     "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
+    "lightMode": "Light Mode",
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is {{size}}MB.",
+      "invalidFileType": "Invalid file type. Accepted: {{types}}",
+      "uploadFailed": "Upload failed. Please try again.",
+      "processingFailed": "Processing failed. Please try again.",
+      "quotaExceeded": "Monthly usage limit reached. Please try again next month.",
+      "rateLimited": "Too many requests. Please wait a moment and try again.",
+      "serverError": "A server error occurred. Please try again later.",
+      "networkError": "Network error. Please check your connection and try again.",
+      "noFileSelected": "No file selected. Please choose a file to upload."
+    }
+  },
+  "auth": {
+    "forgotPassword": {
+      "title": "Forgot Password",
+      "subtitle": "Enter your email and we'll send you a reset link.",
+      "submit": "Send Reset Link",
+      "sent": "If that email is registered, a reset link has been sent. Check your inbox.",
+      "error": "Something went wrong. Please try again.",
+      "link": "Forgot your password?"
+    },
+    "resetPassword": {
+      "title": "Reset Password",
+      "newPassword": "New Password",
+      "submit": "Reset Password",
+      "success": "Password updated successfully! Redirecting to sign in...",
+      "error": "Failed to reset password. The link may have expired.",
+      "tooShort": "Password must be at least 8 characters.",
+      "noToken": "Invalid reset link. Please request a new one."
+    }
   },
   "home": {
     "hero": "Everything You Need to Work with PDF Files — Instantly",
@@ -80,6 +110,36 @@
       "description": "Convert images between JPG, PNG, and WebP formats instantly.",
       "shortDesc": "Convert Images"
     },
+    "imageResize": {
+      "title": "Image Resize",
+      "description": "Resize images to exact dimensions while maintaining quality.",
+      "shortDesc": "Resize Image",
+      "dimensions": "Target Dimensions",
+      "width": "Width (px)",
+      "height": "Height (px)",
+      "quality": "Quality",
+      "lockAspect": "Lock aspect ratio",
+      "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio."
+    },
+    "ocr": {
+      "title": "OCR — Text Recognition",
+      "description": "Extract text from images and scanned PDF documents using optical character recognition.",
+      "shortDesc": "Extract Text",
+      "sourceType": "Source Type",
+      "modeImage": "Image",
+      "modePdf": "PDF",
+      "language": "OCR Language",
+      "extract": "Extract Text",
+      "charsExtracted": "{{count}} characters extracted",
+      "copyText": "Copy Text"
+    },
+    "removeBg": {
+      "title": "Remove Background",
+      "description": "Remove the background from images automatically using AI. Get a transparent PNG in seconds.",
+      "shortDesc": "Remove BG",
+      "remove": "Remove Background",
+      "success": "Background removed successfully!"
+    },
     "videoToGif": {
       "title": "Video to GIF",
       "description": "Create animated GIFs from video clips. Customize start time, duration, and quality.",
@@ -118,7 +178,9 @@
       "selectFiles": "Select PDF Files",
       "addMore": "Add More Files",
       "filesSelected": "{{count}} files selected",
-      "dragToReorder": "Drag files to reorder them"
+      "dragToReorder": "Drag files to reorder them",
+      "invalidFiles": "Please select valid PDF files.",
+      "minFiles": "Please select at least 2 PDF files to merge."
     },
     "splitPdf": {
       "title": "Split PDF",
@@ -156,7 +218,13 @@
       "dpiLow": "72 — Screen",
       "dpiMedium": "150 — Standard",
       "dpiHigh": "200 — Good",
-      "dpiUltra": "300 — Print Quality"
+      "dpiUltra": "300 — Print Quality",
+      "outputFormat": "Output Format",
+      "quality": "Quality",
+      "lowQuality": "Screen",
+      "mediumQuality": "Standard",
+      "highQuality": "Good",
+      "bestQuality": "Print Quality"
     },
     "imagesToPdf": {
       "title": "Images to PDF",
@@ -164,7 +232,9 @@
       "shortDesc": "Images → PDF",
       "selectImages": "Select Images",
       "addMore": "Add More Images",
-      "imagesSelected": "{{count}} images selected"
+      "imagesSelected": "{{count}} images selected",
+      "invalidFiles": "Please select valid image files (JPG, PNG, WebP).",
+      "minFiles": "Please select at least one image."
     },
     "watermarkPdf": {
       "title": "Watermark PDF",
@@ -334,6 +404,94 @@
       "chatSuggestion3": "Suggest better titles",
       "chatSuggestion4": "Add error handling",
       "sendMessage": "Send"
+    },
+    "compressImage": {
+      "title": "Compress Image",
+      "description": "Reduce image file size while maintaining quality. Supports PNG, JPG, and WebP.",
+      "shortDesc": "Compress Image",
+      "quality": "Quality"
+    },
+    "pdfToExcel": {
+      "title": "PDF to Excel",
+      "description": "Extract tables from PDF files and convert them to Excel spreadsheets.",
+      "shortDesc": "PDF → Excel",
+      "errors": {
+        "noTables": "No tables found in this PDF. Please use a PDF that contains tabular data.",
+        "processingFailed": "Failed to convert to Excel. Please try a different PDF.",
+        "invalidFile": "Invalid or corrupted PDF file. Please upload a valid PDF."
+      }
+    },
+    "removeWatermark": {
+      "title": "Remove Watermark",
+      "description": "Remove text watermarks from PDF files automatically.",
+      "shortDesc": "Remove Watermark"
+    },
+    "reorderPdf": {
+      "title": "Reorder PDF Pages",
+      "description": "Rearrange the pages of your PDF in any order you want.",
+      "shortDesc": "Reorder Pages",
+      "orderLabel": "New Page Order",
+      "orderPlaceholder": "e.g. 3,1,2,5,4",
+      "orderHint": "Enter page numbers separated by commas in the desired order."
+    },
+    "extractPages": {
+      "title": "Extract PDF Pages",
+      "description": "Extract specific pages from a PDF into a new document.",
+      "shortDesc": "Extract Pages",
+      "pagesLabel": "Pages to Extract",
+      "pagesPlaceholder": "e.g. 1,3,5-8",
+      "pagesHint": "Enter page numbers or ranges separated by commas."
+    },
+    "qrCode": {
+      "title": "QR Code Generator",
+      "description": "Generate QR codes from text, URLs, or any data. Customize size and download as PNG.",
+      "shortDesc": "Generate QR Code",
+      "dataLabel": "Text or URL",
+      "dataPlaceholder": "Enter text, URL, or any data...",
+      "sizeLabel": "Size"
+    },
+    "htmlToPdf": {
+      "title": "HTML to PDF",
+      "description": "Convert HTML files to PDF documents with full styling support.",
+      "shortDesc": "HTML → PDF"
+    },
+    "chatPdf": {
+      "title": "Chat with PDF",
+      "description": "Ask questions about your PDF document and get AI-powered answers.",
+      "shortDesc": "Ask AI",
+      "questionLabel": "Your Question",
+      "questionPlaceholder": "What would you like to know about this document?",
+      "answer": "AI Answer"
+    },
+    "summarizePdf": {
+      "title": "Summarize PDF",
+      "description": "Get an AI-generated summary of your PDF document in seconds.",
+      "shortDesc": "Summarize PDF",
+      "lengthLabel": "Summary Length",
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Detailed",
+      "resultTitle": "Summary"
+    },
+    "translatePdf": {
+      "title": "Translate PDF",
+      "description": "Translate your PDF document content to any language using AI.",
+      "shortDesc": "Translate PDF",
+      "targetLang": "Target Language",
+      "resultTitle": "Translation"
+    },
+    "tableExtractor": {
+      "title": "Extract Tables from PDF",
+      "description": "Detect and extract tables from PDF documents into structured data.",
+      "shortDesc": "Extract Tables",
+      "tablesFound": "{{count}} table(s) found",
+      "tablePage": "Page {{page}} — Table {{index}}",
+      "noTables": "No tables were found in this document.",
+      "errors": {
+        "noTables": "No tables found in this PDF. This tool works best with PDFs containing tabular data.",
+        "processingFailed": "Failed to extract tables. Please try a different PDF.",
+        "invalidFile": "Invalid or corrupted PDF file. Please upload a valid PDF."
+      }
     }
   },
   "account": {
