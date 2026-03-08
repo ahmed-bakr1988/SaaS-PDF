@@ -6,6 +6,11 @@ import { generateToolSchema, generateBreadcrumbs, generateFAQ } from '@/utils/se
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 
+interface SEOFAQ {
+  q: string;
+  a: string;
+}
+
 interface ToolLandingPageProps {
   /** The tool slug matching seoData.ts entries */
   slug: string;
@@ -76,28 +81,78 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
       {/* SEO Content Below Tool */}
       <div className="mx-auto mt-16 max-w-3xl">
-        {/* Feature bullets */}
-        {seo.features.length > 0 && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
-              Why Use Our {toolTitle}?
-            </h2>
-            <p className="mb-6 text-slate-600 dark:text-slate-400">
-              {toolDesc}
-            </p>
-            <ul className="space-y-3">
-              {seo.features.map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-3">
-                  <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
-                  <span className="text-slate-700 dark:text-slate-300">{feature}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
+        {/* What this tool does */}
+        <section className="mb-12">
+          <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
+            {t('seo.headings.whatItDoes')}
+          </h2>
+          <p className="text-slate-600 dark:text-slate-400">
+            {t(`seo.${seo.i18nKey}.whatItDoes`)}
+          </p>
+        </section>
+
+        {/* How to use */}
+        {(() => {
+          const steps = t(`seo.${seo.i18nKey}.howToUse`, { returnObjects: true }) as string[];
+          return Array.isArray(steps) && steps.length > 0 ? (
+            <section className="mb-12">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
+                {t('seo.headings.howToUse')}
+              </h2>
+              <ol className="list-decimal space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                {steps.map((step, idx) => (
+                  <li key={idx}>{step}</li>
+                ))}
+              </ol>
+            </section>
+          ) : null;
+        })()}
+
+        {/* Benefits */}
+        {(() => {
+          const benefits = t(`seo.${seo.i18nKey}.benefits`, { returnObjects: true }) as string[];
+          return Array.isArray(benefits) && benefits.length > 0 ? (
+            <section className="mb-12">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
+                {t('seo.headings.whyUse', { tool: toolTitle })}
+              </h2>
+              <ul className="space-y-3">
+                {benefits.map((benefit, idx) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-500" />
+                    <span className="text-slate-700 dark:text-slate-300">{benefit}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null;
+        })()}
+
+        {/* Common use cases */}
+        {(() => {
+          const useCases = t(`seo.${seo.i18nKey}.useCases`, { returnObjects: true }) as string[];
+          return Array.isArray(useCases) && useCases.length > 0 ? (
+            <section className="mb-12">
+              <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
+                {t('seo.headings.useCases')}
+              </h2>
+              <ul className="list-disc space-y-2 pl-5 text-slate-700 dark:text-slate-300">
+                {useCases.map((useCase, idx) => (
+                  <li key={idx}>{useCase}</li>
+                ))}
+              </ul>
+            </section>
+          ) : null;
+        })()}
 
         {/* FAQ Section */}
-        <FAQSection faqs={seo.faqs} />
+        {(() => {
+          const faqData = t(`seo.${seo.i18nKey}.faq`, { returnObjects: true }) as SEOFAQ[];
+          const faqs = Array.isArray(faqData)
+            ? faqData.map((f) => ({ question: f.q, answer: f.a }))
+            : [];
+          return <FAQSection faqs={faqs} />;
+        })()}
 
         {/* Related Tools */}
         <RelatedTools currentSlug={slug} />

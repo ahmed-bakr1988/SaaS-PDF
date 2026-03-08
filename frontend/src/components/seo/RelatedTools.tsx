@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getToolSEO } from '@/config/seoData';
 
 interface RelatedToolsProps {
@@ -14,6 +15,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function RelatedTools({ currentSlug }: RelatedToolsProps) {
+  const { t } = useTranslation();
   const currentTool = getToolSEO(currentSlug);
   if (!currentTool) return null;
 
@@ -26,7 +28,7 @@ export default function RelatedTools({ currentSlug }: RelatedToolsProps) {
   return (
     <section className="mt-12">
       <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white">
-        Related Tools
+        {t('seo.headings.relatedTools')}
       </h2>
       <div className="grid gap-4 sm:grid-cols-2">
         {relatedTools.map((tool) => (

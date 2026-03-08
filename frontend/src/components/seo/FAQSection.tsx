@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import type { ToolFAQ } from '@/config/seoData';
 
 interface FAQSectionProps {
@@ -7,6 +8,7 @@ interface FAQSectionProps {
 }
 
 export default function FAQSection({ faqs }: FAQSectionProps) {
+  const { t } = useTranslation();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   if (!faqs || faqs.length === 0) return null;
@@ -14,7 +16,7 @@ export default function FAQSection({ faqs }: FAQSectionProps) {
   return (
     <section className="mt-12">
       <h2 className="mb-6 text-xl font-bold text-slate-900 dark:text-white">
-        Frequently Asked Questions
+        {t('seo.headings.faq')}
       </h2>
       <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white dark:divide-slate-700 dark:border-slate-700 dark:bg-slate-800">
         {faqs.map((faq, idx) => {
