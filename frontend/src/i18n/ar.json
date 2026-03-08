@@ -383,6 +383,84 @@
       "chatSuggestion3": "اقترح عناوين أفضل",
       "chatSuggestion4": "أضف معالجة الأخطاء",
       "sendMessage": "إرسال"
+    },
+    "compressImage": {
+      "title": "ضغط الصورة",
+      "description": "قلّل حجم الصورة مع الحفاظ على الجودة. يدعم PNG و JPG و WebP.",
+      "shortDesc": "ضغط الصورة",
+      "quality": "الجودة"
+    },
+    "pdfToExcel": {
+      "title": "PDF إلى Excel",
+      "description": "استخرج الجداول من ملفات PDF وحوّلها إلى جداول بيانات Excel.",
+      "shortDesc": "PDF → Excel"
+    },
+    "removeWatermark": {
+      "title": "إزالة العلامة المائية",
+      "description": "أزل العلامات المائية النصية من ملفات PDF تلقائياً.",
+      "shortDesc": "إزالة العلامة المائية"
+    },
+    "reorderPdf": {
+      "title": "إعادة ترتيب صفحات PDF",
+      "description": "أعد ترتيب صفحات PDF بأي ترتيب تريده.",
+      "shortDesc": "إعادة الترتيب",
+      "orderLabel": "ترتيب الصفحات الجديد",
+      "orderPlaceholder": "مثال: 3,1,2,5,4",
+      "orderHint": "أدخل أرقام الصفحات مفصولة بفواصل بالترتيب المطلوب."
+    },
+    "extractPages": {
+      "title": "استخراج صفحات PDF",
+      "description": "استخرج صفحات محددة من PDF إلى مستند جديد.",
+      "shortDesc": "استخراج الصفحات",
+      "pagesLabel": "الصفحات المطلوبة",
+      "pagesPlaceholder": "مثال: 1,3,5-8",
+      "pagesHint": "أدخل أرقام الصفحات أو نطاقات مفصولة بفواصل."
+    },
+    "qrCode": {
+      "title": "مولّد رمز QR",
+      "description": "أنشئ رموز QR من نصوص أو روابط أو أي بيانات. خصّص الحجم وحمّل بصيغة PNG.",
+      "shortDesc": "إنشاء رمز QR",
+      "dataLabel": "نص أو رابط",
+      "dataPlaceholder": "أدخل نصاً أو رابطاً أو أي بيانات...",
+      "sizeLabel": "الحجم"
+    },
+    "htmlToPdf": {
+      "title": "HTML إلى PDF",
+      "description": "حوّل ملفات HTML إلى مستندات PDF مع دعم كامل للتنسيق.",
+      "shortDesc": "HTML → PDF"
+    },
+    "chatPdf": {
+      "title": "محادثة مع PDF",
+      "description": "اطرح أسئلة حول مستند PDF واحصل على إجابات بالذكاء الاصطناعي.",
+      "shortDesc": "اسأل الذكاء الاصطناعي",
+      "questionLabel": "سؤالك",
+      "questionPlaceholder": "ماذا تريد أن تعرف عن هذا المستند؟",
+      "answer": "إجابة الذكاء الاصطناعي"
+    },
+    "summarizePdf": {
+      "title": "تلخيص PDF",
+      "description": "احصل على ملخص مولّد بالذكاء الاصطناعي لمستند PDF في ثوانٍ.",
+      "shortDesc": "تلخيص PDF",
+      "lengthLabel": "طول الملخص",
+      "short": "قصير",
+      "medium": "متوسط",
+      "long": "مفصّل",
+      "resultTitle": "الملخص"
+    },
+    "translatePdf": {
+      "title": "ترجمة PDF",
+      "description": "ترجم محتوى مستند PDF إلى أي لغة باستخدام الذكاء الاصطناعي.",
+      "shortDesc": "ترجمة PDF",
+      "targetLang": "اللغة المستهدفة",
+      "resultTitle": "الترجمة"
+    },
+    "tableExtractor": {
+      "title": "استخراج الجداول من PDF",
+      "description": "اكتشف واستخرج الجداول من مستندات PDF إلى بيانات منظمة.",
+      "shortDesc": "استخراج الجداول",
+      "tablesFound": "تم العثور على {{count}} جدول(جداول)",
+      "tablePage": "الصفحة {{page}} — الجدول {{index}}",
+      "noTables": "لم يتم العثور على جداول في هذا المستند."
     }
   },
   "account": {

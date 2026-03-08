@@ -38,6 +38,17 @@ const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
 const ImageResize = lazy(() => import('@/components/tools/ImageResize'));
 const OcrTool = lazy(() => import('@/components/tools/OcrTool'));
 const RemoveBackground = lazy(() => import('@/components/tools/RemoveBackground'));
+const CompressImage = lazy(() => import('@/components/tools/CompressImage'));
+const PdfToExcel = lazy(() => import('@/components/tools/PdfToExcel'));
+const RemoveWatermark = lazy(() => import('@/components/tools/RemoveWatermark'));
+const ReorderPdf = lazy(() => import('@/components/tools/ReorderPdf'));
+const ExtractPages = lazy(() => import('@/components/tools/ExtractPages'));
+const QrCodeGenerator = lazy(() => import('@/components/tools/QrCodeGenerator'));
+const HtmlToPdf = lazy(() => import('@/components/tools/HtmlToPdf'));
+const ChatPdf = lazy(() => import('@/components/tools/ChatPdf'));
+const SummarizePdf = lazy(() => import('@/components/tools/SummarizePdf'));
+const TranslatePdf = lazy(() => import('@/components/tools/TranslatePdf'));
+const TableExtractor = lazy(() => import('@/components/tools/TableExtractor'));
 
 function LoadingFallback() {
   return (
@@ -96,8 +107,27 @@ export default function App() {
             {/* Image Tools */}
             <Route path="/tools/image-converter" element={<ImageConverter />} />
             <Route path="/tools/image-resize" element={<ImageResize />} />
+            <Route path="/tools/compress-image" element={<CompressImage />} />
             <Route path="/tools/ocr" element={<OcrTool />} />
             <Route path="/tools/remove-background" element={<RemoveBackground />} />
+
+            {/* Convert Tools */}
+            <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
+            <Route path="/tools/html-to-pdf" element={<HtmlToPdf />} />
+
+            {/* PDF Extra Tools */}
+            <Route path="/tools/remove-watermark-pdf" element={<RemoveWatermark />} />
+            <Route path="/tools/reorder-pdf" element={<ReorderPdf />} />
+            <Route path="/tools/extract-pages" element={<ExtractPages />} />
+
+            {/* AI Tools */}
+            <Route path="/tools/chat-pdf" element={<ChatPdf />} />
+            <Route path="/tools/summarize-pdf" element={<SummarizePdf />} />
+            <Route path="/tools/translate-pdf" element={<TranslatePdf />} />
+            <Route path="/tools/extract-tables" element={<TableExtractor />} />
+
+            {/* Other Tools */}
+            <Route path="/tools/qr-code" element={<QrCodeGenerator />} />
 
             {/* Video Tools */}
             <Route path="/tools/video-to-gif" element={<VideoToGif />} />

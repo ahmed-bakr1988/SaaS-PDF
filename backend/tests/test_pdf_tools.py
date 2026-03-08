@@ -529,3 +529,106 @@ class TestUnlockPdf:
             content_type='multipart/form-data',
         )
         assert response.status_code == 202
+
+
+# =========================================================================
+# 9. Remove Watermark — POST /api/pdf-tools/remove-watermark
+# =========================================================================
+class TestRemoveWatermark:
+    def test_no_file(self, client):
+        """Should return 400 when no file provided."""
+        response = client.post('/api/pdf-tools/remove-watermark')
+        assert response.status_code == 400
+
+    def test_success(self, client, monkeypatch):
+        """Should return 202 with task_id on valid PDF."""
+        _mock_validate_and_task(
+            monkeypatch, 'app.routes.pdf_tools', 'remove_watermark_task'
+        )
+        data = {'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf')}
+        response = client.post(
+            '/api/pdf-tools/remove-watermark',
+            data=data,
+            content_type='multipart/form-data',
+        )
+        assert response.status_code == 202
+
+
+# =========================================================================
+# 10. Reorder PDF — POST /api/pdf-tools/reorder
+# =========================================================================
+class TestReorderPdf:
+    def test_no_file(self, client):
+        """Should return 400 when no file provided."""
+        response = client.post('/api/pdf-tools/reorder')
+        assert response.status_code == 400
+
+    def test_no_page_order(self, client, monkeypatch):
+        """Should return 400 when no page_order provided."""
+        monkeypatch.setattr(
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
+        )
+        data = {'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf')}
+        response = client.post(
+            '/api/pdf-tools/reorder',
+            data=data,
+            content_type='multipart/form-data',
+        )
+        assert response.status_code == 400
+
+    def test_success(self, client, monkeypatch):
+        """Should return 202 with task_id on valid request."""
+        _mock_validate_and_task(
+            monkeypatch, 'app.routes.pdf_tools', 'reorder_pdf_task'
+        )
+        data = {
+            'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
+            'page_order': '3,1,2',
+        }
+        response = client.post(
+            '/api/pdf-tools/reorder',
+            data=data,
+            content_type='multipart/form-data',
+        )
+        assert response.status_code == 202
+
+
+# =========================================================================
+# 11. Extract Pages — POST /api/pdf-tools/extract-pages
+# =========================================================================
+class TestExtractPages:
+    def test_no_file(self, client):
+        """Should return 400 when no file provided."""
+        response = client.post('/api/pdf-tools/extract-pages')
+        assert response.status_code == 400
+
+    def test_no_pages(self, client, monkeypatch):
+        """Should return 400 when no pages param provided."""
+        monkeypatch.setattr(
+            'app.routes.pdf_tools.validate_actor_file',
+            lambda f, allowed_types, actor: ('test.pdf', 'pdf'),
+        )
+        data = {'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf')}
+        response = client.post(
+            '/api/pdf-tools/extract-pages',
+            data=data,
+            content_type='multipart/form-data',
+        )
+        assert response.status_code == 400
+
+    def test_success(self, client, monkeypatch):
+        """Should return 202 with task_id on valid request."""
+        _mock_validate_and_task(
+            monkeypatch, 'app.routes.pdf_tools', 'extract_pages_task'
+        )
+        data = {
+            'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
+            'pages': '1,3,5-8',
+        }
+        response = client.post(
+            '/api/pdf-tools/extract-pages',
+            data=data,
+            content_type='multipart/form-data',
+        )
+        assert response.status_code == 202

@@ -383,6 +383,84 @@
       "chatSuggestion3": "Suggest better titles",
       "chatSuggestion4": "Add error handling",
       "sendMessage": "Send"
+    },
+    "compressImage": {
+      "title": "Compress Image",
+      "description": "Reduce image file size while maintaining quality. Supports PNG, JPG, and WebP.",
+      "shortDesc": "Compress Image",
+      "quality": "Quality"
+    },
+    "pdfToExcel": {
+      "title": "PDF to Excel",
+      "description": "Extract tables from PDF files and convert them to Excel spreadsheets.",
+      "shortDesc": "PDF → Excel"
+    },
+    "removeWatermark": {
+      "title": "Remove Watermark",
+      "description": "Remove text watermarks from PDF files automatically.",
+      "shortDesc": "Remove Watermark"
+    },
+    "reorderPdf": {
+      "title": "Reorder PDF Pages",
+      "description": "Rearrange the pages of your PDF in any order you want.",
+      "shortDesc": "Reorder Pages",
+      "orderLabel": "New Page Order",
+      "orderPlaceholder": "e.g. 3,1,2,5,4",
+      "orderHint": "Enter page numbers separated by commas in the desired order."
+    },
+    "extractPages": {
+      "title": "Extract PDF Pages",
+      "description": "Extract specific pages from a PDF into a new document.",
+      "shortDesc": "Extract Pages",
+      "pagesLabel": "Pages to Extract",
+      "pagesPlaceholder": "e.g. 1,3,5-8",
+      "pagesHint": "Enter page numbers or ranges separated by commas."
+    },
+    "qrCode": {
+      "title": "QR Code Generator",
+      "description": "Generate QR codes from text, URLs, or any data. Customize size and download as PNG.",
+      "shortDesc": "Generate QR Code",
+      "dataLabel": "Text or URL",
+      "dataPlaceholder": "Enter text, URL, or any data...",
+      "sizeLabel": "Size"
+    },
+    "htmlToPdf": {
+      "title": "HTML to PDF",
+      "description": "Convert HTML files to PDF documents with full styling support.",
+      "shortDesc": "HTML → PDF"
+    },
+    "chatPdf": {
+      "title": "Chat with PDF",
+      "description": "Ask questions about your PDF document and get AI-powered answers.",
+      "shortDesc": "Ask AI",
+      "questionLabel": "Your Question",
+      "questionPlaceholder": "What would you like to know about this document?",
+      "answer": "AI Answer"
+    },
+    "summarizePdf": {
+      "title": "Summarize PDF",
+      "description": "Get an AI-generated summary of your PDF document in seconds.",
+      "shortDesc": "Summarize PDF",
+      "lengthLabel": "Summary Length",
+      "short": "Short",
+      "medium": "Medium",
+      "long": "Detailed",
+      "resultTitle": "Summary"
+    },
+    "translatePdf": {
+      "title": "Translate PDF",
+      "description": "Translate your PDF document content to any language using AI.",
+      "shortDesc": "Translate PDF",
+      "targetLang": "Target Language",
+      "resultTitle": "Translation"
+    },
+    "tableExtractor": {
+      "title": "Extract Tables from PDF",
+      "description": "Detect and extract tables from PDF documents into structured data.",
+      "shortDesc": "Extract Tables",
+      "tablesFound": "{{count}} table(s) found",
+      "tablePage": "Page {{page}} — Table {{index}}",
+      "noTables": "No tables were found in this document."
     }
   },
   "account": {

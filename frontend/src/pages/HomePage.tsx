@@ -21,6 +21,13 @@ import {
   GitBranch,
   Scaling,
   ScanText,
+  Sheet,
+  ArrowUpDown,
+  QrCode,
+  Code,
+  MessageSquare,
+  Languages,
+  Table,
 } from 'lucide-react';
 import ToolCard from '@/components/shared/ToolCard';
 import HeroUploadZone from '@/components/shared/HeroUploadZone';
@@ -48,14 +55,25 @@ const pdfTools: ToolInfo[] = [
   { key: 'unlockPdf', path: '/tools/unlock-pdf', icon: <Unlock className="h-6 w-6 text-green-600" />, bgColor: 'bg-green-50' },
   { key: 'pageNumbers', path: '/tools/page-numbers', icon: <ListOrdered className="h-6 w-6 text-sky-600" />, bgColor: 'bg-sky-50' },
   { key: 'pdfFlowchart', path: '/tools/pdf-flowchart', icon: <GitBranch className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
+  { key: 'pdfToExcel', path: '/tools/pdf-to-excel', icon: <Sheet className="h-6 w-6 text-green-600" />, bgColor: 'bg-green-50' },
+  { key: 'removeWatermark', path: '/tools/remove-watermark-pdf', icon: <Droplets className="h-6 w-6 text-rose-600" />, bgColor: 'bg-rose-50' },
+  { key: 'reorderPdf', path: '/tools/reorder-pdf', icon: <ArrowUpDown className="h-6 w-6 text-violet-600" />, bgColor: 'bg-violet-50' },
+  { key: 'extractPages', path: '/tools/extract-pages', icon: <FileOutput className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
+  { key: 'chatPdf', path: '/tools/chat-pdf', icon: <MessageSquare className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
+  { key: 'summarizePdf', path: '/tools/summarize-pdf', icon: <FileText className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
+  { key: 'translatePdf', path: '/tools/translate-pdf', icon: <Languages className="h-6 w-6 text-purple-600" />, bgColor: 'bg-purple-50' },
+  { key: 'tableExtractor', path: '/tools/extract-tables', icon: <Table className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
 ];
 
 const otherTools: ToolInfo[] = [
   { key: 'imageConvert', path: '/tools/image-converter', icon: <ImageIcon className="h-6 w-6 text-purple-600" />, bgColor: 'bg-purple-50' },
   { key: 'imageResize', path: '/tools/image-resize', icon: <Scaling className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
+  { key: 'compressImage', path: '/tools/compress-image', icon: <Minimize2 className="h-6 w-6 text-orange-600" />, bgColor: 'bg-orange-50' },
   { key: 'ocr', path: '/tools/ocr', icon: <ScanText className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
   { key: 'removeBg', path: '/tools/remove-background', icon: <Eraser className="h-6 w-6 text-fuchsia-600" />, bgColor: 'bg-fuchsia-50' },
   { key: 'videoToGif', path: '/tools/video-to-gif', icon: <Film className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
+  { key: 'qrCode', path: '/tools/qr-code', icon: <QrCode className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
+  { key: 'htmlToPdf', path: '/tools/html-to-pdf', icon: <Code className="h-6 w-6 text-sky-600" />, bgColor: 'bg-sky-50' },
   { key: 'wordCounter', path: '/tools/word-counter', icon: <Hash className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
   { key: 'textCleaner', path: '/tools/text-cleaner', icon: <Eraser className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
 ];

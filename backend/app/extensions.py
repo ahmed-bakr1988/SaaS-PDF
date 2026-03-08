@@ -35,6 +35,11 @@ def init_celery(app):
         "app.tasks.ocr_tasks.*": {"queue": "image"},
         "app.tasks.removebg_tasks.*": {"queue": "image"},
         "app.tasks.pdf_editor_tasks.*": {"queue": "pdf_tools"},
+        "app.tasks.compress_image_tasks.*": {"queue": "image"},
+        "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_tools"},
+        "app.tasks.qrcode_tasks.*": {"queue": "default"},
+        "app.tasks.html_to_pdf_tasks.*": {"queue": "convert"},
+        "app.tasks.pdf_ai_tasks.*": {"queue": "default"},
     }
 
     # Celery Beat — periodic tasks

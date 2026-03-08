@@ -383,6 +383,84 @@
       "chatSuggestion3": "Suggérer de meilleurs titres",
       "chatSuggestion4": "Ajouter la gestion des erreurs",
       "sendMessage": "Envoyer"
+    },
+    "compressImage": {
+      "title": "Compresser une image",
+      "description": "Réduisez la taille des images tout en préservant la qualité. Supporte PNG, JPG et WebP.",
+      "shortDesc": "Compresser l'image",
+      "quality": "Qualité"
+    },
+    "pdfToExcel": {
+      "title": "PDF vers Excel",
+      "description": "Extrayez les tableaux des fichiers PDF et convertissez-les en feuilles de calcul Excel.",
+      "shortDesc": "PDF → Excel"
+    },
+    "removeWatermark": {
+      "title": "Supprimer le filigrane",
+      "description": "Supprimez automatiquement les filigranes textuels des fichiers PDF.",
+      "shortDesc": "Supprimer le filigrane"
+    },
+    "reorderPdf": {
+      "title": "Réorganiser les pages PDF",
+      "description": "Réorganisez les pages de votre PDF dans l'ordre souhaité.",
+      "shortDesc": "Réorganiser les pages",
+      "orderLabel": "Nouvel ordre des pages",
+      "orderPlaceholder": "ex. 3,1,2,5,4",
+      "orderHint": "Entrez les numéros de pages séparés par des virgules dans l'ordre souhaité."
+    },
+    "extractPages": {
+      "title": "Extraire des pages PDF",
+      "description": "Extrayez des pages spécifiques d'un PDF dans un nouveau document.",
+      "shortDesc": "Extraire les pages",
+      "pagesLabel": "Pages à extraire",
+      "pagesPlaceholder": "ex. 1,3,5-8",
+      "pagesHint": "Entrez les numéros de pages ou les plages séparés par des virgules."
+    },
+    "qrCode": {
+      "title": "Générateur de code QR",
+      "description": "Générez des codes QR à partir de texte, d'URL ou de données. Personnalisez la taille et téléchargez en PNG.",
+      "shortDesc": "Générer un code QR",
+      "dataLabel": "Texte ou URL",
+      "dataPlaceholder": "Entrez du texte, une URL ou des données...",
+      "sizeLabel": "Taille"
+    },
+    "htmlToPdf": {
+      "title": "HTML vers PDF",
+      "description": "Convertissez des fichiers HTML en documents PDF avec prise en charge complète du style.",
+      "shortDesc": "HTML → PDF"
+    },
+    "chatPdf": {
+      "title": "Discuter avec un PDF",
+      "description": "Posez des questions sur votre document PDF et obtenez des réponses par IA.",
+      "shortDesc": "Demander à l'IA",
+      "questionLabel": "Votre question",
+      "questionPlaceholder": "Que souhaitez-vous savoir sur ce document ?",
+      "answer": "Réponse de l'IA"
+    },
+    "summarizePdf": {
+      "title": "Résumer un PDF",
+      "description": "Obtenez un résumé généré par IA de votre document PDF en quelques secondes.",
+      "shortDesc": "Résumer le PDF",
+      "lengthLabel": "Longueur du résumé",
+      "short": "Court",
+      "medium": "Moyen",
+      "long": "Détaillé",
+      "resultTitle": "Résumé"
+    },
+    "translatePdf": {
+      "title": "Traduire un PDF",
+      "description": "Traduisez le contenu de votre document PDF dans n'importe quelle langue grâce à l'IA.",
+      "shortDesc": "Traduire le PDF",
+      "targetLang": "Langue cible",
+      "resultTitle": "Traduction"
+    },
+    "tableExtractor": {
+      "title": "Extraire les tableaux d'un PDF",
+      "description": "Détectez et extrayez les tableaux des documents PDF en données structurées.",
+      "shortDesc": "Extraire les tableaux",
+      "tablesFound": "{{count}} tableau(x) trouvé(s)",
+      "tablePage": "Page {{page}} — Tableau {{index}}",
+      "noTables": "Aucun tableau n'a été trouvé dans ce document."
     }
   },
   "account": {

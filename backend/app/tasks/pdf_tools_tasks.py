@@ -15,6 +15,9 @@ from app.services.pdf_tools_service import (
     add_watermark,
     protect_pdf,
     unlock_pdf,
+    remove_watermark,
+    reorder_pdf_pages,
+    extract_pages,
     PDFToolsError,
 )
 from app.services.storage_service import storage
@@ -711,4 +714,173 @@ def unlock_pdf_task(
             usage_source,
             api_key_id,
             self.request.id,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Remove Watermark
+# ---------------------------------------------------------------------------
+@celery.task(bind=True, name="app.tasks.pdf_tools_tasks.remove_watermark_task")
+def remove_watermark_task(
+    self, input_path: str, task_id: str, original_filename: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
+    """Async task: Remove watermark from a PDF."""
+    output_dir = _get_output_dir(task_id)
+    output_path = os.path.join(output_dir, f"{task_id}_no_watermark.pdf")
+
+    try:
+        self.update_state(state="PROCESSING", meta={"step": "Removing watermark..."})
+        stats = remove_watermark(input_path, output_path)
+
+        self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
+        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
+
+        name_without_ext = os.path.splitext(original_filename)[0]
+        download_name = f"{name_without_ext}_no_watermark.pdf"
+        download_url = storage.generate_presigned_url(s3_key, original_filename=download_name)
+
+        result = {
+            "status": "completed",
+            "download_url": download_url,
+            "filename": download_name,
+            "total_pages": stats["total_pages"],
+            "output_size": stats["output_size"],
+        }
+
+        logger.info(f"Task {task_id}: Watermark removed")
+        return _finalize_task(
+            task_id, user_id, "remove-watermark", original_filename,
+            result, usage_source, api_key_id, self.request.id,
+        )
+
+    except PDFToolsError as e:
+        logger.error(f"Task {task_id}: Remove watermark error — {e}")
+        return _finalize_task(
+            task_id, user_id, "remove-watermark", original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source, api_key_id, self.request.id,
+        )
+    except Exception as e:
+        logger.error(f"Task {task_id}: Unexpected error — {e}")
+        return _finalize_task(
+            task_id, user_id, "remove-watermark", original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source, api_key_id, self.request.id,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Reorder PDF Pages
+# ---------------------------------------------------------------------------
+@celery.task(bind=True, name="app.tasks.pdf_tools_tasks.reorder_pdf_task")
+def reorder_pdf_task(
+    self, input_path: str, task_id: str, original_filename: str,
+    page_order: list[int],
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
+    """Async task: Reorder pages in a PDF."""
+    output_dir = _get_output_dir(task_id)
+    output_path = os.path.join(output_dir, f"{task_id}_reordered.pdf")
+
+    try:
+        self.update_state(state="PROCESSING", meta={"step": "Reordering pages..."})
+        stats = reorder_pdf_pages(input_path, output_path, page_order)
+
+        self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
+        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
+
+        name_without_ext = os.path.splitext(original_filename)[0]
+        download_name = f"{name_without_ext}_reordered.pdf"
+        download_url = storage.generate_presigned_url(s3_key, original_filename=download_name)
+
+        result = {
+            "status": "completed",
+            "download_url": download_url,
+            "filename": download_name,
+            "total_pages": stats["total_pages"],
+            "reordered_pages": stats["reordered_pages"],
+            "output_size": stats["output_size"],
+        }
+
+        logger.info(f"Task {task_id}: PDF pages reordered")
+        return _finalize_task(
+            task_id, user_id, "reorder-pdf", original_filename,
+            result, usage_source, api_key_id, self.request.id,
+        )
+
+    except PDFToolsError as e:
+        logger.error(f"Task {task_id}: Reorder error — {e}")
+        return _finalize_task(
+            task_id, user_id, "reorder-pdf", original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source, api_key_id, self.request.id,
+        )
+    except Exception as e:
+        logger.error(f"Task {task_id}: Unexpected error — {e}")
+        return _finalize_task(
+            task_id, user_id, "reorder-pdf", original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source, api_key_id, self.request.id,
+        )
+
+
+# ---------------------------------------------------------------------------
+# Extract Pages (to single PDF)
+# ---------------------------------------------------------------------------
+@celery.task(bind=True, name="app.tasks.pdf_tools_tasks.extract_pages_task")
+def extract_pages_task(
+    self, input_path: str, task_id: str, original_filename: str,
+    pages: str,
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
+    """Async task: Extract specific pages from a PDF into a new PDF."""
+    output_dir = _get_output_dir(task_id)
+    output_path = os.path.join(output_dir, f"{task_id}_extracted.pdf")
+
+    try:
+        self.update_state(state="PROCESSING", meta={"step": "Extracting pages..."})
+        stats = extract_pages(input_path, output_path, pages)
+
+        self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
+        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
+
+        name_without_ext = os.path.splitext(original_filename)[0]
+        download_name = f"{name_without_ext}_extracted.pdf"
+        download_url = storage.generate_presigned_url(s3_key, original_filename=download_name)
+
+        result = {
+            "status": "completed",
+            "download_url": download_url,
+            "filename": download_name,
+            "total_pages": stats["total_pages"],
+            "extracted_pages": stats["extracted_pages"],
+            "output_size": stats["output_size"],
+        }
+
+        logger.info(f"Task {task_id}: Pages extracted")
+        return _finalize_task(
+            task_id, user_id, "extract-pages", original_filename,
+            result, usage_source, api_key_id, self.request.id,
+        )
+
+    except PDFToolsError as e:
+        logger.error(f"Task {task_id}: Extract pages error — {e}")
+        return _finalize_task(
+            task_id, user_id, "extract-pages", original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source, api_key_id, self.request.id,
+        )
+    except Exception as e:
+        logger.error(f"Task {task_id}: Unexpected error — {e}")
+        return _finalize_task(
+            task_id, user_id, "extract-pages", original_filename,
+            {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source, api_key_id, self.request.id,
         )
