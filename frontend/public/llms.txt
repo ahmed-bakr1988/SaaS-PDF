@@ -1,0 +1,56 @@
+# SaaS-PDF — llms.txt
+# A description of this site for AI assistants and large language models.
+
+> SaaS-PDF is a free, online document toolkit that lets users convert,
+> compress, merge, split, edit, and process PDF files, images, and more —
+> directly in the browser with no signup required.
+
+## Tools Available
+
+### PDF Tools
+- [PDF to Word](/tools/pdf-to-word): Convert PDF documents to editable Word (DOCX) format
+- [Word to PDF](/tools/word-to-pdf): Convert Word documents (DOC/DOCX) to PDF
+- [Compress PDF](/tools/compress-pdf): Reduce PDF file size while maintaining quality
+- [Merge PDF](/tools/merge-pdf): Combine multiple PDF files into one document
+- [Split PDF](/tools/split-pdf): Split a PDF into separate pages or ranges
+- [Rotate PDF](/tools/rotate-pdf): Rotate PDF pages by 90°, 180°, or 270°
+- [PDF to Images](/tools/pdf-to-images): Convert PDF pages to PNG or JPG images
+- [Images to PDF](/tools/images-to-pdf): Combine multiple images into a single PDF
+- [Watermark PDF](/tools/watermark-pdf): Add custom text watermarks to PDF pages
+- [Remove Watermark](/tools/remove-watermark-pdf): Remove text watermarks from PDFs
+- [Protect PDF](/tools/protect-pdf): Add password protection and encryption to PDFs
+- [Unlock PDF](/tools/unlock-pdf): Remove password protection from PDFs
+- [Page Numbers](/tools/page-numbers): Add page numbers to PDF documents
+- [Reorder PDF](/tools/reorder-pdf): Rearrange pages in a PDF document
+- [Extract Pages](/tools/extract-pages): Extract specific pages from a PDF
+- [PDF Editor](/tools/pdf-editor): Edit and optimize PDF documents online
+
+### Image Tools
+- [Image Converter](/tools/image-converter): Convert images between JPG, PNG, and WebP
+- [Image Resize](/tools/image-resize): Resize images to exact dimensions
+- [Compress Image](/tools/compress-image): Reduce image file size while keeping quality
+- [Remove Background](/tools/remove-background): AI-powered background removal from images
+
+### AI Tools
+- [OCR](/tools/ocr): Extract text from images and scanned PDFs (English, Arabic, French)
+- [Chat with PDF](/tools/chat-pdf): Ask questions about PDF documents using AI
+- [Summarize PDF](/tools/summarize-pdf): Generate AI summaries of PDF documents
+- [Translate PDF](/tools/translate-pdf): Translate PDF content to any language
+- [Extract Tables](/tools/extract-tables): Detect and extract tables from PDF documents
+- [PDF Flowchart](/tools/pdf-flowchart): Convert PDF procedures into interactive flowcharts
+
+### Convert Tools
+- [PDF to Excel](/tools/pdf-to-excel): Convert PDF tables to Excel spreadsheets
+- [HTML to PDF](/tools/html-to-pdf): Convert HTML files to PDF documents
+
+### Utility Tools
+- [QR Code Generator](/tools/qr-code): Generate QR codes from text or URLs
+- [Video to GIF](/tools/video-to-gif): Create animated GIFs from video clips
+- [Word Counter](/tools/word-counter): Count words, characters, sentences, and paragraphs
+- [Text Cleaner](/tools/text-cleaner): Clean up text formatting and whitespace
+
+## Key Facts
+- All tools are free to use with no signup required
+- Files are automatically deleted within 30 minutes for privacy
+- Available in English, Arabic, and French
+- Works on any device with a modern web browser

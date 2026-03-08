@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
+import ToolLandingPage from '@/components/seo/ToolLandingPage';
 import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
@@ -91,52 +92,52 @@ export default function App() {
             <Route path="/terms" element={<TermsPage />} />
 
             {/* PDF Tools */}
-            <Route path="/tools/pdf-to-word" element={<PdfToWord />} />
-            <Route path="/tools/word-to-pdf" element={<WordToPdf />} />
-            <Route path="/tools/compress-pdf" element={<PdfCompressor />} />
-            <Route path="/tools/merge-pdf" element={<MergePdf />} />
-            <Route path="/tools/split-pdf" element={<SplitPdf />} />
-            <Route path="/tools/rotate-pdf" element={<RotatePdf />} />
-            <Route path="/tools/pdf-to-images" element={<PdfToImages />} />
-            <Route path="/tools/images-to-pdf" element={<ImagesToPdf />} />
-            <Route path="/tools/watermark-pdf" element={<WatermarkPdf />} />
-            <Route path="/tools/protect-pdf" element={<ProtectPdf />} />
-            <Route path="/tools/unlock-pdf" element={<UnlockPdf />} />
-            <Route path="/tools/page-numbers" element={<AddPageNumbers />} />
-            <Route path="/tools/pdf-editor" element={<PdfEditor />} />
-            <Route path="/tools/pdf-flowchart" element={<PdfFlowchart />} />
+            <Route path="/tools/pdf-to-word" element={<ToolLandingPage slug="pdf-to-word"><PdfToWord /></ToolLandingPage>} />
+            <Route path="/tools/word-to-pdf" element={<ToolLandingPage slug="word-to-pdf"><WordToPdf /></ToolLandingPage>} />
+            <Route path="/tools/compress-pdf" element={<ToolLandingPage slug="compress-pdf"><PdfCompressor /></ToolLandingPage>} />
+            <Route path="/tools/merge-pdf" element={<ToolLandingPage slug="merge-pdf"><MergePdf /></ToolLandingPage>} />
+            <Route path="/tools/split-pdf" element={<ToolLandingPage slug="split-pdf"><SplitPdf /></ToolLandingPage>} />
+            <Route path="/tools/rotate-pdf" element={<ToolLandingPage slug="rotate-pdf"><RotatePdf /></ToolLandingPage>} />
+            <Route path="/tools/pdf-to-images" element={<ToolLandingPage slug="pdf-to-images"><PdfToImages /></ToolLandingPage>} />
+            <Route path="/tools/images-to-pdf" element={<ToolLandingPage slug="images-to-pdf"><ImagesToPdf /></ToolLandingPage>} />
+            <Route path="/tools/watermark-pdf" element={<ToolLandingPage slug="watermark-pdf"><WatermarkPdf /></ToolLandingPage>} />
+            <Route path="/tools/protect-pdf" element={<ToolLandingPage slug="protect-pdf"><ProtectPdf /></ToolLandingPage>} />
+            <Route path="/tools/unlock-pdf" element={<ToolLandingPage slug="unlock-pdf"><UnlockPdf /></ToolLandingPage>} />
+            <Route path="/tools/page-numbers" element={<ToolLandingPage slug="page-numbers"><AddPageNumbers /></ToolLandingPage>} />
+            <Route path="/tools/pdf-editor" element={<ToolLandingPage slug="pdf-editor"><PdfEditor /></ToolLandingPage>} />
+            <Route path="/tools/pdf-flowchart" element={<ToolLandingPage slug="pdf-flowchart"><PdfFlowchart /></ToolLandingPage>} />
 
             {/* Image Tools */}
-            <Route path="/tools/image-converter" element={<ImageConverter />} />
-            <Route path="/tools/image-resize" element={<ImageResize />} />
-            <Route path="/tools/compress-image" element={<CompressImage />} />
-            <Route path="/tools/ocr" element={<OcrTool />} />
-            <Route path="/tools/remove-background" element={<RemoveBackground />} />
+            <Route path="/tools/image-converter" element={<ToolLandingPage slug="image-converter"><ImageConverter /></ToolLandingPage>} />
+            <Route path="/tools/image-resize" element={<ToolLandingPage slug="image-resize"><ImageResize /></ToolLandingPage>} />
+            <Route path="/tools/compress-image" element={<ToolLandingPage slug="compress-image"><CompressImage /></ToolLandingPage>} />
+            <Route path="/tools/ocr" element={<ToolLandingPage slug="ocr"><OcrTool /></ToolLandingPage>} />
+            <Route path="/tools/remove-background" element={<ToolLandingPage slug="remove-background"><RemoveBackground /></ToolLandingPage>} />
 
             {/* Convert Tools */}
-            <Route path="/tools/pdf-to-excel" element={<PdfToExcel />} />
-            <Route path="/tools/html-to-pdf" element={<HtmlToPdf />} />
+            <Route path="/tools/pdf-to-excel" element={<ToolLandingPage slug="pdf-to-excel"><PdfToExcel /></ToolLandingPage>} />
+            <Route path="/tools/html-to-pdf" element={<ToolLandingPage slug="html-to-pdf"><HtmlToPdf /></ToolLandingPage>} />
 
             {/* PDF Extra Tools */}
-            <Route path="/tools/remove-watermark-pdf" element={<RemoveWatermark />} />
-            <Route path="/tools/reorder-pdf" element={<ReorderPdf />} />
-            <Route path="/tools/extract-pages" element={<ExtractPages />} />
+            <Route path="/tools/remove-watermark-pdf" element={<ToolLandingPage slug="remove-watermark-pdf"><RemoveWatermark /></ToolLandingPage>} />
+            <Route path="/tools/reorder-pdf" element={<ToolLandingPage slug="reorder-pdf"><ReorderPdf /></ToolLandingPage>} />
+            <Route path="/tools/extract-pages" element={<ToolLandingPage slug="extract-pages"><ExtractPages /></ToolLandingPage>} />
 
             {/* AI Tools */}
-            <Route path="/tools/chat-pdf" element={<ChatPdf />} />
-            <Route path="/tools/summarize-pdf" element={<SummarizePdf />} />
-            <Route path="/tools/translate-pdf" element={<TranslatePdf />} />
-            <Route path="/tools/extract-tables" element={<TableExtractor />} />
+            <Route path="/tools/chat-pdf" element={<ToolLandingPage slug="chat-pdf"><ChatPdf /></ToolLandingPage>} />
+            <Route path="/tools/summarize-pdf" element={<ToolLandingPage slug="summarize-pdf"><SummarizePdf /></ToolLandingPage>} />
+            <Route path="/tools/translate-pdf" element={<ToolLandingPage slug="translate-pdf"><TranslatePdf /></ToolLandingPage>} />
+            <Route path="/tools/extract-tables" element={<ToolLandingPage slug="extract-tables"><TableExtractor /></ToolLandingPage>} />
 
             {/* Other Tools */}
-            <Route path="/tools/qr-code" element={<QrCodeGenerator />} />
+            <Route path="/tools/qr-code" element={<ToolLandingPage slug="qr-code"><QrCodeGenerator /></ToolLandingPage>} />
 
             {/* Video Tools */}
-            <Route path="/tools/video-to-gif" element={<VideoToGif />} />
+            <Route path="/tools/video-to-gif" element={<ToolLandingPage slug="video-to-gif"><VideoToGif /></ToolLandingPage>} />
 
             {/* Text Tools */}
-            <Route path="/tools/word-counter" element={<WordCounter />} />
-            <Route path="/tools/text-cleaner" element={<TextCleaner />} />
+            <Route path="/tools/word-counter" element={<ToolLandingPage slug="word-counter"><WordCounter /></ToolLandingPage>} />
+            <Route path="/tools/text-cleaner" element={<ToolLandingPage slug="text-cleaner"><TextCleaner /></ToolLandingPage>} />
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />
