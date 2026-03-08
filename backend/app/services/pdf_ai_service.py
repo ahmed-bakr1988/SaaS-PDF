@@ -8,7 +8,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 # Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct")
 OPENROUTER_BASE_URL = os.getenv(
     "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
@@ -219,37 +219,49 @@ def extract_tables(input_path: str) -> dict:
         {"tables": [...], "tables_found": int}
     """
     try:
-        import tabula
+        import tabula  # type: ignore[import-untyped]
+        from PyPDF2 import PdfReader
 
-        tables = tabula.read_pdf(
-            input_path, pages="all", multiple_tables=True, silent=True
-        )
+        # Get total page count
+        reader = PdfReader(input_path)
+        total_pages = len(reader.pages)
 
-        if not tables:
+        result_tables = []
+        table_index = 0
+
+        for page_num in range(1, total_pages + 1):
+            page_tables = tabula.read_pdf(
+                input_path, pages=str(page_num), multiple_tables=True, silent=True
+            )
+            if not page_tables:
+                continue
+            for df in page_tables:
+                if df.empty:
+                    continue
+                headers = [str(c) for c in df.columns]
+                rows = []
+                for _, row in df.iterrows():
+                    cells = []
+                    for col in df.columns:
+                        val = row[col]
+                        if isinstance(val, float) and str(val) == "nan":
+                            cells.append("")
+                        else:
+                            cells.append(str(val))
+                    rows.append(cells)
+
+                result_tables.append({
+                    "page": page_num,
+                    "table_index": table_index,
+                    "headers": headers,
+                    "rows": rows,
+                })
+                table_index += 1
+
+        if not result_tables:
             raise PdfAiError(
                 "No tables found in the PDF. This tool works best with PDFs containing tabular data."
             )
-
-        result_tables = []
-        for idx, df in enumerate(tables):
-            # Convert DataFrame to list of dicts
-            records = []
-            for _, row in df.iterrows():
-                record = {}
-                for col in df.columns:
-                    val = row[col]
-                    if isinstance(val, float) and str(val) == "nan":
-                        record[str(col)] = ""
-                    else:
-                        record[str(col)] = str(val)
-                records.append(record)
-
-            result_tables.append({
-                "index": idx + 1,
-                "columns": [str(c) for c in df.columns],
-                "rows": len(records),
-                "data": records,
-            })
 
         logger.info(f"Extracted {len(result_tables)} tables from PDF")
 

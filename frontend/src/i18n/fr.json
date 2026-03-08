@@ -23,7 +23,18 @@
     "email": "E-mail",
     "password": "Mot de passe",
     "darkMode": "Mode sombre",
-    "lightMode": "Mode clair"
+    "lightMode": "Mode clair",
+    "errors": {
+      "fileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : {{size}} Mo.",
+      "invalidFileType": "Type de fichier non valide. Formats acceptés : {{types}}",
+      "uploadFailed": "Téléchargement échoué. Veuillez réessayer.",
+      "processingFailed": "Échec du traitement. Veuillez réessayer.",
+      "quotaExceeded": "Limite d'utilisation mensuelle atteinte. Veuillez réessayer le mois prochain.",
+      "rateLimited": "Trop de requêtes. Veuillez attendre un moment et réessayer.",
+      "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard.",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+      "noFileSelected": "Aucun fichier sélectionné. Veuillez choisir un fichier à télécharger."
+    }
   },
   "auth": {
     "forgotPassword": {
@@ -167,7 +178,9 @@
       "selectFiles": "Sélectionner des fichiers PDF",
       "addMore": "Ajouter plus de fichiers",
       "filesSelected": "{{count}} fichiers sélectionnés",
-      "dragToReorder": "Glissez les fichiers pour les réorganiser"
+      "dragToReorder": "Glissez les fichiers pour les réorganiser",
+      "invalidFiles": "Veuillez sélectionner des fichiers PDF valides.",
+      "minFiles": "Veuillez sélectionner au moins 2 fichiers PDF à fusionner."
     },
     "splitPdf": {
       "title": "Diviser PDF",
@@ -205,7 +218,13 @@
       "dpiLow": "72 — Écran",
       "dpiMedium": "150 — Standard",
       "dpiHigh": "200 — Bon",
-      "dpiUltra": "300 — Qualité d'impression"
+      "dpiUltra": "300 — Qualité d'impression",
+      "outputFormat": "Format de sortie",
+      "quality": "Qualité",
+      "lowQuality": "Écran",
+      "mediumQuality": "Standard",
+      "highQuality": "Bon",
+      "bestQuality": "Qualité impression"
     },
     "imagesToPdf": {
       "title": "Images en PDF",
@@ -213,7 +232,9 @@
       "shortDesc": "Images → PDF",
       "selectImages": "Sélectionner des images",
       "addMore": "Ajouter plus d'images",
-      "imagesSelected": "{{count}} images sélectionnées"
+      "imagesSelected": "{{count}} images sélectionnées",
+      "invalidFiles": "Veuillez sélectionner des fichiers images valides (JPG, PNG, WebP).",
+      "minFiles": "Veuillez sélectionner au moins une image."
     },
     "watermarkPdf": {
       "title": "Filigrane PDF",
@@ -393,7 +414,12 @@
     "pdfToExcel": {
       "title": "PDF vers Excel",
       "description": "Extrayez les tableaux des fichiers PDF et convertissez-les en feuilles de calcul Excel.",
-      "shortDesc": "PDF → Excel"
+      "shortDesc": "PDF → Excel",
+      "errors": {
+        "noTables": "Aucun tableau trouvé dans ce PDF. Veuillez utiliser un PDF contenant des données tabulaires.",
+        "processingFailed": "Échec de la conversion en Excel. Veuillez essayer un autre PDF.",
+        "invalidFile": "Fichier PDF invalide ou corrompu. Veuillez télécharger un PDF valide."
+      }
     },
     "removeWatermark": {
       "title": "Supprimer le filigrane",
@@ -460,7 +486,12 @@
       "shortDesc": "Extraire les tableaux",
       "tablesFound": "{{count}} tableau(x) trouvé(s)",
       "tablePage": "Page {{page}} — Tableau {{index}}",
-      "noTables": "Aucun tableau n'a été trouvé dans ce document."
+      "noTables": "Aucun tableau n'a été trouvé dans ce document.",
+      "errors": {
+        "noTables": "Aucun tableau trouvé dans ce PDF. Cet outil fonctionne mieux avec des PDF contenant des données tabulaires.",
+        "processingFailed": "Échec de l'extraction des tableaux. Veuillez essayer un autre PDF.",
+        "invalidFile": "Fichier PDF invalide ou corrompu. Veuillez télécharger un PDF valide."
+      }
     }
   },
   "account": {

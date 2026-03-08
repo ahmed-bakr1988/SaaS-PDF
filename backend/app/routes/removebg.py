@@ -28,7 +28,7 @@ def remove_bg_route():
         - 'file': Image file (PNG, JPG, JPEG, WebP)
     Returns: JSON with task_id for polling
     """
-    if not current_app.config.get("FEATURE_EDITOR", False):
+    if not current_app.config.get("FEATURE_REMOVEBG", True):
         return jsonify({"error": "This feature is not enabled."}), 403
 
     if "file" not in request.files:

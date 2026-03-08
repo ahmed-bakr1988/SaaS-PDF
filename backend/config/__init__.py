@@ -80,7 +80,7 @@ class BaseConfig:
     RATELIMIT_DEFAULT = "100/hour"
 
     # OpenRouter AI
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
     OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct")
     OPENROUTER_BASE_URL = os.getenv(
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
@@ -95,8 +95,10 @@ class BaseConfig:
     SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
-    # Feature flags
-    FEATURE_EDITOR = os.getenv("FEATURE_EDITOR", "false").lower() == "true"
+    # Feature flags (default: enabled — set to "false" to disable a feature)
+    FEATURE_EDITOR = os.getenv("FEATURE_EDITOR", "true").lower() == "true"
+    FEATURE_OCR = os.getenv("FEATURE_OCR", "true").lower() == "true"
+    FEATURE_REMOVEBG = os.getenv("FEATURE_REMOVEBG", "true").lower() == "true"
 
 
 class DevelopmentConfig(BaseConfig):

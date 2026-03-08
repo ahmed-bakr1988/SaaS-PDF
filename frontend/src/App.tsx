@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
@@ -77,6 +78,7 @@ export default function App() {
       <Header />
 
       <main className="container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8">
+        <ErrorBoundary>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             {/* Pages */}
@@ -140,6 +142,7 @@ export default function App() {
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>
+        </ErrorBoundary>
       </main>
 
       <Footer />

@@ -12,7 +12,7 @@ from tests.conftest import make_png_bytes, make_pdf_bytes
 # =========================================================================
 class TestRemoveBgFeatureFlag:
     def test_removebg_disabled_by_default(self, client):
-        """Should return 403 when FEATURE_EDITOR is off."""
+        """Should return 403 when FEATURE_REMOVEBG is off."""
         data = {"file": (io.BytesIO(make_png_bytes()), "photo.png")}
         response = client.post(
             "/api/remove-bg",
@@ -29,7 +29,7 @@ class TestRemoveBgFeatureFlag:
 class TestRemoveBgValidation:
     def test_removebg_no_file(self, client, app):
         """Should return 400 when no file provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_REMOVEBG"] = True
         response = client.post("/api/remove-bg")
         assert response.status_code == 400
         assert "No file" in response.get_json()["error"]
@@ -41,7 +41,7 @@ class TestRemoveBgValidation:
 class TestRemoveBgSuccess:
     def test_removebg_success(self, client, app, monkeypatch):
         """Should return 202 with task_id when valid image provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_REMOVEBG"] = True
         mock_task = MagicMock()
         mock_task.id = "rembg-task-1"
 

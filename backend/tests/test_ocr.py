@@ -13,7 +13,7 @@ from tests.conftest import make_png_bytes, make_pdf_bytes
 # =========================================================================
 class TestOcrFeatureFlag:
     def test_ocr_image_disabled_by_default(self, client):
-        """OCR image should return 403 when FEATURE_EDITOR is off."""
+        """OCR image should return 403 when FEATURE_OCR is off."""
         data = {"file": (io.BytesIO(make_png_bytes()), "test.png")}
         response = client.post(
             "/api/ocr/image",
@@ -24,7 +24,7 @@ class TestOcrFeatureFlag:
         assert "not enabled" in response.get_json()["error"]
 
     def test_ocr_pdf_disabled_by_default(self, client):
-        """OCR PDF should return 403 when FEATURE_EDITOR is off."""
+        """OCR PDF should return 403 when FEATURE_OCR is off."""
         data = {"file": (io.BytesIO(make_pdf_bytes()), "scan.pdf")}
         response = client.post(
             "/api/ocr/pdf",
@@ -50,14 +50,14 @@ class TestOcrFeatureFlag:
 class TestOcrValidation:
     def test_ocr_image_no_file(self, client, app):
         """Should return 400 when no file provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_OCR"] = True
         response = client.post("/api/ocr/image")
         assert response.status_code == 400
         assert "No file" in response.get_json()["error"]
 
     def test_ocr_pdf_no_file(self, client, app):
         """Should return 400 when no file provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_OCR"] = True
         response = client.post("/api/ocr/pdf")
         assert response.status_code == 400
         assert "No file" in response.get_json()["error"]
@@ -69,7 +69,7 @@ class TestOcrValidation:
 class TestOcrSuccess:
     def test_ocr_image_success(self, client, app, monkeypatch):
         """Should return 202 with task_id when valid image provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_OCR"] = True
         mock_task = MagicMock()
         mock_task.id = "ocr-img-task-1"
 
@@ -101,7 +101,7 @@ class TestOcrSuccess:
 
     def test_ocr_pdf_success(self, client, app, monkeypatch):
         """Should return 202 with task_id when valid PDF provided."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_OCR"] = True
         mock_task = MagicMock()
         mock_task.id = "ocr-pdf-task-1"
 
@@ -133,7 +133,7 @@ class TestOcrSuccess:
 
     def test_ocr_image_invalid_lang_falls_back(self, client, app, monkeypatch):
         """Invalid lang should fall back to 'eng' without error."""
-        app.config["FEATURE_EDITOR"] = True
+        app.config["FEATURE_OCR"] = True
         mock_task = MagicMock()
         mock_task.id = "ocr-lang-task"
 

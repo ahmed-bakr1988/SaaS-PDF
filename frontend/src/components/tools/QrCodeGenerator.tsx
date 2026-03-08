@@ -43,7 +43,7 @@ export default function QrCodeGenerator() {
     setError(null);
   };
 
-  const downloadUrl = result?.download_url ? `/api${result.download_url}` : null;
+  const downloadUrl = result?.download_url || null;
 
   const schema = generateToolSchema({
     name: t('tools.qrCode.title'),

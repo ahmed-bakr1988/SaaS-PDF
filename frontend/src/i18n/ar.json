@@ -23,7 +23,18 @@
     "email": "البريد الإلكتروني",
     "password": "كلمة المرور",
     "darkMode": "الوضع الداكن",
-    "lightMode": "الوضع الفاتح"
+    "lightMode": "الوضع الفاتح",
+    "errors": {
+      "fileTooLarge": "حجم الملف كبير جدًا. الحد الأقصى المسموح {{size}} ميجابايت.",
+      "invalidFileType": "نوع الملف غير صالح. الأنواع المقبولة: {{types}}",
+      "uploadFailed": "فشل رفع الملف. يرجى المحاولة مرة أخرى.",
+      "processingFailed": "فشلت المعالجة. يرجى المحاولة مرة أخرى.",
+      "quotaExceeded": "تم استنفاد حصة الاستخدام الشهرية. يرجى المحاولة الشهر القادم.",
+      "rateLimited": "طلبات كثيرة جدًا. يرجى الانتظار لحظة والمحاولة مجددًا.",
+      "serverError": "حدث خطأ في الخادم. يرجى المحاولة لاحقًا.",
+      "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
+      "noFileSelected": "لم يتم اختيار ملف. يرجى اختيار ملف للرفع."
+    }
   },
   "auth": {
     "forgotPassword": {
@@ -167,7 +178,9 @@
       "selectFiles": "اختر ملفات PDF",
       "addMore": "أضف ملفات أخرى",
       "filesSelected": "{{count}} ملفات مختارة",
-      "dragToReorder": "اسحب الملفات لإعادة ترتيبها"
+      "dragToReorder": "اسحب الملفات لإعادة ترتيبها",
+      "invalidFiles": "يرجى اختيار ملفات PDF صالحة.",
+      "minFiles": "يرجى اختيار ملفَين على الأقل لدمجهما."
     },
     "splitPdf": {
       "title": "تقسيم PDF",
@@ -205,7 +218,13 @@
       "dpiLow": "72 — شاشة",
       "dpiMedium": "150 — قياسي",
       "dpiHigh": "200 — جيد",
-      "dpiUltra": "300 — جودة طباعة"
+      "dpiUltra": "300 — جودة طباعة",
+      "outputFormat": "صيغة الإخراج",
+      "quality": "الجودة",
+      "lowQuality": "شاشة",
+      "mediumQuality": "قياسي",
+      "highQuality": "جيد",
+      "bestQuality": "جودة طباعة"
     },
     "imagesToPdf": {
       "title": "صور إلى PDF",
@@ -213,7 +232,9 @@
       "shortDesc": "صور → PDF",
       "selectImages": "اختر الصور",
       "addMore": "أضف صور أخرى",
-      "imagesSelected": "{{count}} صور مختارة"
+      "imagesSelected": "{{count}} صور مختارة",
+      "invalidFiles": "يرجى اختيار ملفات صور صالحة (JPG أو PNG أو WebP).",
+      "minFiles": "يرجى اختيار صورة واحدة على الأقل."
     },
     "watermarkPdf": {
       "title": "علامة مائية PDF",
@@ -393,7 +414,12 @@
     "pdfToExcel": {
       "title": "PDF إلى Excel",
       "description": "استخرج الجداول من ملفات PDF وحوّلها إلى جداول بيانات Excel.",
-      "shortDesc": "PDF → Excel"
+      "shortDesc": "PDF → Excel",
+      "errors": {
+        "noTables": "لم يتم العثور على جداول في هذا الملف. يرجى استخدام ملف PDF يحتوي على بيانات جدولية.",
+        "processingFailed": "فشل التحويل إلى Excel. يرجى تجربة ملف PDF مختلف.",
+        "invalidFile": "ملف PDF غير صالح أو تالف. يرجى رفع ملف PDF صحيح."
+      }
     },
     "removeWatermark": {
       "title": "إزالة العلامة المائية",
@@ -460,7 +486,12 @@
       "shortDesc": "استخراج الجداول",
       "tablesFound": "تم العثور على {{count}} جدول(جداول)",
       "tablePage": "الصفحة {{page}} — الجدول {{index}}",
-      "noTables": "لم يتم العثور على جداول في هذا المستند."
+      "noTables": "لم يتم العثور على جداول في هذا المستند.",
+      "errors": {
+        "noTables": "لم يتم العثور على جداول في هذا الملف. تعمل الأداة بشكل أفضل مع ملفات PDF التي تحتوي على بيانات جدولية.",
+        "processingFailed": "فشل استخراج الجداول. يرجى تجربة ملف PDF مختلف.",
+        "invalidFile": "ملف PDF غير صالح أو تالف. يرجى رفع ملف PDF صحيح."
+      }
     }
   },
   "account": {

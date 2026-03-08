@@ -23,7 +23,18 @@
     "email": "Email",
     "password": "Password",
     "darkMode": "Dark Mode",
-    "lightMode": "Light Mode"
+    "lightMode": "Light Mode",
+    "errors": {
+      "fileTooLarge": "File is too large. Maximum size is {{size}}MB.",
+      "invalidFileType": "Invalid file type. Accepted: {{types}}",
+      "uploadFailed": "Upload failed. Please try again.",
+      "processingFailed": "Processing failed. Please try again.",
+      "quotaExceeded": "Monthly usage limit reached. Please try again next month.",
+      "rateLimited": "Too many requests. Please wait a moment and try again.",
+      "serverError": "A server error occurred. Please try again later.",
+      "networkError": "Network error. Please check your connection and try again.",
+      "noFileSelected": "No file selected. Please choose a file to upload."
+    }
   },
   "auth": {
     "forgotPassword": {
@@ -167,7 +178,9 @@
       "selectFiles": "Select PDF Files",
       "addMore": "Add More Files",
       "filesSelected": "{{count}} files selected",
-      "dragToReorder": "Drag files to reorder them"
+      "dragToReorder": "Drag files to reorder them",
+      "invalidFiles": "Please select valid PDF files.",
+      "minFiles": "Please select at least 2 PDF files to merge."
     },
     "splitPdf": {
       "title": "Split PDF",
@@ -205,7 +218,13 @@
       "dpiLow": "72 — Screen",
       "dpiMedium": "150 — Standard",
       "dpiHigh": "200 — Good",
-      "dpiUltra": "300 — Print Quality"
+      "dpiUltra": "300 — Print Quality",
+      "outputFormat": "Output Format",
+      "quality": "Quality",
+      "lowQuality": "Screen",
+      "mediumQuality": "Standard",
+      "highQuality": "Good",
+      "bestQuality": "Print Quality"
     },
     "imagesToPdf": {
       "title": "Images to PDF",
@@ -213,7 +232,9 @@
       "shortDesc": "Images → PDF",
       "selectImages": "Select Images",
       "addMore": "Add More Images",
-      "imagesSelected": "{{count}} images selected"
+      "imagesSelected": "{{count}} images selected",
+      "invalidFiles": "Please select valid image files (JPG, PNG, WebP).",
+      "minFiles": "Please select at least one image."
     },
     "watermarkPdf": {
       "title": "Watermark PDF",
@@ -393,7 +414,12 @@
     "pdfToExcel": {
       "title": "PDF to Excel",
       "description": "Extract tables from PDF files and convert them to Excel spreadsheets.",
-      "shortDesc": "PDF → Excel"
+      "shortDesc": "PDF → Excel",
+      "errors": {
+        "noTables": "No tables found in this PDF. Please use a PDF that contains tabular data.",
+        "processingFailed": "Failed to convert to Excel. Please try a different PDF.",
+        "invalidFile": "Invalid or corrupted PDF file. Please upload a valid PDF."
+      }
     },
     "removeWatermark": {
       "title": "Remove Watermark",
@@ -460,7 +486,12 @@
       "shortDesc": "Extract Tables",
       "tablesFound": "{{count}} table(s) found",
       "tablePage": "Page {{page}} — Table {{index}}",
-      "noTables": "No tables were found in this document."
+      "noTables": "No tables were found in this document.",
+      "errors": {
+        "noTables": "No tables found in this PDF. This tool works best with PDFs containing tabular data.",
+        "processingFailed": "Failed to extract tables. Please try a different PDF.",
+        "invalidFile": "Invalid or corrupted PDF file. Please upload a valid PDF."
+      }
     }
   },
   "account": {

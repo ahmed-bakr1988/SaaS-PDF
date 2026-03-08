@@ -143,6 +143,17 @@ export default function RemoveBackground() {
           </div>
         )}
 
+        {phase === 'done' && !result && taskError && (
+          <div className="space-y-4">
+            <div className="rounded-xl bg-red-50 p-4 text-red-600 dark:bg-red-900/20 dark:text-red-400">
+              {taskError}
+            </div>
+            <button onClick={handleReset} className="btn-secondary w-full">
+              {t('common.tryAgain')}
+            </button>
+          </div>
+        )}
+
         <AdSlot slot="bottom-banner" format="horizontal" className="mt-6" />
       </div>
     </>

@@ -22,8 +22,8 @@ ALLOWED_OCR_TYPES = ALLOWED_IMAGE_TYPES + ["pdf"]
 
 
 def _check_feature_flag():
-    """Return an error response if FEATURE_EDITOR is disabled."""
-    if not current_app.config.get("FEATURE_EDITOR", False):
+    """Return an error response if FEATURE_OCR is disabled."""
+    if not current_app.config.get("FEATURE_OCR", True):
         return jsonify({"error": "This feature is not enabled."}), 403
     return None
 
