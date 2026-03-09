@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail, Send, CheckCircle } from 'lucide-react';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateWebPage } from '@/utils/seo';
 
 const CONTACT_EMAIL = 'support@saas-pdf.com';
 
@@ -52,11 +54,16 @@ export default function ContactPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('pages.contact.title')} — {t('common.appName')}</title>
-        <meta name="description" content={t('pages.contact.metaDescription')} />
-        <link rel="canonical" href={`${window.location.origin}/contact`} />
-      </Helmet>
+      <SEOHead
+        title={t('pages.contact.title')}
+        description={t('pages.contact.metaDescription')}
+        path="/contact"
+        jsonLd={generateWebPage({
+          name: t('pages.contact.title'),
+          description: t('pages.contact.metaDescription'),
+          url: `${window.location.origin}/contact`,
+        })}
+      />
 
       <div className="mx-auto max-w-2xl">
         <div className="mb-8 text-center">

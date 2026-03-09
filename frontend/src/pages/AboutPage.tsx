@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateWebPage } from '@/utils/seo';
 import { Target, Cpu, Shield, Lock, Wrench } from 'lucide-react';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
@@ -10,11 +11,16 @@ export default function AboutPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('pages.about.title')} — {t('common.appName')}</title>
-        <meta name="description" content={t('pages.about.metaDescription')} />
-        <link rel="canonical" href={`${window.location.origin}/about`} />
-      </Helmet>
+      <SEOHead
+        title={t('pages.about.title')}
+        description={t('pages.about.metaDescription')}
+        path="/about"
+        jsonLd={generateWebPage({
+          name: t('pages.about.title'),
+          description: t('pages.about.metaDescription'),
+          url: `${window.location.origin}/about`,
+        })}
+      />
 
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-8 text-3xl font-bold text-slate-900 dark:text-white">

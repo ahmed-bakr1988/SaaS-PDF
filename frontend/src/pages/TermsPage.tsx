@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateWebPage } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
@@ -12,11 +13,16 @@ export default function TermsPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('pages.terms.title')} — {t('common.appName')}</title>
-        <meta name="description" content={t('pages.terms.metaDescription')} />
-        <link rel="canonical" href={`${window.location.origin}/terms`} />
-      </Helmet>
+      <SEOHead
+        title={t('pages.terms.title')}
+        description={t('pages.terms.metaDescription')}
+        path="/terms"
+        jsonLd={generateWebPage({
+          name: t('pages.terms.title'),
+          description: t('pages.terms.metaDescription'),
+          url: `${window.location.origin}/terms`,
+        })}
+      />
 
       <div className="prose mx-auto max-w-2xl dark:prose-invert">
         <h1>{t('pages.terms.title')}</h1>

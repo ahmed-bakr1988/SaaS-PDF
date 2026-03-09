@@ -67,3 +67,44 @@ export function generateFAQ(
     })),
   };
 }
+
+/**
+ * Generate Organization JSON-LD for the site.
+ */
+export function generateOrganization(origin: string): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'SaaS-PDF',
+    url: origin,
+    logo: `${origin}/favicon.svg`,
+    sameAs: [],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: 'support@saas-pdf.com',
+      contactType: 'customer support',
+      availableLanguage: ['English', 'Arabic', 'French'],
+    },
+  };
+}
+
+/**
+ * Generate WebPage JSON-LD for a static page.
+ */
+export function generateWebPage(page: {
+  name: string;
+  description: string;
+  url: string;
+}): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: page.name,
+    description: page.description,
+    url: page.url,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'SaaS-PDF',
+    },
+  };
+}

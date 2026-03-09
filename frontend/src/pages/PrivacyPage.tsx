@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateWebPage } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
@@ -12,11 +13,16 @@ export default function PrivacyPage() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('pages.privacy.title')} — {t('common.appName')}</title>
-        <meta name="description" content={t('pages.privacy.metaDescription')} />
-        <link rel="canonical" href={`${window.location.origin}/privacy`} />
-      </Helmet>
+      <SEOHead
+        title={t('pages.privacy.title')}
+        description={t('pages.privacy.metaDescription')}
+        path="/privacy"
+        jsonLd={generateWebPage({
+          name: t('pages.privacy.title'),
+          description: t('pages.privacy.metaDescription'),
+          url: `${window.location.origin}/privacy`,
+        })}
+      />
 
       <div className="prose mx-auto max-w-2xl dark:prose-invert">
         <h1>{t('pages.privacy.title')}</h1>

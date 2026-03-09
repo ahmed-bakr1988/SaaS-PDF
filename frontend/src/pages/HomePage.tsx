@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateOrganization } from '@/utils/seo';
 import {
   FileText,
   FileOutput,
@@ -83,12 +84,12 @@ export default function HomePage() {
 
   return (
     <>
-      <Helmet>
-        <title>{t('common.appName')} — {t('home.heroSub')}</title>
-        <meta name="description" content={t('home.heroSub')} />
-        <link rel="canonical" href={window.location.origin} />
-        <script type="application/ld+json">
-          {JSON.stringify({
+      <SEOHead
+        title={t('common.appName')}
+        description={t('home.heroSub')}
+        path="/"
+        jsonLd={[
+          {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: t('common.appName'),
@@ -99,9 +100,10 @@ export default function HomePage() {
               target: `${window.location.origin}/tools/{search_term_string}`,
               'query-input': 'required name=search_term_string',
             },
-          })}
-        </script>
-      </Helmet>
+          },
+          generateOrganization(window.location.origin),
+        ]}
+      />
 
       {/* Hero Section */}
       <section className="py-12 sm:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 px-4 mb-10 rounded-b-[3rem]">
