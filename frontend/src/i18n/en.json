@@ -24,6 +24,11 @@
     "password": "Password",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
+    "contact": "Contact",
+    "send": "Send",
+    "subject": "Subject",
+    "message": "Message",
+    "name": "Name",
     "errors": {
       "fileTooLarge": "File is too large. Maximum size is {{size}}MB.",
       "invalidFileType": "Invalid file type. Accepted: {{types}}",
@@ -85,6 +90,109 @@
     "feature2Desc": "Get pixel-perfect, editable files in seconds with zero quality loss.",
     "feature3Title": "Built-in security",
     "feature3Desc": "Access files securely, protected by automatic encryption."
+  },
+  "pages": {
+    "about": {
+      "metaDescription": "Learn about SaaS-PDF — free, fast, and secure online file tools for PDFs, images, video, and text. No registration required.",
+      "title": "About SaaS-PDF",
+      "missionTitle": "Our Mission",
+      "missionText": "SaaS-PDF was built to make professional-grade file tools accessible to everyone — for free. We believe that converting, compressing, and editing documents should be simple, fast, and private. No sign-ups, no hidden fees, no software to install.",
+      "technologyTitle": "Technology",
+      "technologyText": "Our platform is powered by modern cloud infrastructure designed for speed and reliability. Files are processed server-side using industry-leading open-source libraries, ensuring accurate conversions and high-quality output every time. Our AI-powered tools leverage advanced machine learning models for intelligent document analysis, translation, and summarization.",
+      "securityTitle": "Security",
+      "securityText": "Security is built into every layer of our platform. All file transfers are encrypted via HTTPS. Uploaded files are validated, size-limited, and processed in isolated environments. We employ rate limiting and input sanitization to prevent abuse.",
+      "privacyTitle": "File Privacy",
+      "privacyText": "Your files belong to you. We never read, share, or sell the content of your documents. All uploaded and processed files are automatically deleted from our servers within {{minutes}} minutes. No human eyes ever see your data — processing is fully automated.",
+      "toolsTitle": "What We Offer",
+      "toolCategories": [
+        "PDF tools — convert, compress, merge, split, rotate, watermark, protect, unlock, edit, and more",
+        "Image tools — convert, resize, compress, remove backgrounds with AI",
+        "AI document tools — chat with PDFs, summarize, translate, extract tables",
+        "OCR — extract text from images and scanned PDFs in English, Arabic, and French",
+        "Utility tools — QR code generator, video to GIF, word counter, text cleaner"
+      ]
+    },
+    "contact": {
+      "metaDescription": "Contact the SaaS-PDF team. Report bugs, request features, or send us a message.",
+      "title": "Contact Us",
+      "subtitle": "Have a question, found a bug, or want to request a feature? We'd love to hear from you.",
+      "formTitle": "Send Us a Message",
+      "categoryLabel": "Message Type",
+      "categories": {
+        "general": "General Inquiry",
+        "bug": "Bug Report",
+        "feature": "Feature Request"
+      },
+      "bugPlaceholder": "Please describe the issue: what you did, what you expected, and what happened instead.",
+      "featurePlaceholder": "Describe the feature you'd like to see and how it would help you.",
+      "generalPlaceholder": "Write your message here...",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "your@email.com",
+      "subjectPlaceholder": "Subject",
+      "successMessage": "Your message has been sent! We'll get back to you soon.",
+      "directEmail": "Or email us directly at",
+      "responseTime": "We typically respond within 24–48 hours."
+    },
+    "privacy": {
+      "metaDescription": "Privacy policy for SaaS-PDF. Learn how we handle your files and data with full transparency.",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}",
+      "dataCollectionTitle": "1. Data Collection",
+      "dataCollectionText": "We only process files you intentionally upload. We do not require registration, and no personal information is collected during file processing. If you create an account, we store only your email address and hashed password.",
+      "fileHandlingTitle": "2. File Processing & Storage",
+      "fileHandlingItems": [
+        "Uploaded files are processed on our secure servers.",
+        "All uploaded and output files are automatically deleted within {{minutes}} minutes.",
+        "Files are stored in encrypted cloud storage during processing.",
+        "We never access, read, or share the content of your files.",
+        "Processing is fully automated — no human reviews your documents."
+      ],
+      "cookiesTitle": "3. Cookies & Analytics",
+      "cookiesText": "We use essential cookies to remember your language preference and theme. We may use Google Analytics and Google AdSense, which may place their own cookies. You can manage cookie preferences in your browser settings.",
+      "thirdPartyTitle": "4. Third-Party Services",
+      "thirdPartyItems": [
+        "Google AdSense — for displaying advertisements",
+        "Google Analytics — for anonymous usage statistics",
+        "Cloud storage — for temporary encrypted file storage"
+      ],
+      "securityTitle": "5. Security",
+      "securityText": "We employ industry-standard security measures including HTTPS encryption, file validation, rate limiting, input sanitization, and automatic file cleanup. All data in transit is encrypted, and files are processed in isolated environments.",
+      "rightsTitle": "6. Your Rights",
+      "rightsText": "Since we don't store personal data beyond optional accounts, there is minimal data to manage. If you have an account, you can delete it at any time. All processed files are automatically purged within {{minutes}} minutes.",
+      "contactTitle": "7. Contact",
+      "contactText": "Questions about this policy? Contact us at"
+    },
+    "terms": {
+      "metaDescription": "Terms of service for SaaS-PDF. Understand the rules and guidelines for using our free online tools.",
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {{date}}",
+      "acceptanceTitle": "1. Acceptance of Terms",
+      "acceptanceText": "By accessing and using SaaS-PDF, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use immediately.",
+      "serviceTitle": "2. Service Description",
+      "serviceText": "SaaS-PDF provides free online tools for file conversion, compression, and transformation. The service is provided \"as is\" without warranties of any kind.",
+      "useTitle": "3. Acceptable Use",
+      "useItems": [
+        "You may only upload files that you have the right to process.",
+        "You must not upload malicious, illegal, or copyrighted content without authorization.",
+        "Automated or excessive use of the service is prohibited.",
+        "You must not attempt to bypass security measures or rate limits."
+      ],
+      "fileTitle": "4. File Handling",
+      "fileItems": [
+        "All uploaded and processed files are automatically deleted within {{minutes}} minutes.",
+        "We are not responsible for any data loss during processing.",
+        "You are responsible for maintaining your own file backups.",
+        "We do not guarantee the preservation of any uploaded content beyond the processing window."
+      ],
+      "liabilityTitle": "5. Limitation of Liability",
+      "liabilityText": "SaaS-PDF shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the service. Use of the service is at your own risk.",
+      "ipTitle": "6. Intellectual Property",
+      "ipText": "All tools, interfaces, and content on SaaS-PDF are the intellectual property of the service operators. You retain full ownership of all files you upload and process.",
+      "changesTitle": "7. Changes to Terms",
+      "changesText": "We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the updated terms.",
+      "contactTitle": "8. Contact",
+      "contactText": "Questions about these terms? Contact us at"
+    }
   },
   "tools": {
     "pdfToWord": {

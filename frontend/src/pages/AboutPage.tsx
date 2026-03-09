@@ -1,50 +1,103 @@
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
+import { Target, Cpu, Shield, Lock, Wrench } from 'lucide-react';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 export default function AboutPage() {
   const { t } = useTranslation();
+  const toolCategories = t('pages.about.toolCategories', { returnObjects: true }) as string[];
 
   return (
     <>
       <Helmet>
-        <title>{t('common.about')} — {t('common.appName')}</title>
-        <meta name="description" content="About our free online file conversion tools." />
+        <title>{t('pages.about.title')} — {t('common.appName')}</title>
+        <meta name="description" content={t('pages.about.metaDescription')} />
+        <link rel="canonical" href={`${window.location.origin}/about`} />
       </Helmet>
 
-      <div className="prose mx-auto max-w-2xl dark:prose-invert">
-        <h1>{t('common.about')}</h1>
+      <div className="mx-auto max-w-3xl">
+        <h1 className="mb-8 text-3xl font-bold text-slate-900 dark:text-white">
+          {t('pages.about.title')}
+        </h1>
 
-        <p>
-          We provide free, fast, and secure online tools for converting, compressing,
-          and processing files — PDFs, images, videos, and text.
-        </p>
+        {/* Mission */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Target className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('pages.about.missionTitle')}
+            </h2>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            {t('pages.about.missionText')}
+          </p>
+        </section>
 
-        <h2>Why use our tools?</h2>
-        <ul>
-          <li><strong>100% Free</strong> — No hidden charges, no sign-up required.</li>
-          <li><strong>Private & Secure</strong> — Files are auto-deleted within {FILE_RETENTION_MINUTES} minutes.</li>
-          <li><strong>Fast Processing</strong> — Server-side processing for reliable results.</li>
-          <li><strong>Works Everywhere</strong> — Desktop, tablet, or mobile.</li>
-        </ul>
+        {/* Technology */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Cpu className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('pages.about.technologyTitle')}
+            </h2>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            {t('pages.about.technologyText')}
+          </p>
+        </section>
 
-        <h2>Available Tools</h2>
-        <ul>
-          <li>PDF conversion tools (PDF↔Word)</li>
-          <li>PDF optimization and utility tools (compress, merge, split, rotate, page numbers)</li>
-          <li>PDF security tools (watermark, protect, unlock)</li>
-          <li>PDF/image conversion tools (PDF→Images, Images→PDF)</li>
-          <li>Image processing tools (convert, resize)</li>
-          <li>Video to GIF tool</li>
-          <li>Text tools (word counter, cleaner)</li>
-          <li>PDF to flowchart extraction tool</li>
-        </ul>
+        {/* Security */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Shield className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('pages.about.securityTitle')}
+            </h2>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            {t('pages.about.securityText')}
+          </p>
+        </section>
 
-        <h2>Contact</h2>
-        <p>
-          Have feedback or feature requests? Reach out at{' '}
-          <a href="mailto:support@example.com">support@example.com</a>.
-        </p>
+        {/* File Privacy */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Lock className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('pages.about.privacyTitle')}
+            </h2>
+          </div>
+          <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+            {t('pages.about.privacyText', { minutes: FILE_RETENTION_MINUTES })}
+          </p>
+        </section>
+
+        {/* What We Offer */}
+        <section className="mb-10">
+          <div className="flex items-center gap-3 mb-3">
+            <Wrench className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('pages.about.toolsTitle')}
+            </h2>
+          </div>
+          {Array.isArray(toolCategories) && (
+            <ul className="list-disc space-y-2 pl-5 text-slate-600 dark:text-slate-400">
+              {toolCategories.map((cat, idx) => (
+                <li key={idx}>{cat}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* CTA */}
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center dark:border-slate-700 dark:bg-slate-800">
+          <p className="mb-4 text-slate-600 dark:text-slate-400">
+            <Link to="/contact" className="font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+              {t('common.contact')}
+            </Link>
+          </p>
+        </div>
       </div>
     </>
   );

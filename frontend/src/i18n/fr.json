@@ -24,6 +24,11 @@
     "password": "Mot de passe",
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
+    "contact": "Contact",
+    "send": "Envoyer",
+    "subject": "Sujet",
+    "message": "Message",
+    "name": "Nom",
     "errors": {
       "fileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : {{size}} Mo.",
       "invalidFileType": "Type de fichier non valide. Formats acceptés : {{types}}",
@@ -85,6 +90,109 @@
     "feature2Desc": "Obtenez des fichiers parfaits et modifiables en quelques secondes sans perte de qualité.",
     "feature3Title": "Sécurité intégrée",
     "feature3Desc": "Accédez aux fichiers en toute sécurité, protégés par un cryptage automatique."
+  },
+  "pages": {
+    "about": {
+      "metaDescription": "Découvrez SaaS-PDF — outils en ligne gratuits, rapides et sécurisés pour les PDF, images, vidéos et textes. Aucune inscription requise.",
+      "title": "À propos de SaaS-PDF",
+      "missionTitle": "Notre mission",
+      "missionText": "SaaS-PDF a été créé pour rendre les outils de fichiers professionnels accessibles à tous — gratuitement. Nous croyons que la conversion, la compression et l'édition de documents doivent être simples, rapides et privées. Pas d'inscription, pas de frais cachés, pas de logiciel à installer.",
+      "technologyTitle": "Technologie",
+      "technologyText": "Notre plateforme est alimentée par une infrastructure cloud moderne conçue pour la vitesse et la fiabilité. Les fichiers sont traités côté serveur à l'aide de bibliothèques open source de référence, garantissant des conversions précises et des résultats de haute qualité à chaque fois. Nos outils alimentés par l'IA exploitent des modèles d'apprentissage automatique avancés pour l'analyse, la traduction et le résumé intelligents de documents.",
+      "securityTitle": "Sécurité",
+      "securityText": "La sécurité est intégrée à chaque couche de notre plateforme. Tous les transferts de fichiers sont chiffrés via HTTPS. Les fichiers téléchargés sont validés, limités en taille et traités dans des environnements isolés. Nous utilisons la limitation de débit et l'assainissement des entrées pour prévenir les abus.",
+      "privacyTitle": "Confidentialité des fichiers",
+      "privacyText": "Vos fichiers vous appartiennent. Nous ne lisons, ne partageons ni ne vendons jamais le contenu de vos documents. Tous les fichiers téléchargés et traités sont automatiquement supprimés de nos serveurs dans les {{minutes}} minutes. Aucun regard humain ne voit vos données — le traitement est entièrement automatisé.",
+      "toolsTitle": "Ce que nous offrons",
+      "toolCategories": [
+        "Outils PDF — convertir, compresser, fusionner, diviser, pivoter, filigraner, protéger, déverrouiller, éditer et plus",
+        "Outils d'images — convertir, redimensionner, compresser, supprimer l'arrière-plan avec l'IA",
+        "Outils documentaires IA — discuter avec des PDF, résumer, traduire, extraire des tableaux",
+        "OCR — extraire du texte d'images et de PDF numérisés en anglais, arabe et français",
+        "Outils utilitaires — générateur de QR code, vidéo vers GIF, compteur de mots, nettoyeur de texte"
+      ]
+    },
+    "contact": {
+      "metaDescription": "Contactez l'équipe SaaS-PDF. Signalez un bug, demandez une fonctionnalité ou envoyez-nous un message.",
+      "title": "Nous contacter",
+      "subtitle": "Vous avez une question, trouvé un bug ou souhaitez demander une fonctionnalité ? Nous serions ravis de vous entendre.",
+      "formTitle": "Envoyez-nous un message",
+      "categoryLabel": "Type de message",
+      "categories": {
+        "general": "Demande générale",
+        "bug": "Signalement de bug",
+        "feature": "Demande de fonctionnalité"
+      },
+      "bugPlaceholder": "Veuillez décrire le problème : ce que vous avez fait, ce que vous attendiez et ce qui s'est passé.",
+      "featurePlaceholder": "Décrivez la fonctionnalité souhaitée et comment elle vous aiderait.",
+      "generalPlaceholder": "Écrivez votre message ici...",
+      "namePlaceholder": "Votre nom",
+      "emailPlaceholder": "votre@email.com",
+      "subjectPlaceholder": "Sujet",
+      "successMessage": "Votre message a été envoyé ! Nous vous répondrons bientôt.",
+      "directEmail": "Ou contactez-nous directement à",
+      "responseTime": "Nous répondons généralement sous 24 à 48 heures."
+    },
+    "privacy": {
+      "metaDescription": "Politique de confidentialité de SaaS-PDF. Découvrez comment nous gérons vos fichiers et données en toute transparence.",
+      "title": "Politique de confidentialité",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "dataCollectionTitle": "1. Collecte de données",
+      "dataCollectionText": "Nous ne traitons que les fichiers que vous téléchargez intentionnellement. Nous n'exigeons pas d'inscription et aucune information personnelle n'est collectée lors du traitement des fichiers. Si vous créez un compte, nous ne stockons que votre adresse e-mail et votre mot de passe chiffré.",
+      "fileHandlingTitle": "2. Traitement et stockage des fichiers",
+      "fileHandlingItems": [
+        "Les fichiers téléchargés sont traités sur nos serveurs sécurisés.",
+        "Tous les fichiers téléchargés et générés sont automatiquement supprimés dans les {{minutes}} minutes.",
+        "Les fichiers sont stockés dans un stockage cloud chiffré pendant le traitement.",
+        "Nous n'accédons, ne lisons ni ne partageons jamais le contenu de vos fichiers.",
+        "Le traitement est entièrement automatisé — personne ne consulte vos documents."
+      ],
+      "cookiesTitle": "3. Cookies et analyses",
+      "cookiesText": "Nous utilisons des cookies essentiels pour mémoriser vos préférences de langue et de thème. Nous pouvons utiliser Google Analytics et Google AdSense, qui peuvent placer leurs propres cookies. Vous pouvez gérer les préférences de cookies dans les paramètres de votre navigateur.",
+      "thirdPartyTitle": "4. Services tiers",
+      "thirdPartyItems": [
+        "Google AdSense — pour l'affichage de publicités",
+        "Google Analytics — pour les statistiques d'utilisation anonymes",
+        "Stockage cloud — pour le stockage temporaire chiffré des fichiers"
+      ],
+      "securityTitle": "5. Sécurité",
+      "securityText": "Nous employons des mesures de sécurité conformes aux normes de l'industrie, incluant le chiffrement HTTPS, la validation des fichiers, la limitation de débit, l'assainissement des entrées et le nettoyage automatique des fichiers. Toutes les données en transit sont chiffrées et les fichiers sont traités dans des environnements isolés.",
+      "rightsTitle": "6. Vos droits",
+      "rightsText": "Puisque nous ne stockons pas de données personnelles au-delà des comptes optionnels, les données à gérer sont minimales. Si vous avez un compte, vous pouvez le supprimer à tout moment. Tous les fichiers traités sont automatiquement purgés dans les {{minutes}} minutes.",
+      "contactTitle": "7. Contact",
+      "contactText": "Des questions sur cette politique ? Contactez-nous à"
+    },
+    "terms": {
+      "metaDescription": "Conditions d'utilisation de SaaS-PDF. Comprenez les règles et directives pour utiliser nos outils gratuits en ligne.",
+      "title": "Conditions d'utilisation",
+      "lastUpdated": "Dernière mise à jour : {{date}}",
+      "acceptanceTitle": "1. Acceptation des conditions",
+      "acceptanceText": "En accédant et en utilisant SaaS-PDF, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'êtes pas d'accord, veuillez cesser d'utiliser le service immédiatement.",
+      "serviceTitle": "2. Description du service",
+      "serviceText": "SaaS-PDF fournit des outils gratuits en ligne pour la conversion, la compression et la transformation de fichiers. Le service est fourni \"tel quel\" sans garantie d'aucune sorte.",
+      "useTitle": "3. Utilisation acceptable",
+      "useItems": [
+        "Vous ne pouvez télécharger que des fichiers que vous avez le droit de traiter.",
+        "Vous ne devez pas télécharger de contenu malveillant, illégal ou protégé par des droits d'auteur sans autorisation.",
+        "L'utilisation automatisée ou excessive du service est interdite.",
+        "Vous ne devez pas tenter de contourner les mesures de sécurité ou les limites de débit."
+      ],
+      "fileTitle": "4. Gestion des fichiers",
+      "fileItems": [
+        "Tous les fichiers téléchargés et traités sont automatiquement supprimés dans les {{minutes}} minutes.",
+        "Nous ne sommes pas responsables de toute perte de données pendant le traitement.",
+        "Vous êtes responsable de la conservation de vos propres sauvegardes.",
+        "Nous ne garantissons pas la préservation du contenu téléchargé au-delà de la fenêtre de traitement."
+      ],
+      "liabilityTitle": "5. Limitation de responsabilité",
+      "liabilityText": "SaaS-PDF ne sera pas responsable des dommages directs, indirects, accessoires ou consécutifs résultant de l'utilisation ou de l'impossibilité d'utiliser le service. L'utilisation du service est à vos propres risques.",
+      "ipTitle": "6. Propriété intellectuelle",
+      "ipText": "Tous les outils, interfaces et contenus de SaaS-PDF sont la propriété intellectuelle des opérateurs du service. Vous conservez la pleine propriété de tous les fichiers que vous téléchargez et traitez.",
+      "changesTitle": "7. Modifications des conditions",
+      "changesText": "Nous nous réservons le droit de modifier ces conditions à tout moment. L'utilisation continue du service après les modifications constitue l'acceptation des conditions mises à jour.",
+      "contactTitle": "8. Contact",
+      "contactText": "Des questions sur ces conditions ? Contactez-nous à"
+    }
   },
   "tools": {
     "pdfToWord": {
