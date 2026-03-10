@@ -25,6 +25,8 @@
     "darkMode": "Mode sombre",
     "lightMode": "Mode clair",
     "contact": "Contact",
+    "pricing": "Tarifs",
+    "blog": "Blog",
     "send": "Envoyer",
     "subject": "Sujet",
     "message": "Message",
@@ -192,6 +194,99 @@
       "changesText": "Nous nous réservons le droit de modifier ces conditions à tout moment. L'utilisation continue du service après les modifications constitue l'acceptation des conditions mises à jour.",
       "contactTitle": "8. Contact",
       "contactText": "Des questions sur ces conditions ? Contactez-nous à"
+    },
+    "cookie": {
+      "title": "Paramètres des cookies",
+      "message": "Nous utilisons des cookies pour améliorer votre expérience et analyser le trafic du site. En acceptant, vous consentez aux cookies analytiques.",
+      "accept": "Tout accepter",
+      "reject": "Refuser les non essentiels",
+      "learnMore": "En savoir plus dans notre Politique de confidentialité."
+    },
+    "rating": {
+      "title": "Évaluez cet outil",
+      "submit": "Envoyer l'évaluation",
+      "thanks": "Merci pour votre retour !",
+      "fast": "Rapide",
+      "accurate": "Précis",
+      "issue": "Problème",
+      "feedbackPlaceholder": "Partagez votre expérience (facultatif)",
+      "average": "Note moyenne",
+      "totalRatings": "évaluations"
+    },
+    "pricing": {
+      "metaTitle": "Tarifs — SaaS-PDF",
+      "metaDescription": "Comparez les plans gratuit et pro de SaaS-PDF. Accédez à plus de 30 outils gratuitement ou passez au pro pour un traitement illimité.",
+      "title": "Plans & Tarifs",
+      "subtitle": "Commencez gratuitement et passez au pro quand vous en avez besoin.",
+      "free": "Gratuit",
+      "pro": "Pro",
+      "freePrice": "0€",
+      "proPrice": "9€",
+      "perMonth": "/mois",
+      "currentPlan": "Plan actuel",
+      "comingSoon": "Bientôt disponible",
+      "freeFeatures": [
+        "Tous les 30+ outils",
+        "5 fichiers par jour",
+        "Max 20 Mo par fichier",
+        "Traitement standard",
+        "Support communautaire"
+      ],
+      "proFeatures": [
+        "Tous les 30+ outils",
+        "Fichiers illimités",
+        "Max 100 Mo par fichier",
+        "Traitement prioritaire",
+        "Support par email",
+        "Sans publicité",
+        "Accès API"
+      ],
+      "featureCompare": "Comparaison des fonctionnalités",
+      "faqTitle": "Questions fréquentes",
+      "faq": [
+        {
+          "q": "Le plan gratuit est-il vraiment gratuit ?",
+          "a": "Oui ! Vous avez un accès complet à tous les 30+ outils avec des limites quotidiennes généreuses — aucune carte bancaire requise."
+        },
+        {
+          "q": "Puis-je annuler le plan Pro à tout moment ?",
+          "a": "Absolument. Annulez à tout moment sans questions. Vous conserverez l'accès Pro jusqu'à la fin de votre période de facturation."
+        },
+        {
+          "q": "Quels moyens de paiement acceptez-vous ?",
+          "a": "Nous acceptons toutes les cartes de crédit/débit principales et PayPal. Tous les paiements sont traités de manière sécurisée via Stripe."
+        }
+      ]
+    },
+    "blog": {
+      "metaTitle": "Blog — Conseils, tutoriels et mises à jour",
+      "metaDescription": "Apprenez à compresser, convertir, éditer et gérer des fichiers PDF avec nos guides et tutoriels experts.",
+      "title": "Blog",
+      "subtitle": "Conseils, tutoriels et mises à jour produit pour vous aider à travailler plus intelligemment.",
+      "readMore": "Lire la suite",
+      "comingSoon": "D'autres articles arrivent bientôt — restez connecté !",
+      "posts": {
+        "compressPdf": {
+          "title": "Comment compresser des PDF sans perte de qualité",
+          "excerpt": "Découvrez les meilleures techniques pour réduire la taille des fichiers PDF tout en maintenant la qualité du document."
+        },
+        "imageConvert": {
+          "title": "Convertir des images entre formats sans perte",
+          "excerpt": "Guide complet pour convertir entre PNG, JPG, WebP et d'autres formats d'image tout en préservant la qualité."
+        },
+        "ocrGuide": {
+          "title": "Extraire du texte de documents numérisés avec l'OCR",
+          "excerpt": "Transformez les PDF numérisés et les images en texte modifiable et recherchable grâce à notre technologie OCR alimentée par l'IA."
+        },
+        "mergeSplit": {
+          "title": "Maîtriser la fusion et la division de fichiers PDF",
+          "excerpt": "Guide étape par étape pour combiner plusieurs PDF en un seul ou diviser un grand PDF en fichiers séparés."
+        },
+        "aiChat": {
+          "title": "Discutez avec vos documents PDF grâce à l'IA",
+          "excerpt": "Découvrez comment l'IA peut vous aider à poser des questions et obtenir des réponses instantanées à partir de n'importe quel document PDF."
+        }
+      }
     }
   },
   "tools": {

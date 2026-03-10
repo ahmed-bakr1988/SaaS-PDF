@@ -7,13 +7,15 @@ export interface ToolSeoData {
   description: string;
   url: string;
   category?: string;
+  ratingValue?: number;
+  ratingCount?: number;
 }
 
 /**
  * Generate WebApplication JSON-LD structured data for a tool page.
  */
 export function generateToolSchema(tool: ToolSeoData): object {
-  return {
+  const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
     name: tool.name,
@@ -26,8 +28,20 @@ export function generateToolSchema(tool: ToolSeoData): object {
       priceCurrency: 'USD',
     },
     description: tool.description,
-    inLanguage: ['en', 'ar'],
+    inLanguage: ['en', 'ar', 'fr'],
   };
+
+  if (tool.ratingValue && tool.ratingCount && tool.ratingCount > 0) {
+    schema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: tool.ratingValue,
+      ratingCount: tool.ratingCount,
+      bestRating: 5,
+      worstRating: 1,
+    };
+  }
+
+  return schema;
 }
 
 /**

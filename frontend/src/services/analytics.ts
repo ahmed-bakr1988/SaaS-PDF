@@ -12,6 +12,18 @@ const GA_MEASUREMENT_ID = (import.meta.env.VITE_GA_MEASUREMENT_ID || '').trim();
 const PLAUSIBLE_DOMAIN = (import.meta.env.VITE_PLAUSIBLE_DOMAIN || '').trim();
 const PLAUSIBLE_SRC = (import.meta.env.VITE_PLAUSIBLE_SRC || 'https://plausible.io/js/script.js').trim();
 let initialized = false;
+let consentGiven = false;
+
+function checkStoredConsent(): boolean {
+  try {
+    const raw = localStorage.getItem('cookie_consent');
+    if (!raw) return false;
+    const parsed = JSON.parse(raw);
+    return parsed?.state === 'accepted';
+  } catch {
+    return false;
+  }
+}
 
 // ─── Google Analytics ────────────────────────────────────────────
 
@@ -75,15 +87,21 @@ function injectSearchConsoleVerification() {
 export function initAnalytics() {
   if (initialized || typeof window === 'undefined') return;
 
-  // Google Analytics
-  if (GA_MEASUREMENT_ID) {
-    ensureGtagShim();
-    loadGaScript();
-    window.gtag?.('js', new Date());
-    window.gtag?.('config', GA_MEASUREMENT_ID, { send_page_view: false });
-  }
+  consentGiven = checkStoredConsent();
 
-  // Plausible
+  // Listen for consent changes at runtime
+  window.addEventListener('cookie-consent', ((e: CustomEvent<{ accepted: boolean }>) => {
+    consentGiven = e.detail.accepted;
+    if (consentGiven) {
+      loadGaIfConsented();
+      loadPlausibleScript();
+    }
+  }) as EventListener);
+
+  // Google Analytics — only load if consent given
+  loadGaIfConsented();
+
+  // Plausible (privacy-friendly, no cookies by default — safe to load)
   loadPlausibleScript();
 
   // Search Console
@@ -92,9 +110,17 @@ export function initAnalytics() {
   initialized = true;
 }
 
+function loadGaIfConsented() {
+  if (!consentGiven || !GA_MEASUREMENT_ID) return;
+  ensureGtagShim();
+  loadGaScript();
+  window.gtag?.('js', new Date());
+  window.gtag?.('config', GA_MEASUREMENT_ID, { send_page_view: false });
+}
+
 export function trackPageView(path: string) {
-  // GA4
-  if (window.gtag) {
+  // GA4 — only if consent given
+  if (consentGiven && window.gtag) {
     window.gtag('event', 'page_view', {
       page_path: path,
       page_location: `${window.location.origin}${path}`,

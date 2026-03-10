@@ -25,6 +25,8 @@
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
     "contact": "Contact",
+    "pricing": "Pricing",
+    "blog": "Blog",
     "send": "Send",
     "subject": "Subject",
     "message": "Message",
@@ -192,6 +194,99 @@
       "changesText": "We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the updated terms.",
       "contactTitle": "8. Contact",
       "contactText": "Questions about these terms? Contact us at"
+    },
+    "cookie": {
+      "title": "Cookie Settings",
+      "message": "We use cookies to improve your experience and analyze site traffic. By accepting, you consent to analytics cookies.",
+      "accept": "Accept All",
+      "reject": "Reject Non-Essential",
+      "learnMore": "Learn more in our Privacy Policy."
+    },
+    "rating": {
+      "title": "Rate this tool",
+      "submit": "Submit Rating",
+      "thanks": "Thank you for your feedback!",
+      "fast": "Fast",
+      "accurate": "Accurate",
+      "issue": "Had Issues",
+      "feedbackPlaceholder": "Share your experience (optional)",
+      "average": "Average rating",
+      "totalRatings": "ratings"
+    },
+    "pricing": {
+      "metaTitle": "Pricing — SaaS-PDF",
+      "metaDescription": "Compare free and pro plans for SaaS-PDF. Access 30+ tools for free, or upgrade for unlimited processing.",
+      "title": "Plans & Pricing",
+      "subtitle": "Start free and upgrade when you need more.",
+      "free": "Free",
+      "pro": "Pro",
+      "freePrice": "$0",
+      "proPrice": "$9",
+      "perMonth": "/month",
+      "currentPlan": "Current Plan",
+      "comingSoon": "Coming Soon",
+      "freeFeatures": [
+        "All 30+ tools",
+        "5 files per day",
+        "Max 20 MB per file",
+        "Standard processing",
+        "Community support"
+      ],
+      "proFeatures": [
+        "All 30+ tools",
+        "Unlimited files",
+        "Max 100 MB per file",
+        "Priority processing",
+        "Email support",
+        "No ads",
+        "API access"
+      ],
+      "featureCompare": "Feature Comparison",
+      "faqTitle": "Frequently Asked Questions",
+      "faq": [
+        {
+          "q": "Is the free plan really free?",
+          "a": "Yes! You get full access to all 30+ tools with generous daily limits — no credit card required."
+        },
+        {
+          "q": "Can I cancel the Pro plan anytime?",
+          "a": "Absolutely. Cancel anytime with no questions asked. You'll keep Pro access until the end of your billing period."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept all major credit/debit cards and PayPal. All payments are securely processed via Stripe."
+        }
+      ]
+    },
+    "blog": {
+      "metaTitle": "Blog — Tips, Tutorials & Updates",
+      "metaDescription": "Learn how to compress, convert, edit, and manage PDF files with our expert guides and tutorials.",
+      "title": "Blog",
+      "subtitle": "Tips, tutorials, and product updates to help you work smarter.",
+      "readMore": "Read more",
+      "comingSoon": "More articles coming soon — stay tuned!",
+      "posts": {
+        "compressPdf": {
+          "title": "How to Compress PDFs Without Losing Quality",
+          "excerpt": "Learn the best techniques to reduce PDF file size while maintaining document quality for sharing and uploading."
+        },
+        "imageConvert": {
+          "title": "Convert Images Between Formats Losslessly",
+          "excerpt": "A complete guide to converting between PNG, JPG, WebP and other image formats while preserving quality."
+        },
+        "ocrGuide": {
+          "title": "Extract Text from Scanned Documents with OCR",
+          "excerpt": "Turn scanned PDFs and images into editable, searchable text using our AI-powered OCR technology."
+        },
+        "mergeSplit": {
+          "title": "Master Merging and Splitting PDF Files",
+          "excerpt": "Step-by-step guide to combining multiple PDFs into one or splitting a large PDF into separate files."
+        },
+        "aiChat": {
+          "title": "Chat with Your PDF Documents Using AI",
+          "excerpt": "Discover how AI can help you ask questions and get instant answers from any PDF document."
+        }
+      }
     }
   },
   "tools": {

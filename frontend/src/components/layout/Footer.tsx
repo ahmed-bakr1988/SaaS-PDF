@@ -99,6 +99,18 @@ export default function Footer() {
               >
                 {t('common.contact')}
               </Link>
+              <Link
+                to="/pricing"
+                className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
+              >
+                {t('common.pricing')}
+              </Link>
+              <Link
+                to="/blog"
+                className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
+              >
+                {t('common.blog')}
+              </Link>
             </div>
           </div>
         </div>

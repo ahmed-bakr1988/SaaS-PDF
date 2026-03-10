@@ -86,6 +86,19 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
         if not reply:
             reply = "I couldn't generate a response. Please try again."
 
+        # Log usage
+        try:
+            from app.services.ai_cost_service import log_ai_usage
+            usage = data.get("usage", {})
+            log_ai_usage(
+                tool="flowchart_chat",
+                model=OPENROUTER_MODEL,
+                input_tokens=usage.get("prompt_tokens", max(1, len(message) // 4)),
+                output_tokens=usage.get("completion_tokens", max(1, len(reply) // 4)),
+            )
+        except Exception:
+            pass
+
         return {"reply": reply, "updated_flow": None}
 
     except requests.exceptions.Timeout:

@@ -6,6 +6,8 @@ import pytest
 from unittest.mock import patch, MagicMock
 from app import create_app
 from app.services.account_service import init_account_db
+from app.services.rating_service import init_ratings_db
+from app.services.ai_cost_service import init_ai_cost_db
 
 
 @pytest.fixture
@@ -29,6 +31,8 @@ def app():
     })
     with app.app_context():
         init_account_db()
+        init_ratings_db()
+        init_ai_cost_db()
 
     # Create temp directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

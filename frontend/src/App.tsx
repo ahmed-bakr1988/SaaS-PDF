@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import CookieConsent from '@/components/layout/CookieConsent';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ToolLandingPage from '@/components/seo/ToolLandingPage';
 import { useDirection } from '@/hooks/useDirection';
@@ -18,6 +19,8 @@ const ContactPage = lazy(() => import('@/pages/ContactPage'));
 const AccountPage = lazy(() => import('@/pages/AccountPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
+const PricingPage = lazy(() => import('@/pages/PricingPage'));
+const BlogPage = lazy(() => import('@/pages/BlogPage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -92,6 +95,8 @@ export default function App() {
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/blog" element={<BlogPage />} />
 
             {/* PDF Tools */}
             <Route path="/tools/pdf-to-word" element={<ToolLandingPage slug="pdf-to-word"><PdfToWord /></ToolLandingPage>} />
@@ -149,6 +154,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <CookieConsent />
     </div>
   );
 }

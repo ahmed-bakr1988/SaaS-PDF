@@ -3,6 +3,7 @@ from flask import Blueprint, current_app, jsonify, request
 
 from app.extensions import limiter
 from app.services.account_service import get_user_by_id, update_user_plan
+from app.services.ai_cost_service import get_monthly_spend
 
 admin_bp = Blueprint("admin", __name__)
 
@@ -37,3 +38,14 @@ def update_plan_route(user_id: int):
         return jsonify({"error": str(exc)}), 400
 
     return jsonify({"message": "Plan updated.", "user": updated}), 200
+
+
+@admin_bp.route("/ai-cost", methods=["GET"])
+@limiter.limit("60/hour")
+def ai_cost_dashboard():
+    """Return the current month's AI spending summary."""
+    if not _check_admin_secret():
+        return jsonify({"error": "Unauthorized."}), 401
+
+    spend = get_monthly_spend()
+    return jsonify(spend), 200

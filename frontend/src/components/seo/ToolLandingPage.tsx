@@ -5,6 +5,8 @@ import { getToolSEO } from '@/config/seoData';
 import { generateToolSchema, generateBreadcrumbs, generateFAQ } from '@/utils/seo';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
+import ToolRating from '@/components/shared/ToolRating';
+import { useToolRating } from '@/hooks/useToolRating';
 
 interface SEOFAQ {
   q: string;
@@ -25,6 +27,7 @@ interface ToolLandingPageProps {
 export default function ToolLandingPage({ slug, children }: ToolLandingPageProps) {
   const { t } = useTranslation();
   const seo = getToolSEO(slug);
+  const ratingData = useToolRating(slug);
 
   // Fallback: just render tool without SEO wrapper
   if (!seo) return <>{children}</>;
@@ -39,6 +42,8 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
     description: seo.metaDescription,
     url: canonicalUrl,
     category: seo.category === 'PDF' ? 'UtilitiesApplication' : 'WebApplication',
+    ratingValue: ratingData.average,
+    ratingCount: ratingData.count,
   });
 
   const breadcrumbSchema = generateBreadcrumbs([
@@ -156,6 +161,9 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
         {/* Related Tools */}
         <RelatedTools currentSlug={slug} />
+
+        {/* User Rating */}
+        <ToolRating toolSlug={slug} />
       </div>
     </>
   );

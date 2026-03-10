@@ -6,6 +6,8 @@ from flask import Flask
 from config import config
 from app.extensions import cors, limiter, talisman, init_celery
 from app.services.account_service import init_account_db
+from app.services.rating_service import init_ratings_db
+from app.services.ai_cost_service import init_ai_cost_db
 
 
 def create_app(config_name=None):
@@ -73,6 +75,8 @@ def create_app(config_name=None):
 
     with app.app_context():
         init_account_db()
+        init_ratings_db()
+        init_ai_cost_db()
 
     # Register blueprints
     from app.routes.health import health_bp
@@ -98,6 +102,7 @@ def create_app(config_name=None):
     from app.routes.qrcode import qrcode_bp
     from app.routes.html_to_pdf import html_to_pdf_bp
     from app.routes.pdf_ai import pdf_ai_bp
+    from app.routes.rating import rating_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -122,5 +127,6 @@ def create_app(config_name=None):
     app.register_blueprint(qrcode_bp, url_prefix="/api/qrcode")
     app.register_blueprint(html_to_pdf_bp, url_prefix="/api/convert")
     app.register_blueprint(pdf_ai_bp, url_prefix="/api/pdf-ai")
+    app.register_blueprint(rating_bp, url_prefix="/api/ratings")
 
     return app
