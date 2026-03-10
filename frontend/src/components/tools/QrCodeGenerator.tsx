@@ -7,6 +7,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import api, { type TaskResponse, type TaskResult } from '@/services/api';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 export default function QrCodeGenerator() {
   const { t } = useTranslation();
@@ -113,6 +114,7 @@ export default function QrCodeGenerator() {
             </div>
             <div className="flex gap-3">
               <a href={downloadUrl} download={result.filename || 'qrcode.png'}
+                onClick={() => dispatchRatingPrompt('qr-code')}
                 className="btn-primary flex-1">{t('common.download')}</a>
               <button onClick={handleReset} className="btn-secondary flex-1">{t('common.startOver')}</button>
             </div>

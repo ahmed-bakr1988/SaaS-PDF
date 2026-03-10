@@ -7,6 +7,7 @@ import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
 import { useToolRating } from '@/hooks/useToolRating';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 interface SEOFAQ {
   q: string;
@@ -83,6 +84,20 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
       {/* Tool Interface */}
       {children}
+
+      <div className="mx-auto mt-6 flex max-w-3xl items-center justify-center px-4">
+        <button
+          type="button"
+          onClick={() => dispatchRatingPrompt(slug, { forceOpen: true })}
+          className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-primary-300 hover:text-primary-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-primary-600 dark:hover:text-primary-300"
+        >
+          <span>{t('pages.rating.cta', 'Rate this tool')}</span>
+          <span className="text-slate-400 dark:text-slate-500">•</span>
+          <span className="text-slate-500 dark:text-slate-400">
+            {t('pages.rating.ctaHint', 'Help us improve it faster')}
+          </span>
+        </button>
+      </div>
 
       {/* SEO Content Below Tool */}
       <div className="mx-auto mt-16 max-w-3xl">

@@ -9,6 +9,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
@@ -45,7 +46,8 @@ export default function TranslatePdf() {
     taskId,
     onComplete: (r) => {
       setPhase('done');
-      setTranslation((r as Record<string, unknown>).translation as string || '');
+      setTranslation(r.translation || '');
+      dispatchRatingPrompt('translate-pdf');
     },
     onError: () => setPhase('done'),
   });

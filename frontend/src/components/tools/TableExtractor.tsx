@@ -9,6 +9,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 interface ExtractedTable {
   page: number;
@@ -35,8 +36,9 @@ export default function TableExtractor() {
     taskId,
     onComplete: (r) => {
       setPhase('done');
-      const raw = (r as Record<string, unknown>).tables;
+      const raw = r.tables;
       if (Array.isArray(raw)) setTables(raw as ExtractedTable[]);
+      dispatchRatingPrompt('extract-tables');
     },
     onError: () => setPhase('done'),
   });

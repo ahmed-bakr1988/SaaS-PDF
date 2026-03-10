@@ -3,6 +3,7 @@ import { Download, RotateCcw, Clock } from 'lucide-react';
 import type { TaskResult } from '@/services/api';
 import { formatFileSize } from '@/utils/textTools';
 import { trackEvent } from '@/services/analytics';
+import { dispatchCurrentToolRatingPrompt } from '@/utils/ratingPrompt';
 
 interface DownloadButtonProps {
   /** Task result containing download URL */
@@ -13,6 +14,11 @@ interface DownloadButtonProps {
 
 export default function DownloadButton({ result, onStartOver }: DownloadButtonProps) {
   const { t } = useTranslation();
+
+  const handleDownloadClick = () => {
+    trackEvent('download_clicked', { filename: result.filename || 'unknown' });
+    dispatchCurrentToolRatingPrompt();
+  };
 
   if (!result.download_url) return null;
 
@@ -62,9 +68,7 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
       <a
         href={result.download_url}
         download={result.filename}
-        onClick={() => {
-          trackEvent('download_clicked', { filename: result.filename || 'unknown' });
-        }}
+        onClick={handleDownloadClick}
         className="btn-success w-full"
         target="_blank"
         rel="noopener noreferrer"

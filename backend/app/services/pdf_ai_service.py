@@ -8,7 +8,7 @@ import requests
 logger = logging.getLogger(__name__)
 
 # Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
 OPENROUTER_BASE_URL = os.getenv(
     "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"

@@ -9,6 +9,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 export default function SummarizePdf() {
   const { t } = useTranslation();
@@ -30,7 +31,8 @@ export default function SummarizePdf() {
     taskId,
     onComplete: (r) => {
       setPhase('done');
-      setSummary((r as Record<string, unknown>).summary as string || '');
+      setSummary(r.summary || '');
+      dispatchRatingPrompt('summarize-pdf');
     },
     onError: () => setPhase('done'),
   });

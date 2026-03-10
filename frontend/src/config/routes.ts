@@ -16,6 +16,8 @@ export const PAGE_ROUTES = [
   '/privacy',
   '/terms',
   '/contact',
+  '/pricing',
+  '/blog',
 ] as const;
 
 // ─── Tool routes ─────────────────────────────────────────────────

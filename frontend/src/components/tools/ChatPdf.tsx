@@ -9,6 +9,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 export default function ChatPdf() {
   const { t } = useTranslation();
@@ -30,7 +31,8 @@ export default function ChatPdf() {
     taskId,
     onComplete: (r) => {
       setPhase('done');
-      setReply((r as Record<string, unknown>).reply as string || '');
+      setReply(r.reply || '');
+      dispatchRatingPrompt('chat-pdf');
     },
     onError: () => setPhase('done'),
   });
