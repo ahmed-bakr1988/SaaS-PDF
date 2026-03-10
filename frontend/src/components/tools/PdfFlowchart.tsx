@@ -17,6 +17,7 @@ import ManualProcedure from './pdf-flowchart/ManualProcedure';
 import FlowGeneration from './pdf-flowchart/FlowGeneration';
 import FlowChart from './pdf-flowchart/FlowChart';
 import FlowChat from './pdf-flowchart/FlowChat';
+import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
 // ---------------------------------------------------------------------------
 // Component
@@ -150,6 +151,7 @@ export default function PdfFlowchart() {
 
   const handleGenerationDone = () => {
     setStep(3);
+    dispatchRatingPrompt('pdf-flowchart');
   };
 
   const handleFlowUpdate = (updated: Flowchart) => {

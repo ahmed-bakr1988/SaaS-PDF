@@ -1,60 +1,63 @@
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
+import SEOHead from '@/components/seo/SEOHead';
+import { generateWebPage } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
+const CONTACT_EMAIL = 'support@saas-pdf.com';
 
 export default function PrivacyPage() {
   const { t } = useTranslation();
+  const fileItems = t('pages.privacy.fileHandlingItems', { minutes: FILE_RETENTION_MINUTES, returnObjects: true }) as string[];
+  const thirdPartyItems = t('pages.privacy.thirdPartyItems', { returnObjects: true }) as string[];
 
   return (
     <>
-      <Helmet>
-        <title>{t('common.privacy')} — {t('common.appName')}</title>
-        <meta name="description" content="Privacy policy for our online tools." />
-      </Helmet>
+      <SEOHead
+        title={t('pages.privacy.title')}
+        description={t('pages.privacy.metaDescription')}
+        path="/privacy"
+        jsonLd={generateWebPage({
+          name: t('pages.privacy.title'),
+          description: t('pages.privacy.metaDescription'),
+          url: `${window.location.origin}/privacy`,
+        })}
+      />
 
       <div className="prose mx-auto max-w-2xl dark:prose-invert">
-        <h1>{t('common.privacy')}</h1>
-        <p><em>Last updated: {LAST_UPDATED}</em></p>
+        <h1>{t('pages.privacy.title')}</h1>
+        <p><em>{t('pages.privacy.lastUpdated', { date: LAST_UPDATED })}</em></p>
 
-        <h2>1. Data Collection</h2>
+        <h2>{t('pages.privacy.dataCollectionTitle')}</h2>
+        <p>{t('pages.privacy.dataCollectionText')}</p>
+
+        <h2>{t('pages.privacy.fileHandlingTitle')}</h2>
+        {Array.isArray(fileItems) && (
+          <ul>
+            {fileItems.map((item, idx) => <li key={idx}>{item}</li>)}
+          </ul>
+        )}
+
+        <h2>{t('pages.privacy.cookiesTitle')}</h2>
+        <p>{t('pages.privacy.cookiesText')}</p>
+
+        <h2>{t('pages.privacy.thirdPartyTitle')}</h2>
+        {Array.isArray(thirdPartyItems) && (
+          <ul>
+            {thirdPartyItems.map((item, idx) => <li key={idx}>{item}</li>)}
+          </ul>
+        )}
+
+        <h2>{t('pages.privacy.securityTitle')}</h2>
+        <p>{t('pages.privacy.securityText')}</p>
+
+        <h2>{t('pages.privacy.rightsTitle')}</h2>
+        <p>{t('pages.privacy.rightsText', { minutes: FILE_RETENTION_MINUTES })}</p>
+
+        <h2>{t('pages.privacy.contactTitle')}</h2>
         <p>
-          We only collect files you intentionally upload for processing. We do not
-          require registration, and we do not store personal information.
-        </p>
-
-        <h2>2. File Processing & Storage</h2>
-        <ul>
-          <li>Uploaded files are processed on our secure servers.</li>
-          <li>All uploaded and output files are <strong>automatically deleted within {FILE_RETENTION_MINUTES} minutes</strong>.</li>
-          <li>Files are stored in encrypted cloud storage during processing.</li>
-          <li>We do not access, read, or share the content of your files.</li>
-        </ul>
-
-        <h2>3. Cookies & Analytics</h2>
-        <p>
-          We use essential cookies to remember your language preference. We may use
-          Google Analytics and Google AdSense, which may place their own cookies.
-          You can manage cookie preferences in your browser settings.
-        </p>
-
-        <h2>4. Third-Party Services</h2>
-        <ul>
-          <li><strong>Google AdSense</strong> — for displaying advertisements.</li>
-          <li><strong>AWS S3</strong> — for temporary file storage.</li>
-        </ul>
-
-        <h2>5. Security</h2>
-        <p>
-          We employ industry-standard security measures including HTTPS encryption,
-          file validation, rate limiting, and automatic file cleanup.
-        </p>
-
-        <h2>6. Contact</h2>
-        <p>
-          Questions about this policy? Contact us at{' '}
-          <a href="mailto:support@example.com">support@example.com</a>.
+          {t('pages.privacy.contactText')}{' '}
+          <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
         </p>
       </div>
     </>

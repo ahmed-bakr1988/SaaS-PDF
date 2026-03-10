@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 # Configuration
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
 OPENROUTER_BASE_URL = os.getenv(
     "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
 )
@@ -85,6 +85,19 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
 
         if not reply:
             reply = "I couldn't generate a response. Please try again."
+
+        # Log usage
+        try:
+            from app.services.ai_cost_service import log_ai_usage
+            usage = data.get("usage", {})
+            log_ai_usage(
+                tool="flowchart_chat",
+                model=OPENROUTER_MODEL,
+                input_tokens=usage.get("prompt_tokens", max(1, len(message) // 4)),
+                output_tokens=usage.get("completion_tokens", max(1, len(reply) // 4)),
+            )
+        except Exception:
+            pass
 
         return {"reply": reply, "updated_flow": None}
 

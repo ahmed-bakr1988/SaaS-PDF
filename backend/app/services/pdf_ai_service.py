@@ -8,8 +8,8 @@ import requests
 logger = logging.getLogger(__name__)
 
 # Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "meta-llama/llama-3-8b-instruct")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
 OPENROUTER_BASE_URL = os.getenv(
     "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
 )
@@ -18,6 +18,11 @@ OPENROUTER_BASE_URL = os.getenv(
 class PdfAiError(Exception):
     """Custom exception for PDF AI service failures."""
     pass
+
+
+def _estimate_tokens(text: str) -> int:
+    """Rough token estimate: ~4 chars per token for English."""
+    return max(1, len(text) // 4)
 
 
 def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
@@ -37,8 +42,22 @@ def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
         raise PdfAiError(f"Failed to extract text from PDF: {str(e)}")
 
 
-def _call_openrouter(system_prompt: str, user_message: str, max_tokens: int = 1000) -> str:
+def _call_openrouter(
+    system_prompt: str,
+    user_message: str,
+    max_tokens: int = 1000,
+    tool_name: str = "pdf_ai",
+) -> str:
     """Send a request to OpenRouter API and return the reply."""
+    # Budget guard
+    try:
+        from app.services.ai_cost_service import check_ai_budget, AiBudgetExceededError
+        check_ai_budget()
+    except AiBudgetExceededError:
+        raise PdfAiError("Monthly AI processing budget has been reached. Please try again next month.")
+    except Exception:
+        pass  # Don't block if cost service unavailable
+
     if not OPENROUTER_API_KEY:
         raise PdfAiError(
             "AI service is not configured. Set OPENROUTER_API_KEY environment variable."
@@ -76,6 +95,19 @@ def _call_openrouter(system_prompt: str, user_message: str, max_tokens: int = 10
 
         if not reply:
             raise PdfAiError("AI returned an empty response. Please try again.")
+
+        # Log usage
+        try:
+            from app.services.ai_cost_service import log_ai_usage
+            usage = data.get("usage", {})
+            log_ai_usage(
+                tool=tool_name,
+                model=OPENROUTER_MODEL,
+                input_tokens=usage.get("prompt_tokens", _estimate_tokens(user_message)),
+                output_tokens=usage.get("completion_tokens", _estimate_tokens(reply)),
+            )
+        except Exception:
+            pass  # Don't fail the request if logging fails
 
         return reply
 
@@ -119,7 +151,7 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
     )
 
     user_msg = f"Document content:\n{truncated}\n\nQuestion: {question}"
-    reply = _call_openrouter(system_prompt, user_msg, max_tokens=800)
+    reply = _call_openrouter(system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat")
 
     page_count = text.count("[Page ")
     return {"reply": reply, "pages_analyzed": page_count}
@@ -159,7 +191,7 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     )
 
     user_msg = f"{length_instruction}\n\nDocument content:\n{truncated}"
-    summary = _call_openrouter(system_prompt, user_msg, max_tokens=1000)
+    summary = _call_openrouter(system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize")
 
     page_count = text.count("[Page ")
     return {"summary": summary, "pages_analyzed": page_count}
@@ -195,7 +227,7 @@ def translate_pdf(input_path: str, target_language: str) -> dict:
         f"structure as much as possible. Only output the translation, nothing else."
     )
 
-    translation = _call_openrouter(system_prompt, truncated, max_tokens=2000)
+    translation = _call_openrouter(system_prompt, truncated, max_tokens=2000, tool_name="pdf_translate")
 
     page_count = text.count("[Page ")
     return {

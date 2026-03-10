@@ -27,11 +27,13 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: false,
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           i18n: ['i18next', 'react-i18next'],
+          helmet: ['react-helmet-async'],
         },
       },
     },

@@ -86,7 +86,7 @@ export function useTaskPolling({
     return () => {
       stopPolling();
     };
-  }, [taskId, intervalMs]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [taskId, intervalMs]);
 
   return { status, isPolling, result, error, stopPolling };
 }

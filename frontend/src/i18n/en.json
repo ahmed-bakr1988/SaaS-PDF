@@ -24,6 +24,13 @@
     "password": "Password",
     "darkMode": "Dark Mode",
     "lightMode": "Light Mode",
+    "contact": "Contact",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "send": "Send",
+    "subject": "Subject",
+    "message": "Message",
+    "name": "Name",
     "errors": {
       "fileTooLarge": "File is too large. Maximum size is {{size}}MB.",
       "invalidFileType": "Invalid file type. Accepted: {{types}}",
@@ -85,6 +92,212 @@
     "feature2Desc": "Get pixel-perfect, editable files in seconds with zero quality loss.",
     "feature3Title": "Built-in security",
     "feature3Desc": "Access files securely, protected by automatic encryption."
+  },
+  "pages": {
+    "about": {
+      "metaDescription": "Learn about SaaS-PDF — free, fast, and secure online file tools for PDFs, images, video, and text. No registration required.",
+      "title": "About SaaS-PDF",
+      "missionTitle": "Our Mission",
+      "missionText": "SaaS-PDF was built to make professional-grade file tools accessible to everyone — for free. We believe that converting, compressing, and editing documents should be simple, fast, and private. No sign-ups, no hidden fees, no software to install.",
+      "technologyTitle": "Technology",
+      "technologyText": "Our platform is powered by modern cloud infrastructure designed for speed and reliability. Files are processed server-side using industry-leading open-source libraries, ensuring accurate conversions and high-quality output every time. Our AI-powered tools leverage advanced machine learning models for intelligent document analysis, translation, and summarization.",
+      "securityTitle": "Security",
+      "securityText": "Security is built into every layer of our platform. All file transfers are encrypted via HTTPS. Uploaded files are validated, size-limited, and processed in isolated environments. We employ rate limiting and input sanitization to prevent abuse.",
+      "privacyTitle": "File Privacy",
+      "privacyText": "Your files belong to you. We never read, share, or sell the content of your documents. All uploaded and processed files are automatically deleted from our servers within {{minutes}} minutes. No human eyes ever see your data — processing is fully automated.",
+      "toolsTitle": "What We Offer",
+      "toolCategories": [
+        "PDF tools — convert, compress, merge, split, rotate, watermark, protect, unlock, edit, and more",
+        "Image tools — convert, resize, compress, remove backgrounds with AI",
+        "AI document tools — chat with PDFs, summarize, translate, extract tables",
+        "OCR — extract text from images and scanned PDFs in English, Arabic, and French",
+        "Utility tools — QR code generator, video to GIF, word counter, text cleaner"
+      ]
+    },
+    "contact": {
+      "metaDescription": "Contact the SaaS-PDF team. Report bugs, request features, or send us a message.",
+      "title": "Contact Us",
+      "subtitle": "Have a question, found a bug, or want to request a feature? We'd love to hear from you.",
+      "formTitle": "Send Us a Message",
+      "categoryLabel": "Message Type",
+      "categories": {
+        "general": "General Inquiry",
+        "bug": "Bug Report",
+        "feature": "Feature Request"
+      },
+      "bugPlaceholder": "Please describe the issue: what you did, what you expected, and what happened instead.",
+      "featurePlaceholder": "Describe the feature you'd like to see and how it would help you.",
+      "generalPlaceholder": "Write your message here...",
+      "namePlaceholder": "Your name",
+      "emailPlaceholder": "your@email.com",
+      "subjectPlaceholder": "Subject",
+      "successMessage": "Your message has been sent! We'll get back to you soon.",
+      "directEmail": "Or email us directly at",
+      "responseTime": "We typically respond within 24–48 hours."
+    },
+    "privacy": {
+      "metaDescription": "Privacy policy for SaaS-PDF. Learn how we handle your files and data with full transparency.",
+      "title": "Privacy Policy",
+      "lastUpdated": "Last updated: {{date}}",
+      "dataCollectionTitle": "1. Data Collection",
+      "dataCollectionText": "We only process files you intentionally upload. We do not require registration, and no personal information is collected during file processing. If you create an account, we store only your email address and hashed password.",
+      "fileHandlingTitle": "2. File Processing & Storage",
+      "fileHandlingItems": [
+        "Uploaded files are processed on our secure servers.",
+        "All uploaded and output files are automatically deleted within {{minutes}} minutes.",
+        "Files are stored in encrypted cloud storage during processing.",
+        "We never access, read, or share the content of your files.",
+        "Processing is fully automated — no human reviews your documents."
+      ],
+      "cookiesTitle": "3. Cookies & Analytics",
+      "cookiesText": "We use essential cookies to remember your language preference and theme. We may use Google Analytics and Google AdSense, which may place their own cookies. You can manage cookie preferences in your browser settings.",
+      "thirdPartyTitle": "4. Third-Party Services",
+      "thirdPartyItems": [
+        "Google AdSense — for displaying advertisements",
+        "Google Analytics — for anonymous usage statistics",
+        "Cloud storage — for temporary encrypted file storage"
+      ],
+      "securityTitle": "5. Security",
+      "securityText": "We employ industry-standard security measures including HTTPS encryption, file validation, rate limiting, input sanitization, and automatic file cleanup. All data in transit is encrypted, and files are processed in isolated environments.",
+      "rightsTitle": "6. Your Rights",
+      "rightsText": "Since we don't store personal data beyond optional accounts, there is minimal data to manage. If you have an account, you can delete it at any time. All processed files are automatically purged within {{minutes}} minutes.",
+      "contactTitle": "7. Contact",
+      "contactText": "Questions about this policy? Contact us at"
+    },
+    "terms": {
+      "metaDescription": "Terms of service for SaaS-PDF. Understand the rules and guidelines for using our free online tools.",
+      "title": "Terms of Service",
+      "lastUpdated": "Last updated: {{date}}",
+      "acceptanceTitle": "1. Acceptance of Terms",
+      "acceptanceText": "By accessing and using SaaS-PDF, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use immediately.",
+      "serviceTitle": "2. Service Description",
+      "serviceText": "SaaS-PDF provides free online tools for file conversion, compression, and transformation. The service is provided \"as is\" without warranties of any kind.",
+      "useTitle": "3. Acceptable Use",
+      "useItems": [
+        "You may only upload files that you have the right to process.",
+        "You must not upload malicious, illegal, or copyrighted content without authorization.",
+        "Automated or excessive use of the service is prohibited.",
+        "You must not attempt to bypass security measures or rate limits."
+      ],
+      "fileTitle": "4. File Handling",
+      "fileItems": [
+        "All uploaded and processed files are automatically deleted within {{minutes}} minutes.",
+        "We are not responsible for any data loss during processing.",
+        "You are responsible for maintaining your own file backups.",
+        "We do not guarantee the preservation of any uploaded content beyond the processing window."
+      ],
+      "liabilityTitle": "5. Limitation of Liability",
+      "liabilityText": "SaaS-PDF shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the service. Use of the service is at your own risk.",
+      "ipTitle": "6. Intellectual Property",
+      "ipText": "All tools, interfaces, and content on SaaS-PDF are the intellectual property of the service operators. You retain full ownership of all files you upload and process.",
+      "changesTitle": "7. Changes to Terms",
+      "changesText": "We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the updated terms.",
+      "contactTitle": "8. Contact",
+      "contactText": "Questions about these terms? Contact us at"
+    },
+    "cookie": {
+      "title": "Cookie Settings",
+      "message": "We use cookies to improve your experience and analyze site traffic. By accepting, you consent to analytics cookies.",
+      "accept": "Accept All",
+      "reject": "Reject Non-Essential",
+      "learnMore": "Learn more in our Privacy Policy."
+    },
+    "rating": {
+      "title": "Rate this tool",
+      "submit": "Submit Rating",
+      "thanks": "Thank you for your feedback!",
+      "completedBadge": "Quick feedback",
+      "promptBody": "A quick rating after download helps us improve this tool and catch issues sooner.",
+      "cta": "Rate this tool",
+      "ctaHint": "Help us improve it faster",
+      "later": "Maybe later",
+      "close": "Close rating dialog",
+      "successTitle": "Thank you for your feedback!",
+      "successBody": "Your rating helps us improve the tools and catch issues faster.",
+      "error": "Failed to submit rating. Please try again.",
+      "stars": "stars",
+      "fast": "Fast",
+      "accurate": "Accurate",
+      "issue": "Had Issues",
+      "feedbackPlaceholder": "Share your experience (optional)",
+      "average": "Average rating",
+      "totalRatings": "ratings"
+    },
+    "pricing": {
+      "metaTitle": "Pricing — SaaS-PDF",
+      "metaDescription": "Compare free and pro plans for SaaS-PDF. Access 30+ tools for free, or upgrade for unlimited processing.",
+      "title": "Plans & Pricing",
+      "subtitle": "Start free and upgrade when you need more.",
+      "free": "Free",
+      "pro": "Pro",
+      "freePrice": "$0",
+      "proPrice": "$9",
+      "perMonth": "/month",
+      "currentPlan": "Current Plan",
+      "comingSoon": "Coming Soon",
+      "freeFeatures": [
+        "All 30+ tools",
+        "5 files per day",
+        "Max 20 MB per file",
+        "Standard processing",
+        "Community support"
+      ],
+      "proFeatures": [
+        "All 30+ tools",
+        "Unlimited files",
+        "Max 100 MB per file",
+        "Priority processing",
+        "Email support",
+        "No ads",
+        "API access"
+      ],
+      "featureCompare": "Feature Comparison",
+      "faqTitle": "Frequently Asked Questions",
+      "faq": [
+        {
+          "q": "Is the free plan really free?",
+          "a": "Yes! You get full access to all 30+ tools with generous daily limits — no credit card required."
+        },
+        {
+          "q": "Can I cancel the Pro plan anytime?",
+          "a": "Absolutely. Cancel anytime with no questions asked. You'll keep Pro access until the end of your billing period."
+        },
+        {
+          "q": "What payment methods do you accept?",
+          "a": "We accept all major credit/debit cards and PayPal. All payments are securely processed via Stripe."
+        }
+      ]
+    },
+    "blog": {
+      "metaTitle": "Blog — Tips, Tutorials & Updates",
+      "metaDescription": "Learn how to compress, convert, edit, and manage PDF files with our expert guides and tutorials.",
+      "title": "Blog",
+      "subtitle": "Tips, tutorials, and product updates to help you work smarter.",
+      "readMore": "Read more",
+      "comingSoon": "More articles coming soon — stay tuned!",
+      "posts": {
+        "compressPdf": {
+          "title": "How to Compress PDFs Without Losing Quality",
+          "excerpt": "Learn the best techniques to reduce PDF file size while maintaining document quality for sharing and uploading."
+        },
+        "imageConvert": {
+          "title": "Convert Images Between Formats Losslessly",
+          "excerpt": "A complete guide to converting between PNG, JPG, WebP and other image formats while preserving quality."
+        },
+        "ocrGuide": {
+          "title": "Extract Text from Scanned Documents with OCR",
+          "excerpt": "Turn scanned PDFs and images into editable, searchable text using our AI-powered OCR technology."
+        },
+        "mergeSplit": {
+          "title": "Master Merging and Splitting PDF Files",
+          "excerpt": "Step-by-step guide to combining multiple PDFs into one or splitting a large PDF into separate files."
+        },
+        "aiChat": {
+          "title": "Chat with Your PDF Documents Using AI",
+          "excerpt": "Discover how AI can help you ask questions and get instant answers from any PDF document."
+        }
+      }
+    }
   },
   "tools": {
     "pdfToWord": {
@@ -554,5 +767,374 @@
     "reduction": "Reduction",
     "downloadReady": "Your file is ready for download.",
     "linkExpiry": "Download link expires in 30 minutes."
+  },
+  "seo": {
+    "headings": {
+      "whatItDoes": "What This Tool Does",
+      "howToUse": "How to Use It",
+      "benefits": "Benefits",
+      "useCases": "Common Use Cases",
+      "faq": "Frequently Asked Questions",
+      "relatedTools": "Related Tools",
+      "whyUse": "Why Use Our {{tool}}?"
+    },
+    "pdfToWord": {
+      "whatItDoes": "Our PDF to Word converter transforms your PDF documents into fully editable Microsoft Word files (DOCX). The converter preserves the original layout, fonts, images, and formatting so you can edit the content immediately without starting from scratch.",
+      "howToUse": ["Upload your PDF file using the drag-and-drop area or file browser.", "Wait for the automatic conversion to complete.", "Preview the result and click Download to get your Word file.", "Open the DOCX file in Microsoft Word, Google Docs, or any compatible editor."],
+      "benefits": ["100% free with no registration required", "Preserves original formatting, fonts, and images", "Fast cloud-based conversion — no software to install", "Works on any device with a modern browser", "Files auto-deleted after 30 minutes for privacy"],
+      "useCases": ["Editing scanned contracts or agreements", "Updating resumes saved as PDF", "Reusing content from academic papers or reports", "Making changes to legal or government forms", "Extracting text from PDF brochures"],
+      "faq": [
+        {"q": "How do I convert a PDF to Word?", "a": "Upload your PDF file to our converter and it will automatically convert it to an editable Word document (DOCX). Click download when the conversion is complete."},
+        {"q": "Is this PDF to Word converter free?", "a": "Yes, our PDF to Word converter is completely free with no hidden costs or signup required."},
+        {"q": "Will my PDF formatting be preserved?", "a": "Our converter preserves the original formatting, fonts, and layout of your PDF as closely as possible in the Word output."},
+        {"q": "Is my file secure?", "a": "All uploaded files are automatically deleted from our servers within 30 minutes. We never share or store your documents."},
+        {"q": "What is the maximum file size?", "a": "You can upload PDF files up to 20MB for conversion."}
+      ]
+    },
+    "wordToPdf": {
+      "whatItDoes": "Convert your Microsoft Word documents (DOC and DOCX) into universally compatible PDF files. The converter maintains all formatting, fonts, images, tables, and headers so your document looks exactly the same as a PDF.",
+      "howToUse": ["Upload your Word file (.doc or .docx) using the upload area.", "The conversion starts automatically.", "Download your high-quality PDF file once processing completes.", "Share or print the PDF knowing it looks identical on every device."],
+      "benefits": ["Supports both DOC and DOCX formats", "Perfect formatting preservation", "No Microsoft Office installation needed", "Free with unlimited conversions", "Secure processing with auto-deletion"],
+      "useCases": ["Sharing reports with clients in a universal format", "Submitting homework or thesis in PDF format", "Creating print-ready documents from Word files", "Archiving documents in a non-editable format", "Preparing files for digital signatures"],
+      "faq": [
+        {"q": "How do I convert Word to PDF?", "a": "Upload your Word file (.doc or .docx) and our converter will instantly create a high-quality PDF while preserving all formatting."},
+        {"q": "Can I convert DOC files, not just DOCX?", "a": "Yes, both older DOC format and modern DOCX format are fully supported."},
+        {"q": "Will images and tables be included?", "a": "Yes, all images, tables, headers, footers, and graphical elements in your Word document will be faithfully reproduced in the PDF."},
+        {"q": "Is there a file size limit?", "a": "You can convert Word files up to 20MB in size."}
+      ]
+    },
+    "compressPdf": {
+      "whatItDoes": "Reduce the file size of your PDF documents by up to 90% while keeping them readable and high quality. Choose between three compression levels to balance quality and file size according to your needs.",
+      "howToUse": ["Upload your PDF file to the compressor.", "Select your preferred compression level: Maximum, Balanced, or High Quality.", "Click compress and wait for processing.", "Download your compressed PDF with a significantly smaller file size."],
+      "benefits": ["Reduce file size by up to 90%", "Three compression levels to choose from", "Text remains crisp and searchable", "Ideal for email attachments and uploads", "Free with no registration needed"],
+      "useCases": ["Making large PDFs small enough to email", "Reducing storage space for archived documents", "Speeding up PDF uploads to websites", "Optimizing PDFs for mobile viewing", "Preparing documents for web publishing"],
+      "faq": [
+        {"q": "How does PDF compression work?", "a": "Our tool optimizes images, removes unnecessary metadata, and compresses internal structures to reduce file size while maintaining visual quality."},
+        {"q": "Will compression affect text quality?", "a": "No. Text remains crisp and searchable. Mainly images within the PDF are optimized to reduce file size."},
+        {"q": "How much can I reduce my PDF size?", "a": "Depending on the content, you can typically reduce file size by 50-90%, especially for PDFs with many images."},
+        {"q": "Is there a file size limit?", "a": "You can compress PDFs up to 20MB in size."}
+      ]
+    },
+    "mergePdf": {
+      "whatItDoes": "Combine two or more PDF files into a single document. Drag and drop to arrange the files in your desired order before merging. The tool preserves the quality and formatting of all original documents.",
+      "howToUse": ["Upload two or more PDF files.", "Drag and drop files to reorder them.", "Click Merge to combine all files into one PDF.", "Download your merged document."],
+      "benefits": ["Merge unlimited PDF files at once", "Drag-and-drop reordering", "Lossless merging — no quality loss", "No file count limits", "Fast and secure processing"],
+      "useCases": ["Combining report chapters into one document", "Merging invoices or receipts for accounting", "Assembling a portfolio from separate PDF pages", "Joining scanned pages into a single file", "Creating a complete manual from individual sections"],
+      "faq": [
+        {"q": "How do I merge PDF files?", "a": "Upload two or more PDF files, arrange them in the desired order, and click merge. Your combined PDF will be ready to download instantly."},
+        {"q": "Is there a limit on how many PDFs I can merge?", "a": "No, you can merge as many PDF files as you need in a single operation."},
+        {"q": "Will the merged PDF maintain quality?", "a": "Yes, merging is a lossless operation — all pages retain their original quality and formatting."},
+        {"q": "Can I rearrange pages before merging?", "a": "Yes, you can drag and drop to reorder the files before combining them."}
+      ]
+    },
+    "splitPdf": {
+      "whatItDoes": "Divide a PDF document into separate files. You can split every page into an individual file or extract specific page ranges. Perfect for isolating sections from large documents.",
+      "howToUse": ["Upload your PDF document.", "Choose to split all pages or select specific pages/ranges.", "Enter page numbers (e.g. 1,3,5-8) if extracting specific pages.", "Download the resulting PDF files."],
+      "benefits": ["Split into individual pages or custom ranges", "Simple page range syntax (e.g. 1,3,5-8)", "No quality loss", "Free and no signup required", "Works with any PDF document"],
+      "useCases": ["Extracting a specific chapter from an e-book", "Sending only relevant pages to a colleague", "Breaking up a large manual into sections", "Isolating a single page for printing", "Separating a multi-page scanned document"],
+      "faq": [
+        {"q": "How do I split a PDF?", "a": "Upload your PDF, specify the pages or ranges you want to extract, and click split. Download the resulting PDF instantly."},
+        {"q": "Can I extract specific pages?", "a": "Yes, you can specify individual pages (e.g. 1, 3, 5) or ranges (e.g. 1-5) to extract."},
+        {"q": "Is splitting a PDF free?", "a": "Yes, our PDF splitter is completely free with no limitations."}
+      ]
+    },
+    "rotatePdf": {
+      "whatItDoes": "Rotate all pages of a PDF document by 90°, 180°, or 270°. Fix wrongly oriented scanned documents or adjust landscape pages to portrait and vice versa.",
+      "howToUse": ["Upload your PDF file.", "Select the rotation angle: 90° clockwise, 180° flip, or 270° counter-clockwise.", "Click rotate to apply the change.", "Download the rotated PDF."],
+      "benefits": ["Rotate by 90°, 180°, or 270°", "Fix scanned documents with wrong orientation", "Instant processing", "Free and no signup needed", "Preserves all content quality"],
+      "useCases": ["Fixing scanned documents that are upside down", "Converting landscape pages to portrait", "Correcting mobile-scanned PDF orientation", "Preparing documents for consistent printing", "Adjusting architectural or engineering drawings"],
+      "faq": [
+        {"q": "How do I rotate a PDF?", "a": "Upload your PDF, choose the rotation angle (90°, 180°, or 270°), and download the rotated file."},
+        {"q": "Can I rotate specific pages only?", "a": "Currently the tool rotates all pages by the same angle. For selective rotation, split the PDF first, rotate the desired pages, then merge."},
+        {"q": "Does rotation affect quality?", "a": "No, rotation is a lossless operation — all content remains at its original quality."}
+      ]
+    },
+    "pdfToImages": {
+      "whatItDoes": "Convert each page of a PDF document into a high-quality image file. Choose between PNG for lossless quality or JPG for smaller file sizes. Ideal for presentations, social media, or web use.",
+      "howToUse": ["Upload your PDF file.", "Select output format (PNG or JPG) and resolution (DPI).", "Click convert to start processing.", "Download individual images or a ZIP archive."],
+      "benefits": ["Choose PNG or JPG output format", "Multiple DPI settings (72 to 300)", "Process multi-page PDFs automatically", "Free with no registration", "High-quality output for print or web"],
+      "useCases": ["Creating presentation slides from PDF pages", "Sharing PDF content on social media", "Embedding PDF pages in websites or blogs", "Creating thumbnails for document previews", "Converting scanned pages for image editing"],
+      "faq": [
+        {"q": "How do I convert a PDF to images?", "a": "Upload your PDF and each page will be converted to a high-quality image. Download the images individually or as a ZIP file."},
+        {"q": "What image formats are supported?", "a": "You can convert PDF pages to PNG (lossless) or JPG (compressed) format."},
+        {"q": "What resolution should I choose?", "a": "Use 72 DPI for screen viewing, 150 DPI for standard quality, 200 DPI for good quality, and 300 DPI for print-quality images."}
+      ]
+    },
+    "imagesToPdf": {
+      "whatItDoes": "Combine multiple images into a single PDF document. Supports JPG, PNG, and WebP formats. Arrange images in your preferred order before creating the PDF. Perfect for creating photo books, portfolios, or multi-page scanned documents.",
+      "howToUse": ["Upload your images (JPG, PNG, or WebP).", "Drag and drop to arrange them in the desired order.", "Click Convert to create your PDF.", "Download the combined PDF document."],
+      "benefits": ["Supports JPG, PNG, and WebP formats", "Drag-and-drop image ordering", "No limit on number of images", "Maintains original image quality", "Free and no account required"],
+      "useCases": ["Creating PDF portfolios from image files", "Combining scanned pages into one document", "Making photo books or albums in PDF format", "Preparing image collections for printing", "Archiving receipts or documents as a single PDF"],
+      "faq": [
+        {"q": "How do I convert images to PDF?", "a": "Upload your images (JPG, PNG, or WebP), arrange them in the desired order, and click convert. Your combined PDF will be ready to download."},
+        {"q": "How many images can I combine?", "a": "You can combine as many images as needed into a single PDF document."},
+        {"q": "Are the original image sizes preserved?", "a": "Yes, images are embedded at their original resolution in the PDF."}
+      ]
+    },
+    "watermarkPdf": {
+      "whatItDoes": "Add a custom text watermark to every page of your PDF document. Customize the text, opacity, and appearance to brand or protect your files. Ideal for marking drafts, confidential documents, or adding company branding.",
+      "howToUse": ["Upload your PDF file.", "Enter your watermark text.", "Adjust opacity (light to heavy).", "Download the watermarked PDF."],
+      "benefits": ["Custom text watermarks on every page", "Adjustable opacity for subtle or bold branding", "Protect documents from unauthorized use", "Free with no installation needed", "Quick processing for any PDF"],
+      "useCases": ["Marking documents as DRAFT or CONFIDENTIAL", "Adding company branding to shared documents", "Protecting intellectual property in shared PDFs", "Claiming ownership of creative work", "Identifying document versions or departments"],
+      "faq": [
+        {"q": "How do I add a watermark to a PDF?", "a": "Upload your PDF, enter your watermark text, adjust the opacity, and download the watermarked file."},
+        {"q": "Can I customize the watermark appearance?", "a": "Yes, you can adjust the text and opacity level to achieve the desired look."},
+        {"q": "Will the watermark appear on every page?", "a": "Yes, the watermark is applied uniformly to every page of the PDF."}
+      ]
+    },
+    "removeWatermark": {
+      "whatItDoes": "Remove text watermarks from PDF files automatically. The tool detects and removes watermark text overlays while preserving the rest of the document content and layout.",
+      "howToUse": ["Upload your watermarked PDF.", "The tool automatically detects text watermarks.", "Click remove to process the document.", "Download the clean PDF without watermarks."],
+      "benefits": ["Automatic watermark detection", "Preserves document content and layout", "Works with text-based watermarks", "Free and secure", "No software installation required"],
+      "useCases": ["Cleaning up draft versions for final distribution", "Removing outdated branding from documents", "Preparing clean versions for archival", "Removing sample/trial watermarks from purchased PDFs", "Cleaning scanned documents with unwanted overlays"],
+      "faq": [
+        {"q": "Can this tool remove any watermark?", "a": "The tool works best with text-based watermarks. Image-based or deeply embedded watermarks may require additional processing."},
+        {"q": "Will removing the watermark affect document quality?", "a": "No, only the watermark text is removed. All other content remains intact."},
+        {"q": "Is it legal to remove watermarks?", "a": "Only remove watermarks from documents you own or have permission to modify. Respect copyright and intellectual property rights."}
+      ]
+    },
+    "protectPdf": {
+      "whatItDoes": "Add password protection and encryption to your PDF files. Prevent unauthorized users from opening, copying, or printing your sensitive documents. Uses industry-standard PDF encryption.",
+      "howToUse": ["Upload your PDF file.", "Enter and confirm a strong password.", "Click Protect to encrypt the document.", "Download the password-protected PDF."],
+      "benefits": ["Industry-standard PDF encryption", "Prevent unauthorized access", "Protect sensitive business documents", "Free and no signup required", "Password confirmation to prevent typos"],
+      "useCases": ["Securing confidential business reports", "Protecting legal documents before sharing", "Encrypting financial statements or tax records", "Adding security to medical or personal records", "Sharing sensitive information via email safely"],
+      "faq": [
+        {"q": "How do I password-protect a PDF?", "a": "Upload your PDF, set a password (and confirm it), and download the encrypted file. Only people with the password can open it."},
+        {"q": "How secure is the encryption?", "a": "We use industry-standard PDF encryption to protect your documents."},
+        {"q": "Can I remove the password later?", "a": "Yes, use our Unlock PDF tool to remove the password when you no longer need the protection."}
+      ]
+    },
+    "unlockPdf": {
+      "whatItDoes": "Remove password protection from PDF files. If you know the current password, you can unlock the PDF to remove restrictions on editing, printing, and copying. The content remains unchanged.",
+      "howToUse": ["Upload your password-protected PDF.", "Enter the current password.", "Click Unlock to remove the protection.", "Download the unlocked PDF file."],
+      "benefits": ["Remove password protection easily", "Unlock PDFs for editing and printing", "Fast and free", "Secure processing", "Original content fully preserved"],
+      "useCases": ["Unlocking old documents where the password is known", "Removing restrictions for editing or annotating", "Preparing PDFs for merging or splitting", "Making locked PDFs printable", "Removing permissions passwords from company documents"],
+      "faq": [
+        {"q": "How do I unlock a PDF?", "a": "Upload your protected PDF, enter the current password, and download the unlocked version."},
+        {"q": "Can I unlock a PDF without the password?", "a": "No, you need the current password. This is by design for security."},
+        {"q": "Will unlocking change the content?", "a": "No, unlocking only removes the password restriction. All content remains identical."}
+      ]
+    },
+    "pageNumbers": {
+      "whatItDoes": "Add page numbers to every page of your PDF document. Choose where to place the numbers (top or bottom, left/center/right) and set a custom starting number. Perfect for organizing long documents.",
+      "howToUse": ["Upload your PDF file.", "Select the page number position (e.g. Bottom Center).", "Set the starting page number.", "Download the PDF with page numbers added."],
+      "benefits": ["Six position options (top/bottom × left/center/right)", "Custom starting number", "Works with any PDF document", "Free and no signup needed", "Clean, professional numbering"],
+      "useCases": ["Adding page numbers to reports or manuals", "Numbering pages in merged documents", "Preparing documents for printing and binding", "Adding reference numbers for legal documents", "Organizing multi-chapter documents"],
+      "faq": [
+        {"q": "How do I add page numbers to a PDF?", "a": "Upload your PDF, choose the position (top or bottom, left/center/right), set the starting number, and download."},
+        {"q": "Can I start numbering from a specific number?", "a": "Yes, you can set any starting number, not just 1."},
+        {"q": "Does it work with landscape pages?", "a": "Yes, page numbers are added correctly to both portrait and landscape pages."}
+      ]
+    },
+    "reorderPdf": {
+      "whatItDoes": "Rearrange the pages of your PDF document in any order. Specify a custom page order to reorganize your document without splitting and re-merging. Quick and easy page reorganization.",
+      "howToUse": ["Upload your PDF document.", "Enter the new page order (e.g. 3,1,2,5,4).", "Click reorder to rearrange the pages.", "Download the reordered PDF."],
+      "benefits": ["Custom page ordering with simple syntax", "Reorganize without splitting and merging", "Works on any PDF document", "Free and fast processing", "No quality loss"],
+      "useCases": ["Moving an appendix to the front of a document", "Reorganizing a presentation for a different audience", "Fixing page order in scanned documents", "Creating custom document arrangements from existing PDFs", "Rearranging sections for a new document flow"],
+      "faq": [
+        {"q": "How do I reorder PDF pages?", "a": "Upload your PDF and enter the new page order as comma-separated numbers (e.g. 3,1,2,5,4). Download the reordered PDF."},
+        {"q": "Can I duplicate pages in the new order?", "a": "Typically, you specify each page number once in your desired order."},
+        {"q": "What happens if I skip a page number?", "a": "Skipped pages will not appear in the output, effectively removing them from the document."}
+      ]
+    },
+    "extractPages": {
+      "whatItDoes": "Extract specific pages from a PDF and create a new document containing only the pages you selected. Choose individual pages or page ranges using simple syntax. The perfect tool when you only need certain pages from a large document.",
+      "howToUse": ["Upload your PDF document.", "Enter the page numbers or ranges (e.g. 1,3,5-8).", "Click Extract to create a new PDF.", "Download the PDF with only your selected pages."],
+      "benefits": ["Extract individual pages or ranges", "Simple comma-separated syntax", "Original document stays unchanged", "Free and completely secure", "Fast processing"],
+      "useCases": ["Extracting a single chapter from an e-book", "Getting specific pages for a presentation", "Creating a subset document for review", "Pulling pages from a scanned multi-page document", "Isolating an important page to share separately"],
+      "faq": [
+        {"q": "How do I extract pages from a PDF?", "a": "Upload your PDF, enter the pages you want (e.g. 1,3,5-8), and download the new PDF containing only those pages."},
+        {"q": "What is the difference between Split and Extract?", "a": "Split divides every page into separate files, while Extract lets you pick any combination of specific pages into one new document."},
+        {"q": "Can I extract pages in a different order?", "a": "The pages are extracted in the order specified. Use our Reorder tool for more control over page arrangement."}
+      ]
+    },
+    "pdfEditor": {
+      "whatItDoes": "Optimize and clean up your PDF documents online. Create a leaner, print-ready copy of your PDF with improved structure and reduced file size, while keeping the original untouched.",
+      "howToUse": ["Upload your PDF file.", "Click Optimize & Save Copy to process the document.", "Preview the result.", "Download the optimized PDF."],
+      "benefits": ["Create clean, optimized PDF copies", "Reduce file size automatically", "Original file is never modified", "Free online PDF optimization", "No software download required"],
+      "useCases": ["Optimizing PDFs before emailing", "Cleaning up scanned documents", "Preparing PDFs for web publishing", "Reducing file size for cloud storage", "Creating print-ready document copies"],
+      "faq": [
+        {"q": "Can I edit text in a PDF?", "a": "This tool focuses on PDF optimization. For full text editing, convert to Word first using our PDF to Word tool, edit, then convert back."},
+        {"q": "Is the PDF editor free?", "a": "Yes, our online PDF optimizer is completely free to use."},
+        {"q": "Will optimization reduce quality?", "a": "The optimization process maintains visual quality while improving the file structure and reducing overall size."}
+      ]
+    },
+    "pdfFlowchart": {
+      "whatItDoes": "Upload a PDF containing procedures and workflows, and our AI automatically analyzes the content to generate interactive flowcharts. Visualize step-by-step processes, decision points, and workflows as professional diagrams.",
+      "howToUse": ["Upload a PDF with procedures or workflows.", "The AI analyzes and detects procedures automatically.", "Select which procedures to convert to flowcharts.", "View, customize, and export the generated flowcharts."],
+      "benefits": ["AI-powered procedure detection", "Interactive flowchart visualization", "Export as PNG, SVG, or PDF", "Edit and customize generated flowcharts", "Built-in AI assistant for refinement"],
+      "useCases": ["Visualizing standard operating procedures (SOPs)", "Converting training manuals into flowcharts", "Analyzing business process documents", "Creating visual guides from regulatory procedures", "Understanding complex workflows from documentation"],
+      "faq": [
+        {"q": "How does PDF to Flowchart work?", "a": "Upload a PDF with procedures or workflows, and our AI analyzes the content to generate an interactive flowchart with decision points and process steps."},
+        {"q": "What types of PDFs work best?", "a": "PDFs containing step-by-step procedures, SOPs, workflows, and process documentation produce the best results."},
+        {"q": "Can I edit the generated flowchart?", "a": "Yes, you can customize the flowchart and use the built-in AI assistant to suggest improvements."}
+      ]
+    },
+    "imageConvert": {
+      "whatItDoes": "Convert images between JPG, PNG, and WebP formats instantly. Whether you need a transparent PNG, a compressed JPG, or a modern WebP file, this tool handles the conversion while maintaining image quality.",
+      "howToUse": ["Upload your image file.", "Select the target format (JPG, PNG, or WebP).", "Click Convert to process the image.", "Download your converted image."],
+      "benefits": ["Convert between JPG, PNG, and WebP", "No quality loss during conversion", "Instant processing", "Free with no registration", "Supports batch conversion"],
+      "useCases": ["Converting PNG to JPG for smaller email attachments", "Converting JPG to PNG for transparent backgrounds", "Converting to WebP for faster website loading", "Preparing images for specific platform requirements", "Converting screenshots to a shareable format"],
+      "faq": [
+        {"q": "What image formats are supported?", "a": "You can convert between JPG (JPEG), PNG, and WebP formats."},
+        {"q": "Does conversion reduce image quality?", "a": "No, our converter maintains the original image quality during format conversion."},
+        {"q": "When should I use WebP?", "a": "Use WebP for web images — it offers the best compression with minimal quality loss, resulting in faster page loads."}
+      ]
+    },
+    "imageResize": {
+      "whatItDoes": "Resize images to exact pixel dimensions while maintaining quality. Lock the aspect ratio to prevent distortion, or set custom width and height independently. Supports JPG, PNG, and WebP output formats.",
+      "howToUse": ["Upload your image file.", "Enter the target width and/or height in pixels.", "Toggle aspect ratio lock if needed.", "Download your resized image."],
+      "benefits": ["Resize to exact pixel dimensions", "Lock or unlock aspect ratio", "Choose output quality level", "Works with JPG, PNG, and WebP", "Free with no file limits"],
+      "useCases": ["Resizing photos for social media profiles", "Preparing images for website thumbnails", "Meeting exact dimension requirements for online forms", "Reducing image dimensions for faster loading", "Creating consistent sizes for product catalogs"],
+      "faq": [
+        {"q": "How do I resize an image?", "a": "Upload your image, enter the desired width and/or height, and download the resized image. Toggle aspect ratio lock to maintain proportions."},
+        {"q": "Can I maintain the aspect ratio?", "a": "Yes, lock the aspect ratio so the image resizes proportionally — enter one dimension and the other calculates automatically."},
+        {"q": "What is the maximum output size?", "a": "You can resize images to any reasonable dimension. The tool works best with standard web and print sizes."}
+      ]
+    },
+    "compressImage": {
+      "whatItDoes": "Reduce image file size while maintaining visual quality. Our compressor optimizes your images for web use, email attachments, and storage efficiency. Supports PNG, JPG, and WebP formats.",
+      "howToUse": ["Upload your image file (PNG, JPG, or WebP).", "Adjust the quality slider to balance size and quality.", "Click Compress to process the image.", "Download the compressed image."],
+      "benefits": ["Reduce file size significantly", "Adjustable quality slider", "Supports PNG, JPG, and WebP", "Maintains visual quality", "Free and instant"],
+      "useCases": ["Optimizing images for website performance", "Reducing image size for email attachments", "Compressing photos for cloud storage", "Preparing images for social media uploads", "Reducing bandwidth usage for mobile apps"],
+      "faq": [
+        {"q": "How does image compression work?", "a": "Our tool reduces file size by optimizing encoding and removing unnecessary metadata while preserving visual quality."},
+        {"q": "Which format compresses best?", "a": "WebP typically achieves the best compression, followed by JPG for photographs and PNG for graphics with transparency."},
+        {"q": "How much can I reduce the file size?", "a": "Depending on the image and quality setting, you can typically reduce file size by 30-80%."}
+      ]
+    },
+    "removeBg": {
+      "whatItDoes": "Remove image backgrounds automatically using AI. Upload any photo and our machine learning model accurately detects the subject, removing the background and producing a transparent PNG image in seconds.",
+      "howToUse": ["Upload your image file.", "The AI automatically detects the subject.", "Click Remove Background to process.", "Download the transparent PNG image."],
+      "benefits": ["AI-powered automatic detection", "Transparent PNG output", "Works with photos, products, and portraits", "Free and instant processing", "No manual selection needed"],
+      "useCases": ["Creating product photos for e-commerce", "Removing backgrounds from profile pictures", "Preparing images for graphic design projects", "Making transparent logos or icons", "Creating cutouts for social media content"],
+      "faq": [
+        {"q": "How does background removal work?", "a": "Our AI model automatically detects the subject in your image and removes the background, producing a transparent PNG file."},
+        {"q": "What types of images work best?", "a": "The tool works best with clear subjects — product photos, portraits, and objects with distinct edges."},
+        {"q": "What format is the output?", "a": "The output is always a PNG file with a transparent background."}
+      ]
+    },
+    "ocr": {
+      "whatItDoes": "Extract text from images and scanned PDF documents using Optical Character Recognition (OCR). Our Tesseract-powered engine supports English, Arabic, and French text recognition with high accuracy.",
+      "howToUse": ["Choose the source type: Image or PDF.", "Upload your file.", "Select the OCR language (English, Arabic, or French).", "Click Extract Text and copy the result."],
+      "benefits": ["Supports English, Arabic, and French", "Works with images and scanned PDFs", "High accuracy with Tesseract OCR engine", "Copy extracted text with one click", "Free with no signup needed"],
+      "useCases": ["Digitizing scanned paper documents", "Extracting text from screenshots", "Converting image-based PDFs to searchable text", "Transcribing text from photos", "Extracting data from receipts or invoices"],
+      "faq": [
+        {"q": "What is OCR?", "a": "OCR (Optical Character Recognition) is a technology that converts images of text into editable, searchable text data."},
+        {"q": "What languages are supported?", "a": "We currently support English, Arabic, and French for text recognition."},
+        {"q": "Can I OCR a scanned PDF?", "a": "Yes, you can upload scanned PDF documents and extract text from all pages."},
+        {"q": "How accurate is the OCR?", "a": "Accuracy depends on image quality. Clear, high-resolution images with good contrast produce the best results."}
+      ]
+    },
+    "pdfToExcel": {
+      "whatItDoes": "Convert tables in PDF documents to editable Excel spreadsheets (XLSX). The tool detects tabular data in your PDF and extracts it into a structured Excel file, preserving rows, columns, and data accuracy.",
+      "howToUse": ["Upload a PDF containing tables.", "The tool automatically detects table structures.", "Wait for the conversion to complete.", "Download your Excel spreadsheet (XLSX)."],
+      "benefits": ["Automatic table detection", "Preserves table structure and data", "Downloads as XLSX format", "Works with digitally-created PDFs", "Free and secure"],
+      "useCases": ["Converting financial reports from PDF to Excel", "Extracting data tables from research papers", "Making PDF invoices editable for accounting", "Importing PDF data into spreadsheet analysis", "Converting government or agency statistics into editable format"],
+      "faq": [
+        {"q": "How do I convert a PDF to Excel?", "a": "Upload your PDF containing tables. Our tool detects and extracts the tabular data, converting it into an editable Excel spreadsheet."},
+        {"q": "Does it work with scanned PDFs?", "a": "The tool works best with digitally-created PDFs. For scanned documents, use our OCR tool first to extract text."},
+        {"q": "What if my PDF has multiple tables?", "a": "All detected tables are extracted and included in the Excel output file."}
+      ]
+    },
+    "htmlToPdf": {
+      "whatItDoes": "Convert HTML files into professional PDF documents with full CSS styling support. Our converter renders your HTML with fonts, colors, layouts, and media queries, producing a print-ready PDF.",
+      "howToUse": ["Upload your HTML file.", "The converter renders the HTML with CSS support.", "Wait for the PDF generation to complete.", "Download your professional PDF document."],
+      "benefits": ["Full CSS styling support", "Preserves page layout and design", "Perfect for web page archival", "Free and instant", "No software installation required"],
+      "useCases": ["Creating PDF versions of web pages", "Archiving web content as PDF documents", "Generating PDF reports from HTML templates", "Converting email newsletters to PDF", "Saving styled web documents for offline access"],
+      "faq": [
+        {"q": "How do I convert HTML to PDF?", "a": "Upload your HTML file and our converter will render it with full CSS support and produce a professional PDF document."},
+        {"q": "Are CSS styles preserved?", "a": "Yes, our converter supports CSS styling including fonts, colors, layouts, and media queries."},
+        {"q": "Can I convert a web page URL?", "a": "Currently, you need to upload an HTML file. Save the web page as HTML first, then upload it."}
+      ]
+    },
+    "chatPdf": {
+      "whatItDoes": "Have a conversation with your PDF document using AI. Ask questions about the content and get accurate, context-aware answers. Perfect for quickly understanding long documents without reading every page.",
+      "howToUse": ["Upload your PDF document.", "Type a question about the document content.", "Get an AI-powered answer based on the PDF.", "Continue asking follow-up questions as needed."],
+      "benefits": ["AI-powered document comprehension", "Ask questions in natural language", "Get accurate, context-aware answers", "Saves time on long documents", "Free and private"],
+      "useCases": ["Quickly understanding research papers", "Finding specific information in long contracts", "Getting summaries of sections within a document", "Asking about data points in reports", "Studying textbooks more efficiently"],
+      "faq": [
+        {"q": "How does Chat with PDF work?", "a": "Upload your PDF and type a question. Our AI reads the document content and provides accurate answers based on what is in the document."},
+        {"q": "Can it answer questions in other languages?", "a": "Yes, the AI responds in the same language you use for your question."},
+        {"q": "Is my document kept private?", "a": "Yes, your document is processed securely and automatically deleted after the session."}
+      ]
+    },
+    "summarizePdf": {
+      "whatItDoes": "Get an AI-generated summary of your PDF document in seconds. Choose your preferred summary length — short, medium, or detailed — to get the key points without reading the entire document.",
+      "howToUse": ["Upload your PDF document.", "Select the summary length: Short, Medium, or Detailed.", "Click summarize to generate the summary.", "Read the AI-generated summary of your document."],
+      "benefits": ["Three summary length options", "AI-powered comprehensive summaries", "Covers key points and conclusions", "Fast processing", "Free and instant"],
+      "useCases": ["Getting quick overviews of long reports", "Summarizing academic papers for study", "Reviewing meeting minutes or transcripts", "Understanding legal documents quickly", "Previewing documents before a full read"],
+      "faq": [
+        {"q": "How does PDF summarization work?", "a": "Upload your PDF and choose a summary length. Our AI analyzes the full document and generates a concise summary covering the main points."},
+        {"q": "What summary lengths are available?", "a": "Short (2-3 sentences), Medium (1-2 paragraphs), or Detailed (comprehensive coverage of all key points)."},
+        {"q": "Can it summarize in other languages?", "a": "The summary is generated in the document's primary language."}
+      ]
+    },
+    "translatePdf": {
+      "whatItDoes": "Translate the content of your PDF documents to any language using AI. The translation preserves the meaning and context of the original text while providing natural, fluent output in the target language.",
+      "howToUse": ["Upload your PDF document.", "Select the target language for translation.", "Click Translate to process the document.", "Read or download the translated content."],
+      "benefits": ["AI-powered accurate translation", "Supports virtually any language", "Preserves document context and meaning", "Natural, fluent translation output", "Free and secure"],
+      "useCases": ["Translating foreign-language research papers", "Understanding documents received in another language", "Preparing multilingual versions of business documents", "Translating legal or medical documents for review", "Making educational materials accessible in other languages"],
+      "faq": [
+        {"q": "How do I translate a PDF?", "a": "Upload your PDF, select the target language, and our AI will translate the content while maintaining the original meaning and context."},
+        {"q": "What languages are supported?", "a": "You can translate to and from virtually any language including English, Arabic, French, Spanish, German, Chinese, and many more."},
+        {"q": "How accurate is the translation?", "a": "Our AI produces high-quality translations that preserve context and meaning. For critical documents, we recommend professional review."}
+      ]
+    },
+    "tableExtractor": {
+      "whatItDoes": "Detect and extract tables from PDF documents into structured, readable data. View headers and rows in an organized format. Perfect for analyzing tabular information locked inside PDF files.",
+      "howToUse": ["Upload a PDF containing tables.", "The tool scans all pages for table structures.", "View the extracted tables with headers and data rows.", "Copy or use the structured data as needed."],
+      "benefits": ["Automatic table detection across all pages", "Structured data view with headers and rows", "Handles multiple tables per document", "Free and easy to use", "Works with complex table layouts"],
+      "useCases": ["Extracting data from financial reports", "Analyzing statistical tables in research papers", "Pulling product data from PDF catalogs", "Reviewing tabular information in government documents", "Extracting class schedules or timetables"],
+      "faq": [
+        {"q": "How does table extraction work?", "a": "Upload a PDF and our tool automatically detects tables on each page, extracting headers and data into a structured view."},
+        {"q": "Can I export extracted tables?", "a": "The extracted data is displayed in a structured format. For Excel export, use our PDF to Excel tool."},
+        {"q": "What if tables span multiple pages?", "a": "The tool extracts tables on each page independently. Multi-page spanning tables are detected on each page they appear."}
+      ]
+    },
+    "qrCode": {
+      "whatItDoes": "Generate QR codes from any text, URL, or data instantly. Customize the size of the QR code and download it as a high-quality PNG image. Perfect for marketing materials, business cards, and sharing links.",
+      "howToUse": ["Enter your text, URL, or any data.", "Select the desired QR code size.", "The QR code generates in real-time.", "Download the QR code as PNG."],
+      "benefits": ["Generate from any text or URL", "Customizable QR code size", "High-quality PNG download", "Instant generation", "Free forever with no limits"],
+      "useCases": ["Creating QR codes for website URLs", "Adding QR codes to business cards", "Generating QR codes for Wi-Fi credentials", "Creating scannable links for marketing flyers", "Making QR codes for event tickets or invitations"],
+      "faq": [
+        {"q": "How do I create a QR code?", "a": "Enter your text or URL, choose the desired size, and the QR code generates instantly. Click download to get the PNG file."},
+        {"q": "What can I encode in a QR code?", "a": "You can encode any text, URLs, email addresses, phone numbers, Wi-Fi credentials, and more."},
+        {"q": "Is the generated QR code permanent?", "a": "Yes, the QR code encodes the data directly. Once generated, it works forever — no expiration date."}
+      ]
+    },
+    "videoToGif": {
+      "whatItDoes": "Create animated GIFs from video clips. Upload a video file and customize the start time, duration, frame rate, and output width to create the perfect animated GIF.",
+      "howToUse": ["Upload your video file (MP4, MOV, AVI, WebM).", "Set the start time and duration.", "Adjust frame rate and width.", "Download your animated GIF."],
+      "benefits": ["Supports MP4, MOV, AVI, and WebM formats", "Customizable start time and duration", "Adjustable frame rate and width", "Free and no registration", "Fast cloud processing"],
+      "useCases": ["Creating GIFs for social media posts", "Making animated tutorials from screen recordings", "Converting funny video clips to shareable GIFs", "Creating product demo animations", "Making reaction GIFs from video content"],
+      "faq": [
+        {"q": "How do I create a GIF from a video?", "a": "Upload a video file, set the start time and duration, choose the quality level, and download your animated GIF."},
+        {"q": "What video formats are supported?", "a": "Most common formats are supported including MP4, MOV, AVI, and WebM."},
+        {"q": "How long can the GIF be?", "a": "We recommend keeping GIFs under 15 seconds for best file size and loading performance."}
+      ]
+    },
+    "wordCounter": {
+      "whatItDoes": "Count words, characters, sentences, and paragraphs in your text instantly. Get real-time statistics as you type or paste text. Also provides an estimated reading time.",
+      "howToUse": ["Type or paste your text into the input area.", "View real-time word, character, sentence, and paragraph counts.", "Use the statistics for your writing needs.", "Copy or clear the text as needed."],
+      "benefits": ["Real-time counting as you type", "Words, characters, sentences, and paragraphs", "Estimated reading time", "Free with no limits", "Works entirely in your browser"],
+      "useCases": ["Checking word count for college essays", "Meeting character limits for social media posts", "Analyzing text length for SEO content", "Counting words for translation cost estimates", "Verifying article length requirements"],
+      "faq": [
+        {"q": "How does the word counter work?", "a": "Simply paste or type your text, and word count, character count, sentence count, and paragraph count update in real time."},
+        {"q": "Does it count spaces?", "a": "Character count is shown and includes both characters with and without spaces."},
+        {"q": "Is there a text length limit?", "a": "No, you can paste text of any length and get instant statistics."}
+      ]
+    },
+    "textCleaner": {
+      "whatItDoes": "Clean up messy text by removing extra spaces, converting text case, and removing Arabic diacritics. Perfect for text copied from PDFs, emails, or web pages that has formatting issues.",
+      "howToUse": ["Type or paste your messy text into the input area.", "Choose your cleaning options (remove spaces, change case, etc.).", "View the cleaned result in real-time.", "Copy the cleaned text with one click."],
+      "benefits": ["Remove extra whitespace and line breaks", "Convert case: upper, lower, title, sentence", "Remove Arabic diacritics (tashkeel)", "Instant results", "Free forever"],
+      "useCases": ["Cleaning text copied from PDF documents", "Normalizing text from web scraping", "Preparing text for data processing", "Converting text case for consistent formatting", "Removing diacritics from Arabic text for search indexing"],
+      "faq": [
+        {"q": "What does the text cleaner do?", "a": "It removes extra spaces, normalizes whitespace, converts text case, and cleans up formatting issues common when copying text from various sources."},
+        {"q": "Can I convert text to uppercase?", "a": "Yes, you can convert to uppercase, lowercase, title case, or sentence case with a single click."},
+        {"q": "Does it support Arabic text?", "a": "Yes, it includes a special option to remove Arabic diacritics (tashkeel/harakat) from text."}
+      ]
+    }
   }
 }

@@ -1,39 +1,81 @@
 #!/usr/bin/env python3
 """
 generate_sitemap.py
-Generates sitemap.xml for SEO.
+Generates sitemap.xml for SEO from the full route inventory.
 
 Usage:
   python scripts/generate_sitemap.py --domain https://yourdomain.com
+  python scripts/generate_sitemap.py --domain https://yourdomain.com --output frontend/public/sitemap.xml
 """
 
 import argparse
 from datetime import datetime
 
-
-TOOLS = [
-    '/tools/pdf-to-word',
-    '/tools/word-to-pdf',
-    '/tools/compress-pdf',
-    '/tools/merge-pdf',
-    '/tools/split-pdf',
-    '/tools/rotate-pdf',
-    '/tools/pdf-to-images',
-    '/tools/images-to-pdf',
-    '/tools/watermark-pdf',
-    '/tools/protect-pdf',
-    '/tools/unlock-pdf',
-    '/tools/page-numbers',
-    '/tools/image-converter',
-    '/tools/video-to-gif',
-    '/tools/word-counter',
-    '/tools/text-cleaner',
-]
+# ─── Route definitions with priority and changefreq ──────────────────────────
 
 PAGES = [
-    '/',
-    '/about',
-    '/privacy',
+    {'path': '/',         'changefreq': 'daily',   'priority': '1.0'},
+    {'path': '/about',    'changefreq': 'monthly', 'priority': '0.4'},
+    {'path': '/contact',  'changefreq': 'monthly', 'priority': '0.4'},
+    {'path': '/privacy',  'changefreq': 'yearly',  'priority': '0.3'},
+    {'path': '/terms',    'changefreq': 'yearly',  'priority': '0.3'},
+    {'path': '/pricing',  'changefreq': 'monthly', 'priority': '0.7'},
+    {'path': '/blog',     'changefreq': 'weekly',  'priority': '0.6'},
+]
+
+# PDF Tools
+PDF_TOOLS = [
+    {'slug': 'pdf-to-word',         'priority': '0.9'},
+    {'slug': 'word-to-pdf',         'priority': '0.9'},
+    {'slug': 'compress-pdf',        'priority': '0.9'},
+    {'slug': 'merge-pdf',           'priority': '0.9'},
+    {'slug': 'split-pdf',           'priority': '0.8'},
+    {'slug': 'rotate-pdf',          'priority': '0.7'},
+    {'slug': 'pdf-to-images',       'priority': '0.8'},
+    {'slug': 'images-to-pdf',       'priority': '0.8'},
+    {'slug': 'watermark-pdf',       'priority': '0.7'},
+    {'slug': 'remove-watermark-pdf','priority': '0.7'},
+    {'slug': 'protect-pdf',         'priority': '0.8'},
+    {'slug': 'unlock-pdf',          'priority': '0.8'},
+    {'slug': 'page-numbers',        'priority': '0.7'},
+    {'slug': 'reorder-pdf',         'priority': '0.7'},
+    {'slug': 'extract-pages',       'priority': '0.7'},
+    {'slug': 'pdf-editor',          'priority': '0.8'},
+    {'slug': 'pdf-flowchart',       'priority': '0.7'},
+    {'slug': 'pdf-to-excel',        'priority': '0.8'},
+]
+
+# Image Tools
+IMAGE_TOOLS = [
+    {'slug': 'image-converter',   'priority': '0.8'},
+    {'slug': 'image-resize',      'priority': '0.8'},
+    {'slug': 'compress-image',    'priority': '0.8'},
+    {'slug': 'remove-background', 'priority': '0.8'},
+]
+
+# AI Tools
+AI_TOOLS = [
+    {'slug': 'ocr',             'priority': '0.8'},
+    {'slug': 'chat-pdf',        'priority': '0.8'},
+    {'slug': 'summarize-pdf',   'priority': '0.8'},
+    {'slug': 'translate-pdf',   'priority': '0.8'},
+    {'slug': 'extract-tables',  'priority': '0.8'},
+]
+
+# Convert / Utility Tools
+UTILITY_TOOLS = [
+    {'slug': 'html-to-pdf',   'priority': '0.7'},
+    {'slug': 'qr-code',       'priority': '0.7'},
+    {'slug': 'video-to-gif',  'priority': '0.7'},
+    {'slug': 'word-counter',  'priority': '0.6'},
+    {'slug': 'text-cleaner',  'priority': '0.6'},
+]
+
+TOOL_GROUPS = [
+    ('PDF Tools', PDF_TOOLS),
+    ('Image Tools', IMAGE_TOOLS),
+    ('AI Tools', AI_TOOLS),
+    ('Utility Tools', UTILITY_TOOLS),
 ]
 
 
@@ -41,30 +83,24 @@ def generate_sitemap(domain: str) -> str:
     today = datetime.now().strftime('%Y-%m-%d')
     urls = []
 
-    # Home page — highest priority
-    urls.append(f'''  <url>
-    <loc>{domain}/</loc>
+    # Static pages
+    for page in PAGES:
+        urls.append(f'''  <url>
+    <loc>{domain}{page["path"]}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>{page["changefreq"]}</changefreq>
+    <priority>{page["priority"]}</priority>
+  </url>''')
+
+    # Tool pages by category
+    for label, routes in TOOL_GROUPS:
+        urls.append(f'\n  <!-- {label} -->')
+        for route in routes:
+            urls.append(f'''  <url>
+    <loc>{domain}/tools/{route["slug"]}</loc>
     <lastmod>{today}</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>''')
-
-    # Tool pages — high priority
-    for tool in TOOLS:
-        urls.append(f'''  <url>
-    <loc>{domain}{tool}</loc>
-    <lastmod>{today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>''')
-
-    # Static pages — lower priority
-    for page in PAGES[1:]:
-        urls.append(f'''  <url>
-    <loc>{domain}{page}</loc>
-    <lastmod>{today}</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>{route["priority"]}</priority>
   </url>''')
 
     sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
@@ -87,8 +123,9 @@ def main():
     with open(args.output, 'w', encoding='utf-8') as f:
         f.write(sitemap)
 
+    total = len(PAGES) + sum(len(routes) for _, routes in TOOL_GROUPS)
     print(f"Sitemap generated: {args.output}")
-    print(f"URLs: {len(TOOLS) + len(PAGES)}")
+    print(f"Total URLs: {total}")
 
 
 if __name__ == '__main__':
