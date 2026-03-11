@@ -1,0 +1,8 @@
+.......................................................                  [100%]
+============================== warnings summary ===============================
+backend/tests/test_pdf_tools_service.py::TestMergePdfsService::test_merge_file_not_found_raises
+  C:\Users\ahmed\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\PyPDF2\__init__.py:21: DeprecationWarning: PyPDF2 is deprecated. Please move to the pypdf library instead.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+55 passed, 1 warning in 31.81s

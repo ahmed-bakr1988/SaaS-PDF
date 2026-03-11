@@ -85,6 +85,54 @@ class TestPdfToolsTaskRoutes:
         assert args[3] == 'CONFIDENTIAL'
         assert args[4] == 0.3
 
+    def test_remove_watermark_dispatches_task(self, client, monkeypatch):
+        """Remove watermark route should dispatch the correct Celery task."""
+        mock_task = MagicMock()
+        mock_task.id = 'remove-wm-id'
+        mock_delay = MagicMock(return_value=mock_task)
+
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
+                            lambda ext, folder_type: ('remove-wm-id', '/tmp/test.pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.remove_watermark_task.delay', mock_delay)
+
+        data = {
+            'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
+        }
+        response = client.post('/api/pdf-tools/remove-watermark', data=data,
+                               content_type='multipart/form-data')
+        assert response.status_code == 202
+        args = mock_delay.call_args[0]
+        assert args[0] == '/tmp/test.pdf'
+        assert args[1] == 'remove-wm-id'
+        assert args[2] == 'test.pdf'
+
+    def test_reorder_dispatches_task(self, client, monkeypatch):
+        """Reorder route should dispatch with the parsed page order list."""
+        mock_task = MagicMock()
+        mock_task.id = 'reorder-id'
+        mock_delay = MagicMock(return_value=mock_task)
+
+        monkeypatch.setattr('app.routes.pdf_tools.validate_actor_file',
+                            lambda f, allowed_types, actor: ('test.pdf', 'pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.generate_safe_path',
+                            lambda ext, folder_type: ('reorder-id', '/tmp/test.pdf'))
+        monkeypatch.setattr('app.routes.pdf_tools.reorder_pdf_task.delay', mock_delay)
+
+        data = {
+            'file': (io.BytesIO(b'%PDF-1.4'), 'test.pdf'),
+            'page_order': '3,1,2',
+        }
+        response = client.post('/api/pdf-tools/reorder', data=data,
+                               content_type='multipart/form-data')
+        assert response.status_code == 202
+        args = mock_delay.call_args[0]
+        assert args[0] == '/tmp/test.pdf'
+        assert args[1] == 'reorder-id'
+        assert args[2] == 'test.pdf'
+        assert args[3] == [3, 1, 2]
+
     def test_protect_dispatches_task(self, client, monkeypatch):
         """Protect route should dispatch with password."""
         mock_task = MagicMock()

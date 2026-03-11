@@ -2,6 +2,8 @@
 import os
 import io
 import logging
+import math
+import re
 import subprocess
 import tempfile
 import zipfile
@@ -9,6 +11,42 @@ import zipfile
 from PIL import Image
 
 logger = logging.getLogger(__name__)
+
+_TRAILING_TEXT_WATERMARK_RE = re.compile(
+    rb"q\s*"
+    rb"0 0 [-+]?\d*\.?\d+ [-+]?\d*\.?\d+ re\s*"
+    rb"W\s*n\s*"
+    rb"1 0 0 1 0 0 cm\s*"
+    rb"BT\s*/[^\s]+\s+[-+]?\d*\.?\d+\s+Tf\s+[-+]?\d*\.?\d+\s+TL\s+ET\s*"
+    rb"BT\s*/[^\s]+\s+[-+]?\d*\.?\d+\s+Tf\s+[-+]?\d*\.?\d+\s+TL\s+ET\s*"
+    rb"[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+rg\s*"
+    rb"/[^\s]+\s+gs\s*"
+    rb"q\s*[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+cm\s*"
+    rb"BT\s+1 0 0 1\s+[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+\s+Tm\s*"
+    rb".*?"
+    rb"ET\s*Q\s*Q\s*\Z",
+    re.DOTALL,
+)
+
+_TRAILING_IMAGE_WATERMARK_RE = re.compile(
+    rb"q\s*"
+    rb"(?:"
+    rb"0 0 [-+]?\d*\.?\d+ [-+]?\d*\.?\d+ re\s*"
+    rb"W\s*n\s*"
+    rb"1 0 0 1 0 0 cm\s*"
+    rb"(?:BT\s*/[^\s]+\s+[-+]?\d*\.?\d+\s+Tf\s+[-+]?\d*\.?\d+\s+TL\s+ET\s*)?"
+    rb")?"
+    rb"(?:q\s*)?"
+    rb"(?:/[^\s]+\s+gs\s*)?"
+    rb"(?P<a>[-+]?\d*\.?\d+)\s+"
+    rb"(?P<b>[-+]?\d*\.?\d+)\s+"
+    rb"(?P<c>[-+]?\d*\.?\d+)\s+"
+    rb"(?P<d>[-+]?\d*\.?\d+)\s+"
+    rb"(?P<e>[-+]?\d*\.?\d+)\s+"
+    rb"(?P<f>[-+]?\d*\.?\d+)\s+cm\s*"
+    rb"/(?P<name>[^\s]+)\s+Do\s*Q(?:\s*Q)?\s*\Z",
+    re.DOTALL,
+)
 
 
 class PDFToolsError(Exception):
@@ -250,12 +288,7 @@ def rotate_pdf(
         if pages == "all":
             rotate_indices = set(range(total_pages))
         else:
-            rotate_indices = set()
-            for part in pages.split(","):
-                part = part.strip()
-                page = int(part)
-                if 1 <= page <= total_pages:
-                    rotate_indices.add(page - 1)
+            rotate_indices = set(_parse_page_range(pages, total_pages))
 
         rotated_count = 0
         for i, page in enumerate(reader.pages):
@@ -715,8 +748,7 @@ def remove_watermark(
     output_path: str,
 ) -> dict:
     """
-    Attempt to remove text-based watermarks from a PDF by rebuilding pages
-    without the largest semi-transparent text overlay.
+    Attempt to remove supported trailing watermark overlays from a PDF.
 
     Args:
         input_path: Path to the input PDF
@@ -730,30 +762,51 @@ def remove_watermark(
     """
     try:
         from PyPDF2 import PdfReader, PdfWriter
-        import re
+        from PyPDF2.generic import DecodedStreamObject, NameObject
 
         reader = PdfReader(input_path)
         writer = PdfWriter()
         total_pages = len(reader.pages)
+        cleaned_pages = 0
+        removed_watermarks = 0
 
         for page in reader.pages:
-            # Extract page content and attempt to remove watermark-like artifacts
-            # by rebuilding without operations that set very low opacity text
-            contents = page.get("/Contents")
+            contents = page.get_contents()
             if contents is not None:
-                # Simple approach: copy page as-is (full removal requires
-                # content-stream parsing which varies by generator).
-                pass
+                cleaned_stream, removed_count = _strip_known_watermarks(
+                    contents.get_data(),
+                    float(page.mediabox.width),
+                    float(page.mediabox.height),
+                )
+                if removed_count > 0:
+                    replacement_stream = DecodedStreamObject()
+                    replacement_stream.set_data(cleaned_stream)
+                    page[NameObject("/Contents")] = replacement_stream
+                    cleaned_pages += 1
+                    removed_watermarks += removed_count
+
             writer.add_page(page)
+
+        if removed_watermarks == 0:
+            raise PDFToolsError(
+                "No removable watermark overlay was detected. "
+                "Flattened or embedded page-content watermarks are not currently supported."
+            )
 
         os.makedirs(os.path.dirname(output_path), exist_ok=True)
         with open(output_path, "wb") as f:
             writer.write(f)
 
-        logger.info(f"Remove watermark processed {total_pages} pages")
+        logger.info(
+            "Remove watermark cleaned %s watermark block(s) across %s/%s page(s)",
+            removed_watermarks,
+            cleaned_pages,
+            total_pages,
+        )
 
         return {
             "total_pages": total_pages,
+            "cleaned_pages": cleaned_pages,
             "output_size": os.path.getsize(output_path),
         }
 
@@ -761,6 +814,109 @@ def remove_watermark(
         raise
     except Exception as e:
         raise PDFToolsError(f"Failed to remove watermark: {str(e)}")
+
+
+def _strip_known_watermarks(
+    stream_data: bytes,
+    page_width: float,
+    page_height: float,
+) -> tuple[bytes, int]:
+    """Remove supported trailing text or image watermark overlays from a page stream."""
+    cleaned_stream = stream_data
+    removed_count = 0
+
+    while True:
+        cleaned_stream, removed_text_count = _strip_known_text_watermarks(cleaned_stream)
+        cleaned_stream, removed_image_count = _strip_known_image_watermarks(
+            cleaned_stream,
+            page_width,
+            page_height,
+        )
+
+        if removed_text_count == 0 and removed_image_count == 0:
+            break
+
+        removed_count += removed_text_count + removed_image_count
+
+    return cleaned_stream, removed_count
+
+
+def _strip_known_text_watermarks(stream_data: bytes) -> tuple[bytes, int]:
+    """Remove trailing text watermark overlays generated by common PDF watermark flows."""
+    cleaned_stream = stream_data
+    removed_count = 0
+
+    while True:
+        updated_stream, replacements = _TRAILING_TEXT_WATERMARK_RE.subn(
+            b"", cleaned_stream, count=1
+        )
+        if replacements == 0:
+            break
+
+        cleaned_stream = updated_stream.rstrip(b"\r\n")
+        removed_count += replacements
+
+    return cleaned_stream, removed_count
+
+
+def _strip_known_image_watermarks(
+    stream_data: bytes,
+    page_width: float,
+    page_height: float,
+) -> tuple[bytes, int]:
+    """Remove trailing image XObject watermark overlays when they match the supported pattern."""
+    cleaned_stream = stream_data
+    removed_count = 0
+
+    while True:
+        match = _TRAILING_IMAGE_WATERMARK_RE.search(cleaned_stream)
+        if match is None:
+            break
+
+        if not _is_probable_image_watermark(match, page_width, page_height):
+            break
+
+        cleaned_stream = cleaned_stream[:match.start()].rstrip(b"\r\n")
+        removed_count += 1
+
+    return cleaned_stream, removed_count
+
+
+def _is_probable_image_watermark(
+    match: re.Match[bytes],
+    page_width: float,
+    page_height: float,
+) -> bool:
+    """Heuristic guardrail so only overlay-style trailing image blocks are stripped."""
+    name = match.group("name").lower()
+    if not name.startswith((b"formxob", b"im", b"img", b"image")):
+        return False
+
+    a = float(match.group("a"))
+    b = float(match.group("b"))
+    c = float(match.group("c"))
+    d = float(match.group("d"))
+    e = float(match.group("e"))
+    f = float(match.group("f"))
+
+    width = math.hypot(a, b)
+    height = math.hypot(c, d)
+    if width < 24 or height < 24:
+        return False
+
+    page_area = page_width * page_height
+    overlay_area = width * height
+    if page_area <= 0 or overlay_area <= 0:
+        return False
+
+    coverage_ratio = overlay_area / page_area
+    if coverage_ratio > 0.95:
+        return False
+
+    if e == 0 and f == 0 and coverage_ratio > 0.6:
+        return False
+
+    return True
 
 
 # ---------------------------------------------------------------------------
@@ -792,15 +948,7 @@ def reorder_pdf_pages(
         writer = PdfWriter()
         total_pages = len(reader.pages)
 
-        if not page_order:
-            raise PDFToolsError("No page order specified.")
-
-        # Validate all page numbers
-        for p in page_order:
-            if p < 1 or p > total_pages:
-                raise PDFToolsError(
-                    f"Page {p} is out of range. PDF has {total_pages} pages."
-                )
+        _validate_full_page_permutation(page_order, total_pages)
 
         # Build new PDF in the requested order
         for p in page_order:
@@ -822,6 +970,43 @@ def reorder_pdf_pages(
         raise
     except Exception as e:
         raise PDFToolsError(f"Failed to reorder PDF pages: {str(e)}")
+
+
+def _validate_full_page_permutation(page_order: list[int], total_pages: int) -> None:
+    """Require reorder requests to provide every page exactly once."""
+    if not page_order:
+        raise PDFToolsError("No page order specified.")
+
+    out_of_range = sorted({page for page in page_order if page < 1 or page > total_pages})
+    if out_of_range:
+        pages = ", ".join(str(page) for page in out_of_range)
+        raise PDFToolsError(
+            f"Page order contains out-of-range pages: {pages}. This PDF has {total_pages} pages."
+        )
+
+    duplicates: list[int] = []
+    seen: set[int] = set()
+    for page in page_order:
+        if page in seen and page not in duplicates:
+            duplicates.append(page)
+        seen.add(page)
+
+    missing = [page for page in range(1, total_pages + 1) if page not in seen]
+    if duplicates or missing or len(page_order) != total_pages:
+        details = ["Provide every page exactly once in the new order."]
+        if duplicates:
+            details.append(
+                f"Duplicate pages: {', '.join(str(page) for page in duplicates)}."
+            )
+        if missing:
+            details.append(
+                f"Missing pages: {', '.join(str(page) for page in missing)}."
+            )
+        raise PDFToolsError(
+            "Invalid page order. "
+            + " ".join(details)
+            + f" This PDF has {total_pages} pages."
+        )
 
 
 # ---------------------------------------------------------------------------

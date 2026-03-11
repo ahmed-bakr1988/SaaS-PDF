@@ -636,16 +636,24 @@
     },
     "removeWatermark": {
       "title": "Supprimer le filigrane",
-      "description": "Supprimez automatiquement les filigranes textuels des fichiers PDF.",
+      "description": "Supprimez automatiquement les filigranes textuels et les superpositions d'image prises en charge des fichiers PDF.",
       "shortDesc": "Supprimer le filigrane"
     },
     "reorderPdf": {
       "title": "Réorganiser les pages PDF",
-      "description": "Réorganisez les pages de votre PDF dans l'ordre souhaité.",
+      "description": "Réorganisez les pages de votre PDF dans l'ordre souhaité en conservant chaque page exactement une fois.",
       "shortDesc": "Réorganiser les pages",
       "orderLabel": "Nouvel ordre des pages",
       "orderPlaceholder": "ex. 3,1,2,5,4",
-      "orderHint": "Entrez les numéros de pages séparés par des virgules dans l'ordre souhaité."
+      "orderHint": "Entrez chaque numéro de page exactement une fois, séparé par des virgules, dans l'ordre souhaité.",
+      "readingPageCount": "Lecture du nombre total de pages...",
+      "pageCount": "Pages détectées : {{count}}",
+      "pageCountFailed": "Impossible de lire le nombre de pages de ce PDF. Veuillez choisir un autre fichier.",
+      "orderInvalidFormat": "Utilisez uniquement des numéros de page séparés par des virgules, par exemple 3,1,2.",
+      "orderMustIncludeAllPages": "Incluez chaque page exactement une fois de 1 à {{count}}.",
+      "orderOutOfRange": "Pages hors plage : {{pages}}.",
+      "orderMissingPages": "Pages manquantes : {{pages}}.",
+      "orderDuplicatePages": "Pages en double : {{pages}}."
     },
     "extractPages": {
       "title": "Extraire des pages PDF",
@@ -883,12 +891,12 @@
       ]
     },
     "removeWatermark": {
-      "whatItDoes": "Supprimez automatiquement les filigranes textuels des fichiers PDF. L'outil détecte et supprime les couches de texte en filigrane tout en préservant le contenu et la mise en page du reste du document.",
-      "howToUse": ["Téléchargez votre fichier PDF avec filigrane.", "L'outil détecte automatiquement les filigranes textuels.", "Cliquez sur Supprimer pour traiter le document.", "Téléchargez le PDF propre sans filigrane."],
-      "benefits": ["Détection automatique des filigranes", "Préserve le contenu et la mise en page du document", "Fonctionne avec les filigranes textuels", "Gratuit et sécurisé", "Aucune installation requise"],
+      "whatItDoes": "Supprimez automatiquement les filigranes textuels et les superpositions d'image prises en charge des fichiers PDF. L'outil détecte les blocs de filigrane amovibles tout en préservant le contenu et la mise en page du reste du document.",
+      "howToUse": ["Téléchargez votre fichier PDF avec filigrane.", "L'outil détecte automatiquement les filigranes textuels ou les superpositions d'image prises en charge.", "Cliquez sur Supprimer pour traiter le document.", "Téléchargez le PDF propre sans filigrane."],
+      "benefits": ["Détection automatique des filigranes", "Préserve le contenu et la mise en page du document", "Fonctionne avec les superpositions textuelles et d'image prises en charge", "Gratuit et sécurisé", "Aucune installation requise"],
       "useCases": ["Nettoyer les versions brouillon pour la distribution finale", "Supprimer l'ancien branding des documents", "Préparer des copies propres pour l'archivage", "Supprimer les marques d'échantillon/d'essai des PDF achetés", "Nettoyer les documents numérisés des couches indésirables"],
       "faq": [
-        {"q": "Cet outil peut-il supprimer tout type de filigrane ?", "a": "L'outil fonctionne mieux avec les filigranes textuels. Les filigranes basés sur des images peuvent nécessiter un traitement supplémentaire."},
+        {"q": "Cet outil peut-il supprimer tout type de filigrane ?", "a": "L'outil fonctionne mieux avec les filigranes textuels et les superpositions d'image prises en charge. Les filigranes profondément intégrés ou aplatis peuvent nécessiter un traitement supplémentaire."},
         {"q": "La suppression du filigrane affectera-t-elle la qualité du document ?", "a": "Non, seul le texte du filigrane est supprimé. Tout le reste du contenu reste intact."},
         {"q": "Est-il légal de supprimer des filigranes ?", "a": "Ne supprimez les filigranes que des documents que vous possédez ou pour lesquels vous avez l'autorisation de modification. Respectez les droits d'auteur et la propriété intellectuelle."}
       ]
@@ -927,14 +935,14 @@
       ]
     },
     "reorderPdf": {
-      "whatItDoes": "Réorganisez les pages d'un document PDF dans n'importe quel ordre. Spécifiez un ordre de pages personnalisé pour réorganiser votre document sans avoir à diviser et refusionner.",
-      "howToUse": ["Téléchargez votre document PDF.", "Saisissez le nouvel ordre des pages (ex. 3,1,2,5,4).", "Cliquez sur Réorganiser pour ordonner les pages.", "Téléchargez le PDF réorganisé."],
-      "benefits": ["Ordre de pages personnalisé avec une syntaxe simple", "Réorganisation sans division et fusion", "Fonctionne avec tout document PDF", "Gratuit avec traitement rapide", "Sans perte de qualité"],
+      "whatItDoes": "Réorganisez les pages d'un document PDF dans n'importe quel ordre. Spécifiez une permutation complète des pages pour réorganiser votre document sans avoir à diviser et refusionner.",
+      "howToUse": ["Téléchargez votre document PDF.", "Saisissez le nouvel ordre des pages en incluant chaque page exactement une fois (ex. 3,1,2,5,4).", "Cliquez sur Réorganiser pour ordonner les pages.", "Téléchargez le PDF réorganisé."],
+      "benefits": ["Ordre de pages personnalisé avec une syntaxe simple", "Évite la perte ou la duplication accidentelle de pages", "Fonctionne avec tout document PDF", "Gratuit avec traitement rapide", "Sans perte de qualité"],
       "useCases": ["Déplacer une annexe au début du document", "Réorganiser une présentation pour un public différent", "Corriger l'ordre des pages dans les documents numérisés", "Créer des arrangements personnalisés à partir de PDF existants", "Réordonner des sections pour un nouveau flux de document"],
       "faq": [
-        {"q": "Comment réorganiser les pages d'un PDF ?", "a": "Téléchargez votre PDF et saisissez le nouvel ordre des pages sous forme de numéros séparés par des virgules (ex. 3,1,2,5,4). Téléchargez le PDF réorganisé."},
-        {"q": "Puis-je dupliquer des pages dans le nouvel ordre ?", "a": "En général, vous spécifiez chaque numéro de page une fois dans l'ordre souhaité."},
-        {"q": "Que se passe-t-il si j'omets un numéro de page ?", "a": "Les pages omises n'apparaîtront pas dans la sortie, les supprimant effectivement du document."}
+        {"q": "Comment réorganiser les pages d'un PDF ?", "a": "Téléchargez votre PDF et saisissez le nouvel ordre des pages sous forme de numéros séparés par des virgules, en incluant chaque page exactement une fois (ex. 3,1,2,5,4). Téléchargez le PDF réorganisé."},
+        {"q": "Puis-je dupliquer des pages dans le nouvel ordre ?", "a": "Non. L'outil attend une permutation complète, donc chaque numéro de page doit apparaître exactement une fois."},
+        {"q": "Que se passe-t-il si j'omets un numéro de page ?", "a": "L'outil vous demandera de compléter l'ordre avant le traitement afin qu'aucune page ne soit supprimée par erreur."}
       ]
     },
     "extractPages": {

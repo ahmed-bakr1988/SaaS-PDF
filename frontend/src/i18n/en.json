@@ -636,16 +636,24 @@
     },
     "removeWatermark": {
       "title": "Remove Watermark",
-      "description": "Remove text watermarks from PDF files automatically.",
+      "description": "Remove supported text and image overlay watermarks from PDF files automatically.",
       "shortDesc": "Remove Watermark"
     },
     "reorderPdf": {
       "title": "Reorder PDF Pages",
-      "description": "Rearrange the pages of your PDF in any order you want.",
+      "description": "Rearrange the pages of your PDF in any order you want while keeping every page exactly once.",
       "shortDesc": "Reorder Pages",
       "orderLabel": "New Page Order",
       "orderPlaceholder": "e.g. 3,1,2,5,4",
-      "orderHint": "Enter page numbers separated by commas in the desired order."
+      "orderHint": "Enter every page number exactly once, separated by commas, in the desired order.",
+      "readingPageCount": "Reading total page count...",
+      "pageCount": "Detected pages: {{count}}",
+      "pageCountFailed": "Couldn't read the page count from this PDF. Please choose another file.",
+      "orderInvalidFormat": "Use comma-separated page numbers only, for example 3,1,2.",
+      "orderMustIncludeAllPages": "Include every page exactly once from 1 to {{count}}.",
+      "orderOutOfRange": "Out-of-range pages: {{pages}}.",
+      "orderMissingPages": "Missing pages: {{pages}}.",
+      "orderDuplicatePages": "Duplicate pages: {{pages}}."
     },
     "extractPages": {
       "title": "Extract PDF Pages",
@@ -883,12 +891,12 @@
       ]
     },
     "removeWatermark": {
-      "whatItDoes": "Remove text watermarks from PDF files automatically. The tool detects and removes watermark text overlays while preserving the rest of the document content and layout.",
-      "howToUse": ["Upload your watermarked PDF.", "The tool automatically detects text watermarks.", "Click remove to process the document.", "Download the clean PDF without watermarks."],
-      "benefits": ["Automatic watermark detection", "Preserves document content and layout", "Works with text-based watermarks", "Free and secure", "No software installation required"],
+      "whatItDoes": "Remove supported text and image overlay watermarks from PDF files automatically. The tool detects removable overlay blocks while preserving the rest of the document content and layout.",
+      "howToUse": ["Upload your watermarked PDF.", "The tool automatically detects supported text or image overlay watermarks.", "Click remove to process the document.", "Download the clean PDF without watermarks."],
+      "benefits": ["Automatic watermark detection", "Preserves document content and layout", "Works with supported text and image overlays", "Free and secure", "No software installation required"],
       "useCases": ["Cleaning up draft versions for final distribution", "Removing outdated branding from documents", "Preparing clean versions for archival", "Removing sample/trial watermarks from purchased PDFs", "Cleaning scanned documents with unwanted overlays"],
       "faq": [
-        {"q": "Can this tool remove any watermark?", "a": "The tool works best with text-based watermarks. Image-based or deeply embedded watermarks may require additional processing."},
+        {"q": "Can this tool remove any watermark?", "a": "The tool works best with supported text and image overlay watermarks. Deeply embedded or flattened watermarks may still require additional processing."},
         {"q": "Will removing the watermark affect document quality?", "a": "No, only the watermark text is removed. All other content remains intact."},
         {"q": "Is it legal to remove watermarks?", "a": "Only remove watermarks from documents you own or have permission to modify. Respect copyright and intellectual property rights."}
       ]
@@ -927,14 +935,14 @@
       ]
     },
     "reorderPdf": {
-      "whatItDoes": "Rearrange the pages of your PDF document in any order. Specify a custom page order to reorganize your document without splitting and re-merging. Quick and easy page reorganization.",
-      "howToUse": ["Upload your PDF document.", "Enter the new page order (e.g. 3,1,2,5,4).", "Click reorder to rearrange the pages.", "Download the reordered PDF."],
-      "benefits": ["Custom page ordering with simple syntax", "Reorganize without splitting and merging", "Works on any PDF document", "Free and fast processing", "No quality loss"],
+      "whatItDoes": "Rearrange the pages of your PDF document in any order. Specify a full page permutation to reorganize your document without splitting and re-merging.",
+      "howToUse": ["Upload your PDF document.", "Enter the new page order with every page exactly once (e.g. 3,1,2,5,4).", "Click reorder to rearrange the pages.", "Download the reordered PDF."],
+      "benefits": ["Custom page ordering with simple syntax", "Prevents accidental page loss or duplication", "Works on any PDF document", "Free and fast processing", "No quality loss"],
       "useCases": ["Moving an appendix to the front of a document", "Reorganizing a presentation for a different audience", "Fixing page order in scanned documents", "Creating custom document arrangements from existing PDFs", "Rearranging sections for a new document flow"],
       "faq": [
-        {"q": "How do I reorder PDF pages?", "a": "Upload your PDF and enter the new page order as comma-separated numbers (e.g. 3,1,2,5,4). Download the reordered PDF."},
-        {"q": "Can I duplicate pages in the new order?", "a": "Typically, you specify each page number once in your desired order."},
-        {"q": "What happens if I skip a page number?", "a": "Skipped pages will not appear in the output, effectively removing them from the document."}
+        {"q": "How do I reorder PDF pages?", "a": "Upload your PDF and enter the new page order as comma-separated numbers, including every page exactly once (e.g. 3,1,2,5,4). Download the reordered PDF."},
+        {"q": "Can I duplicate pages in the new order?", "a": "No. The tool expects a full permutation, so each page number must appear exactly once."},
+        {"q": "What happens if I skip a page number?", "a": "The tool will ask you to complete the order before processing so no pages are accidentally dropped."}
       ]
     },
     "extractPages": {
