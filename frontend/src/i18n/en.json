@@ -62,6 +62,50 @@
       "noToken": "Invalid reset link. Please request a new one."
     }
   },
+  "assistant": {
+    "badge": "AI Guide",
+    "title": "Need help choosing the right tool?",
+    "subtitle": "Ask about PDF, image, video, or text workflows and get a guided answer right away.",
+    "dataNotice": "Messages sent here may be stored so we can improve the assistant and understand user needs better.",
+    "greeting": "Hi, I can help you find the right tool or explain how the site works.",
+    "greetingWithTool": "Hi, I can help you use {{tool}} or point you to a better fit if needed.",
+    "emptyState": "Ask for the best tool, the right workflow, or how to share and download your result.",
+    "inputPlaceholder": "Ask about any tool or workflow...",
+    "send": "Send message",
+    "thinking": "Thinking...",
+    "unavailable": "The assistant is temporarily unavailable. Please try again in a moment.",
+    "close": "Close assistant",
+    "fabTitle": "Ask SaaS-PDF",
+    "fabSubtitle": "Smart help across all tools",
+    "prompts": {
+      "currentTool": "How do I use {{tool}}?",
+      "alternativeTool": "Is there a better tool for this task?",
+      "share": "Can I share the result from this tool?",
+      "findTool": "Which tool should I use for my file?",
+      "pdfWorkflows": "What are the best PDF tools here?",
+      "imageWorkflows": "Which tools work for images and OCR?"
+    }
+  },
+  "share": {
+    "shareTool": "Share this tool",
+    "shareResult": "Share result",
+    "toolLabel": "Tool link",
+    "resultLabel": "Download link",
+    "native": "Share",
+    "copyLink": "Copy link",
+    "copied": "Copied",
+    "note": "Only share download links when you are comfortable giving others access to the processed file.",
+    "resultFallbackTitle": "Processed file",
+    "resultDescription": "Share direct access to {{filename}}.",
+    "targets": {
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "telegram": "Telegram",
+      "x": "X",
+      "linkedin": "LinkedIn",
+      "email": "Email"
+    }
+  },
   "home": {
     "hero": "Everything You Need to Work with PDF Files — Instantly",
     "heroSub": "Upload or drag & drop your file, and we'll auto-detect its type and suggest the right tools — edit, convert, compress, and more. No registration required.",
@@ -140,7 +184,7 @@
       "title": "Privacy Policy",
       "lastUpdated": "Last updated: {{date}}",
       "dataCollectionTitle": "1. Data Collection",
-      "dataCollectionText": "We only process files you intentionally upload. We do not require registration, and no personal information is collected during file processing. If you create an account, we store only your email address and hashed password.",
+      "dataCollectionText": "We only process files you intentionally upload. We do not require registration, and no personal information is collected during file processing. If you create an account, we store only your email address and hashed password. If you use the site assistant, your messages and assistant replies may be stored to improve support quality, study product usage, and refine the assistant experience.",
       "fileHandlingTitle": "2. File Processing & Storage",
       "fileHandlingItems": [
         "Uploaded files are processed on our secure servers.",
@@ -155,7 +199,8 @@
       "thirdPartyItems": [
         "Google AdSense — for displaying advertisements",
         "Google Analytics — for anonymous usage statistics",
-        "Cloud storage — for temporary encrypted file storage"
+        "Cloud storage — for temporary encrypted file storage",
+        "AI model providers — for generating assistant replies when enabled"
       ],
       "securityTitle": "5. Security",
       "securityText": "We employ industry-standard security measures including HTTPS encryption, file validation, rate limiting, input sanitization, and automatic file cleanup. All data in transit is encrypted, and files are processed in isolated environments.",

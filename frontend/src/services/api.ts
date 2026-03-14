@@ -122,6 +122,80 @@ export interface HistoryEntry {
   created_at: string;
 }
 
+export interface AssistantHistoryMessage {
+  role: 'user' | 'assistant';
+  content: string;
+}
+
+export interface AssistantChatRequest {
+  message: string;
+  session_id?: string;
+  fingerprint: string;
+  tool_slug?: string;
+  page_url?: string;
+  locale?: string;
+  history?: AssistantHistoryMessage[];
+}
+
+export interface AssistantChatResponse {
+  session_id: string;
+  reply: string;
+  stored: boolean;
+}
+
+interface AssistantStreamHandlers {
+  onSession?: (sessionId: string) => void;
+  onChunk?: (chunk: string) => void;
+}
+
+interface AssistantStreamEvent {
+  event: string;
+  data: Record<string, unknown>;
+}
+
+
+function parseAssistantStreamEvent(rawEvent: string): AssistantStreamEvent | null {
+  const lines = rawEvent.split(/\r?\n/);
+  let event = 'message';
+  const dataLines: string[] = [];
+
+  for (const line of lines) {
+    if (!line) {
+      continue;
+    }
+    if (line.startsWith('event:')) {
+      event = line.slice(6).trim();
+      continue;
+    }
+    if (line.startsWith('data:')) {
+      dataLines.push(line.slice(5).trim());
+    }
+  }
+
+  if (!dataLines.length) {
+    return null;
+  }
+
+  return {
+    event,
+    data: JSON.parse(dataLines.join('\n')) as Record<string, unknown>,
+  };
+}
+
+
+function normalizeStreamError(status: number, bodyText: string): Error {
+  if (!bodyText.trim()) {
+    return new Error(`Request failed (${status}).`);
+  }
+
+  try {
+    const parsed = JSON.parse(bodyText) as { error?: string; message?: string };
+    return new Error(parsed.error || parsed.message || `Request failed (${status}).`);
+  } catch {
+    return new Error(bodyText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
+  }
+}
+
 /**
  * Upload a file and start a processing task.
  */
@@ -240,6 +314,104 @@ export async function getHistory(limit = 50): Promise<HistoryEntry[]> {
 export async function getTaskStatus(taskId: string): Promise<TaskStatus> {
   const response = await api.get<TaskStatus>(`/tasks/${taskId}/status`);
   return response.data;
+}
+
+/**
+ * Send one message to the site assistant.
+ */
+export async function chatWithAssistant(
+  payload: AssistantChatRequest
+): Promise<AssistantChatResponse> {
+  const response = await api.post<AssistantChatResponse>('/assistant/chat', payload);
+  return response.data;
+}
+
+
+/**
+ * Stream one assistant response incrementally over SSE.
+ */
+export async function streamAssistantChat(
+  payload: AssistantChatRequest,
+  handlers: AssistantStreamHandlers = {}
+): Promise<AssistantChatResponse> {
+  const response = await fetch('/api/assistant/chat/stream', {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'text/event-stream',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const bodyText = await response.text();
+    throw normalizeStreamError(response.status, bodyText);
+  }
+
+  if (!response.body) {
+    throw new Error('Streaming is not supported by this browser.');
+  }
+
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+  let finalResponse: AssistantChatResponse | null = null;
+
+  while (true) {
+    const { value, done } = await reader.read();
+    buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+
+    let boundary = buffer.indexOf('\n\n');
+    while (boundary !== -1) {
+      const rawEvent = buffer.slice(0, boundary);
+      buffer = buffer.slice(boundary + 2);
+      const parsedEvent = parseAssistantStreamEvent(rawEvent);
+
+      if (parsedEvent?.event === 'session') {
+        const sessionId = parsedEvent.data.session_id;
+        if (typeof sessionId === 'string') {
+          handlers.onSession?.(sessionId);
+        }
+      }
+
+      if (parsedEvent?.event === 'chunk') {
+        const chunk = parsedEvent.data.content;
+        if (typeof chunk === 'string' && chunk) {
+          handlers.onChunk?.(chunk);
+        }
+      }
+
+      if (parsedEvent?.event === 'done') {
+        const sessionId = parsedEvent.data.session_id;
+        const reply = parsedEvent.data.reply;
+        const stored = parsedEvent.data.stored;
+        if (
+          typeof sessionId === 'string' &&
+          typeof reply === 'string' &&
+          typeof stored === 'boolean'
+        ) {
+          finalResponse = {
+            session_id: sessionId,
+            reply,
+            stored,
+          };
+        }
+      }
+
+      boundary = buffer.indexOf('\n\n');
+    }
+
+    if (done) {
+      break;
+    }
+  }
+
+  if (!finalResponse) {
+    throw new Error('Assistant stream ended unexpectedly.');
+  }
+
+  return finalResponse;
 }
 
 /**

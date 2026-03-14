@@ -72,7 +72,7 @@ class BaseConfig:
     AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", "saas-pdf-temp-files")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION", "eu-west-1")
 
-    # CORS
+    # CORS 
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
     # Rate Limiting
@@ -80,7 +80,7 @@ class BaseConfig:
     RATELIMIT_DEFAULT = "100/hour"
 
     # OpenRouter AI
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
     OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
     OPENROUTER_BASE_URL = os.getenv(
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"

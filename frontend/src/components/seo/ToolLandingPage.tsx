@@ -6,6 +6,7 @@ import { generateToolSchema, generateBreadcrumbs, generateFAQ } from '@/utils/se
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
+import SharePanel from '@/components/shared/SharePanel';
 import { useToolRating } from '@/hooks/useToolRating';
 import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
@@ -85,7 +86,14 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
       {/* Tool Interface */}
       {children}
 
-      <div className="mx-auto mt-6 flex max-w-3xl items-center justify-center px-4">
+      <div className="mx-auto mt-6 flex max-w-3xl flex-wrap items-start justify-center gap-3 px-4">
+        <SharePanel
+          variant="page"
+          title={toolTitle}
+          text={toolDesc}
+          url={canonicalUrl}
+        />
+
         <button
           type="button"
           onClick={() => dispatchRatingPrompt(slug, { forceOpen: true })}

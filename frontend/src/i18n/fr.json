@@ -62,6 +62,50 @@
       "noToken": "Lien invalide. Veuillez en demander un nouveau."
     }
   },
+  "assistant": {
+    "badge": "Guide IA",
+    "title": "Besoin d'aide pour choisir le bon outil ?",
+    "subtitle": "Posez des questions sur les workflows PDF, image, vidéo ou texte et obtenez une réponse guidée immédiatement.",
+    "dataNotice": "Les messages envoyés ici peuvent être conservés afin d'améliorer l'assistant et de mieux comprendre les besoins des utilisateurs.",
+    "greeting": "Bonjour, je peux vous aider à trouver le bon outil ou à comprendre comment utiliser le site.",
+    "greetingWithTool": "Bonjour, je peux vous aider à utiliser {{tool}} ou vous orienter vers un meilleur choix si nécessaire.",
+    "emptyState": "Demandez le meilleur outil, le bon workflow, ou comment partager et télécharger votre résultat.",
+    "inputPlaceholder": "Posez une question sur un outil ou un workflow...",
+    "send": "Envoyer le message",
+    "thinking": "Réflexion en cours...",
+    "unavailable": "L'assistant est temporairement indisponible. Veuillez réessayer dans un instant.",
+    "close": "Fermer l'assistant",
+    "fabTitle": "Demander à SaaS-PDF",
+    "fabSubtitle": "Aide intelligente sur tous les outils",
+    "prompts": {
+      "currentTool": "Comment utiliser {{tool}} ?",
+      "alternativeTool": "Existe-t-il un meilleur outil pour cette tâche ?",
+      "share": "Puis-je partager le résultat de cet outil ?",
+      "findTool": "Quel outil convient à mon fichier ?",
+      "pdfWorkflows": "Quels sont les meilleurs outils PDF ici ?",
+      "imageWorkflows": "Quels outils fonctionnent avec les images et l'OCR ?"
+    }
+  },
+  "share": {
+    "shareTool": "Partager cet outil",
+    "shareResult": "Partager le résultat",
+    "toolLabel": "Lien de l'outil",
+    "resultLabel": "Lien de téléchargement",
+    "native": "Partager",
+    "copyLink": "Copier le lien",
+    "copied": "Copié",
+    "note": "Ne partagez les liens de téléchargement que si vous acceptez de donner à d'autres accès au fichier traité.",
+    "resultFallbackTitle": "Fichier traité",
+    "resultDescription": "Partager un accès direct à {{filename}}.",
+    "targets": {
+      "whatsapp": "WhatsApp",
+      "facebook": "Facebook",
+      "telegram": "Telegram",
+      "x": "X",
+      "linkedin": "LinkedIn",
+      "email": "E-mail"
+    }
+  },
   "home": {
     "hero": "Tout ce dont vous avez besoin pour vos fichiers PDF — instantanément",
     "heroSub": "Déposez votre fichier ici, nous détecterons automatiquement son type et proposerons les outils adaptés — édition, conversion, compression et plus. Aucune inscription requise.",
@@ -140,7 +184,7 @@
       "title": "Politique de confidentialité",
       "lastUpdated": "Dernière mise à jour : {{date}}",
       "dataCollectionTitle": "1. Collecte de données",
-      "dataCollectionText": "Nous ne traitons que les fichiers que vous téléchargez intentionnellement. Nous n'exigeons pas d'inscription et aucune information personnelle n'est collectée lors du traitement des fichiers. Si vous créez un compte, nous ne stockons que votre adresse e-mail et votre mot de passe chiffré.",
+      "dataCollectionText": "Nous ne traitons que les fichiers que vous téléchargez intentionnellement. Nous n'exigeons pas d'inscription et aucune information personnelle n'est collectée lors du traitement des fichiers. Si vous créez un compte, nous ne stockons que votre adresse e-mail et votre mot de passe chiffré. Si vous utilisez l'assistant du site, vos messages et les réponses de l'assistant peuvent être conservés pour améliorer la qualité du support, étudier l'usage du produit et affiner l'expérience assistant.",
       "fileHandlingTitle": "2. Traitement et stockage des fichiers",
       "fileHandlingItems": [
         "Les fichiers téléchargés sont traités sur nos serveurs sécurisés.",
@@ -155,7 +199,8 @@
       "thirdPartyItems": [
         "Google AdSense — pour l'affichage de publicités",
         "Google Analytics — pour les statistiques d'utilisation anonymes",
-        "Stockage cloud — pour le stockage temporaire chiffré des fichiers"
+        "Stockage cloud — pour le stockage temporaire chiffré des fichiers",
+        "Fournisseurs de modèles IA — pour générer les réponses de l'assistant lorsqu'elles sont activées"
       ],
       "securityTitle": "5. Sécurité",
       "securityText": "Nous employons des mesures de sécurité conformes aux normes de l'industrie, incluant le chiffrement HTTPS, la validation des fichiers, la limitation de débit, l'assainissement des entrées et le nettoyage automatique des fichiers. Toutes les données en transit sont chiffrées et les fichiers sont traités dans des environnements isolés.",

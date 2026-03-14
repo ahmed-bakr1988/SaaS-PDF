@@ -1,18 +1,12 @@
 """PDF AI services — Chat, Summarize, Translate, Table Extract."""
-import os
 import json
 import logging
 
 import requests
 
-logger = logging.getLogger(__name__)
+from app.services.openrouter_config_service import get_openrouter_settings
 
-# Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
-OPENROUTER_BASE_URL = os.getenv(
-    "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
-)
+logger = logging.getLogger(__name__)
 
 
 class PdfAiError(Exception):
@@ -58,9 +52,11 @@ def _call_openrouter(
     except Exception:
         pass  # Don't block if cost service unavailable
 
-    if not OPENROUTER_API_KEY:
+    settings = get_openrouter_settings()
+
+    if not settings.api_key:
         raise PdfAiError(
-            "AI service is not configured. Set OPENROUTER_API_KEY environment variable."
+            "AI service is not configured. Set OPENROUTER_API_KEY in the application configuration."
         )
 
     messages = [
@@ -70,13 +66,13 @@ def _call_openrouter(
 
     try:
         response = requests.post(
-            OPENROUTER_BASE_URL,
+            settings.base_url,
             headers={
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Authorization": f"Bearer {settings.api_key}",
                 "Content-Type": "application/json",
             },
             json={
-                "model": OPENROUTER_MODEL,
+                "model": settings.model,
                 "messages": messages,
                 "max_tokens": max_tokens,
                 "temperature": 0.5,
@@ -102,7 +98,7 @@ def _call_openrouter(
             usage = data.get("usage", {})
             log_ai_usage(
                 tool=tool_name,
-                model=OPENROUTER_MODEL,
+                model=settings.model,
                 input_tokens=usage.get("prompt_tokens", _estimate_tokens(user_message)),
                 output_tokens=usage.get("completion_tokens", _estimate_tokens(reply)),
             )

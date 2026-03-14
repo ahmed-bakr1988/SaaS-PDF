@@ -1,17 +1,11 @@
 """AI Chat Service — OpenRouter integration for flowchart improvement."""
-import os
 import json
 import logging
 import requests
 
-logger = logging.getLogger(__name__)
+from app.services.openrouter_config_service import get_openrouter_settings
 
-# Configuration
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
-OPENROUTER_BASE_URL = os.getenv(
-    "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
-)
+logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are a flowchart improvement assistant. You help users improve their flowcharts by:
 1. Suggesting better step titles and descriptions
@@ -34,7 +28,9 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
     Returns:
         {"reply": "...", "updated_flow": {...} | None}
     """
-    if not OPENROUTER_API_KEY:
+    settings = get_openrouter_settings()
+
+    if not settings.api_key:
         return {
             "reply": _fallback_response(message, flow_data),
             "updated_flow": None,
@@ -60,13 +56,13 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
 
     try:
         response = requests.post(
-            OPENROUTER_BASE_URL,
+            settings.base_url,
             headers={
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
+                "Authorization": f"Bearer {settings.api_key}",
                 "Content-Type": "application/json",
             },
             json={
-                "model": OPENROUTER_MODEL,
+                "model": settings.model,
                 "messages": messages,
                 "max_tokens": 500,
                 "temperature": 0.7,
@@ -92,7 +88,7 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
             usage = data.get("usage", {})
             log_ai_usage(
                 tool="flowchart_chat",
-                model=OPENROUTER_MODEL,
+                model=settings.model,
                 input_tokens=usage.get("prompt_tokens", max(1, len(message) // 4)),
                 output_tokens=usage.get("completion_tokens", max(1, len(reply) // 4)),
             )
@@ -146,10 +142,10 @@ def _fallback_response(message: str, flow_data: dict | None) -> str:
         return (
             f"Your flowchart '{title}' contains {step_count} steps "
             f"({decision_count} decisions). To get AI-powered suggestions, "
-            f"please configure the OPENROUTER_API_KEY environment variable."
+            f"please configure OPENROUTER_API_KEY for the application."
         )
 
     return (
-        "AI chat requires the OPENROUTER_API_KEY to be configured. "
-        "Please set up the environment variable for full AI functionality."
+        "AI chat requires OPENROUTER_API_KEY to be configured for the application. "
+        "Set it once in the app configuration for full AI functionality."
     )

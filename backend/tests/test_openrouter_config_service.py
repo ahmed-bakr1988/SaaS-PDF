@@ -1,0 +1,119 @@
+"""Tests for shared OpenRouter configuration resolution across AI services."""
+
+from app.services.openrouter_config_service import get_openrouter_settings
+from app.services.pdf_ai_service import _call_openrouter
+from app.services.site_assistant_service import _request_ai_reply
+
+
+class _FakeResponse:
+    def __init__(self, payload):
+        self._payload = payload
+
+    def raise_for_status(self):
+        return None
+
+    def json(self):
+        return self._payload
+
+
+class TestOpenRouterConfigService:
+    def test_prefers_flask_config_when_app_context_exists(self, app, monkeypatch):
+        monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
+        monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
+        monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+
+        with app.app_context():
+            app.config.update({
+                'OPENROUTER_API_KEY': 'config-key',
+                'OPENROUTER_MODEL': 'config-model',
+                'OPENROUTER_BASE_URL': 'https://config.example/api',
+            })
+            settings = get_openrouter_settings()
+
+        assert settings.api_key == 'config-key'
+        assert settings.model == 'config-model'
+        assert settings.base_url == 'https://config.example/api'
+
+    def test_falls_back_to_environment_without_app_context(self, monkeypatch):
+        monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
+        monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
+        monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+
+        settings = get_openrouter_settings()
+
+        assert settings.api_key == 'env-key'
+        assert settings.model == 'env-model'
+        assert settings.base_url == 'https://env.example/api'
+
+
+class TestAiServicesUseSharedConfig:
+    def test_pdf_ai_uses_flask_config(self, app, monkeypatch):
+        captured = {}
+
+        monkeypatch.setattr('app.services.ai_cost_service.check_ai_budget', lambda: None)
+        monkeypatch.setattr('app.services.ai_cost_service.log_ai_usage', lambda **kwargs: captured.setdefault('usage', kwargs))
+
+        def fake_post(url, headers, json, timeout):
+            captured['url'] = url
+            captured['headers'] = headers
+            captured['json'] = json
+            captured['timeout'] = timeout
+            return _FakeResponse({
+                'choices': [{'message': {'content': 'Configured PDF reply'}}],
+                'usage': {'prompt_tokens': 11, 'completion_tokens': 7},
+            })
+
+        monkeypatch.setattr('app.services.pdf_ai_service.requests.post', fake_post)
+
+        with app.app_context():
+            app.config.update({
+                'OPENROUTER_API_KEY': 'config-key',
+                'OPENROUTER_MODEL': 'config-model',
+                'OPENROUTER_BASE_URL': 'https://config.example/pdf-ai',
+            })
+            reply = _call_openrouter('system prompt', 'user question', max_tokens=321, tool_name='pdf_chat')
+
+        assert reply == 'Configured PDF reply'
+        assert captured['url'] == 'https://config.example/pdf-ai'
+        assert captured['headers']['Authorization'] == 'Bearer config-key'
+        assert captured['json']['model'] == 'config-model'
+        assert captured['json']['max_tokens'] == 321
+        assert captured['usage']['model'] == 'config-model'
+
+    def test_site_assistant_uses_flask_config(self, app, monkeypatch):
+        captured = {}
+
+        monkeypatch.setattr('app.services.site_assistant_service.log_ai_usage', lambda **kwargs: captured.setdefault('usage', kwargs))
+
+        def fake_post(url, headers, json, timeout):
+            captured['url'] = url
+            captured['headers'] = headers
+            captured['json'] = json
+            captured['timeout'] = timeout
+            return _FakeResponse({
+                'choices': [{'message': {'content': 'Configured assistant reply'}}],
+                'usage': {'prompt_tokens': 13, 'completion_tokens': 9},
+            })
+
+        monkeypatch.setattr('app.services.site_assistant_service.requests.post', fake_post)
+
+        with app.app_context():
+            app.config.update({
+                'OPENROUTER_API_KEY': 'assistant-key',
+                'OPENROUTER_MODEL': 'assistant-model',
+                'OPENROUTER_BASE_URL': 'https://config.example/assistant',
+            })
+            reply = _request_ai_reply(
+                message='How do I merge files?',
+                tool_slug='merge-pdf',
+                page_url='https://example.com/tools/merge-pdf',
+                locale='en',
+                history=[{'role': 'assistant', 'content': 'Previous reply'}],
+            )
+
+        assert reply == 'Configured assistant reply'
+        assert captured['url'] == 'https://config.example/assistant'
+        assert captured['headers']['Authorization'] == 'Bearer assistant-key'
+        assert captured['json']['model'] == 'assistant-model'
+        assert captured['json']['messages'][-1] == {'role': 'user', 'content': 'How do I merge files?'}
+        assert captured['usage']['model'] == 'assistant-model'

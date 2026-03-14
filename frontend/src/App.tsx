@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/layout/CookieConsent';
+import SiteAssistant from '@/components/layout/SiteAssistant';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ToolLandingPage from '@/components/seo/ToolLandingPage';
 import { useDirection } from '@/hooks/useDirection';
@@ -154,6 +155,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <SiteAssistant />
       <CookieConsent />
     </div>
   );

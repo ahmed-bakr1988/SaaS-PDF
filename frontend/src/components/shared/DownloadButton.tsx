@@ -4,6 +4,7 @@ import type { TaskResult } from '@/services/api';
 import { formatFileSize } from '@/utils/textTools';
 import { trackEvent } from '@/services/analytics';
 import { dispatchCurrentToolRatingPrompt } from '@/utils/ratingPrompt';
+import SharePanel from '@/components/shared/SharePanel';
 
 interface DownloadButtonProps {
   /** Task result containing download URL */
@@ -76,6 +77,17 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
         <Download className="h-5 w-5" />
         {t('common.download')} — {result.filename}
       </a>
+
+      <div className="mt-3 flex justify-center">
+        <SharePanel
+          variant="result"
+          title={result.filename || t('share.resultFallbackTitle')}
+          text={t('share.resultDescription', {
+            filename: result.filename || t('share.resultFallbackTitle'),
+          })}
+          url={result.download_url}
+        />
+      </div>
 
       {/* Expiry notice */}
       <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
