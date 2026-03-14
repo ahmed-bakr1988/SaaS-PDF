@@ -2,9 +2,12 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
-
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+REPO_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+# Load the repository-level .env first because the documented setup stores it there.
+load_dotenv(os.path.join(REPO_ROOT, ".env"))
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 
 
 class BaseConfig:
@@ -80,8 +83,8 @@ class BaseConfig:
     RATELIMIT_DEFAULT = "100/hour"
 
     # OpenRouter AI
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "stepfun/step-3.5-flash:free")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
     OPENROUTER_BASE_URL = os.getenv(
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
     )

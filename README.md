@@ -40,6 +40,9 @@ cd SaaS-PDF
 cp .env.example .env
 cp frontend/.env.example frontend/.env
 
+# For AI tools like Chat with PDF, set your OpenRouter credentials in .env
+# OPENROUTER_API_KEY=your-openrouter-key
+
 # 3. Start all services with Docker
 docker-compose up --build
 

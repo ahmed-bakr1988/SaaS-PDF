@@ -34,6 +34,23 @@ class TestOpenRouterConfigService:
         assert settings.model == 'config-model'
         assert settings.base_url == 'https://config.example/api'
 
+    def test_falls_back_to_environment_when_flask_config_is_blank(self, app, monkeypatch):
+        monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
+        monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
+        monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+
+        with app.app_context():
+            app.config.update({
+                'OPENROUTER_API_KEY': '   ',
+                'OPENROUTER_MODEL': '',
+                'OPENROUTER_BASE_URL': '   ',
+            })
+            settings = get_openrouter_settings()
+
+        assert settings.api_key == 'env-key'
+        assert settings.model == 'env-model'
+        assert settings.base_url == 'https://env.example/api'
+
     def test_falls_back_to_environment_without_app_context(self, monkeypatch):
         monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
         monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
