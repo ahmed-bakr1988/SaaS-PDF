@@ -52,12 +52,35 @@ class TestFileValidator:
             mock_file.tell = content.tell
             mock_file.read = content.read
 
-            with patch('app.utils.file_validator.magic') as mock_magic:
+            with patch('app.utils.file_validator.HAS_MAGIC', True), patch(
+                'app.utils.file_validator.magic', create=True
+            ) as mock_magic:
                 mock_magic.from_buffer.return_value = 'application/pdf'
                 filename, ext = validate_file(mock_file, allowed_types=["pdf"])
 
             assert filename == 'document.pdf'
             assert ext == 'pdf'
+
+    def test_valid_html_passes(self, app):
+        """Should accept valid HTML file with correct MIME type."""
+        with app.app_context():
+            html_bytes = b'<!doctype html><html><body>Hello</body></html>'
+            content = io.BytesIO(html_bytes)
+
+            mock_file = MagicMock()
+            mock_file.filename = 'page.html'
+            mock_file.seek = content.seek
+            mock_file.tell = content.tell
+            mock_file.read = content.read
+
+            with patch('app.utils.file_validator.HAS_MAGIC', True), patch(
+                'app.utils.file_validator.magic', create=True
+            ) as mock_magic:
+                mock_magic.from_buffer.return_value = 'text/html'
+                filename, ext = validate_file(mock_file, allowed_types=["html", "htm"])
+
+            assert filename == 'page.html'
+            assert ext == 'html'
 
     def test_mime_mismatch_raises(self, app):
         """Should raise when MIME type doesn't match extension."""
@@ -70,7 +93,9 @@ class TestFileValidator:
             mock_file.tell = content.tell
             mock_file.read = content.read
 
-            with patch('app.utils.file_validator.magic') as mock_magic:
+            with patch('app.utils.file_validator.HAS_MAGIC', True), patch(
+                'app.utils.file_validator.magic', create=True
+            ) as mock_magic:
                 mock_magic.from_buffer.return_value = 'text/plain'
                 with pytest.raises(FileValidationError, match="does not match"):
                     validate_file(mock_file, allowed_types=["pdf"])
@@ -102,7 +127,9 @@ class TestFileValidator:
             mock_file.tell = content.tell
             mock_file.read = content.read
 
-            with patch('app.utils.file_validator.magic') as mock_magic:
+            with patch('app.utils.file_validator.HAS_MAGIC', True), patch(
+                'app.utils.file_validator.magic', create=True
+            ) as mock_magic:
                 mock_magic.from_buffer.return_value = 'application/pdf'
                 with pytest.raises(FileValidationError, match="unsafe"):
                     validate_file(mock_file, allowed_types=["pdf"])

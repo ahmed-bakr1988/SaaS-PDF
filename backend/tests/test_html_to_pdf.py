@@ -2,6 +2,8 @@
 import io
 from unittest.mock import MagicMock
 
+from app.services.html_to_pdf_service import _get_dependency_mismatch_error
+
 
 class TestHtmlToPdf:
     def test_no_file(self, client):
@@ -41,3 +43,33 @@ class TestHtmlToPdf:
         assert response.status_code == 202
         json_data = response.get_json()
         assert 'task_id' in json_data
+
+    def test_detects_weasyprint_pydyf_version_mismatch(self, monkeypatch):
+        """Should flag the known WeasyPrint/pydyf incompatibility."""
+        versions = {
+            'weasyprint': '61.2',
+            'pydyf': '0.12.1',
+        }
+        monkeypatch.setattr(
+            'app.services.html_to_pdf_service._get_installed_version',
+            lambda package_name: versions.get(package_name),
+        )
+
+        error = _get_dependency_mismatch_error()
+
+        assert error is not None
+        assert 'WeasyPrint 61.2' in error
+        assert 'pydyf 0.12.1' in error
+
+    def test_allows_compatible_weasyprint_pydyf_versions(self, monkeypatch):
+        """Should not flag compatible dependency versions."""
+        versions = {
+            'weasyprint': '61.2',
+            'pydyf': '0.10.0',
+        }
+        monkeypatch.setattr(
+            'app.services.html_to_pdf_service._get_installed_version',
+            lambda package_name: versions.get(package_name),
+        )
+
+        assert _get_dependency_mismatch_error() is None

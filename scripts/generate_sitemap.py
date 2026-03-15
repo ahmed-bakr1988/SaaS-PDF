@@ -4,11 +4,13 @@ generate_sitemap.py
 Generates sitemap.xml for SEO from the full route inventory.
 
 Usage:
-  python scripts/generate_sitemap.py --domain https://yourdomain.com
-  python scripts/generate_sitemap.py --domain https://yourdomain.com --output frontend/public/sitemap.xml
+  python scripts/generate_sitemap.py --domain https://saas-pdf.com
+  python scripts/generate_sitemap.py --domain https://saas-pdf.com --output frontend/public/sitemap.xml
+  # Or set SITE_DOMAIN env var and omit --domain
 """
 
 import argparse
+import os
 from datetime import datetime
 
 # ─── Route definitions with priority and changefreq ──────────────────────────
@@ -113,9 +115,13 @@ def generate_sitemap(domain: str) -> str:
 
 def main():
     parser = argparse.ArgumentParser(description='Generate sitemap.xml')
-    parser.add_argument('--domain', type=str, required=True, help='Site domain (e.g. https://yourdomain.com)')
+    parser.add_argument('--domain', type=str, default=os.environ.get('SITE_DOMAIN', ''),
+                        help='Site domain (e.g. https://saas-pdf.com). Falls back to SITE_DOMAIN env var.')
     parser.add_argument('--output', type=str, default='frontend/public/sitemap.xml', help='Output file path')
     args = parser.parse_args()
+
+    if not args.domain:
+        parser.error('--domain is required (or set SITE_DOMAIN env var)')
 
     domain = args.domain.rstrip('/')
     sitemap = generate_sitemap(domain)

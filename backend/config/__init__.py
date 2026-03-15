@@ -37,6 +37,8 @@ class BaseConfig:
         "docx": [
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ],
+        "html": ["text/html", "application/xhtml+xml"],
+        "htm": ["text/html", "application/xhtml+xml"],
         "png": ["image/png"],
         "jpg": ["image/jpeg"],
         "jpeg": ["image/jpeg"],
@@ -52,6 +54,8 @@ class BaseConfig:
         "pdf": 20 * 1024 * 1024,      # 20MB
         "doc": 15 * 1024 * 1024,       # 15MB
         "docx": 15 * 1024 * 1024,      # 15MB
+        "html": 10 * 1024 * 1024,      # 10MB
+        "htm": 10 * 1024 * 1024,       # 10MB
         "png": 10 * 1024 * 1024,       # 10MB
         "jpg": 10 * 1024 * 1024,       # 10MB
         "jpeg": 10 * 1024 * 1024,      # 10MB
