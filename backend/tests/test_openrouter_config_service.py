@@ -62,6 +62,39 @@ class TestOpenRouterConfigService:
         assert settings.model == 'env-model'
         assert settings.base_url == 'https://env.example/api'
 
+    def test_returns_blank_api_key_when_not_configured(self, app, monkeypatch):
+        monkeypatch.delenv('OPENROUTER_API_KEY', raising=False)
+        monkeypatch.delenv('OPENROUTER_MODEL', raising=False)
+        monkeypatch.delenv('OPENROUTER_BASE_URL', raising=False)
+        monkeypatch.setattr('app.services.openrouter_config_service._load_dotenv_settings', lambda: {})
+
+        with app.app_context():
+            app.config.update({
+                'OPENROUTER_API_KEY': '   ',
+                'OPENROUTER_MODEL': '',
+                'OPENROUTER_BASE_URL': '',
+            })
+            settings = get_openrouter_settings()
+
+        assert settings.api_key == ''
+        assert settings.model
+        assert settings.base_url
+
+    def test_treats_legacy_sample_key_as_not_configured(self, app, monkeypatch):
+        monkeypatch.delenv('OPENROUTER_API_KEY', raising=False)
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service._load_dotenv_settings',
+            lambda: {
+                'OPENROUTER_API_KEY': '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',
+            },
+        )
+
+        with app.app_context():
+            app.config.update({'OPENROUTER_API_KEY': ''})
+            settings = get_openrouter_settings()
+
+        assert settings.api_key == ''
+
 
 class TestAiServicesUseSharedConfig:
     def test_pdf_ai_uses_flask_config(self, app, monkeypatch):

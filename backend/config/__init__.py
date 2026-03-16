@@ -105,7 +105,7 @@ class BaseConfig:
     RATELIMIT_DEFAULT = "100/hour"
 
     # OpenRouter AI
-    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "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")
+    OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
     OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
     OPENROUTER_BASE_URL = os.getenv(
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"

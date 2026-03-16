@@ -8,6 +8,7 @@ from flask import current_app, has_app_context
 
 DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-3-super-120b-a12b:free"
 DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
+LEGACY_SAMPLE_OPENROUTER_API_KEY = "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"
 
 
 @dataclass(frozen=True)
@@ -42,18 +43,30 @@ def _first_non_empty(*values: str, default: str = "") -> str:
     return default
 
 
+def _normalize_api_key(value: str) -> str:
+    """Treat placeholders and legacy sample keys as missing configuration."""
+    normalized = str(value or "").strip()
+    if not normalized:
+        return ""
+    if normalized.startswith("replace-with-"):
+        return ""
+    if normalized == LEGACY_SAMPLE_OPENROUTER_API_KEY:
+        return ""
+    return normalized
+
+
 def get_openrouter_settings() -> OpenRouterSettings:
     """Return the effective OpenRouter settings for the current execution context."""
     dotenv_settings = _load_dotenv_settings()
-    env_api_key = os.getenv("OPENROUTER_API_KEY", "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")
+    env_api_key = os.getenv("OPENROUTER_API_KEY", "")
     env_model = os.getenv("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL)
     env_base_url = os.getenv("OPENROUTER_BASE_URL", DEFAULT_OPENROUTER_BASE_URL)
 
     if has_app_context():
         api_key = _first_non_empty(
-            current_app.config.get("OPENROUTER_API_KEY", "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"),
+            current_app.config.get("OPENROUTER_API_KEY", ""),
             env_api_key,
-            dotenv_settings.get("OPENROUTER_API_KEY", "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"),
+            dotenv_settings.get("OPENROUTER_API_KEY", ""),
         )
         model = _first_non_empty(
             current_app.config.get("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL),
@@ -67,13 +80,13 @@ def get_openrouter_settings() -> OpenRouterSettings:
             dotenv_settings.get("OPENROUTER_BASE_URL", DEFAULT_OPENROUTER_BASE_URL),
             default=DEFAULT_OPENROUTER_BASE_URL,
         )
-        return OpenRouterSettings(api_key=api_key, model=model, base_url=base_url)
+        return OpenRouterSettings(api_key=_normalize_api_key(api_key), model=model, base_url=base_url)
 
     return OpenRouterSettings(
-        api_key=_first_non_empty(
+        api_key=_normalize_api_key(_first_non_empty(
             env_api_key,
             dotenv_settings.get("OPENROUTER_API_KEY", ""),
-        ),
+        )),
         model=_first_non_empty(
             env_model,
             dotenv_settings.get("OPENROUTER_MODEL", DEFAULT_OPENROUTER_MODEL),
