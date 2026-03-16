@@ -9,6 +9,29 @@ from app.services.account_service import init_account_db
 from app.services.rating_service import init_ratings_db
 from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
+from app.services.contact_service import init_contact_db
+from app.services.stripe_service import init_stripe_db
+
+
+def _init_sentry(app):
+    """Initialize Sentry error monitoring if DSN is configured."""
+    dsn = app.config.get("SENTRY_DSN", "")
+    if not dsn:
+        return
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+        from sentry_sdk.integrations.celery import CeleryIntegration
+
+        sentry_sdk.init(
+            dsn=dsn,
+            environment=app.config.get("SENTRY_ENVIRONMENT", "development"),
+            integrations=[FlaskIntegration(), CeleryIntegration()],
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+        )
+    except ImportError:
+        app.logger.warning("sentry-sdk not installed — monitoring disabled.")
 
 
 def create_app(config_name=None):
@@ -18,6 +41,9 @@ def create_app(config_name=None):
 
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+
+    # Initialize Sentry early
+    _init_sentry(app)
 
     # Create upload/output/database directories
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
@@ -79,6 +105,8 @@ def create_app(config_name=None):
         init_ratings_db()
         init_ai_cost_db()
         init_site_assistant_db()
+        init_contact_db()
+        init_stripe_db()
 
     # Register blueprints
     from app.routes.health import health_bp
@@ -106,6 +134,13 @@ def create_app(config_name=None):
     from app.routes.pdf_ai import pdf_ai_bp
     from app.routes.rating import rating_bp
     from app.routes.assistant import assistant_bp
+    from app.routes.contact import contact_bp
+    from app.routes.stripe import stripe_bp
+    from app.routes.stats import stats_bp
+    from app.routes.pdf_convert import pdf_convert_bp
+    from app.routes.pdf_extra import pdf_extra_bp
+    from app.routes.image_extra import image_extra_bp
+    from app.routes.barcode import barcode_bp
 
     app.register_blueprint(health_bp, url_prefix="/api")
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -132,5 +167,12 @@ def create_app(config_name=None):
     app.register_blueprint(pdf_ai_bp, url_prefix="/api/pdf-ai")
     app.register_blueprint(rating_bp, url_prefix="/api/ratings")
     app.register_blueprint(assistant_bp, url_prefix="/api/assistant")
+    app.register_blueprint(contact_bp, url_prefix="/api/contact")
+    app.register_blueprint(stripe_bp, url_prefix="/api/stripe")
+    app.register_blueprint(stats_bp, url_prefix="/api/stats")
+    app.register_blueprint(pdf_convert_bp, url_prefix="/api/convert")
+    app.register_blueprint(pdf_extra_bp, url_prefix="/api/pdf-tools")
+    app.register_blueprint(image_extra_bp, url_prefix="/api/image")
+    app.register_blueprint(barcode_bp, url_prefix="/api/barcode")
 
     return app

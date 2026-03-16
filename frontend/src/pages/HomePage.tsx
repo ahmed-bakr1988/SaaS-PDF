@@ -1,4 +1,6 @@
+import { useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateOrganization } from '@/utils/seo';
 import {
@@ -29,10 +31,13 @@ import {
   MessageSquare,
   Languages,
   Table,
+  Search,
+  X,
 } from 'lucide-react';
 import ToolCard from '@/components/shared/ToolCard';
 import HeroUploadZone from '@/components/shared/HeroUploadZone';
 import AdSlot from '@/components/layout/AdSlot';
+import SocialProofStrip from '@/components/shared/SocialProofStrip';
 
 interface ToolInfo {
   key: string;
@@ -81,6 +86,31 @@ const otherTools: ToolInfo[] = [
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
+  const deferredQuery = useDeferredValue(query.trim().toLowerCase());
+
+  const matchesTool = (tool: ToolInfo) => {
+    if (!deferredQuery) {
+      return true;
+    }
+
+    const haystack = `${t(`tools.${tool.key}.title`)} ${t(`tools.${tool.key}.shortDesc`)}`.toLowerCase();
+    return haystack.includes(deferredQuery);
+  };
+
+  const filteredPdfTools = pdfTools.filter(matchesTool);
+  const filteredOtherTools = otherTools.filter(matchesTool);
+
+  const updateQuery = (value: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (value.trim()) {
+      nextParams.set('q', value);
+    } else {
+      nextParams.delete('q');
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
 
   return (
     <>
@@ -97,7 +127,7 @@ export default function HomePage() {
             description: t('home.heroSub'),
             potentialAction: {
               '@type': 'SearchAction',
-              target: `${window.location.origin}/tools/{search_term_string}`,
+              target: `${window.location.origin}/?q={search_term_string}`,
               'query-input': 'required name=search_term_string',
             },
           },
@@ -123,13 +153,79 @@ export default function HomePage() {
       {/* Ad Slot */}
       <AdSlot slot="home-top" format="horizontal" className="mb-8" />
 
+      <SocialProofStrip className="mb-10" />
+
+      <section className="mb-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+              {t('common.search')}
+            </h2>
+            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+              {t('home.searchToolsPlaceholder')}
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3 sm:flex-row lg:max-w-2xl">
+            <label className="relative flex-1">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(event) => updateQuery(event.target.value)}
+                placeholder={t('home.searchToolsPlaceholder')}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition-colors focus:border-primary-400 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-primary-500"
+              />
+            </label>
+            {query && (
+              <button
+                type="button"
+                onClick={() => updateQuery('')}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                <X className="h-4 w-4" />
+                {t('common.clear')}
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
+              {t('common.developers')}
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+              {t('pages.developers.ctaTitle')}
+            </h2>
+            <p className="mt-2 text-slate-600 dark:text-slate-400">
+              {t('pages.developers.ctaSubtitle')}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <a
+              href="/developers"
+              className="inline-flex items-center justify-center rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+            >
+              {t('pages.developers.openDocs')}
+            </a>
+            <a
+              href="/account"
+              className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+            >
+              {t('pages.developers.getApiKey')}
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Tools Grid */}
       <section>
         <h2 className="mb-6 text-center text-xl font-semibold text-slate-800 dark:text-slate-200">
           {t('home.pdfTools')}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
-          {pdfTools.map((tool) => (
+          {filteredPdfTools.map((tool) => (
             <ToolCard
               key={tool.key}
               to={tool.path}
@@ -145,7 +241,7 @@ export default function HomePage() {
           {t('home.otherTools', 'Other Tools')}
         </h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-12">
-          {otherTools.map((tool) => (
+          {filteredOtherTools.map((tool) => (
             <ToolCard
               key={tool.key}
               to={tool.path}
@@ -156,6 +252,14 @@ export default function HomePage() {
             />
           ))}
         </div>
+
+        {filteredPdfTools.length + filteredOtherTools.length === 0 && (
+          <div className="mb-12 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-600 dark:bg-slate-800/50">
+            <p className="text-base font-medium text-slate-700 dark:text-slate-200">
+              {t('home.noSearchResults')}
+            </p>
+          </div>
+        )}
       </section>
 
       {/* Features / Why Choose Us */}

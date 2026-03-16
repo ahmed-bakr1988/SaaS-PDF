@@ -22,6 +22,9 @@ const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 const PricingPage = lazy(() => import('@/pages/PricingPage'));
 const BlogPage = lazy(() => import('@/pages/BlogPage'));
+const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
+const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
+const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -56,6 +59,19 @@ const ChatPdf = lazy(() => import('@/components/tools/ChatPdf'));
 const SummarizePdf = lazy(() => import('@/components/tools/SummarizePdf'));
 const TranslatePdf = lazy(() => import('@/components/tools/TranslatePdf'));
 const TableExtractor = lazy(() => import('@/components/tools/TableExtractor'));
+
+// Phase 2 lazy imports
+const PdfToPptx = lazy(() => import('@/components/tools/PdfToPptx'));
+const ExcelToPdf = lazy(() => import('@/components/tools/ExcelToPdf'));
+const PptxToPdf = lazy(() => import('@/components/tools/PptxToPdf'));
+const SignPdf = lazy(() => import('@/components/tools/SignPdf'));
+const CropPdf = lazy(() => import('@/components/tools/CropPdf'));
+const FlattenPdf = lazy(() => import('@/components/tools/FlattenPdf'));
+const RepairPdf = lazy(() => import('@/components/tools/RepairPdf'));
+const PdfMetadata = lazy(() => import('@/components/tools/PdfMetadata'));
+const ImageCrop = lazy(() => import('@/components/tools/ImageCrop'));
+const ImageRotateFlip = lazy(() => import('@/components/tools/ImageRotateFlip'));
+const BarcodeGenerator = lazy(() => import('@/components/tools/BarcodeGenerator'));
 
 function LoadingFallback() {
   return (
@@ -98,6 +114,9 @@ export default function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/:slug" element={<BlogPostPage />} />
+            <Route path="/developers" element={<DevelopersPage />} />
+            <Route path="/internal/admin" element={<InternalAdminPage />} />
 
             {/* PDF Tools */}
             <Route path="/tools/pdf-to-word" element={<ToolLandingPage slug="pdf-to-word"><PdfToWord /></ToolLandingPage>} />
@@ -146,6 +165,23 @@ export default function App() {
             {/* Text Tools */}
             <Route path="/tools/word-counter" element={<ToolLandingPage slug="word-counter"><WordCounter /></ToolLandingPage>} />
             <Route path="/tools/text-cleaner" element={<ToolLandingPage slug="text-cleaner"><TextCleaner /></ToolLandingPage>} />
+
+            {/* Phase 2 – PDF Conversion */}
+            <Route path="/tools/pdf-to-pptx" element={<ToolLandingPage slug="pdf-to-pptx"><PdfToPptx /></ToolLandingPage>} />
+            <Route path="/tools/excel-to-pdf" element={<ToolLandingPage slug="excel-to-pdf"><ExcelToPdf /></ToolLandingPage>} />
+            <Route path="/tools/pptx-to-pdf" element={<ToolLandingPage slug="pptx-to-pdf"><PptxToPdf /></ToolLandingPage>} />
+            <Route path="/tools/sign-pdf" element={<ToolLandingPage slug="sign-pdf"><SignPdf /></ToolLandingPage>} />
+
+            {/* Phase 2 – PDF Extra */}
+            <Route path="/tools/crop-pdf" element={<ToolLandingPage slug="crop-pdf"><CropPdf /></ToolLandingPage>} />
+            <Route path="/tools/flatten-pdf" element={<ToolLandingPage slug="flatten-pdf"><FlattenPdf /></ToolLandingPage>} />
+            <Route path="/tools/repair-pdf" element={<ToolLandingPage slug="repair-pdf"><RepairPdf /></ToolLandingPage>} />
+            <Route path="/tools/pdf-metadata" element={<ToolLandingPage slug="pdf-metadata"><PdfMetadata /></ToolLandingPage>} />
+
+            {/* Phase 2 – Image & Utility */}
+            <Route path="/tools/image-crop" element={<ToolLandingPage slug="image-crop"><ImageCrop /></ToolLandingPage>} />
+            <Route path="/tools/image-rotate-flip" element={<ToolLandingPage slug="image-rotate-flip"><ImageRotateFlip /></ToolLandingPage>} />
+            <Route path="/tools/barcode-generator" element={<ToolLandingPage slug="barcode-generator"><BarcodeGenerator /></ToolLandingPage>} />
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />

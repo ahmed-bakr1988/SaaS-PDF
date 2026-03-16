@@ -18,6 +18,9 @@ export const PAGE_ROUTES = [
   '/contact',
   '/pricing',
   '/blog',
+  '/blog/:slug',
+  '/developers',
+  '/internal/admin',
 ] as const;
 
 // ─── Tool routes ─────────────────────────────────────────────────
@@ -63,6 +66,23 @@ export const TOOL_ROUTES = [
   '/tools/video-to-gif',
   '/tools/word-counter',
   '/tools/text-cleaner',
+
+  // Phase 2 – PDF Conversion
+  '/tools/pdf-to-pptx',
+  '/tools/excel-to-pdf',
+  '/tools/pptx-to-pdf',
+  '/tools/sign-pdf',
+
+  // Phase 2 – PDF Extra Tools
+  '/tools/crop-pdf',
+  '/tools/flatten-pdf',
+  '/tools/repair-pdf',
+  '/tools/pdf-metadata',
+
+  // Phase 2 – Image & Utility
+  '/tools/image-crop',
+  '/tools/image-rotate-flip',
+  '/tools/barcode-generator',
 ] as const;
 
 // ─── All routes combined ─────────────────────────────────────────

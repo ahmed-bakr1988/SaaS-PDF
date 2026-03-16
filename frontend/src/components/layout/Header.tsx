@@ -92,6 +92,12 @@ export default function Header() {
           >
             {t('common.account')}
           </Link>
+          <Link
+            to="/developers"
+            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
+          >
+            {t('common.developers')}
+          </Link>
         </nav>
 
         {/* Actions */}
@@ -188,6 +194,13 @@ export default function Header() {
             className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             {user?.email || t('common.account')}
+          </Link>
+          <Link
+            to="/developers"
+            onClick={() => setMobileOpen(false)}
+            className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {t('common.developers')}
           </Link>
         </nav>
       )}

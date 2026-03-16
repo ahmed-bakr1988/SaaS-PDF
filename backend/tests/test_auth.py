@@ -12,6 +12,18 @@ class TestAuthRoutes:
         data = response.get_json()
         assert data['user']['email'] == 'user@example.com'
         assert data['user']['plan'] == 'free'
+        assert data['user']['role'] == 'user'
+
+    def test_register_assigns_admin_role_for_allowlisted_email(self, app, client):
+        app.config['INTERNAL_ADMIN_EMAILS'] = ('admin@example.com',)
+
+        response = client.post(
+            '/api/auth/register',
+            json={'email': 'admin@example.com', 'password': 'secretpass123'},
+        )
+
+        assert response.status_code == 201
+        assert response.get_json()['user']['role'] == 'admin'
 
     def test_register_duplicate_email(self, client):
         client.post(

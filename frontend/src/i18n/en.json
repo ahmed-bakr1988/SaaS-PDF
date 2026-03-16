@@ -17,6 +17,8 @@
     "privacy": "Privacy Policy",
     "terms": "Terms of Service",
     "language": "Language",
+    "search": "Search",
+    "clear": "Clear",
     "allTools": "All Tools",
     "account": "Account",
     "signIn": "Sign In",
@@ -27,6 +29,7 @@
     "contact": "Contact",
     "pricing": "Pricing",
     "blog": "Blog",
+    "developers": "Developers",
     "send": "Send",
     "subject": "Subject",
     "message": "Message",
@@ -121,6 +124,8 @@
     "editNowTooltip": "Open quick PDF optimization for a cleaner downloadable copy",
     "suggestedTools": "Suggested Tools for Your File",
     "suggestedToolsDesc": "After uploading, we automatically show compatible tools: text editing, highlighting, merge/split, compress, convert to Word/image, video to GIF, and more.",
+    "searchToolsPlaceholder": "Search tools by name or use case",
+    "noSearchResults": "No tools matched your search yet. Try a broader term like PDF, image, OCR, or compress.",
     "selectTool": "Choose a Tool",
     "fileDetected": "We detected a {{type}} file",
     "unsupportedFile": "This file type is not supported. Try PDF, Word, images, or video.",
@@ -136,6 +141,17 @@
     "feature2Desc": "Get pixel-perfect, editable files in seconds with zero quality loss.",
     "feature3Title": "Built-in security",
     "feature3Desc": "Access files securely, protected by automatic encryption."
+  },
+  "socialProof": {
+    "badge": "Trusted by active teams",
+    "title": "Live product activity from real processing and ratings",
+    "subtitle": "These numbers come directly from completed tasks and tool feedback across the platform.",
+    "processedFiles": "Files processed",
+    "successRate": "Success rate",
+    "last24h": "Last 24 hours",
+    "averageRating": "Average rating",
+    "basedOnRatings": "Based on {{count}} submitted ratings",
+    "viewDevelopers": "View developer docs"
   },
   "pages": {
     "about": {
@@ -311,14 +327,62 @@
           "q": "What payment methods do you accept?",
           "a": "We accept all major credit/debit cards and PayPal. All payments are securely processed via Stripe."
         }
-      ]
+      ],
+      "trustTitle": "Built for teams that need speed and predictability",
+      "trustSubtitle": "The same platform powers quick browser workflows, recurring account usage, and API-driven document pipelines.",
+      "trustFastTitle": "Fast processing",
+      "trustFastDesc": "Async task handling and optimized workers keep heavy jobs moving without blocking the interface.",
+      "trustPrivateTitle": "Private by default",
+      "trustPrivateDesc": "Uploads are validated, processed securely, and cleaned up automatically after the retention window.",
+      "trustApiTitle": "Ready for integration",
+      "trustApiDesc": "Pro workspaces can generate API keys and connect the same tools to internal automations and client flows."
+    },
+    "developers": {
+      "metaDescription": "Explore the SaaS-PDF developer portal, async API flow, and production-ready endpoints for document automation.",
+      "badge": "Developer Portal",
+      "title": "Build document workflows on top of the SaaS-PDF API",
+      "subtitle": "Use the same conversion, compression, OCR, and AI endpoints behind the web app inside your own systems.",
+      "getApiKey": "Get an API key",
+      "comparePlans": "Compare plans",
+      "openDocs": "Open developer docs",
+      "ctaTitle": "Need API access for repeated document jobs?",
+      "ctaSubtitle": "Move from one-off browser usage to account-based workflows with async endpoints and API keys.",
+      "authExampleTitle": "Example: upload a file",
+      "authExampleSubtitle": "Send a file to a v1 endpoint with your API key and receive a task identifier for async processing.",
+      "pollExampleTitle": "Example: poll task status",
+      "pollExampleSubtitle": "Check the task endpoint until processing finishes, then use the returned download URL.",
+      "endpointsTitle": "Current endpoint groups",
+      "endpointsSubtitle": "These groups reflect real API routes currently available in the backend.",
+      "groupConvert": "Conversions",
+      "groupPdf": "PDF operations",
+      "groupAi": "AI and extraction",
+      "steps": {
+        "createKey": {
+          "title": "Create your key",
+          "description": "Generate a Pro API key from your account workspace so your automation can authenticate securely."
+        },
+        "sendFile": {
+          "title": "Send a file",
+          "description": "Post the source file to the target endpoint and store the returned task ID in your system."
+        },
+        "pollStatus": {
+          "title": "Poll and download",
+          "description": "Track task completion through the status endpoint and download the processed file when ready."
+        }
+      }
     },
     "blog": {
       "metaTitle": "Blog — Tips, Tutorials & Updates",
       "metaDescription": "Learn how to compress, convert, edit, and manage PDF files with our expert guides and tutorials.",
       "title": "Blog",
       "subtitle": "Tips, tutorials, and product updates to help you work smarter.",
+      "searchPlaceholder": "Search articles by topic, tool, or workflow",
       "readMore": "Read more",
+      "backToBlog": "Back to blog",
+      "readTime": "{{count}} min read",
+      "keyTakeaways": "Key takeaways",
+      "featuredTools": "Tools mentioned in this guide",
+      "noResults": "No articles matched your search. Try PDF, OCR, AI, image, or convert.",
       "comingSoon": "More articles coming soon — stay tuned!",
       "posts": {
         "compressPdf": {
@@ -758,6 +822,91 @@
         "processingFailed": "Failed to extract tables. Please try a different PDF.",
         "invalidFile": "Invalid or corrupted PDF file. Please upload a valid PDF."
       }
+    },
+    "pdfToPptx": {
+      "title": "PDF to PowerPoint",
+      "description": "Convert PDF files to PowerPoint (PPTX) presentations. Each page becomes a slide.",
+      "shortDesc": "Convert to PPTX"
+    },
+    "excelToPdf": {
+      "title": "Excel to PDF",
+      "description": "Convert Excel spreadsheets (XLSX, XLS) to PDF documents online.",
+      "shortDesc": "Convert to PDF"
+    },
+    "pptxToPdf": {
+      "title": "PowerPoint to PDF",
+      "description": "Convert PowerPoint presentations (PPTX, PPT) to PDF format.",
+      "shortDesc": "Convert to PDF"
+    },
+    "signPdf": {
+      "title": "Sign PDF",
+      "description": "Add your signature image to any PDF document. Sign PDFs without printing.",
+      "shortDesc": "Sign PDF",
+      "pdfLabel": "PDF Document",
+      "signatureLabel": "Signature Image",
+      "pageLabel": "Page Number"
+    },
+    "cropPdf": {
+      "title": "Crop PDF",
+      "description": "Crop PDF pages by adjusting margins. Remove unwanted whitespace.",
+      "shortDesc": "Crop PDF",
+      "marginsLabel": "Margins to trim (points)",
+      "top": "Top",
+      "bottom": "Bottom",
+      "left": "Left",
+      "right": "Right"
+    },
+    "flattenPdf": {
+      "title": "Flatten PDF",
+      "description": "Flatten PDF forms and annotations. Convert interactive fields to fixed content.",
+      "shortDesc": "Flatten PDF"
+    },
+    "repairPdf": {
+      "title": "Repair PDF",
+      "description": "Repair corrupted or damaged PDF files. Fix broken documents and recover content.",
+      "shortDesc": "Repair PDF"
+    },
+    "pdfMetadata": {
+      "title": "PDF Metadata Editor",
+      "description": "View and edit PDF metadata including title, author, subject, and keywords.",
+      "shortDesc": "Edit Metadata",
+      "titleField": "Title",
+      "titlePlaceholder": "Document title",
+      "author": "Author",
+      "authorPlaceholder": "Author name",
+      "subject": "Subject",
+      "subjectPlaceholder": "Document subject",
+      "keywords": "Keywords",
+      "keywordsPlaceholder": "keyword1, keyword2, ...",
+      "creator": "Creator",
+      "creatorPlaceholder": "Application name"
+    },
+    "imageCrop": {
+      "title": "Crop Image",
+      "description": "Crop images online by specifying exact pixel coordinates.",
+      "shortDesc": "Crop Image",
+      "coordsLabel": "Crop coordinates (pixels)",
+      "left": "Left",
+      "top": "Top",
+      "right": "Right",
+      "bottom": "Bottom"
+    },
+    "imageRotateFlip": {
+      "title": "Rotate & Flip Image",
+      "description": "Rotate images by 90°, 180°, or 270° and flip horizontally or vertically.",
+      "shortDesc": "Transform Image",
+      "rotationLabel": "Rotation",
+      "flipHorizontal": "Flip Horizontal",
+      "flipVertical": "Flip Vertical"
+    },
+    "barcode": {
+      "title": "Barcode Generator",
+      "description": "Generate barcodes in various formats: Code128, EAN-13, UPC-A, ISBN, and more.",
+      "shortDesc": "Generate Barcode",
+      "dataLabel": "Barcode Data",
+      "dataPlaceholder": "Enter data to encode...",
+      "typeLabel": "Barcode Type",
+      "formatLabel": "Output Format"
     }
   },
   "account": {
@@ -805,6 +954,24 @@
     "historySubtitle": "Completed and failed tasks tied to your account appear here automatically.",
     "historyLoading": "Loading recent activity...",
     "historyEmpty": "No file history yet. Process a file while signed in and it will appear here.",
+    "dashboardTitle": "Workspace overview",
+    "dashboardSubtitle": "A quick view of your recent processing patterns, failures, and next setup steps.",
+    "metricProcessed": "Processed files",
+    "metricSuccessRate": "Success rate",
+    "metricFavoriteTool": "Most used tool",
+    "metricFavoriteToolEmpty": "No activity yet",
+    "metricFailures": "Failed tasks",
+    "topToolsTitle": "Top tools",
+    "issuesTitle": "Recent issues",
+    "issuesEmpty": "No recent failures. Your latest runs completed successfully.",
+    "onboardingTitle": "Next steps",
+    "onboardingSubtitle": "Use this checklist to turn a new account into a repeatable workflow.",
+    "onboardingFirstTaskTitle": "Complete your first signed-in task",
+    "onboardingFirstTaskDesc": "Process at least one file while logged in so your workspace history and metrics start filling in.",
+    "onboardingUpgradeTitle": "Decide if you need Pro limits",
+    "onboardingUpgradeDesc": "Upgrade when you need higher quotas, API access, or a cleaner team workflow.",
+    "onboardingApiTitle": "Create an API key",
+    "onboardingApiDesc": "Pro users can generate API keys to connect document processing to internal tools or customer flows.",
     "downloadResult": "Download Result",
     "createdAt": "Created",
     "originalFile": "Original file",
@@ -1187,6 +1354,116 @@
         {"q": "What does the text cleaner do?", "a": "It removes extra spaces, normalizes whitespace, converts text case, and cleans up formatting issues common when copying text from various sources."},
         {"q": "Can I convert text to uppercase?", "a": "Yes, you can convert to uppercase, lowercase, title case, or sentence case with a single click."},
         {"q": "Does it support Arabic text?", "a": "Yes, it includes a special option to remove Arabic diacritics (tashkeel/harakat) from text."}
+      ]
+    },
+    "pdfToPptx": {
+      "whatItDoes": "Convert PDF files to PowerPoint presentations. Each page is rendered as a high-quality slide image, preserving the visual layout perfectly.",
+      "howToUse": ["Upload your PDF file.", "Wait for the conversion to process.", "Download your PPTX presentation."],
+      "benefits": ["Each PDF page becomes a slide", "High-quality image rendering", "No software required", "Fast and free"],
+      "useCases": ["Turning reports into presentation slides", "Repurposing PDF content for meetings", "Creating editable presentations from static documents"],
+      "faq": [
+        {"q": "How does PDF to PowerPoint conversion work?", "a": "Each PDF page is rendered as a high-quality image and placed on its own PowerPoint slide."},
+        {"q": "Can I edit the text in the resulting slides?", "a": "The slides contain page images. For text editing, convert to Word first."}
+      ]
+    },
+    "excelToPdf": {
+      "whatItDoes": "Convert Excel spreadsheets to PDF documents while preserving table formatting, fonts, and layout.",
+      "howToUse": ["Upload your XLSX or XLS file.", "Wait for the conversion.", "Download the PDF."],
+      "benefits": ["Supports XLSX and XLS", "Preserves table formatting", "Uses LibreOffice for accuracy", "Free and instant"],
+      "useCases": ["Sharing spreadsheets as non-editable PDFs", "Creating printable versions of reports", "Archiving financial documents"],
+      "faq": [
+        {"q": "Which Excel formats are supported?", "a": "Both modern XLSX and legacy XLS formats are fully supported."},
+        {"q": "Are charts preserved?", "a": "Yes, charts and formatting are preserved in the PDF output."}
+      ]
+    },
+    "pptxToPdf": {
+      "whatItDoes": "Convert PowerPoint presentations to PDF format for easy sharing and printing. Preserves slide layout and graphics.",
+      "howToUse": ["Upload your PPTX or PPT file.", "Wait for the conversion to complete.", "Download the PDF."],
+      "benefits": ["Supports PPTX and PPT", "Preserves slide layout", "Great for sharing", "No account needed"],
+      "useCases": ["Sharing presentations as PDFs", "Creating print-ready slide decks", "Archiving presentations"],
+      "faq": [
+        {"q": "Are slide transitions preserved?", "a": "PDF is static, so transitions and animations are not included, but all visual content is preserved."},
+        {"q": "Can I convert PPT files too?", "a": "Yes, both PPTX and legacy PPT formats are supported."}
+      ]
+    },
+    "signPdf": {
+      "whatItDoes": "Add your signature image to PDF documents without printing. Upload a signature image and place it on any page.",
+      "howToUse": ["Upload your PDF document.", "Upload your signature image (PNG or JPG).", "Choose the page number.", "Download the signed PDF."],
+      "benefits": ["No printing or scanning needed", "Supports PNG and JPG signatures", "Place on any page", "Secure processing"],
+      "useCases": ["Signing contracts electronically", "Adding approval signatures to documents", "Signing forms without printing"],
+      "faq": [
+        {"q": "Is this a legal electronic signature?", "a": "This places a visual signature image. For legally binding digital signatures, certificate-based solutions may be required."},
+        {"q": "What image formats work for signatures?", "a": "PNG (recommended for transparency) and JPG formats are supported."}
+      ]
+    },
+    "cropPdf": {
+      "whatItDoes": "Crop PDF pages by adjusting margins. Remove unwanted whitespace and trim documents to the desired size.",
+      "howToUse": ["Upload your PDF.", "Set margin values for each side.", "Download the cropped PDF."],
+      "benefits": ["Precise margin control", "Trim all pages at once", "Remove unwanted whitespace", "Free and fast"],
+      "useCases": ["Removing wide margins from scanned documents", "Trimming PDFs for better screen reading", "Adjusting page sizes for printing"],
+      "faq": [
+        {"q": "What units are the margins in?", "a": "Margins are specified in PDF points (1 point = 1/72 inch)."},
+        {"q": "Can I crop specific pages only?", "a": "Currently all pages are cropped with the same margins."}
+      ]
+    },
+    "flattenPdf": {
+      "whatItDoes": "Flatten PDF forms and annotations, converting interactive elements into static content that cannot be edited.",
+      "howToUse": ["Upload your PDF with forms or annotations.", "The tool flattens all interactive elements.", "Download the flattened PDF."],
+      "benefits": ["Remove form field interactivity", "Flatten annotations", "Prevent further editing", "Ideal for archiving"],
+      "useCases": ["Archiving filled forms", "Sending completed forms securely", "Reducing file complexity"],
+      "faq": [
+        {"q": "What does flattening mean?", "a": "Flattening converts interactive elements like form fields and annotations into permanent, non-editable content."},
+        {"q": "Can I undo flattening?", "a": "No, flattening is permanent. Keep a backup of the original file."}
+      ]
+    },
+    "repairPdf": {
+      "whatItDoes": "Repair corrupted or damaged PDF files by re-writing the document structure and recovering readable pages.",
+      "howToUse": ["Upload your corrupted PDF.", "The tool attempts to fix the document.", "Download the repaired PDF."],
+      "benefits": ["Fix broken PDF structures", "Recover readable content", "Re-write clean output", "Free to use"],
+      "useCases": ["Recovering damaged PDFs from old storage", "Fixing PDFs that won't open", "Repairing partially downloaded files"],
+      "faq": [
+        {"q": "Can it fix any broken PDF?", "a": "The tool recovers as many pages as possible. Severely corrupted files may only be partially recoverable."},
+        {"q": "Will the repaired file look the same?", "a": "In most cases yes, though some complex elements may be simplified during repair."}
+      ]
+    },
+    "pdfMetadata": {
+      "whatItDoes": "View and edit PDF document properties including title, author, subject, keywords, and creator information.",
+      "howToUse": ["Upload your PDF.", "Fill in the metadata fields you want to change.", "Download the updated PDF."],
+      "benefits": ["Edit title, author, and more", "Improve document searchability", "Clean up document properties", "No software needed"],
+      "useCases": ["Setting proper titles for document management", "Adding author information", "Preparing PDFs for archival systems"],
+      "faq": [
+        {"q": "What is PDF metadata?", "a": "Metadata includes document properties like title, author, and keywords that help organize and search PDFs."},
+        {"q": "Can I remove all metadata?", "a": "Yes, leave all fields blank to clear existing metadata."}
+      ]
+    },
+    "imageCrop": {
+      "whatItDoes": "Crop images by specifying exact pixel coordinates. Supports PNG, JPG, and WebP formats.",
+      "howToUse": ["Upload your image.", "Enter crop coordinates (left, top, right, bottom).", "Download the cropped image."],
+      "benefits": ["Precise pixel-level cropping", "Supports PNG, JPG, WebP", "High-quality output", "No watermarks"],
+      "useCases": ["Trimming product photos", "Removing unwanted borders", "Creating thumbnails"],
+      "faq": [
+        {"q": "How do coordinates work?", "a": "Left and top define the starting point, right and bottom define the ending point of the crop area in pixels."},
+        {"q": "What formats are supported?", "a": "PNG, JPG/JPEG, and WebP are supported."}
+      ]
+    },
+    "imageRotateFlip": {
+      "whatItDoes": "Rotate images by 90°, 180°, or 270° and flip them horizontally or vertically. Combine operations in one step.",
+      "howToUse": ["Upload your image.", "Choose rotation angle and flip options.", "Download the transformed image."],
+      "benefits": ["Rotate by 90°, 180°, or 270°", "Flip horizontal or vertical", "Combine operations", "Supports multiple formats"],
+      "useCases": ["Fixing photo orientation", "Creating mirror images", "Adjusting scanned document rotation"],
+      "faq": [
+        {"q": "Can I combine rotation and flip?", "a": "Yes, rotation and flip are applied together in a single operation."},
+        {"q": "Does rotation affect quality?", "a": "Rotation is lossless for PNG. JPG quality is preserved as closely as possible."}
+      ]
+    },
+    "barcode": {
+      "whatItDoes": "Generate barcodes in various formats including Code128, Code39, EAN-13, UPC-A, ISBN, and more. Download as PNG or SVG.",
+      "howToUse": ["Enter the data to encode.", "Select a barcode type.", "Choose output format (PNG or SVG).", "Generate and download your barcode."],
+      "benefits": ["Multiple barcode formats", "PNG and SVG output", "Instant generation", "Free and unlimited"],
+      "useCases": ["Generating product barcodes", "Creating inventory labels", "Producing ISBN barcodes for books"],
+      "faq": [
+        {"q": "What barcode formats are available?", "a": "Code128, Code39, EAN-13, EAN-8, UPC-A, ISBN-13, ISBN-10, ISSN, and PZN."},
+        {"q": "What is the difference from a QR code?", "a": "Barcodes are linear (1D) with less data capacity. QR codes are 2D and store more information."}
       ]
     }
   }

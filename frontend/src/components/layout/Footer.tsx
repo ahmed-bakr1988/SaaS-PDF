@@ -111,6 +111,12 @@ export default function Footer() {
               >
                 {t('common.blog')}
               </Link>
+              <Link
+                to="/developers"
+                className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
+              >
+                {t('common.developers')}
+              </Link>
             </div>
           </div>
         </div>

@@ -30,10 +30,44 @@ export default defineConfig({
     cssMinify: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          i18n: ['i18next', 'react-i18next'],
-          helmet: ['react-helmet-async'],
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+
+          if (
+            id.includes('react-dom') ||
+            id.includes('react-router-dom') ||
+            id.includes('/react/')
+          ) {
+            return 'vendor';
+          }
+
+          if (id.includes('i18next') || id.includes('react-i18next')) {
+            return 'i18n';
+          }
+
+          if (id.includes('react-helmet-async')) {
+            return 'helmet';
+          }
+
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
+
+          if (id.includes('/axios/')) {
+            return 'network';
+          }
+
+          if (id.includes('/pdf-lib/')) {
+            return 'pdf-core';
+          }
+
+          if (id.includes('/fabric/')) {
+            return 'editor';
+          }
+
+          return undefined;
         },
       },
     },

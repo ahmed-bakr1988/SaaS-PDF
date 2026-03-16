@@ -1,0 +1,8 @@
+ImportError while loading conftest 'C:\xampp\htdocs\SaaS-PDF\backend\tests\conftest.py'.
+tests\conftest.py:7: in <module>
+    from app import create_app
+app\__init__.py:13: in <module>
+    from app.services.stripe_service import init_stripe_db
+app\services\stripe_service.py:5: in <module>
+    import stripe
+E   ModuleNotFoundError: No module named 'stripe'

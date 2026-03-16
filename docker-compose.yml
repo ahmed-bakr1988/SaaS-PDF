@@ -114,6 +114,8 @@ services:
       - VITE_FEATURE_EDITOR=${VITE_FEATURE_EDITOR:-true}
       - VITE_FEATURE_OCR=${VITE_FEATURE_OCR:-true}
       - VITE_FEATURE_REMOVEBG=${VITE_FEATURE_REMOVEBG:-true}
+      - VITE_SITE_DOMAIN=${VITE_SITE_DOMAIN:-}
+      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN:-}
 
   # --- Nginx Reverse Proxy ---
   nginx:

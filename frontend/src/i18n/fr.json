@@ -17,6 +17,8 @@
     "privacy": "Politique de confidentialité",
     "terms": "Conditions d'utilisation",
     "language": "Langue",
+    "search": "Rechercher",
+    "clear": "Effacer",
     "allTools": "Tous les outils",
     "account": "Compte",
     "signIn": "Se connecter",
@@ -27,6 +29,7 @@
     "contact": "Contact",
     "pricing": "Tarifs",
     "blog": "Blog",
+    "developers": "Développeurs",
     "send": "Envoyer",
     "subject": "Sujet",
     "message": "Message",
@@ -121,6 +124,8 @@
     "editNowTooltip": "Ouvrir l'optimiseur PDF rapide pour générer une copie propre téléchargeable",
     "suggestedTools": "Outils suggérés pour votre fichier",
     "suggestedToolsDesc": "Après le téléchargement, nous affichons automatiquement les outils compatibles : édition de texte, surlignage, fusion/division, compression, conversion en Word/image, vidéo en GIF, et plus.",
+    "searchToolsPlaceholder": "Rechercher un outil par nom ou usage",
+    "noSearchResults": "Aucun outil ne correspond encore à votre recherche. Essayez un terme plus large comme PDF, image, OCR ou compression.",
     "selectTool": "Choisir un outil",
     "fileDetected": "Nous avons détecté un fichier {{type}}",
     "unsupportedFile": "Ce type de fichier n'est pas pris en charge. Essayez PDF, Word, images ou vidéo.",
@@ -136,6 +141,17 @@
     "feature2Desc": "Obtenez des fichiers parfaits et modifiables en quelques secondes sans perte de qualité.",
     "feature3Title": "Sécurité intégrée",
     "feature3Desc": "Accédez aux fichiers en toute sécurité, protégés par un cryptage automatique."
+  },
+  "socialProof": {
+    "badge": "Adopté par des équipes actives",
+    "title": "Une activité produit réelle issue des traitements et des avis",
+    "subtitle": "Ces chiffres proviennent directement des tâches terminées et des retours sur les outils dans toute la plateforme.",
+    "processedFiles": "Fichiers traités",
+    "successRate": "Taux de réussite",
+    "last24h": "Dernières 24 h",
+    "averageRating": "Note moyenne",
+    "basedOnRatings": "Basé sur {{count}} avis envoyés",
+    "viewDevelopers": "Voir la documentation développeur"
   },
   "pages": {
     "about": {
@@ -311,14 +327,62 @@
           "q": "Quels moyens de paiement acceptez-vous ?",
           "a": "Nous acceptons toutes les cartes de crédit/débit principales et PayPal. Tous les paiements sont traités de manière sécurisée via Stripe."
         }
-      ]
+      ],
+      "trustTitle": "Conçu pour les équipes qui ont besoin de vitesse et de prévisibilité",
+      "trustSubtitle": "La même plateforme prend en charge les usages rapides dans le navigateur, les workflows récurrents liés au compte et les pipelines documentaires via API.",
+      "trustFastTitle": "Traitement rapide",
+      "trustFastDesc": "Les tâches asynchrones et les workers optimisés permettent aux traitements lourds d'avancer sans bloquer l'interface.",
+      "trustPrivateTitle": "Privé par défaut",
+      "trustPrivateDesc": "Les fichiers sont validés, traités de manière sécurisée puis supprimés automatiquement après la fenêtre de rétention.",
+      "trustApiTitle": "Prêt pour l'intégration",
+      "trustApiDesc": "Les espaces Pro peuvent générer des clés API et connecter les mêmes outils à des automatisations internes ou à des parcours clients."
+    },
+    "developers": {
+      "metaDescription": "Explorez le portail développeur SaaS-PDF, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
+      "badge": "Portail développeur",
+      "title": "Construisez des workflows documentaires sur l'API SaaS-PDF",
+      "subtitle": "Utilisez dans vos propres systèmes les mêmes endpoints de conversion, compression, OCR et IA que ceux de l'application web.",
+      "getApiKey": "Obtenir une clé API",
+      "comparePlans": "Comparer les forfaits",
+      "openDocs": "Ouvrir la documentation développeur",
+      "ctaTitle": "Besoin d'un accès API pour des traitements documentaires récurrents ?",
+      "ctaSubtitle": "Passez d'un usage ponctuel dans le navigateur à des workflows basés sur un compte avec endpoints asynchrones et clés API.",
+      "authExampleTitle": "Exemple : envoyer un fichier",
+      "authExampleSubtitle": "Envoyez un fichier à un endpoint v1 avec votre clé API et récupérez un identifiant de tâche pour le traitement asynchrone.",
+      "pollExampleTitle": "Exemple : interroger l'état d'une tâche",
+      "pollExampleSubtitle": "Vérifiez l'endpoint d'état jusqu'à la fin du traitement, puis utilisez l'URL de téléchargement renvoyée.",
+      "endpointsTitle": "Groupes d'endpoints actuels",
+      "endpointsSubtitle": "Ces groupes reflètent les routes API réellement disponibles aujourd'hui dans le backend.",
+      "groupConvert": "Conversions",
+      "groupPdf": "Opérations PDF",
+      "groupAi": "IA et extraction",
+      "steps": {
+        "createKey": {
+          "title": "Créez votre clé",
+          "description": "Générez une clé API Pro depuis votre espace compte afin que votre automatisation puisse s'authentifier de façon sécurisée."
+        },
+        "sendFile": {
+          "title": "Envoyez un fichier",
+          "description": "Postez le fichier source vers l'endpoint cible et enregistrez l'identifiant de tâche retourné dans votre système."
+        },
+        "pollStatus": {
+          "title": "Vérifiez puis téléchargez",
+          "description": "Suivez la progression via l'endpoint d'état puis téléchargez le fichier traité dès qu'il est prêt."
+        }
+      }
     },
     "blog": {
       "metaTitle": "Blog — Conseils, tutoriels et mises à jour",
       "metaDescription": "Apprenez à compresser, convertir, éditer et gérer des fichiers PDF avec nos guides et tutoriels experts.",
       "title": "Blog",
       "subtitle": "Conseils, tutoriels et mises à jour produit pour vous aider à travailler plus intelligemment.",
+      "searchPlaceholder": "Rechercher des articles par sujet, outil ou workflow",
       "readMore": "Lire la suite",
+      "backToBlog": "Retour au blog",
+      "readTime": "{{count}} min de lecture",
+      "keyTakeaways": "À retenir",
+      "featuredTools": "Outils mentionnés dans ce guide",
+      "noResults": "Aucun article ne correspond à votre recherche. Essayez PDF, OCR, IA, image ou conversion.",
       "comingSoon": "D'autres articles arrivent bientôt — restez connecté !",
       "posts": {
         "compressPdf": {
@@ -758,6 +822,91 @@
         "processingFailed": "Échec de l'extraction des tableaux. Veuillez essayer un autre PDF.",
         "invalidFile": "Fichier PDF invalide ou corrompu. Veuillez télécharger un PDF valide."
       }
+    },
+    "pdfToPptx": {
+      "title": "PDF vers PowerPoint",
+      "description": "Convertissez des fichiers PDF en présentations PowerPoint (PPTX). Chaque page devient une diapositive.",
+      "shortDesc": "Convertir en PPTX"
+    },
+    "excelToPdf": {
+      "title": "Excel vers PDF",
+      "description": "Convertissez des feuilles de calcul Excel (XLSX, XLS) en documents PDF.",
+      "shortDesc": "Convertir en PDF"
+    },
+    "pptxToPdf": {
+      "title": "PowerPoint vers PDF",
+      "description": "Convertissez des présentations PowerPoint (PPTX, PPT) au format PDF.",
+      "shortDesc": "Convertir en PDF"
+    },
+    "signPdf": {
+      "title": "Signer un PDF",
+      "description": "Ajoutez votre image de signature à n'importe quel document PDF. Signez sans imprimer.",
+      "shortDesc": "Signer le PDF",
+      "pdfLabel": "Document PDF",
+      "signatureLabel": "Image de signature",
+      "pageLabel": "Numéro de page"
+    },
+    "cropPdf": {
+      "title": "Rogner un PDF",
+      "description": "Rognez les pages PDF en ajustant les marges. Supprimez les espaces blancs indésirables.",
+      "shortDesc": "Rogner le PDF",
+      "marginsLabel": "Marges à rogner (points)",
+      "top": "Haut",
+      "bottom": "Bas",
+      "left": "Gauche",
+      "right": "Droite"
+    },
+    "flattenPdf": {
+      "title": "Aplatir un PDF",
+      "description": "Aplatissez les formulaires et annotations PDF. Convertissez les champs interactifs en contenu fixe.",
+      "shortDesc": "Aplatir le PDF"
+    },
+    "repairPdf": {
+      "title": "Réparer un PDF",
+      "description": "Réparez les fichiers PDF corrompus ou endommagés. Récupérez le contenu lisible.",
+      "shortDesc": "Réparer le PDF"
+    },
+    "pdfMetadata": {
+      "title": "Éditeur de métadonnées PDF",
+      "description": "Affichez et modifiez les métadonnées PDF : titre, auteur, sujet et mots-clés.",
+      "shortDesc": "Modifier les métadonnées",
+      "titleField": "Titre",
+      "titlePlaceholder": "Titre du document",
+      "author": "Auteur",
+      "authorPlaceholder": "Nom de l'auteur",
+      "subject": "Sujet",
+      "subjectPlaceholder": "Sujet du document",
+      "keywords": "Mots-clés",
+      "keywordsPlaceholder": "mot1, mot2, ...",
+      "creator": "Créateur",
+      "creatorPlaceholder": "Nom de l'application"
+    },
+    "imageCrop": {
+      "title": "Rogner une image",
+      "description": "Rognez des images en spécifiant les coordonnées exactes en pixels.",
+      "shortDesc": "Rogner l'image",
+      "coordsLabel": "Coordonnées de rognage (pixels)",
+      "left": "Gauche",
+      "top": "Haut",
+      "right": "Droite",
+      "bottom": "Bas"
+    },
+    "imageRotateFlip": {
+      "title": "Rotation et retournement d'image",
+      "description": "Faites pivoter les images de 90°, 180° ou 270° et retournez-les horizontalement ou verticalement.",
+      "shortDesc": "Transformer l'image",
+      "rotationLabel": "Rotation",
+      "flipHorizontal": "Retournement horizontal",
+      "flipVertical": "Retournement vertical"
+    },
+    "barcode": {
+      "title": "Générateur de code-barres",
+      "description": "Générez des codes-barres en plusieurs formats : Code128, EAN-13, UPC-A, ISBN et plus.",
+      "shortDesc": "Générer un code-barres",
+      "dataLabel": "Données du code-barres",
+      "dataPlaceholder": "Entrez les données à encoder...",
+      "typeLabel": "Type de code-barres",
+      "formatLabel": "Format de sortie"
     }
   },
   "account": {
@@ -805,6 +954,24 @@
     "historySubtitle": "Les tâches réussies et échouées liées à votre compte apparaissent ici automatiquement.",
     "historyLoading": "Chargement de l'activité récente...",
     "historyEmpty": "Aucun historique pour l'instant. Traitez un fichier en étant connecté et il apparaîtra ici.",
+    "dashboardTitle": "Vue d'ensemble de l'espace",
+    "dashboardSubtitle": "Un aperçu rapide de vos usages récents, des échecs et des prochaines étapes de configuration.",
+    "metricProcessed": "Fichiers traités",
+    "metricSuccessRate": "Taux de réussite",
+    "metricFavoriteTool": "Outil le plus utilisé",
+    "metricFavoriteToolEmpty": "Aucune activité pour le moment",
+    "metricFailures": "Tâches en échec",
+    "topToolsTitle": "Outils les plus utilisés",
+    "issuesTitle": "Problèmes récents",
+    "issuesEmpty": "Aucun échec récent. Vos derniers traitements se sont terminés avec succès.",
+    "onboardingTitle": "Étapes suivantes",
+    "onboardingSubtitle": "Utilisez cette checklist pour transformer un nouveau compte en workflow réutilisable.",
+    "onboardingFirstTaskTitle": "Terminez votre première tâche connectée",
+    "onboardingFirstTaskDesc": "Traitez au moins un fichier en étant connecté pour commencer à alimenter l'historique et les indicateurs de votre espace.",
+    "onboardingUpgradeTitle": "Évaluez si vous avez besoin de Pro",
+    "onboardingUpgradeDesc": "Passez à Pro si vous avez besoin de quotas plus élevés, d'un accès API ou d'un workflow d'équipe plus propre.",
+    "onboardingApiTitle": "Créez une clé API",
+    "onboardingApiDesc": "Les utilisateurs Pro peuvent générer des clés API pour relier le traitement documentaire à des outils internes ou à des parcours clients.",
     "downloadResult": "Télécharger le résultat",
     "createdAt": "Créé le",
     "originalFile": "Fichier source",
@@ -1187,6 +1354,86 @@
         {"q": "Que fait le nettoyeur de texte ?", "a": "Il supprime les espaces en excès, normalise les espaces blancs, convertit la casse du texte et nettoie les problèmes de mise en forme courants lors de la copie de texte de différentes sources."},
         {"q": "Puis-je convertir le texte en majuscules ?", "a": "Oui, vous pouvez convertir en majuscules, minuscules, casse de titre ou casse de phrase en un clic."},
         {"q": "Est-ce que ça prend en charge le texte arabe ?", "a": "Oui, il inclut une option spéciale pour supprimer les diacritiques arabes (tachkil) du texte."}
+      ]
+    },
+    "pdfToPptx": {
+      "whatItDoes": "Convertissez des fichiers PDF en présentations PowerPoint. Chaque page est rendue comme une image haute qualité sur une diapositive séparée.",
+      "howToUse": ["Téléchargez votre fichier PDF.", "Attendez la fin de la conversion.", "Téléchargez votre présentation PPTX."],
+      "benefits": ["Chaque page devient une diapositive", "Rendu d'images haute qualité", "Aucun logiciel requis", "Rapide et gratuit"],
+      "useCases": ["Transformer des rapports en diapositives de présentation", "Réutiliser le contenu PDF pour des réunions"],
+      "faq": [{"q": "Comment fonctionne la conversion PDF vers PowerPoint ?", "a": "Chaque page PDF est rendue comme image haute qualité et placée sur sa propre diapositive PowerPoint."}]
+    },
+    "excelToPdf": {
+      "whatItDoes": "Convertissez des feuilles de calcul Excel en documents PDF en préservant le formatage des tableaux.",
+      "howToUse": ["Téléchargez votre fichier XLSX ou XLS.", "Attendez la conversion.", "Téléchargez le PDF."],
+      "benefits": ["Supporte XLSX et XLS", "Préserve le formatage", "Haute précision", "Gratuit et instantané"],
+      "useCases": ["Partager des feuilles de calcul en PDF non modifiables", "Créer des versions imprimables"],
+      "faq": [{"q": "Quels formats Excel sont supportés ?", "a": "Les formats XLSX moderne et XLS hérité sont entièrement supportés."}]
+    },
+    "pptxToPdf": {
+      "whatItDoes": "Convertissez des présentations PowerPoint en format PDF pour un partage et une impression faciles.",
+      "howToUse": ["Téléchargez votre fichier PPTX ou PPT.", "Attendez la conversion.", "Téléchargez le PDF."],
+      "benefits": ["Supporte PPTX et PPT", "Préserve la mise en page des diapositives", "Idéal pour le partage", "Aucun compte nécessaire"],
+      "useCases": ["Partager des présentations en PDF", "Créer des dossiers de diapositives prêts à imprimer"],
+      "faq": [{"q": "Les transitions sont-elles préservées ?", "a": "Le PDF est un format statique, donc les transitions et animations ne sont pas incluses, mais tout le contenu visuel est préservé."}]
+    },
+    "signPdf": {
+      "whatItDoes": "Ajoutez votre image de signature à des documents PDF sans imprimer.",
+      "howToUse": ["Téléchargez votre document PDF.", "Téléchargez votre image de signature (PNG ou JPG).", "Choisissez le numéro de page.", "Téléchargez le PDF signé."],
+      "benefits": ["Pas d'impression ni de numérisation", "Supporte PNG et JPG", "Placez sur n'importe quelle page", "Traitement sécurisé"],
+      "useCases": ["Signer des contrats électroniquement", "Ajouter des signatures d'approbation"],
+      "faq": [{"q": "Est-ce une signature électronique légale ?", "a": "Cela place une image de signature visuelle. Pour des signatures numériques juridiquement contraignantes, des solutions basées sur des certificats peuvent être nécessaires."}]
+    },
+    "cropPdf": {
+      "whatItDoes": "Rognez les pages PDF en ajustant les marges. Supprimez les espaces blancs indésirables.",
+      "howToUse": ["Téléchargez votre PDF.", "Définissez les valeurs de marge.", "Téléchargez le PDF rogné."],
+      "benefits": ["Contrôle précis des marges", "Rogner toutes les pages", "Supprimer les espaces blancs", "Gratuit et rapide"],
+      "useCases": ["Supprimer les grandes marges", "Ajuster les tailles de page"],
+      "faq": [{"q": "Quelles sont les unités des marges ?", "a": "Les marges sont spécifiées en points PDF (1 point = 1/72 pouce)."}]
+    },
+    "flattenPdf": {
+      "whatItDoes": "Aplatissez les formulaires et annotations PDF, convertissant les éléments interactifs en contenu statique.",
+      "howToUse": ["Téléchargez votre PDF avec formulaires ou annotations.", "L'outil aplatit tous les éléments interactifs.", "Téléchargez le PDF aplati."],
+      "benefits": ["Supprimer l'interactivité des formulaires", "Aplatir les annotations", "Empêcher la modification", "Idéal pour l'archivage"],
+      "useCases": ["Archiver des formulaires remplis", "Envoyer des formulaires complétés en toute sécurité"],
+      "faq": [{"q": "Que signifie aplatir ?", "a": "L'aplatissement convertit les éléments interactifs en contenu permanent non modifiable."}]
+    },
+    "repairPdf": {
+      "whatItDoes": "Réparez les fichiers PDF corrompus en réécrivant la structure du document.",
+      "howToUse": ["Téléchargez votre PDF corrompu.", "L'outil tente de réparer le document.", "Téléchargez le PDF réparé."],
+      "benefits": ["Réparer les structures PDF cassées", "Récupérer le contenu", "Sortie propre", "Gratuit"],
+      "useCases": ["Récupérer des PDF endommagés", "Réparer des fichiers qui ne s'ouvrent pas"],
+      "faq": [{"q": "Peut-il réparer n'importe quel PDF cassé ?", "a": "L'outil récupère autant de pages que possible. Les fichiers gravement corrompus peuvent n'être que partiellement récupérables."}]
+    },
+    "pdfMetadata": {
+      "whatItDoes": "Affichez et modifiez les propriétés du document PDF : titre, auteur, sujet et mots-clés.",
+      "howToUse": ["Téléchargez votre PDF.", "Remplissez les champs de métadonnées.", "Téléchargez le PDF mis à jour."],
+      "benefits": ["Modifier le titre, l'auteur et plus", "Améliorer la recherchabilité", "Nettoyer les propriétés", "Aucun logiciel nécessaire"],
+      "useCases": ["Définir des titres appropriés pour la gestion documentaire", "Ajouter des informations d'auteur"],
+      "faq": [{"q": "Que sont les métadonnées PDF ?", "a": "Les métadonnées incluent les propriétés du document comme le titre, l'auteur et les mots-clés qui aident à organiser et rechercher les PDF."}]
+    },
+    "imageCrop": {
+      "whatItDoes": "Rognez des images en spécifiant des coordonnées exactes en pixels. Supporte PNG, JPG et WebP.",
+      "howToUse": ["Téléchargez votre image.", "Entrez les coordonnées de rognage.", "Téléchargez l'image rognée."],
+      "benefits": ["Rognage précis au pixel", "Supporte PNG, JPG, WebP", "Sortie haute qualité", "Sans filigrane"],
+      "useCases": ["Rogner des photos de produits", "Supprimer les bordures indésirables"],
+      "faq": [{"q": "Comment fonctionnent les coordonnées ?", "a": "Gauche et haut définissent le point de départ, droite et bas définissent le point de fin de la zone de rognage en pixels."}]
+    },
+    "imageRotateFlip": {
+      "whatItDoes": "Faites pivoter les images de 90°, 180° ou 270° et retournez-les horizontalement ou verticalement.",
+      "howToUse": ["Téléchargez votre image.", "Choisissez l'angle de rotation et les options de retournement.", "Téléchargez l'image transformée."],
+      "benefits": ["Rotation de 90°, 180° ou 270°", "Retournement horizontal ou vertical", "Combiner les opérations", "Supporte plusieurs formats"],
+      "useCases": ["Corriger l'orientation des photos", "Créer des images miroir"],
+      "faq": [{"q": "Puis-je combiner rotation et retournement ?", "a": "Oui, la rotation et le retournement sont appliqués ensemble en une seule opération."}]
+    },
+    "barcode": {
+      "whatItDoes": "Générez des codes-barres en plusieurs formats : Code128, Code39, EAN-13, UPC-A, ISBN et plus. Téléchargez en PNG ou SVG.",
+      "howToUse": ["Entrez les données à encoder.", "Sélectionnez un type de code-barres.", "Choisissez le format de sortie (PNG ou SVG).", "Générez et téléchargez votre code-barres."],
+      "benefits": ["Plusieurs formats de code-barres", "Sortie PNG et SVG", "Génération instantanée", "Gratuit et illimité"],
+      "useCases": ["Générer des codes-barres de produits", "Créer des étiquettes d'inventaire", "Produire des codes-barres ISBN pour les livres"],
+      "faq": [
+        {"q": "Quels formats de code-barres sont disponibles ?", "a": "Code128, Code39, EAN-13, EAN-8, UPC-A, ISBN-13, ISBN-10, ISSN et PZN."},
+        {"q": "Quelle est la différence avec un code QR ?", "a": "Les codes-barres sont linéaires (1D) avec moins de capacité de données. Les codes QR sont bidimensionnels (2D) et stockent plus d'informations."}
       ]
     }
   }

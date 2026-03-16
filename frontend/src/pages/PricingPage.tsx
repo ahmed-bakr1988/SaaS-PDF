@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage } from '@/utils/seo';
-import { Check, X, Zap, Crown } from 'lucide-react';
+import { Check, X, Zap, Crown, Loader2 } from 'lucide-react';
+import axios from 'axios';
+import { useAuthStore } from '@/stores/authStore';
+import SocialProofStrip from '@/components/shared/SocialProofStrip';
+
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 interface PlanFeature {
   key: string;
@@ -25,6 +31,29 @@ const FEATURES: PlanFeature[] = [
 
 export default function PricingPage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
+  const [loading, setLoading] = useState(false);
+
+  async function handleUpgrade(billing: 'monthly' | 'yearly') {
+    if (!user) {
+      window.location.href = '/account?redirect=pricing';
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data } = await axios.post(
+        `${API_BASE}/api/stripe/create-checkout-session`,
+        { billing },
+        { withCredentials: true },
+      );
+      if (data.url) window.location.href = data.url;
+    } catch {
+      // Stripe not configured yet — show message
+      alert(t('pages.pricing.stripeNotReady', 'Payment system is being set up. Please try again later.'));
+    } finally {
+      setLoading(false);
+    }
+  }
 
   function renderValue(val: boolean | string) {
     if (val === true) return <Check className="mx-auto h-5 w-5 text-green-500" />;
@@ -55,6 +84,8 @@ export default function PricingPage() {
             {t('pages.pricing.subtitle', 'Start free with all tools. Upgrade when you need more power.')}
           </p>
         </div>
+
+        <SocialProofStrip className="mb-12" />
 
         {/* Plan Cards */}
         <div className="mb-16 grid gap-8 md:grid-cols-2">
@@ -137,16 +168,48 @@ export default function PricingPage() {
             </ul>
 
             <button
-              disabled
+              onClick={() => handleUpgrade('monthly')}
+              disabled={loading || user?.plan === 'pro'}
               className="block w-full rounded-xl bg-primary-600 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {t('pages.pricing.comingSoon', 'Coming Soon')}
+              {loading ? (
+                <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+              ) : user?.plan === 'pro' ? (
+                t('pages.pricing.currentPlan', 'Current Plan')
+              ) : (
+                t('pages.pricing.upgradeToPro', 'Upgrade to Pro')
+              )}
             </button>
             <p className="mt-2 text-center text-xs text-slate-500 dark:text-slate-400">
-              {t('pages.pricing.stripeNote', 'Stripe payment integration coming soon')}
+              {t('pages.pricing.securePayment', 'Secure payment via Stripe')}
             </p>
           </div>
         </div>
+
+        <section className="mb-16 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+          <div className="max-w-3xl">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              {t('pages.pricing.trustTitle')}
+            </h2>
+            <p className="mt-3 text-slate-600 dark:text-slate-400">
+              {t('pages.pricing.trustSubtitle')}
+            </p>
+          </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/70">
+              <h3 className="font-semibold text-slate-900 dark:text-white">{t('pages.pricing.trustFastTitle')}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{t('pages.pricing.trustFastDesc')}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/70">
+              <h3 className="font-semibold text-slate-900 dark:text-white">{t('pages.pricing.trustPrivateTitle')}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{t('pages.pricing.trustPrivateDesc')}</p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/70">
+              <h3 className="font-semibold text-slate-900 dark:text-white">{t('pages.pricing.trustApiTitle')}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-400">{t('pages.pricing.trustApiDesc')}</p>
+            </div>
+          </div>
+        </section>
 
         {/* Comparison Table */}
         <div className="mb-16 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700">
@@ -210,7 +273,7 @@ export default function PricingPage() {
                 {t('pages.pricing.faq3q', 'What payment methods do you accept?')}
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                {t('pages.pricing.faq3a', 'We will support credit/debit cards and PayPal via Stripe. Payment integration is launching soon.')}
+                {t('pages.pricing.faq3a', 'We accept all major credit/debit cards via Stripe. Your payment information is securely processed — we never see your card details.')}
               </p>
             </div>
           </div>

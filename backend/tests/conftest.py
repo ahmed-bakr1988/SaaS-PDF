@@ -9,6 +9,8 @@ from app.services.account_service import init_account_db
 from app.services.rating_service import init_ratings_db
 from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
+from app.services.contact_service import init_contact_db
+from app.services.stripe_service import init_stripe_db
 
 
 @pytest.fixture
@@ -35,6 +37,8 @@ def app():
         init_ratings_db()
         init_ai_cost_db()
         init_site_assistant_db()
+        init_contact_db()
+        init_stripe_db()
 
     # Create temp directories
     os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import {
+  AlertTriangle,
+  BarChart3,
   BadgeCheck,
   Check,
   Copy,
@@ -33,11 +35,27 @@ const toolKeyMap: Record<string, string> = {
   'pdf-to-word': 'tools.pdfToWord.title',
   'word-to-pdf': 'tools.wordToPdf.title',
   'compress-pdf': 'tools.compressPdf.title',
+  'compress-image': 'tools.compressImage.title',
+  'crop-pdf': 'tools.cropPdf.title',
+  'crop-image': 'tools.imageCrop.title',
+  'edit-metadata': 'tools.pdfMetadata.title',
+  'excel-to-pdf': 'tools.excelToPdf.title',
+  'extract-pages': 'tools.extractPages.title',
+  'extract-tables': 'tools.tableExtractor.title',
+  'flatten-pdf': 'tools.flattenPdf.title',
+  'html-to-pdf': 'tools.htmlToPdf.title',
   'image-convert': 'tools.imageConvert.title',
+  'image-converter': 'tools.imageConvert.title',
+  'image-crop': 'tools.imageCrop.title',
   'image-resize': 'tools.imageConvert.title',
+  'image-rotate-flip': 'tools.imageRotateFlip.title',
   'video-to-gif': 'tools.videoToGif.title',
   'merge-pdf': 'tools.mergePdf.title',
+  'ocr': 'tools.ocr.title',
   'split-pdf': 'tools.splitPdf.title',
+  'pdf-metadata': 'tools.pdfMetadata.title',
+  'pdf-to-excel': 'tools.pdfToExcel.title',
+  'pdf-to-pptx': 'tools.pdfToPptx.title',
   'rotate-pdf': 'tools.rotatePdf.title',
   'page-numbers': 'tools.pageNumbers.title',
   'pdf-to-images': 'tools.pdfToImages.title',
@@ -45,8 +63,21 @@ const toolKeyMap: Record<string, string> = {
   'watermark-pdf': 'tools.watermarkPdf.title',
   'protect-pdf': 'tools.protectPdf.title',
   'unlock-pdf': 'tools.unlockPdf.title',
+  'repair-pdf': 'tools.repairPdf.title',
+  'remove-background': 'tools.removeBg.title',
+  'remove-bg': 'tools.removeBg.title',
+  'remove-watermark-pdf': 'tools.removeWatermark.title',
+  'reorder-pdf': 'tools.reorderPdf.title',
+  'sign-pdf': 'tools.signPdf.title',
+  'summarize-pdf': 'tools.summarizePdf.title',
+  'translate-pdf': 'tools.translatePdf.title',
+  'chat-pdf': 'tools.chatPdf.title',
+  'barcode': 'tools.barcode.title',
+  'barcode-generator': 'tools.barcode.title',
+  'pptx-to-pdf': 'tools.pptxToPdf.title',
   'pdf-flowchart': 'tools.pdfFlowchart.title',
   'pdf-flowchart-sample': 'tools.pdfFlowchart.title',
+  'qr-code': 'tools.qrCode.title',
 };
 
 function formatHistoryTool(tool: string, t: (key: string) => string) {
@@ -92,6 +123,50 @@ export default function AccountPage() {
       }),
     [i18n.language]
   );
+
+  const dashboardMetrics = useMemo(() => {
+    const completedItems = historyItems.filter((item) => item.status === 'completed');
+    const failedItems = historyItems.filter((item) => item.status !== 'completed');
+    const toolCounts = historyItems.reduce<Record<string, number>>((acc, item) => {
+      acc[item.tool] = (acc[item.tool] || 0) + 1;
+      return acc;
+    }, {});
+
+    const favoriteToolSlug = Object.entries(toolCounts)
+      .sort((left, right) => right[1] - left[1])[0]?.[0] || null;
+
+    return {
+      totalProcessed: historyItems.length,
+      completedCount: completedItems.length,
+      failedCount: failedItems.length,
+      favoriteToolSlug,
+      successRate: historyItems.length ? Math.round((completedItems.length / historyItems.length) * 100) : 0,
+      topTools: Object.entries(toolCounts)
+        .sort((left, right) => right[1] - left[1])
+        .slice(0, 4),
+      recentFailures: failedItems.slice(0, 3),
+      onboardingItems: [
+        {
+          key: 'firstTask',
+          done: historyItems.length > 0,
+          title: t('account.onboardingFirstTaskTitle'),
+          description: t('account.onboardingFirstTaskDesc'),
+        },
+        {
+          key: 'upgrade',
+          done: user?.plan === 'pro',
+          title: t('account.onboardingUpgradeTitle'),
+          description: t('account.onboardingUpgradeDesc'),
+        },
+        {
+          key: 'apiKey',
+          done: user?.plan !== 'pro' ? false : apiKeys.some((key) => !key.revoked_at),
+          title: t('account.onboardingApiTitle'),
+          description: t('account.onboardingApiDesc'),
+        },
+      ],
+    };
+  }, [apiKeys, historyItems, t, user?.plan]);
 
   useEffect(() => {
     if (!user) {
@@ -313,6 +388,106 @@ export default function AccountPage() {
               )}
             </section>
           )}
+
+          <section className="card rounded-[2rem] p-0">
+            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
+              <div className="flex items-center gap-3">
+                <BarChart3 className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                <div>
+                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
+                    {t('account.dashboardTitle')}
+                  </h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {t('account.dashboardSubtitle')}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 p-6">
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricProcessed')}</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.totalProcessed}</p>
+                </div>
+                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricSuccessRate')}</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.successRate}%</p>
+                </div>
+                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricFavoriteTool')}</p>
+                  <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
+                    {dashboardMetrics.favoriteToolSlug
+                      ? formatHistoryTool(dashboardMetrics.favoriteToolSlug, t)
+                      : t('account.metricFavoriteToolEmpty')}
+                  </p>
+                </div>
+                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricFailures')}</p>
+                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.failedCount}</p>
+                </div>
+              </div>
+
+              <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1.1fr]">
+                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.topToolsTitle')}</h3>
+                  <div className="mt-4 space-y-3">
+                    {dashboardMetrics.topTools.length === 0 ? (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.historyEmpty')}</p>
+                    ) : (
+                      dashboardMetrics.topTools.map(([tool, count]) => (
+                        <div key={tool} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/70">
+                          <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{formatHistoryTool(tool, t)}</span>
+                          <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">{count}</span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.issuesTitle')}</h3>
+                  <div className="mt-4 space-y-3">
+                    {dashboardMetrics.recentFailures.length === 0 ? (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.issuesEmpty')}</p>
+                    ) : (
+                      dashboardMetrics.recentFailures.map((item) => (
+                        <div key={item.id} className="rounded-xl bg-red-50 px-4 py-3 dark:bg-red-950/30">
+                          <div className="flex items-start gap-3">
+                            <AlertTriangle className="mt-0.5 h-4 w-4 text-red-500" />
+                            <div>
+                              <p className="text-sm font-semibold text-red-800 dark:text-red-300">{formatHistoryTool(item.tool, t)}</p>
+                              <p className="mt-1 text-xs text-red-700 dark:text-red-400">{typeof item.metadata?.error === 'string' ? item.metadata.error : t('account.statusFailed')}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
+                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.onboardingTitle')}</h3>
+                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('account.onboardingSubtitle')}</p>
+                  <div className="mt-4 space-y-3">
+                    {dashboardMetrics.onboardingItems.map((item) => (
+                      <div key={item.key} className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/70">
+                        <div className="flex items-start gap-3">
+                          <span className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ${item.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
+                            {item.done ? <Check className="h-3.5 w-3.5" /> : <span className="text-[10px] font-bold">•</span>}
+                          </span>
+                          <div>
+                            <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
+                            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
 
           {/* API Key Management — Pro only */}
           {user.plan === 'pro' && (

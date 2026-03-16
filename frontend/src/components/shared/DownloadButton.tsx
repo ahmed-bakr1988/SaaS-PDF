@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { Download, RotateCcw, Clock } from 'lucide-react';
 import type { TaskResult } from '@/services/api';
 import { formatFileSize } from '@/utils/textTools';
 import { trackEvent } from '@/services/analytics';
 import { dispatchCurrentToolRatingPrompt } from '@/utils/ratingPrompt';
 import SharePanel from '@/components/shared/SharePanel';
+import SuggestedTools from '@/components/seo/SuggestedTools';
 
 interface DownloadButtonProps {
   /** Task result containing download URL */
@@ -15,6 +17,10 @@ interface DownloadButtonProps {
 
 export default function DownloadButton({ result, onStartOver }: DownloadButtonProps) {
   const { t } = useTranslation();
+  const location = useLocation();
+  const currentToolSlug = location.pathname.startsWith('/tools/')
+    ? location.pathname.replace('/tools/', '')
+    : null;
 
   const handleDownloadClick = () => {
     trackEvent('download_clicked', { filename: result.filename || 'unknown' });
@@ -103,6 +109,8 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
         <RotateCcw className="h-4 w-4" />
         {t('common.startOver')}
       </button>
+
+      {currentToolSlug && <SuggestedTools currentSlug={currentToolSlug} />}
     </div>
   );
 }

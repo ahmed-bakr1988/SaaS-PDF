@@ -2,11 +2,12 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
-import { generateToolSchema, generateBreadcrumbs, generateFAQ } from '@/utils/seo';
+import { buildLanguageAlternates, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale } from '@/utils/seo';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
 import SharePanel from '@/components/shared/SharePanel';
+import ToolWorkflowPanel from '@/components/shared/ToolWorkflowPanel';
 import { useToolRating } from '@/hooks/useToolRating';
 import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
@@ -27,7 +28,7 @@ interface ToolLandingPageProps {
  * feature bullets, and proper meta tags around any tool component.
  */
 export default function ToolLandingPage({ slug, children }: ToolLandingPageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const seo = getToolSEO(slug);
   const ratingData = useToolRating(slug);
 
@@ -37,7 +38,10 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
   const toolTitle = t(`tools.${seo.i18nKey}.title`);
   const toolDesc = t(`tools.${seo.i18nKey}.description`);
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const canonicalUrl = `${origin}/tools/${slug}`;
+  const path = `/tools/${slug}`;
+  const canonicalUrl = `${origin}${path}`;
+  const languageAlternates = buildLanguageAlternates(origin, path);
+  const currentOgLocale = getOgLocale(i18n.language);
 
   const toolSchema = generateToolSchema({
     name: toolTitle,
@@ -63,12 +67,27 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <meta name="description" content={seo.metaDescription} />
         <meta name="keywords" content={seo.keywords} />
         <link rel="canonical" href={canonicalUrl} />
+        {languageAlternates.map((alternate) => (
+          <link
+            key={alternate.hrefLang}
+            rel="alternate"
+            hrefLang={alternate.hrefLang}
+            href={alternate.href}
+          />
+        ))}
+        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
         {/* Open Graph */}
         <meta property="og:title" content={`${toolTitle} — ${seo.titleSuffix}`} />
         <meta property="og:description" content={seo.metaDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta property="og:locale" content={currentOgLocale} />
+        {languageAlternates
+          .filter((alternate) => alternate.ogLocale !== currentOgLocale)
+          .map((alternate) => (
+            <meta key={alternate.ogLocale} property="og:locale:alternate" content={alternate.ogLocale} />
+          ))}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary" />
@@ -109,6 +128,8 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
       {/* SEO Content Below Tool */}
       <div className="mx-auto mt-16 max-w-3xl">
+        <ToolWorkflowPanel />
+
         {/* What this tool does */}
         <section className="mb-12">
           <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-white">

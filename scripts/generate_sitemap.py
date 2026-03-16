@@ -45,6 +45,12 @@ PDF_TOOLS = [
     {'slug': 'pdf-editor',          'priority': '0.8'},
     {'slug': 'pdf-flowchart',       'priority': '0.7'},
     {'slug': 'pdf-to-excel',        'priority': '0.8'},
+    # Phase 2
+    {'slug': 'sign-pdf',            'priority': '0.8'},
+    {'slug': 'crop-pdf',            'priority': '0.7'},
+    {'slug': 'flatten-pdf',         'priority': '0.7'},
+    {'slug': 'repair-pdf',          'priority': '0.7'},
+    {'slug': 'pdf-metadata',        'priority': '0.6'},
 ]
 
 # Image Tools
@@ -53,6 +59,9 @@ IMAGE_TOOLS = [
     {'slug': 'image-resize',      'priority': '0.8'},
     {'slug': 'compress-image',    'priority': '0.8'},
     {'slug': 'remove-background', 'priority': '0.8'},
+    # Phase 2
+    {'slug': 'image-crop',        'priority': '0.7'},
+    {'slug': 'image-rotate-flip', 'priority': '0.7'},
 ]
 
 # AI Tools
@@ -71,6 +80,11 @@ UTILITY_TOOLS = [
     {'slug': 'video-to-gif',  'priority': '0.7'},
     {'slug': 'word-counter',  'priority': '0.6'},
     {'slug': 'text-cleaner',  'priority': '0.6'},
+    # Phase 2
+    {'slug': 'pdf-to-pptx',       'priority': '0.8'},
+    {'slug': 'excel-to-pdf',      'priority': '0.8'},
+    {'slug': 'pptx-to-pdf',       'priority': '0.8'},
+    {'slug': 'barcode-generator', 'priority': '0.7'},
 ]
 
 TOOL_GROUPS = [

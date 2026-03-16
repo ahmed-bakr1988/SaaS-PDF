@@ -35,6 +35,12 @@ weasyprint>=60.0,<62.0
 # OCR
 pytesseract>=0.3.10,<1.0
 
+# PowerPoint Processing
+python-pptx>=0.6.21,<2.0
+
+# Barcode Generation
+python-barcode>=0.15,<1.0
+
 # Background Removal
 rembg>=2.0,<3.0
 onnxruntime>=1.16,<2.0
@@ -47,6 +53,15 @@ requests>=2.31,<3.0
 
 # Security
 werkzeug>=3.0,<4.0
+
+# Payments
+stripe>=8.0,<10.0
+
+# Monitoring
+sentry-sdk[flask]>=2.0,<3.0
+
+# PostgreSQL (production)
+psycopg2-binary>=2.9,<3.0
 
 # Testing
 pytest>=8.0,<9.0

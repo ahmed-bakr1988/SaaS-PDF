@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { Mail, Send, CheckCircle } from 'lucide-react';
+import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage } from '@/utils/seo';
+import axios from 'axios';
 
 const CONTACT_EMAIL = 'support@saas-pdf.com';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 type Category = 'general' | 'bug' | 'feature';
 
@@ -13,21 +15,37 @@ export default function ContactPage() {
   const { t } = useTranslation();
   const [category, setCategory] = useState<Category>('general');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const placeholderKey = `pages.contact.${category}Placeholder` as const;
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
     const form = e.currentTarget;
     const data = new FormData(form);
-    const subject = data.get('subject') as string;
-    const body = data.get('message') as string;
-    const name = data.get('name') as string;
 
-    // Open user's email client with pre-filled fields
-    const mailto = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`[${category}] ${subject}`)}&body=${encodeURIComponent(`From: ${name}\n\n${body}`)}`;
-    window.location.href = mailto;
-    setSubmitted(true);
+    try {
+      await axios.post(`${API_BASE}/api/contact/submit`, {
+        name: data.get('name'),
+        email: data.get('email'),
+        category,
+        subject: data.get('subject'),
+        message: data.get('message'),
+      });
+      setSubmitted(true);
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else {
+        setError(t('pages.contact.errorMessage', 'Failed to send message. Please try again.'));
+      }
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -156,13 +174,22 @@ export default function ContactPage() {
             />
           </div>
 
+          {/* Error */}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/30 dark:text-red-300">
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
+
           {/* Submit */}
           <button
             type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-700"
+            disabled={loading}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary-600 px-6 py-3 font-medium text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
           >
-            <Send className="h-4 w-4" />
-            {t('common.send')}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            {loading ? t('common.sending', 'Sending...') : t('common.send')}
           </button>
         </form>
 

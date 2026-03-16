@@ -94,6 +94,8 @@ export interface AuthUser {
   id: number;
   email: string;
   plan: string;
+  role: 'user' | 'admin' | string;
+  is_allowlisted_admin?: boolean;
   created_at: string;
 }
 
@@ -424,6 +426,164 @@ export async function checkHealth(): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export interface PublicStatsSummary {
+  total_files_processed: number;
+  completed_files: number;
+  failed_files: number;
+  success_rate: number;
+  files_last_24h: number;
+  average_rating: number;
+  rating_count: number;
+  top_tools: Array<{ tool: string; count: number }>;
+}
+
+/**
+ * Return public site stats used for social proof and developer onboarding.
+ */
+export async function getPublicStats(): Promise<PublicStatsSummary> {
+  const response = await api.get<PublicStatsSummary>('/stats/summary');
+  return response.data;
+}
+
+export interface InternalAdminUser {
+  id: number;
+  email: string;
+  plan: 'free' | 'pro' | string;
+  role: 'user' | 'admin' | string;
+  is_allowlisted_admin: boolean;
+  created_at: string;
+  total_tasks: number;
+  completed_tasks: number;
+  failed_tasks: number;
+  active_api_keys: number;
+}
+
+export interface InternalAdminContact {
+  id: number;
+  name: string;
+  email: string;
+  category: string;
+  subject: string | null;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+}
+
+export interface InternalAdminOverview {
+  users: {
+    total: number;
+    pro: number;
+    free: number;
+  };
+  processing: {
+    total_files_processed: number;
+    completed_files: number;
+    failed_files: number;
+    files_last_24h: number;
+    success_rate: number;
+  };
+  ratings: {
+    average_rating: number;
+    rating_count: number;
+  };
+  ai_cost: {
+    month: string;
+    total_usd: number;
+    budget_usd: number;
+    percent_used: number;
+  };
+  contacts: {
+    total_messages: number;
+    unread_messages: number;
+    recent: InternalAdminContact[];
+  };
+  top_tools: Array<{
+    tool: string;
+    total_runs: number;
+    failed_runs: number;
+  }>;
+  recent_failures: Array<{
+    id: number;
+    user_id: number | null;
+    email: string | null;
+    tool: string;
+    original_filename: string | null;
+    created_at: string;
+    metadata: Record<string, unknown>;
+  }>;
+  recent_users: Array<{
+    id: number;
+    email: string;
+    plan: string;
+    created_at: string;
+    total_tasks: number;
+    active_api_keys: number;
+  }>;
+}
+
+export async function getInternalAdminOverview(): Promise<InternalAdminOverview> {
+  const response = await api.get<InternalAdminOverview>('/internal/admin/overview');
+  return response.data;
+}
+
+export async function listInternalAdminUsers(query = '', limit = 25): Promise<InternalAdminUser[]> {
+  const response = await api.get<{ items: InternalAdminUser[] }>('/internal/admin/users', {
+    params: {
+      query,
+      limit,
+    },
+  });
+  return response.data.items;
+}
+
+export async function getInternalAdminContacts(page = 1, perPage = 20): Promise<{
+  items: InternalAdminContact[];
+  page: number;
+  per_page: number;
+  total: number;
+  unread: number;
+}> {
+  const response = await api.get<{
+    items: InternalAdminContact[];
+    page: number;
+    per_page: number;
+    total: number;
+    unread: number;
+  }>('/internal/admin/contacts', {
+    params: {
+      page,
+      per_page: perPage,
+    },
+  });
+  return response.data;
+}
+
+export async function markInternalAdminContactRead(messageId: number): Promise<void> {
+  await api.post(`/internal/admin/contacts/${messageId}/read`);
+}
+
+export async function updateInternalAdminUserPlan(
+  userId: number,
+  plan: 'free' | 'pro'
+): Promise<AuthUser> {
+  const response = await api.post<{ message: string; user: AuthUser }>(
+    `/internal/admin/users/${userId}/plan`,
+    { plan }
+  );
+  return response.data.user;
+}
+
+export async function updateInternalAdminUserRole(
+  userId: number,
+  role: 'user' | 'admin'
+): Promise<AuthUser> {
+  const response = await api.post<{ message: string; user: AuthUser }>(
+    `/internal/admin/users/${userId}/role`,
+    { role }
+  );
+  return response.data.user;
 }
 
 // --- Account / Usage / API Keys ---

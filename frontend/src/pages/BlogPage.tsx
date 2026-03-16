@@ -1,57 +1,41 @@
+import { useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage } from '@/utils/seo';
-import { BookOpen, Calendar, ArrowRight } from 'lucide-react';
-
-interface BlogPost {
-  slug: string;
-  titleKey: string;
-  excerptKey: string;
-  date: string;
-  category: string;
-}
-
-const BLOG_POSTS: BlogPost[] = [
-  {
-    slug: 'how-to-compress-pdf-online',
-    titleKey: 'pages.blog.posts.compressPdf.title',
-    excerptKey: 'pages.blog.posts.compressPdf.excerpt',
-    date: '2025-01-15',
-    category: 'PDF',
-  },
-  {
-    slug: 'convert-images-without-losing-quality',
-    titleKey: 'pages.blog.posts.imageConvert.title',
-    excerptKey: 'pages.blog.posts.imageConvert.excerpt',
-    date: '2025-01-10',
-    category: 'Image',
-  },
-  {
-    slug: 'ocr-extract-text-from-images',
-    titleKey: 'pages.blog.posts.ocrGuide.title',
-    excerptKey: 'pages.blog.posts.ocrGuide.excerpt',
-    date: '2025-01-05',
-    category: 'AI',
-  },
-  {
-    slug: 'merge-split-pdf-files',
-    titleKey: 'pages.blog.posts.mergeSplit.title',
-    excerptKey: 'pages.blog.posts.mergeSplit.excerpt',
-    date: '2024-12-28',
-    category: 'PDF',
-  },
-  {
-    slug: 'ai-chat-with-pdf-documents',
-    titleKey: 'pages.blog.posts.aiChat.title',
-    excerptKey: 'pages.blog.posts.aiChat.excerpt',
-    date: '2024-12-20',
-    category: 'AI',
-  },
-];
+import { BookOpen, Calendar, ArrowRight, Search, X } from 'lucide-react';
+import {
+  BLOG_ARTICLES,
+  getLocalizedBlogArticle,
+  normalizeBlogLocale,
+} from '@/content/blogArticles';
 
 export default function BlogPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const query = searchParams.get('q') || '';
+  const deferredQuery = useDeferredValue(query.trim().toLowerCase());
+  const locale = normalizeBlogLocale(i18n.language);
+
+  const posts = BLOG_ARTICLES.map((article) => getLocalizedBlogArticle(article, locale));
+
+  const filteredPosts = !deferredQuery
+    ? posts
+    : posts.filter((post) => {
+        const haystack = `${post.title} ${post.excerpt} ${post.category}`.toLowerCase();
+        return haystack.includes(deferredQuery);
+      });
+
+  const updateQuery = (value: string) => {
+    const nextParams = new URLSearchParams(searchParams);
+    if (value.trim()) {
+      nextParams.set('q', value);
+    } else {
+      nextParams.delete('q');
+    }
+    setSearchParams(nextParams, { replace: true });
+  };
 
   return (
     <>
@@ -79,8 +63,32 @@ export default function BlogPage() {
           </p>
         </div>
 
+        <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <label className="relative flex-1">
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                value={query}
+                onChange={(event) => updateQuery(event.target.value)}
+                placeholder={t('pages.blog.searchPlaceholder')}
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition-colors focus:border-primary-400 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-primary-500"
+              />
+            </label>
+            {query && (
+              <button
+                type="button"
+                onClick={() => updateQuery('')}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+              >
+                <X className="h-4 w-4" />
+                {t('common.clear')}
+              </button>
+            )}
+          </div>
+        </div>
+
         <div className="space-y-6">
-          {BLOG_POSTS.map((post) => (
+          {filteredPosts.map((post) => (
             <article
               key={post.slug}
               className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
@@ -91,15 +99,15 @@ export default function BlogPage() {
                 </span>
                 <span className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                   <Calendar className="h-3.5 w-3.5" />
-                  {post.date}
+                    {post.publishedAt}
                 </span>
               </div>
 
               <h2 className="mb-2 text-xl font-semibold text-slate-900 dark:text-white">
-                {t(post.titleKey)}
+                {post.title}
               </h2>
               <p className="mb-4 text-slate-600 dark:text-slate-400 leading-relaxed">
-                {t(post.excerptKey)}
+                {post.excerpt}
               </p>
 
               <Link
@@ -111,6 +119,14 @@ export default function BlogPage() {
             </article>
           ))}
         </div>
+
+        {filteredPosts.length === 0 && (
+          <div className="mt-10 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-600 dark:bg-slate-800/50">
+            <p className="text-base font-medium text-slate-700 dark:text-slate-200">
+              {t('pages.blog.noResults')}
+            </p>
+          </div>
+        )}
 
         {/* Coming Soon */}
         <div className="mt-10 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-600 dark:bg-slate-800/50">

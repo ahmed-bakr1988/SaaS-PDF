@@ -135,3 +135,21 @@ def get_all_ratings_summary() -> list[dict]:
             }
             for row in rows
         ]
+
+
+def get_global_rating_summary() -> dict:
+    """Return aggregate rating stats across all rated tools."""
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT
+                COUNT(*) AS count,
+                COALESCE(AVG(rating), 0) AS average
+            FROM tool_ratings
+            """
+        ).fetchone()
+
+    return {
+        "rating_count": int(row["count"]) if row else 0,
+        "average_rating": round(row["average"], 1) if row else 0.0,
+    }

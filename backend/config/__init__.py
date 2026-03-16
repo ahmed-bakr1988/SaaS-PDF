@@ -10,10 +10,16 @@ load_dotenv(os.path.join(REPO_ROOT, ".env"))
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 
 
+def _parse_csv_env(name: str) -> tuple[str, ...]:
+    raw_value = os.getenv(name, "")
+    return tuple(item.strip().lower() for item in raw_value.split(",") if item.strip())
+
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
     INTERNAL_ADMIN_SECRET = os.getenv("INTERNAL_ADMIN_SECRET", "")
+    INTERNAL_ADMIN_EMAILS = _parse_csv_env("INTERNAL_ADMIN_EMAILS")
 
     # File upload settings
     MAX_CONTENT_LENGTH = int(
@@ -47,6 +53,14 @@ class BaseConfig:
         "bmp": ["image/bmp"],
         "mp4": ["video/mp4"],
         "webm": ["video/webm"],
+        "pptx": [
+            "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        ],
+        "ppt": ["application/vnd.ms-powerpoint"],
+        "xlsx": [
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        ],
+        "xls": ["application/vnd.ms-excel"],
     }
 
     # File size limits per type (bytes)
@@ -64,6 +78,10 @@ class BaseConfig:
         "bmp": 15 * 1024 * 1024,       # 15MB
         "mp4": 50 * 1024 * 1024,       # 50MB
         "webm": 50 * 1024 * 1024,      # 50MB
+        "pptx": 20 * 1024 * 1024,      # 20MB
+        "ppt": 20 * 1024 * 1024,       # 20MB
+        "xlsx": 15 * 1024 * 1024,      # 15MB
+        "xls": 15 * 1024 * 1024,       # 15MB
     }
 
     # Redis
@@ -102,6 +120,22 @@ class BaseConfig:
     SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
+    # Stripe
+    STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
+    STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    STRIPE_PRICE_ID_PRO_MONTHLY = os.getenv("STRIPE_PRICE_ID_PRO_MONTHLY", "")
+    STRIPE_PRICE_ID_PRO_YEARLY = os.getenv("STRIPE_PRICE_ID_PRO_YEARLY", "")
+
+    # Sentry
+    SENTRY_DSN = os.getenv("SENTRY_DSN", "")
+    SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "development")
+
+    # Site domain
+    SITE_DOMAIN = os.getenv("SITE_DOMAIN", "https://saas-pdf.com")
+
+    # PostgreSQL (production) — set DATABASE_URL to use PG instead of SQLite
+    DATABASE_URL = os.getenv("DATABASE_URL", "")
+
     # Feature flags (default: enabled — set to "false" to disable a feature)
     FEATURE_EDITOR = os.getenv("FEATURE_EDITOR", "true").lower() == "true"
     FEATURE_OCR = os.getenv("FEATURE_OCR", "true").lower() == "true"
@@ -130,6 +164,9 @@ class TestingConfig(BaseConfig):
     UPLOAD_FOLDER = "/tmp/test_uploads"
     OUTPUT_FOLDER = "/tmp/test_outputs"
     DATABASE_PATH = "/tmp/test_saas_pdf.db"
+    FEATURE_EDITOR = False
+    FEATURE_OCR = False
+    FEATURE_REMOVEBG = False
 
     # Disable Redis-backed rate limiting; use in-memory instead
     RATELIMIT_STORAGE_URI = "memory://"

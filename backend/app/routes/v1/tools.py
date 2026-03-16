@@ -34,6 +34,23 @@ from app.tasks.pdf_tools_tasks import (
     unlock_pdf_task,
 )
 from app.tasks.flowchart_tasks import extract_flowchart_task
+from app.tasks.ocr_tasks import ocr_image_task, ocr_pdf_task
+from app.tasks.removebg_tasks import remove_bg_task
+from app.tasks.pdf_ai_tasks import (
+    chat_with_pdf_task, summarize_pdf_task, translate_pdf_task, extract_tables_task,
+)
+from app.tasks.pdf_to_excel_tasks import pdf_to_excel_task
+from app.tasks.html_to_pdf_tasks import html_to_pdf_task
+from app.tasks.qrcode_tasks import generate_qr_task
+from app.tasks.pdf_convert_tasks import (
+    pdf_to_pptx_task, excel_to_pdf_task, pptx_to_pdf_task, sign_pdf_task,
+)
+from app.tasks.pdf_extra_tasks import (
+    crop_pdf_task, flatten_pdf_task, repair_pdf_task, edit_metadata_task,
+)
+from app.tasks.image_extra_tasks import crop_image_task, rotate_flip_image_task
+from app.tasks.barcode_tasks import generate_barcode_task
+from app.services.barcode_service import SUPPORTED_BARCODE_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -680,3 +697,760 @@ def extract_flowchart_route():
     )
     record_accepted_usage(actor, "pdf-flowchart", task.id)
     return jsonify({"task_id": task.id, "message": "Flowchart extraction started."}), 202
+
+
+# ===========================================================================
+# Phase 2: Previously uncovered existing tools
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# OCR — POST /api/v1/ocr/image  &  /api/v1/ocr/pdf
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/ocr/image", methods=["POST"])
+@limiter.limit("10/minute")
+def ocr_image_route():
+    """Extract text from an image using OCR."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    lang = request.form.get("lang", "eng")
+
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = ocr_image_task.delay(
+        input_path, task_id, original_filename, lang,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "ocr-image", task.id)
+    return jsonify({"task_id": task.id, "message": "OCR started."}), 202
+
+
+@v1_bp.route("/ocr/pdf", methods=["POST"])
+@limiter.limit("10/minute")
+def ocr_pdf_route():
+    """Extract text from a PDF using OCR."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    lang = request.form.get("lang", "eng")
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = ocr_pdf_task.delay(
+        input_path, task_id, original_filename, lang,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "ocr-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "OCR started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Remove Background — POST /api/v1/image/remove-bg
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/image/remove-bg", methods=["POST"])
+@limiter.limit("5/minute")
+def remove_bg_route():
+    """Remove background from an image."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = remove_bg_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "remove-bg", task.id)
+    return jsonify({"task_id": task.id, "message": "Background removal started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# PDF AI — POST /api/v1/pdf-ai/chat, summarize, translate, extract-tables
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-ai/chat", methods=["POST"])
+@limiter.limit("5/minute")
+def chat_pdf_route():
+    """Chat with a PDF using AI."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    question = request.form.get("question", "").strip()
+    if not question:
+        return jsonify({"error": "Question is required."}), 400
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = chat_with_pdf_task.delay(
+        input_path, task_id, original_filename, question,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "chat-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Chat started."}), 202
+
+
+@v1_bp.route("/pdf-ai/summarize", methods=["POST"])
+@limiter.limit("5/minute")
+def summarize_pdf_route():
+    """Summarize a PDF using AI."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    length = request.form.get("length", "medium")
+    if length not in ("short", "medium", "long"):
+        length = "medium"
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = summarize_pdf_task.delay(
+        input_path, task_id, original_filename, length,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "summarize-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Summarization started."}), 202
+
+
+@v1_bp.route("/pdf-ai/translate", methods=["POST"])
+@limiter.limit("5/minute")
+def translate_pdf_route():
+    """Translate a PDF using AI."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    target_language = request.form.get("target_language", "").strip()
+    if not target_language:
+        return jsonify({"error": "Target language is required."}), 400
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = translate_pdf_task.delay(
+        input_path, task_id, original_filename, target_language,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "translate-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Translation started."}), 202
+
+
+@v1_bp.route("/pdf-ai/extract-tables", methods=["POST"])
+@limiter.limit("10/minute")
+def extract_tables_route():
+    """Extract tables from a PDF using AI."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = extract_tables_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "extract-tables", task.id)
+    return jsonify({"task_id": task.id, "message": "Table extraction started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# PDF to Excel — POST /api/v1/convert/pdf-to-excel
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/convert/pdf-to-excel", methods=["POST"])
+@limiter.limit("10/minute")
+def pdf_to_excel_route():
+    """Convert a PDF to Excel."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = pdf_to_excel_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "pdf-to-excel", task.id)
+    return jsonify({"task_id": task.id, "message": "Conversion started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# HTML to PDF — POST /api/v1/convert/html-to-pdf
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/convert/html-to-pdf", methods=["POST"])
+@limiter.limit("10/minute")
+def html_to_pdf_route():
+    """Convert HTML to PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["html", "htm"], actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = html_to_pdf_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "html-to-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Conversion started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# QR Code — POST /api/v1/qrcode/generate
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/qrcode/generate", methods=["POST"])
+@limiter.limit("20/minute")
+def generate_qr_route():
+    """Generate a QR code."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if request.is_json:
+        body = request.get_json()
+        data = body.get("data", "")
+        size = body.get("size", 300)
+    else:
+        data = request.form.get("data", "")
+        size = request.form.get("size", 300)
+
+    if not str(data).strip():
+        return jsonify({"error": "QR code data is required."}), 400
+
+    try:
+        size = max(100, min(2000, int(size)))
+    except (ValueError, TypeError):
+        size = 300
+
+    task_id = str(uuid.uuid4())
+    task = generate_qr_task.delay(
+        task_id, str(data).strip(), size, "png",
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "qr-code", task.id)
+    return jsonify({"task_id": task.id, "message": "QR code generation started."}), 202
+
+
+# ===========================================================================
+# Phase 2: New tools
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# PDF to PowerPoint — POST /api/v1/convert/pdf-to-pptx
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/convert/pdf-to-pptx", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_pdf_to_pptx_route():
+    """Convert a PDF to PowerPoint."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = pdf_to_pptx_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "pdf-to-pptx", task.id)
+    return jsonify({"task_id": task.id, "message": "Conversion started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Excel to PDF — POST /api/v1/convert/excel-to-pdf
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/convert/excel-to-pdf", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_excel_to_pdf_route():
+    """Convert an Excel file to PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["xlsx", "xls"], actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = excel_to_pdf_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "excel-to-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Conversion started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# PowerPoint to PDF — POST /api/v1/convert/pptx-to-pdf
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/convert/pptx-to-pdf", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_pptx_to_pdf_route():
+    """Convert a PowerPoint file to PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pptx", "ppt"], actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = pptx_to_pdf_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "pptx-to-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Conversion started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Sign PDF — POST /api/v1/pdf-tools/sign
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-tools/sign", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_sign_pdf_route():
+    """Sign a PDF with a signature image."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No PDF file provided."}), 400
+    if "signature" not in request.files:
+        return jsonify({"error": "No signature image provided."}), 400
+
+    pdf_file = request.files["file"]
+    sig_file = request.files["signature"]
+
+    try:
+        original_filename, ext = validate_actor_file(pdf_file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    try:
+        _, sig_ext = validate_actor_file(sig_file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": f"Signature: {e.message}"}), e.code
+
+    try:
+        page = max(1, int(request.form.get("page", 1))) - 1
+        x = float(request.form.get("x", 100))
+        y = float(request.form.get("y", 100))
+        width = float(request.form.get("width", 200))
+        height = float(request.form.get("height", 80))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Invalid position parameters."}), 400
+
+    task_id = str(uuid.uuid4())
+    upload_dir = os.path.join(current_app.config["UPLOAD_FOLDER"], task_id)
+    os.makedirs(upload_dir, exist_ok=True)
+    input_path = os.path.join(upload_dir, f"{uuid.uuid4()}.pdf")
+    pdf_file.save(input_path)
+    signature_path = os.path.join(upload_dir, f"{uuid.uuid4()}.{sig_ext}")
+    sig_file.save(signature_path)
+
+    task = sign_pdf_task.delay(
+        input_path, signature_path, task_id, original_filename,
+        page, x, y, width, height,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "sign-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Signing started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Crop PDF — POST /api/v1/pdf-tools/crop
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-tools/crop", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_crop_pdf_route():
+    """Crop margins from a PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        margin_left = float(request.form.get("margin_left", 0))
+        margin_right = float(request.form.get("margin_right", 0))
+        margin_top = float(request.form.get("margin_top", 0))
+        margin_bottom = float(request.form.get("margin_bottom", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Margin values must be numbers."}), 400
+
+    pages = request.form.get("pages", "all")
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = crop_pdf_task.delay(
+        input_path, task_id, original_filename,
+        margin_left, margin_right, margin_top, margin_bottom, pages,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "crop-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Cropping started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Flatten PDF — POST /api/v1/pdf-tools/flatten
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-tools/flatten", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_flatten_pdf_route():
+    """Flatten a PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = flatten_pdf_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "flatten-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Flattening started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Repair PDF — POST /api/v1/pdf-tools/repair
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-tools/repair", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_repair_pdf_route():
+    """Repair a damaged PDF."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = repair_pdf_task.delay(
+        input_path, task_id, original_filename,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "repair-pdf", task.id)
+    return jsonify({"task_id": task.id, "message": "Repair started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Edit PDF Metadata — POST /api/v1/pdf-tools/metadata
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/pdf-tools/metadata", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_edit_metadata_route():
+    """Edit PDF metadata."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    title = request.form.get("title")
+    author = request.form.get("author")
+    subject = request.form.get("subject")
+    keywords = request.form.get("keywords")
+    creator = request.form.get("creator")
+
+    if not any([title, author, subject, keywords, creator]):
+        return jsonify({"error": "At least one metadata field required."}), 400
+
+    try:
+        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = edit_metadata_task.delay(
+        input_path, task_id, original_filename,
+        title, author, subject, keywords, creator,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "edit-metadata", task.id)
+    return jsonify({"task_id": task.id, "message": "Metadata editing started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Image Crop — POST /api/v1/image/crop
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/image/crop", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_crop_image_route():
+    """Crop an image."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        left = int(request.form.get("left", 0))
+        top = int(request.form.get("top", 0))
+        right = int(request.form.get("right", 0))
+        bottom = int(request.form.get("bottom", 0))
+    except (ValueError, TypeError):
+        return jsonify({"error": "Crop dimensions must be integers."}), 400
+
+    if right <= left or bottom <= top:
+        return jsonify({"error": "Invalid crop area."}), 400
+
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = crop_image_task.delay(
+        input_path, task_id, original_filename,
+        left, top, right, bottom,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "image-crop", task.id)
+    return jsonify({"task_id": task.id, "message": "Cropping started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Image Rotate/Flip — POST /api/v1/image/rotate-flip
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/image/rotate-flip", methods=["POST"])
+@limiter.limit("10/minute")
+def v1_rotate_flip_image_route():
+    """Rotate and/or flip an image."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+    try:
+        rotation = int(request.form.get("rotation", 0))
+    except ValueError:
+        rotation = 0
+    if rotation not in (0, 90, 180, 270):
+        return jsonify({"error": "Rotation must be 0, 90, 180, or 270."}), 400
+
+    flip_horizontal = request.form.get("flip_horizontal", "false").lower() == "true"
+    flip_vertical = request.form.get("flip_vertical", "false").lower() == "true"
+
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+    task = rotate_flip_image_task.delay(
+        input_path, task_id, original_filename,
+        rotation, flip_horizontal, flip_vertical,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "image-rotate-flip", task.id)
+    return jsonify({"task_id": task.id, "message": "Transformation started."}), 202
+
+
+# ---------------------------------------------------------------------------
+# Barcode — POST /api/v1/barcode/generate
+# ---------------------------------------------------------------------------
+
+@v1_bp.route("/barcode/generate", methods=["POST"])
+@limiter.limit("20/minute")
+def v1_generate_barcode_route():
+    """Generate a barcode."""
+    actor, err = _resolve_and_check()
+    if err:
+        return err
+
+    if request.is_json:
+        body = request.get_json()
+        data = body.get("data", "").strip()
+        barcode_type = body.get("type", "code128").lower()
+        output_format = body.get("format", "png").lower()
+    else:
+        data = request.form.get("data", "").strip()
+        barcode_type = request.form.get("type", "code128").lower()
+        output_format = request.form.get("format", "png").lower()
+
+    if not data:
+        return jsonify({"error": "Barcode data is required."}), 400
+
+    if barcode_type not in SUPPORTED_BARCODE_TYPES:
+        return jsonify({"error": f"Unsupported type. Supported: {', '.join(SUPPORTED_BARCODE_TYPES)}"}), 400
+
+    if output_format not in ("png", "svg"):
+        output_format = "png"
+
+    task_id = str(uuid.uuid4())
+    task = generate_barcode_task.delay(
+        data, barcode_type, task_id, output_format,
+        **build_task_tracking_kwargs(actor),
+    )
+    record_accepted_usage(actor, "barcode", task.id)
+    return jsonify({"task_id": task.id, "message": "Barcode generation started."}), 202

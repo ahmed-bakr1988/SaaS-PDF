@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { ArrowUpDown } from 'lucide-react';
-import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
-import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
@@ -11,9 +9,8 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
+import { getPdfPageCount } from '@/utils/pdfClient';
 import { useFileStore } from '@/stores/fileStore';
-
-GlobalWorkerOptions.workerSrc = pdfWorker;
 
 export default function ReorderPdf() {
   const { t } = useTranslation();
@@ -47,7 +44,6 @@ export default function ReorderPdf() {
 
   useEffect(() => {
     let cancelled = false;
-    let loadingTask: ReturnType<typeof getDocument> | null = null;
 
     async function detectPageCount(selectedFile: File) {
       setIsReadingPageCount(true);
@@ -55,12 +51,9 @@ export default function ReorderPdf() {
       setPageCountError(null);
 
       try {
-        const data = new Uint8Array(await selectedFile.arrayBuffer());
-        loadingTask = getDocument({ data });
-        const pdf = await loadingTask.promise;
-
+        const count = await getPdfPageCount(selectedFile);
         if (!cancelled) {
-          setPageCount(pdf.numPages);
+          setPageCount(count);
         }
       } catch {
         if (!cancelled) {
@@ -70,7 +63,6 @@ export default function ReorderPdf() {
         if (!cancelled) {
           setIsReadingPageCount(false);
         }
-        void loadingTask?.destroy();
       }
     }
 
@@ -85,7 +77,6 @@ export default function ReorderPdf() {
 
     return () => {
       cancelled = true;
-      void loadingTask?.destroy();
     };
   }, [file, t]);
 
