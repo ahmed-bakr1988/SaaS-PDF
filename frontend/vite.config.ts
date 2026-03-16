@@ -3,6 +3,22 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
+function getAllowedHosts() {
+  const defaultHosts = ['dociva.io', 'www.dociva.io', 'localhost', '127.0.0.1'];
+  const siteDomain = process.env.VITE_SITE_DOMAIN;
+
+  if (!siteDomain) {
+    return defaultHosts;
+  }
+
+  try {
+    const hostname = new URL(siteDomain).hostname;
+    return Array.from(new Set([...defaultHosts, hostname]));
+  } catch {
+    return defaultHosts;
+  }
+}
+
 export default defineConfig({
   plugins: [react()],
   test: {
@@ -17,12 +33,17 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true,
+    allowedHosts: getAllowedHosts(),
     proxy: {
       '/api': {
         target: 'http://backend:5000',
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    host: true,
+    allowedHosts: getAllowedHosts(),
   },
   build: {
     outDir: 'dist',
