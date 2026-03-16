@@ -120,13 +120,13 @@ export function generateOrganization(origin: string): object {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'SaaS-PDF',
+    name: 'Dociva',
     url: origin,
     logo: `${origin}/favicon.svg`,
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
-      email: 'support@saas-pdf.com',
+      email: 'support@dociva.io',
       contactType: 'customer support',
       availableLanguage: ['English', 'Arabic', 'French'],
     },
@@ -149,7 +149,7 @@ export function generateWebPage(page: {
     url: page.url,
     isPartOf: {
       '@type': 'WebSite',
-      name: 'SaaS-PDF',
+      name: 'Dociva',
     },
   };
 }
@@ -172,11 +172,11 @@ export function generateBlogPosting(post: {
     inLanguage: post.inLanguage,
     author: {
       '@type': 'Organization',
-      name: 'SaaS-PDF',
+      name: 'Dociva',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'SaaS-PDF',
+      name: 'Dociva',
     },
     mainEntityOfPage: post.url,
   };

@@ -2,10 +2,10 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { buildLanguageAlternates, getOgLocale } from '@/utils/seo';
 
-const SITE_NAME = 'SaaS-PDF';
+const SITE_NAME = 'Dociva';
 
 interface SEOHeadProps {
-  /** Page title (will be appended with " — SaaS-PDF") */
+  /** Page title (will be appended with " — Dociva") */
   title: string;
   /** Meta description */
   description: string;

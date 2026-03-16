@@ -4,8 +4,8 @@ generate_sitemap.py
 Generates sitemap.xml for SEO from the full route inventory.
 
 Usage:
-  python scripts/generate_sitemap.py --domain https://saas-pdf.com
-  python scripts/generate_sitemap.py --domain https://saas-pdf.com --output frontend/public/sitemap.xml
+  python scripts/generate_sitemap.py --domain https://dociva.io
+  python scripts/generate_sitemap.py --domain https://dociva.io --output frontend/public/sitemap.xml
   # Or set SITE_DOMAIN env var and omit --domain
 """
 
@@ -130,7 +130,7 @@ def generate_sitemap(domain: str) -> str:
 def main():
     parser = argparse.ArgumentParser(description='Generate sitemap.xml')
     parser.add_argument('--domain', type=str, default=os.environ.get('SITE_DOMAIN', ''),
-                        help='Site domain (e.g. https://saas-pdf.com). Falls back to SITE_DOMAIN env var.')
+                        help='Site domain (e.g. https://dociva.io). Falls back to SITE_DOMAIN env var.')
     parser.add_argument('--output', type=str, default='frontend/public/sitemap.xml', help='Output file path')
     args = parser.parse_args()
 

@@ -1,9 +1,9 @@
 #!/bin/bash
-# deploy.sh — Production deployment script for SaaS-PDF
+# deploy.sh — Production deployment script for Dociva
 set -euo pipefail
 
 echo "========================================="
-echo "  SaaS-PDF Production Deployment"
+echo "  Dociva Production Deployment"
 echo "========================================="
 
 # Colors

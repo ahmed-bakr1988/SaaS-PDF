@@ -17,8 +17,8 @@ from app.services.stripe_service import init_stripe_db
 def app():
     """Create application for testing."""
     os.environ['FLASK_ENV'] = 'testing'
-    test_root = tempfile.mkdtemp(prefix='saas-pdf-tests-')
-    db_path = os.path.join(test_root, 'test_saas_pdf.db')
+    test_root = tempfile.mkdtemp(prefix='dociva-tests-')
+    db_path = os.path.join(test_root, 'test_dociva.db')
     upload_folder = os.path.join(test_root, 'uploads')
     output_folder = os.path.join(test_root, 'outputs')
     os.environ['DATABASE_PATH'] = db_path

@@ -4,7 +4,7 @@ import { generateWebPage } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
-const CONTACT_EMAIL = 'support@saas-pdf.com';
+const CONTACT_EMAIL = 'support@dociva.io';
 
 export default function PrivacyPage() {
   const { t } = useTranslation();

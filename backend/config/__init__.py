@@ -29,7 +29,7 @@ class BaseConfig:
     OUTPUT_FOLDER = os.getenv("OUTPUT_FOLDER", "/tmp/outputs")
     FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
     DATABASE_PATH = os.getenv(
-        "DATABASE_PATH", os.path.join(BASE_DIR, "data", "saas_pdf.db")
+        "DATABASE_PATH", os.path.join(BASE_DIR, "data", "dociva.db")
     )
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)
     SESSION_COOKIE_HTTPONLY = True
@@ -94,7 +94,7 @@ class BaseConfig:
     # AWS S3
     AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
     AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
-    AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", "saas-pdf-temp-files")
+    AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", "dociva-temp-files")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION", "eu-west-1")
 
     # CORS 
@@ -116,7 +116,7 @@ class BaseConfig:
     SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
     SMTP_USER = os.getenv("SMTP_USER", "")
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "")
-    SMTP_FROM = os.getenv("SMTP_FROM", "noreply@saas-pdf.com")
+    SMTP_FROM = os.getenv("SMTP_FROM", "noreply@dociva.io")
     SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 
@@ -131,7 +131,7 @@ class BaseConfig:
     SENTRY_ENVIRONMENT = os.getenv("SENTRY_ENVIRONMENT", "development")
 
     # Site domain
-    SITE_DOMAIN = os.getenv("SITE_DOMAIN", "https://saas-pdf.com")
+    SITE_DOMAIN = os.getenv("SITE_DOMAIN", "https://dociva.io")
 
     # PostgreSQL (production) — set DATABASE_URL to use PG instead of SQLite
     DATABASE_URL = os.getenv("DATABASE_URL", "")
@@ -153,6 +153,7 @@ class ProductionConfig(BaseConfig):
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
     # Stricter rate limits in production
     RATELIMIT_DEFAULT = "60/hour"
 
@@ -163,7 +164,7 @@ class TestingConfig(BaseConfig):
     TESTING = True
     UPLOAD_FOLDER = "/tmp/test_uploads"
     OUTPUT_FOLDER = "/tmp/test_outputs"
-    DATABASE_PATH = "/tmp/test_saas_pdf.db"
+    DATABASE_PATH = "/tmp/test_dociva.db"
     FEATURE_EDITOR = False
     FEATURE_OCR = False
     FEATURE_REMOVEBG = False

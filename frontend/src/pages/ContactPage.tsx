@@ -6,7 +6,7 @@ import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage } from '@/utils/seo';
 import axios from 'axios';
 
-const CONTACT_EMAIL = 'support@saas-pdf.com';
+const CONTACT_EMAIL = 'support@dociva.io';
 const API_BASE = import.meta.env.VITE_API_URL || '';
 
 type Category = 'general' | 'bug' | 'feature';

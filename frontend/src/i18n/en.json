@@ -1,6 +1,6 @@
-{
+﻿{
   "common": {
-    "appName": "SaaS-PDF",
+    "appName": "Dociva",
     "tagline": "Free Online File Tools",
     "upload": "Upload File",
     "download": "Download",
@@ -78,7 +78,7 @@
     "thinking": "Thinking...",
     "unavailable": "The assistant is temporarily unavailable. Please try again in a moment.",
     "close": "Close assistant",
-    "fabTitle": "Ask SaaS-PDF",
+    "fabTitle": "Ask Dociva",
     "fabSubtitle": "Smart help across all tools",
     "prompts": {
       "currentTool": "How do I use {{tool}}?",
@@ -155,10 +155,10 @@
   },
   "pages": {
     "about": {
-      "metaDescription": "Learn about SaaS-PDF — free, fast, and secure online file tools for PDFs, images, video, and text. No registration required.",
-      "title": "About SaaS-PDF",
+      "metaDescription": "Learn about Dociva — free, fast, and secure online file tools for PDFs, images, video, and text. No registration required.",
+      "title": "About Dociva",
       "missionTitle": "Our Mission",
-      "missionText": "SaaS-PDF was built to make professional-grade file tools accessible to everyone — for free. We believe that converting, compressing, and editing documents should be simple, fast, and private. No sign-ups, no hidden fees, no software to install.",
+      "missionText": "Dociva was built to make professional-grade file tools accessible to everyone — for free. We believe that converting, compressing, and editing documents should be simple, fast, and private. No sign-ups, no hidden fees, no software to install.",
       "technologyTitle": "Technology",
       "technologyText": "Our platform is powered by modern cloud infrastructure designed for speed and reliability. Files are processed server-side using industry-leading open-source libraries, ensuring accurate conversions and high-quality output every time. Our AI-powered tools leverage advanced machine learning models for intelligent document analysis, translation, and summarization.",
       "securityTitle": "Security",
@@ -175,7 +175,7 @@
       ]
     },
     "contact": {
-      "metaDescription": "Contact the SaaS-PDF team. Report bugs, request features, or send us a message.",
+      "metaDescription": "Contact the Dociva team. Report bugs, request features, or send us a message.",
       "title": "Contact Us",
       "subtitle": "Have a question, found a bug, or want to request a feature? We'd love to hear from you.",
       "formTitle": "Send Us a Message",
@@ -196,7 +196,7 @@
       "responseTime": "We typically respond within 24–48 hours."
     },
     "privacy": {
-      "metaDescription": "Privacy policy for SaaS-PDF. Learn how we handle your files and data with full transparency.",
+      "metaDescription": "Privacy policy for Dociva. Learn how we handle your files and data with full transparency.",
       "title": "Privacy Policy",
       "lastUpdated": "Last updated: {{date}}",
       "dataCollectionTitle": "1. Data Collection",
@@ -226,13 +226,13 @@
       "contactText": "Questions about this policy? Contact us at"
     },
     "terms": {
-      "metaDescription": "Terms of service for SaaS-PDF. Understand the rules and guidelines for using our free online tools.",
+      "metaDescription": "Terms of service for Dociva. Understand the rules and guidelines for using our free online tools.",
       "title": "Terms of Service",
       "lastUpdated": "Last updated: {{date}}",
       "acceptanceTitle": "1. Acceptance of Terms",
-      "acceptanceText": "By accessing and using SaaS-PDF, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use immediately.",
+      "acceptanceText": "By accessing and using Dociva, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use immediately.",
       "serviceTitle": "2. Service Description",
-      "serviceText": "SaaS-PDF provides free online tools for file conversion, compression, and transformation. The service is provided \"as is\" without warranties of any kind.",
+      "serviceText": "Dociva provides free online tools for file conversion, compression, and transformation. The service is provided \"as is\" without warranties of any kind.",
       "useTitle": "3. Acceptable Use",
       "useItems": [
         "You may only upload files that you have the right to process.",
@@ -248,9 +248,9 @@
         "We do not guarantee the preservation of any uploaded content beyond the processing window."
       ],
       "liabilityTitle": "5. Limitation of Liability",
-      "liabilityText": "SaaS-PDF shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the service. Use of the service is at your own risk.",
+      "liabilityText": "Dociva shall not be liable for any direct, indirect, incidental, or consequential damages resulting from the use or inability to use the service. Use of the service is at your own risk.",
       "ipTitle": "6. Intellectual Property",
-      "ipText": "All tools, interfaces, and content on SaaS-PDF are the intellectual property of the service operators. You retain full ownership of all files you upload and process.",
+      "ipText": "All tools, interfaces, and content on Dociva are the intellectual property of the service operators. You retain full ownership of all files you upload and process.",
       "changesTitle": "7. Changes to Terms",
       "changesText": "We reserve the right to modify these terms at any time. Continued use of the service after changes constitutes acceptance of the updated terms.",
       "contactTitle": "8. Contact",
@@ -285,8 +285,8 @@
       "totalRatings": "ratings"
     },
     "pricing": {
-      "metaTitle": "Pricing — SaaS-PDF",
-      "metaDescription": "Compare free and pro plans for SaaS-PDF. Access 30+ tools for free, or upgrade for unlimited processing.",
+      "metaTitle": "Pricing — Dociva",
+      "metaDescription": "Compare free and pro plans for Dociva. Access 30+ tools for free, or upgrade for unlimited processing.",
       "title": "Plans & Pricing",
       "subtitle": "Start free and upgrade when you need more.",
       "free": "Free",
@@ -338,9 +338,9 @@
       "trustApiDesc": "Pro workspaces can generate API keys and connect the same tools to internal automations and client flows."
     },
     "developers": {
-      "metaDescription": "Explore the SaaS-PDF developer portal, async API flow, and production-ready endpoints for document automation.",
+      "metaDescription": "Explore the Dociva developer portal, async API flow, and production-ready endpoints for document automation.",
       "badge": "Developer Portal",
-      "title": "Build document workflows on top of the SaaS-PDF API",
+      "title": "Build document workflows on top of the Dociva API",
       "subtitle": "Use the same conversion, compression, OCR, and AI endpoints behind the web app inside your own systems.",
       "getApiKey": "Get an API key",
       "comparePlans": "Compare plans",

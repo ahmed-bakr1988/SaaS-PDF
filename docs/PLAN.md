@@ -1,4 +1,4 @@
-# خطة رفع SaaS-PDF إلى مستوى المنافسة
+﻿# خطة رفع Dociva إلى مستوى المنافسة
 
 ## Summary
 - اعتماد مسار نمو واضح: `B2C SEO-first` أولاً، ثم `Freemium monetization`، ثم `B2B API expansion`.

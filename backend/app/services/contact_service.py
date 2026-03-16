@@ -63,11 +63,11 @@ def save_message(name: str, email: str, category: str, subject: str, message: st
         conn.close()
 
     # Send notification email to admin
-    admin_email = current_app.config.get("SMTP_FROM", "noreply@saas-pdf.com")
+    admin_email = current_app.config.get("SMTP_FROM", "noreply@dociva.io")
     try:
         send_email(
             to=admin_email,
-            subject=f"[SaaS-PDF Contact] [{category}] {subject}",
+            subject=f"[Dociva Contact] [{category}] {subject}",
             html_body=f"""
             <h2>New Contact Message</h2>
             <p><strong>From:</strong> {name} &lt;{email}&gt;</p>

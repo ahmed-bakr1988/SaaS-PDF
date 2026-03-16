@@ -1,4 +1,4 @@
-# SaaS-PDF — SEO & Growth Strategy
+﻿# Dociva — SEO & Growth Strategy
 
 > Roadmap to **500 000 monthly visits** for a multilingual (EN / AR / FR) free-tool SaaS.
 
@@ -37,7 +37,7 @@ VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ### Plausible (Privacy-Friendly Alternative)
 
 ```env
-VITE_PLAUSIBLE_DOMAIN=saas-pdf.com
+VITE_PLAUSIBLE_DOMAIN=Dociva.com
 VITE_PLAUSIBLE_SRC=https://plausible.io/js/script.js   # or self-hosted URL
 ```
 
@@ -127,7 +127,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
   - "كيفية دمج ملفات PDF" (Arabic equivalent)
   - "comment fusionner des fichiers PDF" (French equivalent)
 - [ ] Each blog post links to the relevant tool page (internal linking)
-- [ ] Create comparison pages: "SaaS-PDF vs iLovePDF vs SmallPDF"
+- [ ] Create comparison pages: "Dociva vs iLovePDF vs SmallPDF"
 
 **Keyword Research Strategy:**
 - Target 200–500 keywords across three tiers:
@@ -206,7 +206,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 | PDF24 | ~40M | Desktop app + web tools | Lightweight, faster load, mobile-first |
 | Sejda | ~10M | Advanced editing features | More tools, trilingual content |
 
-**Key differentiators for SaaS-PDF:**
+**Key differentiators for Dociva:**
 1. **Trilingual** — EN/AR/FR from day one (Arabic market is largely unserved)
 2. **No signup** — zero friction, instant file processing
 3. **32 tools** — broader coverage than most competitors
@@ -239,7 +239,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 VITE_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # Plausible Analytics (optional, privacy-friendly)
-VITE_PLAUSIBLE_DOMAIN=saas-pdf.com
+VITE_PLAUSIBLE_DOMAIN=Dociva.com
 VITE_PLAUSIBLE_SRC=https://plausible.io/js/script.js
 
 # Google Search Console verification (optional)

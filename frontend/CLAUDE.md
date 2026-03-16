@@ -1,4 +1,4 @@
-# CLAUDE.md — SaaS-PDF Codebase Rules & Design System Reference
+﻿# CLAUDE.md — Dociva Codebase Rules & Design System Reference
 
 > Comprehensive rules document for AI-assisted development and Figma-to-code integration via Model Context Protocol (MCP).
 
@@ -6,7 +6,7 @@
 
 ## 1. Project Overview
 
-SaaS-PDF is a full-stack web application offering 16+ free online file-processing tools (PDF, image, video, text). The architecture is a **Python/Flask backend** with **Celery workers** for async processing, and a **React + TypeScript frontend** styled with **Tailwind CSS**.
+Dociva is a full-stack web application offering 16+ free online file-processing tools (PDF, image, video, text). The architecture is a **Python/Flask backend** with **Celery workers** for async processing, and a **React + TypeScript frontend** styled with **Tailwind CSS**.
 
 ### Tech Stack Summary
 
@@ -506,7 +506,7 @@ Used via classes: `.progress-bar-animated`, `.animate-in`
 ### 9.1 Directory Layout
 
 ```
-SaaS-PDF/
+Dociva/
 ├── frontend/           # React SPA
 │   ├── src/
 │   │   ├── components/ # UI Components (layout/, shared/, tools/)

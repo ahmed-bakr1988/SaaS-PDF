@@ -1,4 +1,4 @@
-# SaaS-PDF — Tool Inventory & Competitive Gap Analysis
+﻿# Dociva — Tool Inventory & Competitive Gap Analysis
 
 > Generated: March 7, 2026
 > Branch: `feature/critical-maintenance-and-editor`

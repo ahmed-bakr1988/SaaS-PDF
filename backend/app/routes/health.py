@@ -9,6 +9,6 @@ def health_check():
     """Simple health check — returns 200 if the service is running."""
     return jsonify({
         "status": "healthy",
-        "service": "SaaS-PDF API",
+        "service": "Dociva API",
         "version": "1.0.0",
     })

@@ -1,6 +1,8 @@
-# SaaS-PDF — Free Online Tools Platform
+# Dociva — Free Online Tools Platform
 
-A free SaaS platform offering PDF, image, video, and text processing tools. Built with **Python Flask** (backend) and **React + Vite** (frontend), powered by **Celery + Redis** for async processing, and deployed on **AWS**.
+A free SaaS platform offering PDF, image, video, and text processing tools. Built with **Python Flask** (backend) and **React + Vite** (frontend), powered by **Celery + Redis** for async processing.
+
+**Live at:** [https://dociva.io](https://dociva.io)
 
 ## 🛠 Tools (Current)
 
@@ -65,7 +67,7 @@ docker-compose up --build
 - Session-backed authentication via `/api/auth/*`
 - Free account creation with email + password
 - Recent generated-file history via `/api/history`
-- Persistent SQLite storage at `DATABASE_PATH` (defaults to `backend/data/saas_pdf.db` locally)
+- Persistent SQLite storage at `DATABASE_PATH` (defaults to `backend/data/dociva.db` locally)
 
 ## 📈 Analytics & Ads Env
 
@@ -80,7 +82,7 @@ docker-compose up --build
 ## 📁 Project Structure
 
 ```
-SaaS-PDF/
+Dociva/
 ├── backend/          # Flask API + Celery Workers
 ├── frontend/         # React + Vite + TypeScript
 ├── nginx/            # Reverse proxy configuration

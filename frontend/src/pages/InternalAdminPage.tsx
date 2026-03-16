@@ -239,7 +239,7 @@ export default function InternalAdminPage() {
   return (
     <div className="mx-auto max-w-7xl space-y-8">
       <Helmet>
-        <title>Internal Admin | SaaS PDF</title>
+        <title>Internal Admin | Dociva</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 

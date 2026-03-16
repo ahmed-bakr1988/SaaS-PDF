@@ -1,4 +1,4 @@
-export const RATING_PROMPT_EVENT = 'saaspdf:rating-prompt';
+export const RATING_PROMPT_EVENT = 'dociva:rating-prompt';
 
 interface RatingPromptOptions {
   forceOpen?: boolean;

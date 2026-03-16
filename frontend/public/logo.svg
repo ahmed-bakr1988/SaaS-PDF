@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <defs>
+    <linearGradient id="icon-bg" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <!-- Icon -->
+  <rect width="42" height="42" rx="10" y="3" fill="url(#icon-bg)"/>
+  <path d="M13 12h10l7 7v15a1.5 1.5 0 0 1-1.5 1.5H13A1.5 1.5 0 0 1 11.5 34V13.5A1.5 1.5 0 0 1 13 12z" fill="rgba(255,255,255,0.15)" stroke="#fff" stroke-width="1.5"/>
+  <path d="M23 12v6a1.5 1.5 0 0 0 1.5 1.5H30" stroke="#fff" stroke-width="1.5" fill="none"/>
+  <path d="M16 24h12M16 28h9M16 32h6" stroke="#93C5FD" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Wordmark: dociva -->
+  <text x="52" y="33" font-family="Inter,system-ui,Arial,sans-serif" font-weight="700" font-size="28" letter-spacing="-0.5" fill="#1E1B4B">doc</text>
+  <text x="118" y="33" font-family="Inter,system-ui,Arial,sans-serif" font-weight="700" font-size="28" letter-spacing="-0.5" fill="#4F46E5">iva</text>
+</svg>

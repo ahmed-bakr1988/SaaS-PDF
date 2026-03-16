@@ -1,4 +1,4 @@
-# Contributing to SaaS-PDF
+# Contributing to Dociva
 
 ## Safety Rules
 

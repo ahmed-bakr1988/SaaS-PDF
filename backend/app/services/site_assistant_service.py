@@ -52,7 +52,7 @@ TOOL_CATALOG = [
     {"slug": "text-cleaner", "label": "Text Cleaner", "summary": "clean up text spacing and formatting"},
 ]
 
-SYSTEM_PROMPT = """You are the SaaS-PDF site assistant.
+SYSTEM_PROMPT = """You are the Dociva site assistant.
 You help users choose the right tool, understand how to use the current tool, and explain site capabilities.
 Rules:
 - Reply in the same language as the user.

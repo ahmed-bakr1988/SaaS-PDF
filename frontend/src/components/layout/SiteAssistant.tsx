@@ -19,7 +19,7 @@ interface AssistantStorageState {
   messages: AssistantMessage[];
 }
 
-const STORAGE_KEY = 'saaspdf:site-assistant:v1';
+const STORAGE_KEY = 'dociva:site-assistant:v1';
 const MAX_STORED_MESSAGES = 20;
 const ASSISTANT_ENABLED = import.meta.env.VITE_SITE_ASSISTANT_ENABLED !== 'false';
 

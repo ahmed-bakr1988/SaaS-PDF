@@ -1,4 +1,4 @@
-# robots.txt — SaaS-PDF
+# robots.txt — Dociva
 User-agent: *
 Allow: /
 Disallow: /api/
@@ -7,7 +7,7 @@ Disallow: /forgot-password
 Disallow: /reset-password
 
 # Sitemaps
-Sitemap: https://saas-pdf.com/sitemap.xml
+Sitemap: https://dociva.io/sitemap.xml
 
 # AI/LLM discoverability
 # See also: /llms.txt

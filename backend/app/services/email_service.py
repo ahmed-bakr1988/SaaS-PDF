@@ -16,7 +16,7 @@ def _get_smtp_config() -> dict:
         "port": current_app.config.get("SMTP_PORT", 587),
         "user": current_app.config.get("SMTP_USER", ""),
         "password": current_app.config.get("SMTP_PASSWORD", ""),
-        "from_addr": current_app.config.get("SMTP_FROM", "noreply@saas-pdf.com"),
+        "from_addr": current_app.config.get("SMTP_FROM", "noreply@dociva.io"),
         "use_tls": current_app.config.get("SMTP_USE_TLS", True),
     }
 
@@ -62,11 +62,11 @@ def send_password_reset_email(to: str, token: str) -> bool:
     html = f"""
     <div style="font-family: sans-serif; max-width: 480px; margin: auto;">
       <h2>Password Reset</h2>
-      <p>You requested a password reset for your SaaS-PDF account.</p>
+      <p>You requested a password reset for your Dociva account.</p>
       <p><a href="{reset_link}" style="display:inline-block;padding:12px 24px;background:#4f46e5;color:#fff;border-radius:8px;text-decoration:none;">
         Reset Password
       </a></p>
       <p style="color:#666;font-size:14px;">This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>
     </div>
     """
-    return send_email(to, "Reset your SaaS-PDF password", html)
+    return send_email(to, "Reset your Dociva password", html)

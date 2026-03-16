@@ -65,11 +65,11 @@ export default function PricingPage() {
     <>
       <SEOHead
         title={t('pages.pricing.title', 'Pricing')}
-        description={t('pages.pricing.metaDescription', 'Compare Free and Pro plans for SaaS-PDF. Get more file processing power, API access, and priority support.')}
+        description={t('pages.pricing.metaDescription', 'Compare Free and Pro plans for Dociva. Get more file processing power, API access, and priority support.')}
         path="/pricing"
         jsonLd={generateWebPage({
           name: t('pages.pricing.title', 'Pricing'),
-          description: t('pages.pricing.metaDescription', 'Compare Free and Pro plans for SaaS-PDF.'),
+          description: t('pages.pricing.metaDescription', 'Compare Free and Pro plans for Dociva.'),
           url: `${window.location.origin}/pricing`,
         })}
       />

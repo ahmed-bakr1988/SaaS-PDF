@@ -1,6 +1,6 @@
-{
+﻿{
   "common": {
-    "appName": "SaaS-PDF",
+    "appName": "Dociva",
     "tagline": "Outils de fichiers en ligne gratuits",
     "upload": "Télécharger un fichier",
     "download": "Télécharger",
@@ -78,7 +78,7 @@
     "thinking": "Réflexion en cours...",
     "unavailable": "L'assistant est temporairement indisponible. Veuillez réessayer dans un instant.",
     "close": "Fermer l'assistant",
-    "fabTitle": "Demander à SaaS-PDF",
+    "fabTitle": "Demander à Dociva",
     "fabSubtitle": "Aide intelligente sur tous les outils",
     "prompts": {
       "currentTool": "Comment utiliser {{tool}} ?",
@@ -155,10 +155,10 @@
   },
   "pages": {
     "about": {
-      "metaDescription": "Découvrez SaaS-PDF — outils en ligne gratuits, rapides et sécurisés pour les PDF, images, vidéos et textes. Aucune inscription requise.",
-      "title": "À propos de SaaS-PDF",
+      "metaDescription": "Découvrez Dociva — outils en ligne gratuits, rapides et sécurisés pour les PDF, images, vidéos et textes. Aucune inscription requise.",
+      "title": "À propos de Dociva",
       "missionTitle": "Notre mission",
-      "missionText": "SaaS-PDF a été créé pour rendre les outils de fichiers professionnels accessibles à tous — gratuitement. Nous croyons que la conversion, la compression et l'édition de documents doivent être simples, rapides et privées. Pas d'inscription, pas de frais cachés, pas de logiciel à installer.",
+      "missionText": "Dociva a été créé pour rendre les outils de fichiers professionnels accessibles à tous — gratuitement. Nous croyons que la conversion, la compression et l'édition de documents doivent être simples, rapides et privées. Pas d'inscription, pas de frais cachés, pas de logiciel à installer.",
       "technologyTitle": "Technologie",
       "technologyText": "Notre plateforme est alimentée par une infrastructure cloud moderne conçue pour la vitesse et la fiabilité. Les fichiers sont traités côté serveur à l'aide de bibliothèques open source de référence, garantissant des conversions précises et des résultats de haute qualité à chaque fois. Nos outils alimentés par l'IA exploitent des modèles d'apprentissage automatique avancés pour l'analyse, la traduction et le résumé intelligents de documents.",
       "securityTitle": "Sécurité",
@@ -175,7 +175,7 @@
       ]
     },
     "contact": {
-      "metaDescription": "Contactez l'équipe SaaS-PDF. Signalez un bug, demandez une fonctionnalité ou envoyez-nous un message.",
+      "metaDescription": "Contactez l'équipe Dociva. Signalez un bug, demandez une fonctionnalité ou envoyez-nous un message.",
       "title": "Nous contacter",
       "subtitle": "Vous avez une question, trouvé un bug ou souhaitez demander une fonctionnalité ? Nous serions ravis de vous entendre.",
       "formTitle": "Envoyez-nous un message",
@@ -196,7 +196,7 @@
       "responseTime": "Nous répondons généralement sous 24 à 48 heures."
     },
     "privacy": {
-      "metaDescription": "Politique de confidentialité de SaaS-PDF. Découvrez comment nous gérons vos fichiers et données en toute transparence.",
+      "metaDescription": "Politique de confidentialité de Dociva. Découvrez comment nous gérons vos fichiers et données en toute transparence.",
       "title": "Politique de confidentialité",
       "lastUpdated": "Dernière mise à jour : {{date}}",
       "dataCollectionTitle": "1. Collecte de données",
@@ -226,13 +226,13 @@
       "contactText": "Des questions sur cette politique ? Contactez-nous à"
     },
     "terms": {
-      "metaDescription": "Conditions d'utilisation de SaaS-PDF. Comprenez les règles et directives pour utiliser nos outils gratuits en ligne.",
+      "metaDescription": "Conditions d'utilisation de Dociva. Comprenez les règles et directives pour utiliser nos outils gratuits en ligne.",
       "title": "Conditions d'utilisation",
       "lastUpdated": "Dernière mise à jour : {{date}}",
       "acceptanceTitle": "1. Acceptation des conditions",
-      "acceptanceText": "En accédant et en utilisant SaaS-PDF, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'êtes pas d'accord, veuillez cesser d'utiliser le service immédiatement.",
+      "acceptanceText": "En accédant et en utilisant Dociva, vous acceptez d'être lié par ces conditions d'utilisation. Si vous n'êtes pas d'accord, veuillez cesser d'utiliser le service immédiatement.",
       "serviceTitle": "2. Description du service",
-      "serviceText": "SaaS-PDF fournit des outils gratuits en ligne pour la conversion, la compression et la transformation de fichiers. Le service est fourni \"tel quel\" sans garantie d'aucune sorte.",
+      "serviceText": "Dociva fournit des outils gratuits en ligne pour la conversion, la compression et la transformation de fichiers. Le service est fourni \"tel quel\" sans garantie d'aucune sorte.",
       "useTitle": "3. Utilisation acceptable",
       "useItems": [
         "Vous ne pouvez télécharger que des fichiers que vous avez le droit de traiter.",
@@ -248,9 +248,9 @@
         "Nous ne garantissons pas la préservation du contenu téléchargé au-delà de la fenêtre de traitement."
       ],
       "liabilityTitle": "5. Limitation de responsabilité",
-      "liabilityText": "SaaS-PDF ne sera pas responsable des dommages directs, indirects, accessoires ou consécutifs résultant de l'utilisation ou de l'impossibilité d'utiliser le service. L'utilisation du service est à vos propres risques.",
+      "liabilityText": "Dociva ne sera pas responsable des dommages directs, indirects, accessoires ou consécutifs résultant de l'utilisation ou de l'impossibilité d'utiliser le service. L'utilisation du service est à vos propres risques.",
       "ipTitle": "6. Propriété intellectuelle",
-      "ipText": "Tous les outils, interfaces et contenus de SaaS-PDF sont la propriété intellectuelle des opérateurs du service. Vous conservez la pleine propriété de tous les fichiers que vous téléchargez et traitez.",
+      "ipText": "Tous les outils, interfaces et contenus de Dociva sont la propriété intellectuelle des opérateurs du service. Vous conservez la pleine propriété de tous les fichiers que vous téléchargez et traitez.",
       "changesTitle": "7. Modifications des conditions",
       "changesText": "Nous nous réservons le droit de modifier ces conditions à tout moment. L'utilisation continue du service après les modifications constitue l'acceptation des conditions mises à jour.",
       "contactTitle": "8. Contact",
@@ -285,8 +285,8 @@
       "totalRatings": "évaluations"
     },
     "pricing": {
-      "metaTitle": "Tarifs — SaaS-PDF",
-      "metaDescription": "Comparez les plans gratuit et pro de SaaS-PDF. Accédez à plus de 30 outils gratuitement ou passez au pro pour un traitement illimité.",
+      "metaTitle": "Tarifs — Dociva",
+      "metaDescription": "Comparez les plans gratuit et pro de Dociva. Accédez à plus de 30 outils gratuitement ou passez au pro pour un traitement illimité.",
       "title": "Plans & Tarifs",
       "subtitle": "Commencez gratuitement et passez au pro quand vous en avez besoin.",
       "free": "Gratuit",
@@ -338,9 +338,9 @@
       "trustApiDesc": "Les espaces Pro peuvent générer des clés API et connecter les mêmes outils à des automatisations internes ou à des parcours clients."
     },
     "developers": {
-      "metaDescription": "Explorez le portail développeur SaaS-PDF, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
+      "metaDescription": "Explorez le portail développeur Dociva, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
       "badge": "Portail développeur",
-      "title": "Construisez des workflows documentaires sur l'API SaaS-PDF",
+      "title": "Construisez des workflows documentaires sur l'API Dociva",
       "subtitle": "Utilisez dans vos propres systèmes les mêmes endpoints de conversion, compression, OCR et IA que ceux de l'application web.",
       "getApiKey": "Obtenir une clé API",
       "comparePlans": "Comparer les forfaits",
