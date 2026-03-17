@@ -35,7 +35,7 @@ function shouldAttachCsrfToken(config: InternalAxiosRequestConfig): boolean {
 
 function setRequestHeader(config: InternalAxiosRequestConfig, key: string, value: string) {
   if (!config.headers) {
-    config.headers = {};
+    config.headers = new axios.AxiosHeaders();
   }
 
   if (typeof (config.headers as { set?: (header: string, headerValue: string) => void }).set === 'function') {

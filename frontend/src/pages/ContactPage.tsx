@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { isAxiosError } from 'axios';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { getApiClient } from '@/services/api';
@@ -40,10 +41,12 @@ export default function ContactPage() {
       });
       setSubmitted(true);
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (isAxiosError(err) && err.response?.data?.error) {
+        setError(err.response.data.error);
+      } else if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError(err.response.data.error);
+        setError(String(err));
       }
     } finally {
       setLoading(false);
