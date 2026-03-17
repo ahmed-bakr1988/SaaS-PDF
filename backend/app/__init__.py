@@ -1,7 +1,7 @@
 """Flask Application Factory."""
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 
 from config import config
 from app.extensions import cors, limiter, talisman, init_celery
@@ -11,6 +11,7 @@ from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
 from app.services.contact_service import init_contact_db
 from app.services.stripe_service import init_stripe_db
+from app.utils.csrf import CSRFError, apply_csrf_cookie, should_enforce_csrf, validate_csrf_request
 
 
 def _init_sentry(app):
@@ -48,9 +49,10 @@ def create_app(config_name=None):
     # Create upload/output/database directories
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
     os.makedirs(app.config["OUTPUT_FOLDER"], exist_ok=True)
-    db_dir = os.path.dirname(app.config["DATABASE_PATH"])
-    if db_dir:
-        os.makedirs(db_dir, exist_ok=True)
+    if not app.config.get("DATABASE_URL"):
+        db_dir = os.path.dirname(app.config["DATABASE_PATH"])
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
 
     # Initialize extensions
     cors.init_app(
@@ -96,6 +98,22 @@ def create_app(config_name=None):
         content_security_policy=csp,
         force_https=config_name == "production",
     )
+
+    @app.before_request
+    def enforce_csrf():
+        if not should_enforce_csrf():
+            return None
+
+        try:
+            validate_csrf_request()
+        except CSRFError as exc:
+            return jsonify({"error": exc.message}), exc.status_code
+
+        return None
+
+    @app.after_request
+    def sync_csrf_cookie(response):
+        return apply_csrf_cookie(response)
 
     # Initialize Celery
     init_celery(app)

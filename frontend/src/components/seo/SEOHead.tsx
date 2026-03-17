@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { buildLanguageAlternates, buildSocialImageUrl, getOgLocale } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, getOgLocale, getSiteOrigin } from '@/utils/seo';
 
 const SITE_NAME = 'Dociva';
 
@@ -26,7 +26,7 @@ interface SEOHeadProps {
  */
 export default function SEOHead({ title, description, path, type = 'website', jsonLd }: SEOHeadProps) {
   const { i18n } = useTranslation();
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);
   const fullTitle = `${title} — ${SITE_NAME}`;

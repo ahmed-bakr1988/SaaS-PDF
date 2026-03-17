@@ -3,16 +3,18 @@ import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
-import axios from 'axios';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
+import { getApiClient } from '@/services/api';
 
 const CONTACT_EMAIL = 'support@dociva.io';
 const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = getApiClient();
 
 type Category = 'general' | 'bug' | 'feature';
 
 export default function ContactPage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const [category, setCategory] = useState<Category>('general');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default function ContactPage() {
     const data = new FormData(form);
 
     try {
-      await axios.post(`${API_BASE}/api/contact/submit`, {
+      await api.post(`${API_BASE}/contact/submit`, {
         name: data.get('name'),
         email: data.get('email'),
         category,
@@ -38,10 +40,10 @@ export default function ContactPage() {
       });
       setSubmitted(true);
     } catch (err: unknown) {
-      if (axios.isAxiosError(err) && err.response?.data?.error) {
-        setError(err.response.data.error);
+      if (err instanceof Error) {
+        setError(err.message);
       } else {
-        setError(t('pages.contact.errorMessage', 'Failed to send message. Please try again.'));
+        setError(err.response.data.error);
       }
     } finally {
       setLoading(false);
@@ -79,7 +81,7 @@ export default function ContactPage() {
         jsonLd={generateWebPage({
           name: t('pages.contact.title'),
           description: t('pages.contact.metaDescription'),
-          url: `${window.location.origin}/contact`,
+          url: `${siteOrigin}/contact`,
         })}
       />
 

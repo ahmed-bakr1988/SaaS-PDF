@@ -18,6 +18,7 @@ export interface LanguageAlternate {
 }
 
 const DEFAULT_SOCIAL_IMAGE_PATH = '/social-preview.svg';
+const DEFAULT_SITE_ORIGIN = 'https://dociva.io';
 
 const LANGUAGE_CONFIG: Record<'en' | 'ar' | 'fr', { hrefLang: string; ogLocale: string }> = {
   en: { hrefLang: 'en', ogLocale: 'en_US' },
@@ -42,6 +43,19 @@ export function buildLanguageAlternates(origin: string, path: string): LanguageA
       href: `${origin}${path}${separator}lng=${language}`,
       ogLocale: config.ogLocale,
     }));
+}
+
+export function getSiteOrigin(currentOrigin = ''): string {
+  const configuredOrigin = String(import.meta.env.VITE_SITE_DOMAIN || '').trim().replace(/\/$/, '');
+  if (configuredOrigin) {
+    return configuredOrigin;
+  }
+
+  if (currentOrigin) {
+    return currentOrigin.replace(/\/$/, '');
+  }
+
+  return DEFAULT_SITE_ORIGIN;
 }
 
 export function buildSocialImageUrl(origin: string): string {

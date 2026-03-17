@@ -1,4 +1,60 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
+
+const CSRF_COOKIE_NAME = 'csrf_token';
+const CSRF_HEADER_NAME = 'X-CSRF-Token';
+
+
+function getCookieValue(name: string): string {
+  if (typeof document === 'undefined') {
+    return '';
+  }
+
+  const encodedName = `${encodeURIComponent(name)}=`;
+  const cookie = document.cookie
+    .split('; ')
+    .find((item) => item.startsWith(encodedName));
+
+  return cookie ? decodeURIComponent(cookie.slice(encodedName.length)) : '';
+}
+
+
+function shouldAttachCsrfToken(config: InternalAxiosRequestConfig): boolean {
+  const method = String(config.method || 'get').toUpperCase();
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    return false;
+  }
+
+  const headers = config.headers ?? {};
+  if ('X-API-Key' in headers || 'x-api-key' in headers) {
+    return false;
+  }
+
+  return !String(config.url || '').includes('/auth/csrf');
+}
+
+
+function setRequestHeader(config: InternalAxiosRequestConfig, key: string, value: string) {
+  if (!config.headers) {
+    config.headers = {};
+  }
+
+  if (typeof (config.headers as { set?: (header: string, headerValue: string) => void }).set === 'function') {
+    (config.headers as { set: (header: string, headerValue: string) => void }).set(key, value);
+    return;
+  }
+
+  (config.headers as Record<string, string>)[key] = value;
+}
+
+
+const csrfBootstrapClient = axios.create({
+  baseURL: '/api',
+  timeout: 15000,
+  withCredentials: true,
+  headers: {
+    Accept: 'application/json',
+  },
+});
 
 const api = axios.create({
   baseURL: '/api',
@@ -11,7 +67,23 @@ const api = axios.create({
 
 // Request interceptor for logging
 api.interceptors.request.use(
-  (config) => config,
+  async (config) => {
+    if (!shouldAttachCsrfToken(config)) {
+      return config;
+    }
+
+    let csrfToken = getCookieValue(CSRF_COOKIE_NAME);
+    if (!csrfToken) {
+      await csrfBootstrapClient.get('/auth/csrf');
+      csrfToken = getCookieValue(CSRF_COOKIE_NAME);
+    }
+
+    if (csrfToken) {
+      setRequestHeader(config, CSRF_HEADER_NAME, csrfToken);
+    }
+
+    return config;
+  },
   (error) => Promise.reject(error)
 );
 
@@ -316,6 +388,10 @@ export async function getHistory(limit = 50): Promise<HistoryEntry[]> {
 export async function getTaskStatus(taskId: string): Promise<TaskStatus> {
   const response = await api.get<TaskStatus>(`/tasks/${taskId}/status`);
   return response.data;
+}
+
+export function getApiClient() {
+  return api;
 }
 
 /**

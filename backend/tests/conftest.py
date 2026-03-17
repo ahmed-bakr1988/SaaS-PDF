@@ -11,6 +11,37 @@ from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
 from app.services.contact_service import init_contact_db
 from app.services.stripe_service import init_stripe_db
+from flask.testing import FlaskClient
+from werkzeug.datastructures import Headers
+
+
+class CSRFTestClient(FlaskClient):
+    """Flask test client that auto-injects the SPA CSRF header for browser requests."""
+
+    def open(self, *args, **kwargs):
+        path = args[0] if args and isinstance(args[0], str) else kwargs.get("path", "")
+        method = str(kwargs.get("method", "GET")).upper()
+        headers = Headers(kwargs.pop("headers", {}))
+
+        should_add_csrf = (
+            method in {"POST", "PUT", "PATCH", "DELETE"}
+            and path != "/api/stripe/webhook"
+            and "X-API-Key" not in headers
+            and "X-CSRF-Token" not in headers
+        )
+
+        if should_add_csrf:
+            token_cookie = self.get_cookie("csrf_token")
+            if token_cookie is None:
+                FlaskClient.open(self, "/api/auth/csrf", method="GET")
+                token_cookie = self.get_cookie("csrf_token")
+            if token_cookie is not None:
+                headers["X-CSRF-Token"] = token_cookie.value
+
+        if headers:
+            kwargs["headers"] = headers
+
+        return super().open(*args, **kwargs)
 
 
 @pytest.fixture
@@ -26,6 +57,7 @@ def app():
     os.environ['OUTPUT_FOLDER'] = output_folder
 
     app = create_app('testing')
+    app.test_client_class = CSRFTestClient
     app.config.update({
         'TESTING': True,
         'UPLOAD_FOLDER': upload_folder,

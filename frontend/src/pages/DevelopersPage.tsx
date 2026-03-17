@@ -1,6 +1,6 @@
 import SEOHead from '@/components/seo/SEOHead';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Code2, KeyRound, Rocket, Workflow } from 'lucide-react';
@@ -24,7 +24,7 @@ const ENDPOINT_GROUPS = [
 
 export default function DevelopersPage() {
   const { t } = useTranslation();
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://dociva.io';
+  const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const curlUpload = `curl -X POST ${origin}/api/v1/convert/pdf-to-word \\
   -H "X-API-Key: spdf_your_api_key" \\
   -F "file=@./sample.pdf"`;
@@ -40,7 +40,7 @@ export default function DevelopersPage() {
         jsonLd={generateWebPage({
           name: t('pages.developers.title'),
           description: t('pages.developers.metaDescription'),
-          url: `${window.location.origin}/developers`,
+          url: `${origin}/developers`,
         })}
       />
 

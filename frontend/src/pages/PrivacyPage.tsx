@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
@@ -8,6 +8,7 @@ const CONTACT_EMAIL = 'support@dociva.io';
 
 export default function PrivacyPage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const fileItems = t('pages.privacy.fileHandlingItems', { minutes: FILE_RETENTION_MINUTES, returnObjects: true }) as string[];
   const thirdPartyItems = t('pages.privacy.thirdPartyItems', { returnObjects: true }) as string[];
 
@@ -20,7 +21,7 @@ export default function PrivacyPage() {
         jsonLd={generateWebPage({
           name: t('pages.privacy.title'),
           description: t('pages.privacy.metaDescription'),
-          url: `${window.location.origin}/privacy`,
+          url: `${siteOrigin}/privacy`,
         })}
       />
 

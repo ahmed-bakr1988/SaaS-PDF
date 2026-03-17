@@ -2,7 +2,7 @@ import { useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateOrganization } from '@/utils/seo';
+import { generateOrganization, getSiteOrigin } from '@/utils/seo';
 import {
   FileText,
   FileOutput,
@@ -86,6 +86,7 @@ const otherTools: ToolInfo[] = [
 
 export default function HomePage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
@@ -123,15 +124,15 @@ export default function HomePage() {
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: t('common.appName'),
-            url: window.location.origin,
+            url: siteOrigin,
             description: t('home.heroSub'),
             potentialAction: {
               '@type': 'SearchAction',
-              target: `${window.location.origin}/?q={search_term_string}`,
+              target: `${siteOrigin}/?q={search_term_string}`,
               'query-input': 'required name=search_term_string',
             },
           },
-          generateOrganization(window.location.origin),
+          generateOrganization(siteOrigin),
         ]}
       />
 

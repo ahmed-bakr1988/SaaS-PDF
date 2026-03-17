@@ -9,7 +9,7 @@ import {
   getLocalizedBlogArticle,
   normalizeBlogLocale,
 } from '@/content/blogArticles';
-import { generateBlogPosting, generateBreadcrumbs, generateWebPage } from '@/utils/seo';
+import { generateBlogPosting, generateBreadcrumbs, generateWebPage, getSiteOrigin } from '@/utils/seo';
 import NotFoundPage from './NotFoundPage';
 
 export default function BlogPostPage() {
@@ -17,6 +17,7 @@ export default function BlogPostPage() {
   const { t, i18n } = useTranslation();
   const locale = normalizeBlogLocale(i18n.language);
   const article = slug ? getBlogArticleBySlug(slug) : undefined;
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
 
   if (!article) {
     return <NotFoundPage />;
@@ -24,11 +25,11 @@ export default function BlogPostPage() {
 
   const localizedArticle = getLocalizedBlogArticle(article, locale);
   const path = `/blog/${localizedArticle.slug}`;
-  const url = `${window.location.origin}${path}`;
+  const url = `${siteOrigin}${path}`;
 
   const breadcrumbs = generateBreadcrumbs([
-    { name: t('common.home'), url: window.location.origin },
-    { name: t('common.blog'), url: `${window.location.origin}/blog` },
+    { name: t('common.home'), url: siteOrigin },
+    { name: t('common.blog'), url: `${siteOrigin}/blog` },
     { name: localizedArticle.title, url },
   ]);
 

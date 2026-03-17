@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 const LAST_UPDATED = '2026-03-06';
@@ -8,6 +8,7 @@ const CONTACT_EMAIL = 'support@dociva.io';
 
 export default function TermsPage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const useItems = t('pages.terms.useItems', { returnObjects: true }) as string[];
   const fileItems = t('pages.terms.fileItems', { minutes: FILE_RETENTION_MINUTES, returnObjects: true }) as string[];
 
@@ -20,7 +21,7 @@ export default function TermsPage() {
         jsonLd={generateWebPage({
           name: t('pages.terms.title'),
           description: t('pages.terms.metaDescription'),
-          url: `${window.location.origin}/terms`,
+          url: `${siteOrigin}/terms`,
         })}
       />
 

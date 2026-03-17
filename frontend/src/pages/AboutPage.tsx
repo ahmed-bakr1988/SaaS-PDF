@@ -1,12 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { Target, Cpu, Shield, Lock, Wrench } from 'lucide-react';
 import { FILE_RETENTION_MINUTES } from '@/config/toolLimits';
 
 export default function AboutPage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const toolCategories = t('pages.about.toolCategories', { returnObjects: true }) as string[];
 
   return (
@@ -18,7 +19,7 @@ export default function AboutPage() {
         jsonLd={generateWebPage({
           name: t('pages.about.title'),
           description: t('pages.about.metaDescription'),
-          url: `${window.location.origin}/about`,
+          url: `${siteOrigin}/about`,
         })}
       />
 

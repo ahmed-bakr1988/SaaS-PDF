@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
-import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale, getSiteOrigin } from '@/utils/seo';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
@@ -37,7 +37,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
   const toolTitle = t(`tools.${seo.i18nKey}.title`);
   const toolDesc = t(`tools.${seo.i18nKey}.description`);
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const path = `/tools/${slug}`;
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);

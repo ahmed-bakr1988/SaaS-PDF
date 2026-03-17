@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { BookOpen, Calendar, ArrowRight, Search, X } from 'lucide-react';
 import {
   BLOG_ARTICLES,
@@ -13,6 +13,7 @@ import {
 
 export default function BlogPage() {
   const { t, i18n } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
@@ -46,7 +47,7 @@ export default function BlogPage() {
         jsonLd={generateWebPage({
           name: t('pages.blog.metaTitle'),
           description: t('pages.blog.metaDescription'),
-          url: `${window.location.origin}/blog`,
+          url: `${siteOrigin}/blog`,
         })}
       />
 

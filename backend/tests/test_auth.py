@@ -2,6 +2,13 @@
 
 
 class TestAuthRoutes:
+    def test_csrf_bootstrap_returns_token(self, client):
+        response = client.get('/api/auth/csrf')
+
+        assert response.status_code == 200
+        assert isinstance(response.get_json()['csrf_token'], str)
+        assert response.get_json()['csrf_token']
+
     def test_register_success(self, client):
         response = client.post(
             '/api/auth/register',
@@ -77,3 +84,13 @@ class TestAuthRoutes:
 
         assert response.status_code == 200
         assert response.get_json() == {'authenticated': False, 'user': None}
+
+    def test_register_rejects_invalid_csrf_token(self, client):
+        response = client.post(
+            '/api/auth/register',
+            json={'email': 'csrf@example.com', 'password': 'secretpass123'},
+            headers={'X-CSRF-Token': 'invalid-token'},
+        )
+
+        assert response.status_code == 403
+        assert 'csrf' in response.get_json()['error'].lower()

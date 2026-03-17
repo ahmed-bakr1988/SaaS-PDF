@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage } from '@/utils/seo';
+import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { Check, X, Zap, Crown, Loader2 } from 'lucide-react';
-import axios from 'axios';
 import { useAuthStore } from '@/stores/authStore';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
+import { getApiClient } from '@/services/api';
 
 const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = getApiClient();
 
 interface PlanFeature {
   key: string;
@@ -31,6 +32,7 @@ const FEATURES: PlanFeature[] = [
 
 export default function PricingPage() {
   const { t } = useTranslation();
+  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const user = useAuthStore((s) => s.user);
   const [loading, setLoading] = useState(false);
 
@@ -41,11 +43,7 @@ export default function PricingPage() {
     }
     setLoading(true);
     try {
-      const { data } = await axios.post(
-        `${API_BASE}/api/stripe/create-checkout-session`,
-        { billing },
-        { withCredentials: true },
-      );
+      const { data } = await api.post(`${API_BASE}/stripe/create-checkout-session`, { billing });
       if (data.url) window.location.href = data.url;
     } catch {
       // Stripe not configured yet — show message
@@ -70,7 +68,7 @@ export default function PricingPage() {
         jsonLd={generateWebPage({
           name: t('pages.pricing.title', 'Pricing'),
           description: t('pages.pricing.metaDescription', 'Compare Free and Pro plans for Dociva.'),
-          url: `${window.location.origin}/pricing`,
+          url: `${siteOrigin}/pricing`,
         })}
       />
 

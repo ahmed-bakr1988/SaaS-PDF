@@ -1,4 +1,20 @@
 services:
+  # --- PostgreSQL (launch-ready cutover target) ---
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-dociva}
+      - POSTGRES_USER=${POSTGRES_USER:-dociva}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-change-me}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dociva} -d ${POSTGRES_DB:-dociva}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
   # --- Redis ---
   redis:
     image: redis:7-alpine
@@ -23,11 +39,14 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=${DATABASE_URL:-}
     volumes:
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
       - db_data:/app/data
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     restart: always
@@ -49,11 +68,14 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=${DATABASE_URL:-}
     volumes:
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
       - db_data:/app/data
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     restart: always
@@ -73,9 +95,12 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=${DATABASE_URL:-}
     volumes:
       - db_data:/app/data
     depends_on:
+      postgres:
+        condition: service_healthy
       redis:
         condition: service_healthy
     restart: always
@@ -120,6 +145,7 @@ services:
       - frontend_build:/app/dist
 
 volumes:
+  postgres_data:
   redis_data:
   upload_data:
   output_data:

@@ -19,6 +19,7 @@ from app.utils.auth import (
     login_user_session,
     logout_user_session,
 )
+from app.utils.csrf import get_or_create_csrf_token
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -103,6 +104,13 @@ def me_route():
         return jsonify({"authenticated": False, "user": None}), 200
 
     return jsonify({"authenticated": True, "user": user}), 200
+
+
+@auth_bp.route("/csrf", methods=["GET"])
+@limiter.limit("240/hour")
+def csrf_route():
+    """Return the active CSRF token for SPA bootstrap flows."""
+    return jsonify({"csrf_token": get_or_create_csrf_token()}), 200
 
 
 @auth_bp.route("/forgot-password", methods=["POST"])
