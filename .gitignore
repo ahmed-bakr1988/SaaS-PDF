@@ -54,6 +54,3 @@ htmlcov/
 .coverage
 coverage/
 
-# Celery
-celerybeat-schedule
-backend/celerybeat-schedule

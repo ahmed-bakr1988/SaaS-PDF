@@ -3,6 +3,14 @@ import os
 
 from flask import Blueprint, send_file, abort, request, current_app
 
+from app.services.policy_service import (
+    PolicyError,
+    assert_api_task_access,
+    assert_web_task_access,
+    resolve_api_actor,
+    resolve_web_actor,
+)
+
 download_bp = Blueprint("download", __name__)
 
 
@@ -19,6 +27,16 @@ def download_file(task_id: str, filename: str):
         abort(400, "Invalid task ID.")
     if ".." in filename or "/" in filename or "\\" in filename:
         abort(400, "Invalid filename.")
+
+    try:
+        if request.headers.get("X-API-Key", "").strip():
+            actor = resolve_api_actor()
+            assert_api_task_access(actor, task_id)
+        else:
+            actor = resolve_web_actor()
+            assert_web_task_access(actor, task_id)
+    except PolicyError as exc:
+        abort(exc.status_code, exc.message)
 
     output_dir = current_app.config["OUTPUT_FOLDER"]
     file_path = os.path.join(output_dir, task_id, filename)

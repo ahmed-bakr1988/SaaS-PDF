@@ -1,6 +1,6 @@
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
-import { buildLanguageAlternates, getOgLocale } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, getOgLocale } from '@/utils/seo';
 
 const SITE_NAME = 'Dociva';
 
@@ -28,6 +28,7 @@ export default function SEOHead({ title, description, path, type = 'website', js
   const { i18n } = useTranslation();
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const canonicalUrl = `${origin}${path}`;
+  const socialImageUrl = buildSocialImageUrl(origin);
   const fullTitle = `${title} — ${SITE_NAME}`;
   const languageAlternates = buildLanguageAlternates(origin, path);
   const currentOgLocale = getOgLocale(i18n.language);
@@ -55,6 +56,8 @@ export default function SEOHead({ title, description, path, type = 'website', js
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content={SITE_NAME} />
+      <meta property="og:image" content={socialImageUrl} />
+      <meta property="og:image:alt" content={`${fullTitle} social preview`} />
       <meta property="og:locale" content={currentOgLocale} />
       {languageAlternates
         .filter((alternate) => alternate.ogLocale !== currentOgLocale)
@@ -63,9 +66,11 @@ export default function SEOHead({ title, description, path, type = 'website', js
         ))}
 
       {/* Twitter */}
-      <meta name="twitter:card" content="summary" />
+      <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={socialImageUrl} />
+      <meta name="twitter:image:alt" content={`${fullTitle} social preview`} />
 
       {/* JSON-LD Structured Data */}
       {schemas.map((schema, i) => (

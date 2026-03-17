@@ -1,9 +1,16 @@
 """Task status polling endpoint."""
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from celery.result import AsyncResult
 
 from app.extensions import celery
 from app.middleware.rate_limiter import limiter
+from app.services.policy_service import (
+    PolicyError,
+    assert_api_task_access,
+    assert_web_task_access,
+    resolve_api_actor,
+    resolve_web_actor,
+)
 
 tasks_bp = Blueprint("tasks", __name__)
 
@@ -17,6 +24,16 @@ def get_task_status(task_id: str):
     Returns:
         JSON with task state and result (if completed)
     """
+    try:
+        if request.headers.get("X-API-Key", "").strip():
+            actor = resolve_api_actor()
+            assert_api_task_access(actor, task_id)
+        else:
+            actor = resolve_web_actor()
+            assert_web_task_access(actor, task_id)
+    except PolicyError as exc:
+        return jsonify({"error": exc.message}), exc.status_code
+
     result = AsyncResult(task_id, app=celery)
 
     response = {

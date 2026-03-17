@@ -11,7 +11,9 @@ Usage:
 
 import argparse
 import os
+import re
 from datetime import datetime
+from pathlib import Path
 
 # ─── Route definitions with priority and changefreq ──────────────────────────
 
@@ -95,9 +97,21 @@ TOOL_GROUPS = [
 ]
 
 
+def get_blog_slugs() -> list[str]:
+    repo_root = Path(__file__).resolve().parents[1]
+    blog_articles_path = repo_root / 'frontend' / 'src' / 'content' / 'blogArticles.ts'
+
+    if not blog_articles_path.exists():
+        return []
+
+    content = blog_articles_path.read_text(encoding='utf-8')
+    return list(dict.fromkeys(re.findall(r"slug:\s*'([^']+)'", content)))
+
+
 def generate_sitemap(domain: str) -> str:
     today = datetime.now().strftime('%Y-%m-%d')
     urls = []
+    blog_slugs = get_blog_slugs()
 
     # Static pages
     for page in PAGES:
@@ -106,6 +120,16 @@ def generate_sitemap(domain: str) -> str:
     <lastmod>{today}</lastmod>
     <changefreq>{page["changefreq"]}</changefreq>
     <priority>{page["priority"]}</priority>
+  </url>''')
+
+    if blog_slugs:
+        urls.append('\n  <!-- Blog Posts -->')
+        for slug in blog_slugs:
+            urls.append(f'''  <url>
+    <loc>{domain}/blog/{slug}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>''')
 
     # Tool pages by category
@@ -143,7 +167,7 @@ def main():
     with open(args.output, 'w', encoding='utf-8') as f:
         f.write(sitemap)
 
-    total = len(PAGES) + sum(len(routes) for _, routes in TOOL_GROUPS)
+    total = len(PAGES) + len(get_blog_slugs()) + sum(len(routes) for _, routes in TOOL_GROUPS)
     print(f"Sitemap generated: {args.output}")
     print(f"Total URLs: {total}")
 

@@ -22,15 +22,14 @@ const ENDPOINT_GROUPS = [
   },
 ];
 
-const CURL_UPLOAD = `curl -X POST https://your-domain.example/api/v1/convert/pdf-to-word \\
-  -H "X-API-Key: spdf_your_api_key" \\
-  -F "file=@./sample.pdf"`;
-
-const CURL_POLL = `curl https://your-domain.example/api/v1/tasks/<task_id>/status \\
-  -H "X-API-Key: spdf_your_api_key"`;
-
 export default function DevelopersPage() {
   const { t } = useTranslation();
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://dociva.io';
+  const curlUpload = `curl -X POST ${origin}/api/v1/convert/pdf-to-word \\
+  -H "X-API-Key: spdf_your_api_key" \\
+  -F "file=@./sample.pdf"`;
+  const curlPoll = `curl ${origin}/api/tasks/<task_id>/status \\
+  -H "X-API-Key: spdf_your_api_key"`;
 
   return (
     <>
@@ -91,12 +90,12 @@ export default function DevelopersPage() {
           <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('pages.developers.authExampleTitle')}</h2>
             <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400">{t('pages.developers.authExampleSubtitle')}</p>
-            <pre className="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-sky-100"><code>{CURL_UPLOAD}</code></pre>
+            <pre className="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-sky-100"><code>{curlUpload}</code></pre>
           </article>
           <article className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">{t('pages.developers.pollExampleTitle')}</h2>
             <p className="mt-2 text-sm leading-7 text-slate-600 dark:text-slate-400">{t('pages.developers.pollExampleSubtitle')}</p>
-            <pre className="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-100"><code>{CURL_POLL}</code></pre>
+            <pre className="mt-4 overflow-x-auto rounded-2xl bg-slate-950 p-4 text-sm text-emerald-100"><code>{curlPoll}</code></pre>
           </article>
         </section>
 

@@ -17,6 +17,8 @@ export interface LanguageAlternate {
   ogLocale: string;
 }
 
+const DEFAULT_SOCIAL_IMAGE_PATH = '/social-preview.svg';
+
 const LANGUAGE_CONFIG: Record<'en' | 'ar' | 'fr', { hrefLang: string; ogLocale: string }> = {
   en: { hrefLang: 'en', ogLocale: 'en_US' },
   ar: { hrefLang: 'ar', ogLocale: 'ar_SA' },
@@ -40,6 +42,10 @@ export function buildLanguageAlternates(origin: string, path: string): LanguageA
       href: `${origin}${path}${separator}lng=${language}`,
       ogLocale: config.ogLocale,
     }));
+}
+
+export function buildSocialImageUrl(origin: string): string {
+  return `${origin}${DEFAULT_SOCIAL_IMAGE_PATH}`;
 }
 
 /**

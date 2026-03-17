@@ -1,6 +1,8 @@
 """Tests for task status polling route."""
 from unittest.mock import patch, MagicMock
 
+from app.utils.auth import TASK_ACCESS_SESSION_KEY
+
 
 class TestTaskStatus:
     def test_pending_task(self, client, monkeypatch):
@@ -8,6 +10,9 @@ class TestTaskStatus:
         mock_result = MagicMock()
         mock_result.state = 'PENDING'
         mock_result.info = None
+
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['test-task-id']
 
         with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
             response = client.get('/api/tasks/test-task-id/status')
@@ -23,6 +28,9 @@ class TestTaskStatus:
         mock_result = MagicMock()
         mock_result.state = 'PROCESSING'
         mock_result.info = {'step': 'Converting page 3 of 10...'}
+
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['processing-id']
 
         with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
             response = client.get('/api/tasks/processing-id/status')
@@ -42,6 +50,9 @@ class TestTaskStatus:
             'filename': 'output.pdf',
         }
 
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['success-id']
+
         with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
             response = client.get('/api/tasks/success-id/status')
 
@@ -57,6 +68,9 @@ class TestTaskStatus:
         mock_result.state = 'FAILURE'
         mock_result.info = Exception('Conversion failed due to corrupt PDF.')
 
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['failed-id']
+
         with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
             response = client.get('/api/tasks/failed-id/status')
 
@@ -64,3 +78,9 @@ class TestTaskStatus:
         data = response.get_json()
         assert data['state'] == 'FAILURE'
         assert 'error' in data
+
+    def test_unknown_task_without_access_returns_404(self, client):
+        """Should not expose task state without session or API ownership."""
+        response = client.get('/api/tasks/unknown-task/status')
+
+        assert response.status_code == 404

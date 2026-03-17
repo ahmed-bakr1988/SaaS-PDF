@@ -1,0 +1,35 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" fill="#F8FAFC"/>
+  <rect x="40" y="40" width="1120" height="550" rx="36" fill="url(#bg)"/>
+  <circle cx="964" cy="138" r="132" fill="#DBEAFE" fill-opacity="0.9"/>
+  <circle cx="1040" cy="506" r="96" fill="#D1FAE5" fill-opacity="0.85"/>
+  <circle cx="182" cy="518" r="122" fill="#FCE7F3" fill-opacity="0.9"/>
+  <rect x="118" y="150" width="114" height="114" rx="28" fill="#0F172A"/>
+  <path d="M154 206C154 182.804 172.804 164 196 164H208C231.196 164 250 182.804 250 206V208C250 231.196 231.196 250 208 250H196C172.804 250 154 231.196 154 208V206Z" fill="#38BDF8"/>
+  <path d="M172 196C172 186.059 180.059 178 190 178H202C211.941 178 220 186.059 220 196V218C220 227.941 211.941 236 202 236H190C180.059 236 172 227.941 172 218V196Z" fill="#E0F2FE"/>
+  <text x="278" y="205" fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700" letter-spacing="6">DOCIVA</text>
+  <text x="118" y="304" fill="white" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="800">Online PDF, Image, and AI Tools</text>
+  <text x="118" y="360" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="500">Convert, compress, edit, OCR, and automate document workflows from one workspace.</text>
+  <g>
+    <rect x="118" y="420" width="256" height="54" rx="27" fill="#0EA5E9"/>
+    <text x="160" y="454" fill="white" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="700">dociva.io</text>
+  </g>
+  <g>
+    <rect x="118" y="500" width="220" height="40" rx="20" fill="#FFFFFF" fill-opacity="0.12"/>
+    <text x="143" y="526" fill="#E2E8F0" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600">No signup required</text>
+  </g>
+  <g>
+    <rect x="770" y="210" width="270" height="186" rx="28" fill="#FFFFFF" fill-opacity="0.12" stroke="#E2E8F0" stroke-opacity="0.16"/>
+    <rect x="800" y="246" width="150" height="16" rx="8" fill="#E0F2FE"/>
+    <rect x="800" y="282" width="204" height="16" rx="8" fill="#C7D2FE"/>
+    <rect x="800" y="318" width="126" height="16" rx="8" fill="#A7F3D0"/>
+    <rect x="800" y="354" width="174" height="16" rx="8" fill="#FDE68A"/>
+  </g>
+  <defs>
+    <linearGradient id="bg" x1="40" y1="40" x2="1160" y2="590" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="0.55" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0F766E"/>
+    </linearGradient>
+  </defs>
+</svg>

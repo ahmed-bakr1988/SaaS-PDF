@@ -13,6 +13,7 @@ from app.services.account_service import (
     record_usage_event,
 )
 from app.utils.auth import get_current_user_id, logout_user_session
+from app.utils.auth import has_session_task_access, remember_task_access
 from app.utils.file_validator import validate_file
 
 FREE_PLAN = "free"
@@ -202,6 +203,9 @@ def assert_quota_available(actor: ActorContext):
 
 def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str):
     """Record one accepted usage event after task dispatch succeeds."""
+    if actor.source == "web":
+        remember_task_access(celery_task_id)
+
     record_usage_event(
         user_id=actor.user_id,
         source=actor.source,
@@ -225,3 +229,14 @@ def assert_api_task_access(actor: ActorContext, task_id: str):
     """Ensure one API actor can poll one task id."""
     if actor.user_id is None or not has_task_access(actor.user_id, "api", task_id):
         raise PolicyError("Task not found.", 404)
+
+
+def assert_web_task_access(actor: ActorContext, task_id: str):
+    """Ensure one web browser session can access one task id."""
+    if actor.user_id is not None and has_task_access(actor.user_id, "web", task_id):
+        return
+
+    if has_session_task_access(task_id):
+        return
+
+    raise PolicyError("Task not found.", 404)

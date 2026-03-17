@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
-import { buildLanguageAlternates, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale } from '@/utils/seo';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
@@ -40,6 +40,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const path = `/tools/${slug}`;
   const canonicalUrl = `${origin}${path}`;
+  const socialImageUrl = buildSocialImageUrl(origin);
   const languageAlternates = buildLanguageAlternates(origin, path);
   const currentOgLocale = getOgLocale(i18n.language);
 
@@ -82,6 +83,8 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <meta property="og:description" content={seo.metaDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta property="og:image" content={socialImageUrl} />
+        <meta property="og:image:alt" content={`${toolTitle} social preview`} />
         <meta property="og:locale" content={currentOgLocale} />
         {languageAlternates
           .filter((alternate) => alternate.ogLocale !== currentOgLocale)
@@ -90,9 +93,11 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
           ))}
 
         {/* Twitter */}
-        <meta name="twitter:card" content="summary" />
+        <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={`${toolTitle} — ${seo.titleSuffix}`} />
         <meta name="twitter:description" content={seo.metaDescription} />
+        <meta name="twitter:image" content={socialImageUrl} />
+        <meta name="twitter:image:alt" content={`${toolTitle} social preview`} />
 
         {/* Structured Data */}
         <script type="application/ld+json">{JSON.stringify(toolSchema)}</script>

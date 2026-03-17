@@ -1,6 +1,8 @@
 """Tests for file download route."""
 import os
 
+from app.utils.auth import TASK_ACCESS_SESSION_KEY
+
 
 class TestDownload:
     def test_download_nonexistent_file(self, client):
@@ -31,6 +33,9 @@ class TestDownload:
         with open(file_path, 'wb') as f:
             f.write(b'%PDF-1.4 test content')
 
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = [task_id]
+
         response = client.get(f'/api/download/{task_id}/{filename}')
         assert response.status_code == 200
         assert response.data == b'%PDF-1.4 test content'
@@ -45,5 +50,21 @@ class TestDownload:
         with open(os.path.join(output_dir, filename), 'wb') as f:
             f.write(b'%PDF-1.4')
 
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = [task_id]
+
         response = client.get(f'/api/download/{task_id}/{filename}?name=my-document.pdf')
         assert response.status_code == 200
+
+    def test_download_requires_task_access(self, client, app):
+        """Should not serve an existing file without session or API ownership."""
+        task_id = 'protected-download-id'
+        filename = 'output.pdf'
+
+        output_dir = os.path.join(app.config['OUTPUT_FOLDER'], task_id)
+        os.makedirs(output_dir, exist_ok=True)
+        with open(os.path.join(output_dir, filename), 'wb') as f:
+            f.write(b'%PDF-1.4 protected')
+
+        response = client.get(f'/api/download/{task_id}/{filename}')
+        assert response.status_code == 404

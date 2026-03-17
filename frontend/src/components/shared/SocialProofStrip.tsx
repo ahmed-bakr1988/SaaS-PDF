@@ -37,17 +37,28 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
     return null;
   }
 
+  const hasReliableUsageStats = stats.total_files_processed >= 25;
+  const hasReliableRating = stats.rating_count >= 3;
+
   const topTools = stats.top_tools.slice(0, 3).map((tool) => {
     const seo = getToolSEO(tool.tool);
     return seo ? t(`tools.${seo.i18nKey}.title`) : tool.tool;
   });
 
   const cards = [
-    { label: t('socialProof.processedFiles'), value: stats.total_files_processed.toLocaleString() },
-    { label: t('socialProof.successRate'), value: `${stats.success_rate}%` },
-    { label: t('socialProof.last24h'), value: stats.files_last_24h.toLocaleString() },
-    { label: t('socialProof.averageRating'), value: `${stats.average_rating.toFixed(1)} / 5` },
-  ];
+    hasReliableUsageStats
+      ? { label: t('socialProof.processedFiles'), value: stats.total_files_processed.toLocaleString() }
+      : null,
+    hasReliableUsageStats
+      ? { label: t('socialProof.successRate'), value: `${stats.success_rate}%` }
+      : null,
+    hasReliableUsageStats
+      ? { label: t('socialProof.last24h'), value: stats.files_last_24h.toLocaleString() }
+      : null,
+    hasReliableRating
+      ? { label: t('socialProof.averageRating'), value: `${stats.average_rating.toFixed(1)} / 5` }
+      : null,
+  ].filter((card): card is { label: string; value: string } => Boolean(card));
 
   return (
     <section className={`rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}>
@@ -73,20 +84,31 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
           )}
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
-          {cards.map((card) => (
-            <div key={card.label} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/70">
-              <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{card.label}</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{card.value}</p>
-            </div>
-          ))}
-        </div>
+        {cards.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
+            {cards.map((card) => (
+              <div key={card.label} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/70">
+                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{card.label}</p>
+                <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{card.value}</p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-slate-50 p-5 text-sm leading-7 text-slate-600 dark:bg-slate-800/70 dark:text-slate-300 lg:max-w-md">
+            {t(
+              'socialProof.pendingSummary',
+              'Public activity metrics appear here after we collect enough completed jobs and verified ratings.'
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
         <p className="inline-flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
           <Star className="h-4 w-4 text-amber-500" />
-          {t('socialProof.basedOnRatings', { count: stats.rating_count })}
+          {hasReliableRating
+            ? t('socialProof.basedOnRatings', { count: stats.rating_count })
+            : t('socialProof.pendingRatings', 'Ratings summary will unlock after enough verified feedback.')}
         </p>
         <Link to="/developers" className="text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
           {t('socialProof.viewDevelopers')}
