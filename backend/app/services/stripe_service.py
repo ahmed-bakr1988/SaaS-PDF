@@ -19,6 +19,13 @@ def _ensure_stripe_columns():
     """Add stripe_customer_id and stripe_subscription_id columns if missing."""
     conn = _connect()
     try:
+        # Check that users table exists before altering it
+        table_exists = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
+        ).fetchone()
+        if table_exists is None:
+            return
+
         cols = [row["name"] for row in conn.execute("PRAGMA table_info(users)").fetchall()]
         if "stripe_customer_id" not in cols:
             conn.execute("ALTER TABLE users ADD COLUMN stripe_customer_id TEXT")

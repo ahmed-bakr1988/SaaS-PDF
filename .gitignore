@@ -11,7 +11,7 @@ build/
 venv/
 .venv/
 env/
-
+docs/
 # Node
 node_modules/
 frontend/dist/
