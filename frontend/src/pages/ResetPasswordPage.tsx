@@ -3,8 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { KeyRound } from 'lucide-react';
+import { getApiClient } from '../services/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = getApiClient();
 
 export default function ResetPasswordPage() {
   const { t } = useTranslation();
@@ -33,14 +34,7 @@ export default function ResetPasswordPage() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/auth/reset-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ token, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Reset failed');
+      await api.post('/auth/reset-password', { token, password });
       setSuccess(true);
       setTimeout(() => navigate('/account'), 3000);
     } catch (err) {

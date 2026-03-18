@@ -43,7 +43,7 @@ docker-compose.override.yml
 uploads/
 tmp/
 *.tmp
-backend/data/*.db
+#backend/data/*.db
 
 # Logs
 *.log

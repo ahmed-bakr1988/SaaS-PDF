@@ -412,13 +412,25 @@ export async function streamAssistantChat(
   payload: AssistantChatRequest,
   handlers: AssistantStreamHandlers = {}
 ): Promise<AssistantChatResponse> {
+  // Ensure a CSRF token cookie exists before streaming
+  let csrfToken = getCookieValue(CSRF_COOKIE_NAME);
+  if (!csrfToken) {
+    await csrfBootstrapClient.get('/auth/csrf');
+    csrfToken = getCookieValue(CSRF_COOKIE_NAME);
+  }
+
+  const streamHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'text/event-stream',
+  };
+  if (csrfToken) {
+    streamHeaders[CSRF_HEADER_NAME] = csrfToken;
+  }
+
   const response = await fetch('/api/assistant/chat/stream', {
     method: 'POST',
     credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'text/event-stream',
-    },
+    headers: streamHeaders,
     body: JSON.stringify(payload),
   });
 

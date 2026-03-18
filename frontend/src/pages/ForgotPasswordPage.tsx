@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail } from 'lucide-react';
+import { getApiClient } from '../services/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const api = getApiClient();
 
 export default function ForgotPasswordPage() {
   const { t } = useTranslation();
@@ -18,13 +19,7 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      const res = await fetch(`${API_BASE}/api/auth/forgot-password`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) throw new Error('Request failed');
+      await api.post('/auth/forgot-password', { email });
       setSubmitted(true);
     } catch {
       setError(t('auth.forgotPassword.error'));
