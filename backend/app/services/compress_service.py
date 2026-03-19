@@ -59,6 +59,9 @@ def compress_pdf(
         input_path,
     ]
 
+    if not os.path.exists(input_path):
+        raise PDFCompressionError(f"Input file not found: {input_path}")
+
     try:
         original_size = os.path.getsize(input_path)
 
