@@ -15,6 +15,15 @@ def _parse_csv_env(name: str) -> tuple[str, ...]:
     return tuple(item.strip().lower() for item in raw_value.split(",") if item.strip())
 
 
+def _env_or_default(name: str, default: str) -> str:
+    raw_value = os.getenv(name)
+    if raw_value is None:
+        return default
+
+    normalized = raw_value.strip()
+    return normalized or default
+
+
 class BaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
@@ -25,10 +34,10 @@ class BaseConfig:
     MAX_CONTENT_LENGTH = int(
         os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 100)
     ) * 1024 * 1024
-    UPLOAD_FOLDER = os.getenv("UPLOAD_FOLDER", "/tmp/uploads")
-    OUTPUT_FOLDER = os.getenv("OUTPUT_FOLDER", "/tmp/outputs")
+    UPLOAD_FOLDER = _env_or_default("UPLOAD_FOLDER", "/tmp/uploads")
+    OUTPUT_FOLDER = _env_or_default("OUTPUT_FOLDER", "/tmp/outputs")
     FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
-    DATABASE_PATH = os.getenv(
+    DATABASE_PATH = _env_or_default(
         "DATABASE_PATH", os.path.join(BASE_DIR, "data", "dociva.db")
     )
     PERMANENT_SESSION_LIFETIME = timedelta(days=30)

@@ -1,4 +1,7 @@
 """Tests for GET /api/config — dynamic upload limits."""
+import importlib
+import os
+
 import pytest
 
 
@@ -51,3 +54,22 @@ class TestConfigEndpoint:
         data = resp.get_json()
         limits = data["file_limits_mb"]
         assert data["max_upload_mb"] == max(limits.values())
+
+
+class TestConfigEnvironmentFallbacks:
+    """Tests for environment values that should not accept blank strings."""
+
+    def test_blank_database_path_falls_back_to_default(self, monkeypatch):
+        """A blank DATABASE_PATH must not create a temporary per-connection SQLite DB."""
+        monkeypatch.setenv("DATABASE_PATH", "")
+
+        import config as config_module
+
+        reloaded = importlib.reload(config_module)
+        try:
+            expected = os.path.join(reloaded.BASE_DIR, "data", "dociva.db")
+            assert reloaded.BaseConfig.DATABASE_PATH == expected
+            assert reloaded.ProductionConfig.DATABASE_PATH == expected
+        finally:
+            monkeypatch.delenv("DATABASE_PATH", raising=False)
+            importlib.reload(config_module)
