@@ -78,6 +78,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 30s
+      timeout: 5s
+      retries: 1
     restart: always
 
   # --- Celery Beat (Scheduled Tasks) ---
@@ -103,6 +108,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 30s
+      timeout: 5s
+      retries: 1
     restart: always
 
   # --- Nginx (serves built frontend + reverse proxy) ---
