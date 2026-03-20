@@ -31,6 +31,11 @@ const FOOTER_TOOLS = {
     { slug: 'video-to-gif', label: 'Video to GIF' },
     { slug: 'word-counter', label: 'Word Counter' },
   ],
+  Guides: [
+    { slug: 'best-pdf-tools', label: 'Best PDF Tools', isLanding: true },
+    { slug: 'free-pdf-tools-online', label: 'Free PDF Tools Online', isLanding: true },
+    { slug: 'convert-files-online', label: 'Convert Files Online', isLanding: true },
+  ],
 };
 
 export default function Footer() {
@@ -50,7 +55,7 @@ export default function Footer() {
                 {tools.map((tool) => (
                   <li key={tool.slug}>
                     <Link
-                      to={`/tools/${tool.slug}`}
+                      to={(tool as { slug: string; isLanding?: boolean }).isLanding ? `/${tool.slug}` : `/tools/${tool.slug}`}
                       className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
                     >
                       {tool.label}

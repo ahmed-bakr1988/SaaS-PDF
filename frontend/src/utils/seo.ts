@@ -133,6 +133,27 @@ export function generateFAQ(
   };
 }
 
+export function generateHowTo(data: {
+  name: string;
+  description: string;
+  steps: string[];
+  url: string;
+}): object {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: data.name,
+    description: data.description,
+    url: data.url,
+    step: data.steps.map((text, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: text,
+      text,
+    })),
+  };
+}
+
 /**
  * Generate Organization JSON-LD for the site.
  */

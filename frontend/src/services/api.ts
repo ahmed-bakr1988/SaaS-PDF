@@ -2,6 +2,7 @@ import axios, { type InternalAxiosRequestConfig } from 'axios';
 
 const CSRF_COOKIE_NAME = 'csrf_token';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
+let csrfRefreshPromise: Promise<string> | null = null;
 
 
 function getCookieValue(name: string): string {
@@ -47,6 +48,57 @@ function setRequestHeader(config: InternalAxiosRequestConfig, key: string, value
 }
 
 
+async function ensureCsrfToken(forceRefresh = false): Promise<string> {
+  const existingToken = getCookieValue(CSRF_COOKIE_NAME);
+  if (existingToken && !forceRefresh) {
+    return existingToken;
+  }
+
+  if (!csrfRefreshPromise) {
+    csrfRefreshPromise = csrfBootstrapClient
+      .get('/auth/csrf')
+      .then(() => getCookieValue(CSRF_COOKIE_NAME))
+      .finally(() => {
+        csrfRefreshPromise = null;
+      });
+  }
+
+  return csrfRefreshPromise;
+}
+
+
+function isCsrfFailure(status: number, bodyText: string): boolean {
+  if (status !== 403) {
+    return false;
+  }
+
+  const normalizedBody = bodyText.toLowerCase();
+  return normalizedBody.includes('csrf');
+}
+
+
+async function postAssistantStream(
+  payload: AssistantChatRequest,
+  csrfToken: string
+): Promise<Response> {
+  const streamHeaders: Record<string, string> = {
+    'Content-Type': 'application/json',
+    Accept: 'text/event-stream',
+  };
+
+  if (csrfToken) {
+    streamHeaders[CSRF_HEADER_NAME] = csrfToken;
+  }
+
+  return fetch('/api/assistant/chat/stream', {
+    method: 'POST',
+    credentials: 'include',
+    headers: streamHeaders,
+    body: JSON.stringify(payload),
+  });
+}
+
+
 const csrfBootstrapClient = axios.create({
   baseURL: '/api',
   timeout: 15000,
@@ -72,11 +124,7 @@ api.interceptors.request.use(
       return config;
     }
 
-    let csrfToken = getCookieValue(CSRF_COOKIE_NAME);
-    if (!csrfToken) {
-      await csrfBootstrapClient.get('/auth/csrf');
-      csrfToken = getCookieValue(CSRF_COOKIE_NAME);
-    }
+    const csrfToken = await ensureCsrfToken();
 
     if (csrfToken) {
       setRequestHeader(config, CSRF_HEADER_NAME, csrfToken);
@@ -346,6 +394,7 @@ export async function startTask(endpoint: string): Promise<TaskResponse> {
  */
 export async function registerUser(email: string, password: string): Promise<AuthUser> {
   const response = await api.post<AuthResponse>('/auth/register', { email, password });
+  await ensureCsrfToken(true);
   return response.data.user;
 }
 
@@ -354,6 +403,7 @@ export async function registerUser(email: string, password: string): Promise<Aut
  */
 export async function loginUser(email: string, password: string): Promise<AuthUser> {
   const response = await api.post<AuthResponse>('/auth/login', { email, password });
+  await ensureCsrfToken(true);
   return response.data.user;
 }
 
@@ -362,6 +412,7 @@ export async function loginUser(email: string, password: string): Promise<AuthUs
  */
 export async function logoutUser(): Promise<void> {
   await api.post('/auth/logout');
+  await ensureCsrfToken(true);
 }
 
 /**
@@ -412,31 +463,20 @@ export async function streamAssistantChat(
   payload: AssistantChatRequest,
   handlers: AssistantStreamHandlers = {}
 ): Promise<AssistantChatResponse> {
-  // Ensure a CSRF token cookie exists before streaming
-  let csrfToken = getCookieValue(CSRF_COOKIE_NAME);
-  if (!csrfToken) {
-    await csrfBootstrapClient.get('/auth/csrf');
-    csrfToken = getCookieValue(CSRF_COOKIE_NAME);
-  }
-
-  const streamHeaders: Record<string, string> = {
-    'Content-Type': 'application/json',
-    Accept: 'text/event-stream',
-  };
-  if (csrfToken) {
-    streamHeaders[CSRF_HEADER_NAME] = csrfToken;
-  }
-
-  const response = await fetch('/api/assistant/chat/stream', {
-    method: 'POST',
-    credentials: 'include',
-    headers: streamHeaders,
-    body: JSON.stringify(payload),
-  });
+  let response = await postAssistantStream(payload, await ensureCsrfToken());
 
   if (!response.ok) {
-    const bodyText = await response.text();
-    throw normalizeStreamError(response.status, bodyText);
+    let bodyText = await response.text();
+
+    if (isCsrfFailure(response.status, bodyText)) {
+      response = await postAssistantStream(payload, await ensureCsrfToken(true));
+      if (!response.ok) {
+        bodyText = await response.text();
+        throw normalizeStreamError(response.status, bodyText);
+      }
+    } else {
+      throw normalizeStreamError(response.status, bodyText);
+    }
   }
 
   if (!response.body) {

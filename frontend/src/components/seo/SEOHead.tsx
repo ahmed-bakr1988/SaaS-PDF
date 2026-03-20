@@ -9,6 +9,8 @@ interface SEOHeadProps {
   title: string;
   /** Meta description */
   description: string;
+  /** Optional keywords meta tag */
+  keywords?: string;
   /** Canonical URL path (e.g. "/about") — origin is auto-prefixed */
   path: string;
   /** OG type — defaults to "website" */
@@ -20,11 +22,12 @@ interface SEOHeadProps {
 /**
  * Reusable SEO head component that injects:
  * - title, description, canonical URL
+ * - optional keywords meta tag
  * - OpenGraph meta tags (title, description, url, type, site_name, locale)
  * - Twitter card meta tags
  * - Optional JSON-LD structured data
  */
-export default function SEOHead({ title, description, path, type = 'website', jsonLd }: SEOHeadProps) {
+export default function SEOHead({ title, description, keywords, path, type = 'website', jsonLd }: SEOHeadProps) {
   const { i18n } = useTranslation();
   const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const canonicalUrl = `${origin}${path}`;
@@ -39,6 +42,7 @@ export default function SEOHead({ title, description, path, type = 'website', js
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {keywords ? <meta name="keywords" content={keywords} /> : null}
       <link rel="canonical" href={canonicalUrl} />
       {languageAlternates.map((alternate) => (
         <link

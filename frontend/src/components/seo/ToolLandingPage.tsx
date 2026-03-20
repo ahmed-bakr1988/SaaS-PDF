@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
-import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, getOgLocale, getSiteOrigin } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
 import ToolRating from '@/components/shared/ToolRating';
@@ -60,6 +60,15 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
   ]);
 
   const faqSchema = seo.faqs.length > 0 ? generateFAQ(seo.faqs) : null;
+  const howToSteps = t(`seo.${seo.i18nKey}.howToUse`, { returnObjects: true }) as string[];
+  const howToSchema = Array.isArray(howToSteps) && howToSteps.length > 0
+    ? generateHowTo({
+        name: toolTitle,
+        description: seo.metaDescription,
+        steps: howToSteps,
+        url: canonicalUrl,
+      })
+    : null;
 
   return (
     <>
@@ -104,6 +113,9 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
         {faqSchema && (
           <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
+        )}
+        {howToSchema && (
+          <script type="application/ld+json">{JSON.stringify(howToSchema)}</script>
         )}
       </Helmet>
 

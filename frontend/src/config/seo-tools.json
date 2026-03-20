@@ -1,0 +1,411 @@
+{
+  "toolPages": [
+    {
+      "slug": "pdf-to-word",
+      "toolSlug": "pdf-to-word",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to word",
+        "ar": "تحويل PDF إلى Word"
+      },
+      "supportingKeywords": {
+        "en": ["pdf to docx", "convert pdf to word online", "editable word from pdf"],
+        "ar": ["تحويل pdf الى word", "تحويل pdf إلى docx", "تحويل ملف pdf الى وورد"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} converter online free | {{brand}}",
+        "ar": "{{focusKeyword}} أونلاين مجاناً | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Use {{brand}} to convert PDF files to editable Word documents online with secure processing, no signup, and fast downloads.",
+        "ar": "استخدم {{brand}} لتحويل ملفات PDF إلى مستندات Word قابلة للتعديل أونلاين مع معالجة آمنة وبدون تسجيل وتنزيل سريع."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Can I keep the original layout when converting PDF to Word?",
+            "ar": "هل يمكن الحفاظ على التخطيط الأصلي عند تحويل PDF إلى Word؟"
+          },
+          "answer": {
+            "en": "Yes. Dociva is designed to preserve text flow, page structure, headings, tables, and images as closely as possible during conversion.",
+            "ar": "نعم. تم تصميم Dociva للحفاظ على تدفق النص وبنية الصفحة والعناوين والجداول والصور بأكبر قدر ممكن أثناء التحويل."
+          }
+        },
+        {
+          "question": {
+            "en": "Is this page suitable for scanned PDFs?",
+            "ar": "هل هذه الصفحة مناسبة لملفات PDF الممسوحة ضوئياً؟"
+          },
+          "answer": {
+            "en": "For scanned files, start with OCR when text is image-based, then continue with the PDF to Word workflow for editable output.",
+            "ar": "بالنسبة للملفات الممسوحة ضوئياً، ابدأ بأداة OCR عندما يكون النص داخل صورة، ثم أكمل سير عمل PDF إلى Word للحصول على ناتج قابل للتحرير."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "convert-files-online"]
+    },
+    {
+      "slug": "word-to-pdf",
+      "toolSlug": "word-to-pdf",
+      "category": "Convert",
+      "focusKeyword": {
+        "en": "word to pdf",
+        "ar": "تحويل Word إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": ["docx to pdf", "convert word to pdf online", "save word as pdf"],
+        "ar": ["تحويل وورد إلى pdf", "docx إلى pdf", "تحويل ملف word إلى pdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} converter online free | {{brand}}",
+        "ar": "{{focusKeyword}} أونلاين مجاناً | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Turn DOC and DOCX files into clean PDF documents online with preserved formatting, secure uploads, and no registration.",
+        "ar": "حوّل ملفات DOC وDOCX إلى مستندات PDF نظيفة أونلاين مع الحفاظ على التنسيق ورفع آمن وبدون تسجيل."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Will tables and images stay intact in the final PDF?",
+            "ar": "هل ستبقى الجداول والصور سليمة في ملف PDF النهائي؟"
+          },
+          "answer": {
+            "en": "Yes. This workflow is intended for print-ready output, so layout elements such as tables, images, and headers are preserved.",
+            "ar": "نعم. هذا المسار مخصص لمخرجات جاهزة للطباعة، لذلك يتم الحفاظ على عناصر التخطيط مثل الجداول والصور والرؤوس."
+          }
+        },
+        {
+          "question": {
+            "en": "When should I use Word to PDF instead of PDF to Word?",
+            "ar": "متى أستخدم Word إلى PDF بدلاً من PDF إلى Word؟"
+          },
+          "answer": {
+            "en": "Use Word to PDF when you want a fixed, shareable version of a document. Use PDF to Word when you need to edit an existing PDF.",
+            "ar": "استخدم Word إلى PDF عندما تريد نسخة ثابتة وقابلة للمشاركة من المستند. واستخدم PDF إلى Word عندما تحتاج إلى تعديل ملف PDF موجود."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "convert-files-online"]
+    },
+    {
+      "slug": "compress-pdf-online",
+      "toolSlug": "compress-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf online",
+        "ar": "ضغط PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": ["reduce pdf size", "make pdf smaller", "shrink pdf for email"],
+        "ar": ["تقليل حجم pdf", "تصغير ملف pdf", "ضغط pdf للايميل"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} free without signup | {{brand}}",
+        "ar": "{{focusKeyword}} مجاناً بدون تسجيل | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Reduce PDF file size for email, uploads, and mobile sharing using fast online compression with balanced quality controls.",
+        "ar": "قلّل حجم ملف PDF للبريد الإلكتروني والرفع والمشاركة عبر الجوال باستخدام ضغط سريع أونلاين مع توازن مناسب بين الجودة والحجم."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Is online PDF compression safe for work files?",
+            "ar": "هل ضغط PDF أونلاين آمن لملفات العمل؟"
+          },
+          "answer": {
+            "en": "Yes. Files are processed securely and removed automatically after a short retention window, which keeps the workflow practical for business use.",
+            "ar": "نعم. تتم معالجة الملفات بشكل آمن ويتم حذفها تلقائياً بعد فترة احتفاظ قصيرة، مما يجعل هذا المسار عملياً لملفات العمل."
+          }
+        },
+        {
+          "question": {
+            "en": "What if my PDF still feels too large after compression?",
+            "ar": "ماذا لو بقي ملف PDF كبيراً بعد الضغط؟"
+          },
+          "answer": {
+            "en": "Try a stronger compression level, remove unnecessary metadata, or split large documents into focused sections before sharing.",
+            "ar": "جرّب مستوى ضغط أقوى أو احذف البيانات الوصفية غير الضرورية أو قسّم المستندات الكبيرة إلى أقسام مركزة قبل مشاركتها."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "free-pdf-tools-online"]
+    },
+    {
+      "slug": "convert-jpg-to-pdf",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "convert jpg to pdf",
+        "ar": "تحويل JPG إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": ["jpg to pdf online", "image to pdf", "combine photos into pdf"],
+        "ar": ["تحويل jpg الى pdf", "صورة إلى pdf", "دمج صور في pdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} online free | {{brand}}",
+        "ar": "{{focusKeyword}} أونلاين مجاناً | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Turn JPG images into shareable PDF files online, arrange page order, and download one clean document without installing software.",
+        "ar": "حوّل صور JPG إلى ملفات PDF قابلة للمشاركة أونلاين، ورتّب الصفحات، وحمّل مستنداً نظيفاً واحداً بدون تثبيت أي برنامج."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Can I combine multiple JPG files into one PDF?",
+            "ar": "هل يمكنني دمج عدة ملفات JPG في PDF واحد؟"
+          },
+          "answer": {
+            "en": "Yes. Upload multiple images, set the order you want, and the output will be a single PDF document.",
+            "ar": "نعم. ارفع عدة صور وحدد الترتيب الذي تريده وسيكون الناتج مستند PDF واحداً."
+          }
+        },
+        {
+          "question": {
+            "en": "Is this useful for receipts, scans, and application documents?",
+            "ar": "هل هذا مفيد للإيصالات والمسوح الضوئية ومستندات التقديم؟"
+          },
+          "answer": {
+            "en": "Yes. This is a common workflow for receipts, IDs, signed pages, and image-based submissions that need one portable PDF file.",
+            "ar": "نعم. هذا مسار شائع للإيصالات وبطاقات الهوية والصفحات الموقعة والملفات المعتمدة على الصور التي تحتاج إلى ملف PDF واحد قابل للنقل."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["free-pdf-tools-online", "convert-files-online"]
+    },
+    {
+      "slug": "merge-pdf-files",
+      "toolSlug": "merge-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "merge pdf files",
+        "ar": "دمج ملفات PDF"
+      },
+      "supportingKeywords": {
+        "en": ["combine pdf files", "join pdf online", "merge pdf documents"],
+        "ar": ["دمج pdf", "جمع ملفات pdf", "دمج مستندات pdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} online free | {{brand}}",
+        "ar": "{{focusKeyword}} أونلاين مجاناً | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Combine multiple PDF documents into one file online, reorder uploads before merging, and keep the original page quality intact.",
+        "ar": "ادمج عدة مستندات PDF في ملف واحد أونلاين، وأعد ترتيب الملفات قبل الدمج، مع الحفاظ على جودة الصفحات الأصلية."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Can I reorder PDFs before I merge them?",
+            "ar": "هل يمكنني إعادة ترتيب ملفات PDF قبل الدمج؟"
+          },
+          "answer": {
+            "en": "Yes. Reordering uploads before merging is part of the intended workflow so the final file matches the sequence you need.",
+            "ar": "نعم. إعادة ترتيب الملفات قبل الدمج جزء من سير العمل المقصود حتى يطابق الملف النهائي التسلسل الذي تحتاجه."
+          }
+        },
+        {
+          "question": {
+            "en": "Should I compress files before merging?",
+            "ar": "هل يجب أن أضغط الملفات قبل دمجها؟"
+          },
+          "answer": {
+            "en": "If the final document may become large, compressing individual PDFs first often keeps the merged file easier to share and upload.",
+            "ar": "إذا كان من المحتمل أن يصبح المستند النهائي كبيراً، فإن ضغط ملفات PDF الفردية أولاً يجعل الملف المدمج أسهل في المشاركة والرفع غالباً."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "free-pdf-tools-online"]
+    },
+    {
+      "slug": "remove-pdf-password",
+      "toolSlug": "unlock-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "remove pdf password",
+        "ar": "إزالة كلمة مرور PDF"
+      },
+      "supportingKeywords": {
+        "en": ["unlock pdf", "remove pdf protection", "open locked pdf"],
+        "ar": ["فتح قفل pdf", "إزالة حماية pdf", "إلغاء كلمة سر pdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} online with known password | {{brand}}",
+        "ar": "{{focusKeyword}} أونلاين بكلمة المرور المعروفة | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Unlock protected PDF files online when you know the current password, then continue editing, printing, merging, or sharing more easily.",
+        "ar": "افتح ملفات PDF المحمية أونلاين عندما تعرف كلمة المرور الحالية، ثم أكمل التعديل أو الطباعة أو الدمج أو المشاركة بسهولة أكبر."
+      },
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Do I need the current password to remove PDF protection?",
+            "ar": "هل أحتاج إلى كلمة المرور الحالية لإزالة حماية PDF؟"
+          },
+          "answer": {
+            "en": "Yes. This workflow is meant for documents you are authorized to open already, so the current password is required.",
+            "ar": "نعم. هذا المسار مخصص للمستندات التي لديك صلاحية فتحها بالفعل، لذلك تكون كلمة المرور الحالية مطلوبة."
+          }
+        },
+        {
+          "question": {
+            "en": "What should I do after unlocking a PDF?",
+            "ar": "ماذا أفعل بعد فتح قفل ملف PDF؟"
+          },
+          "answer": {
+            "en": "After unlocking, you can move into editing, compression, merging, or format conversion depending on the task you need next.",
+            "ar": "بعد فتح القفل يمكنك الانتقال إلى التعديل أو الضغط أو الدمج أو التحويل حسب المهمة التي تحتاجها بعد ذلك."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "free-pdf-tools-online"]
+    }
+  ],
+  "collectionPages": [
+    {
+      "slug": "best-pdf-tools",
+      "focusKeyword": {
+        "en": "best pdf tools",
+        "ar": "أفضل أدوات PDF"
+      },
+      "supportingKeywords": {
+        "en": ["online pdf toolkit", "top pdf tools", "pdf workflow tools"],
+        "ar": ["أفضل أدوات pdf أونلاين", "مجموعة أدوات pdf", "أدوات التعامل مع pdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} for everyday document work | {{brand}}",
+        "ar": "{{focusKeyword}} لأعمال المستندات اليومية | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Discover the most useful PDF workflows in one place, including conversion, compression, merging, page extraction, and security tasks.",
+        "ar": "اكتشف أكثر مسارات PDF فائدة في مكان واحد، بما يشمل التحويل والضغط والدمج واستخراج الصفحات والمهام الأمنية."
+      },
+      "introTemplate": {
+        "en": "This page groups high-utility PDF workflows for teams, students, operations, and support staff who need fast results without switching between multiple products.",
+        "ar": "تجمع هذه الصفحة مسارات PDF عالية الفائدة للفرق والطلاب وفرق العمليات والدعم الذين يحتاجون إلى نتائج سريعة بدون التنقل بين عدة منتجات."
+      },
+      "targetToolSlugs": ["pdf-to-word", "word-to-pdf", "compress-pdf", "merge-pdf", "split-pdf", "unlock-pdf"],
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "What are the most commonly used PDF tools?",
+            "ar": "ما أكثر أدوات PDF استخداماً؟"
+          },
+          "answer": {
+            "en": "Conversion, compression, merging, splitting, and unlocking are the most frequent everyday PDF tasks for business and personal workflows.",
+            "ar": "التحويل والضغط والدمج والتقسيم وفتح القفل هي أكثر مهام PDF اليومية شيوعاً في سير العمل الشخصي والعملي."
+          }
+        },
+        {
+          "question": {
+            "en": "How should I choose the right PDF tool for a task?",
+            "ar": "كيف أختار أداة PDF المناسبة للمهمة؟"
+          },
+          "answer": {
+            "en": "Start with the outcome you need: edit content, reduce file size, combine files, extract pages, or remove restrictions. Then open the matching workflow.",
+            "ar": "ابدأ بالنتيجة التي تحتاجها: تعديل المحتوى أو تقليل حجم الملف أو دمج الملفات أو استخراج الصفحات أو إزالة القيود. ثم افتح المسار المطابق."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["free-pdf-tools-online", "convert-files-online"]
+    },
+    {
+      "slug": "free-pdf-tools-online",
+      "focusKeyword": {
+        "en": "free pdf tools online",
+        "ar": "أدوات PDF مجانية أونلاين"
+      },
+      "supportingKeywords": {
+        "en": ["free online pdf editor", "free pdf converter", "browser pdf tools"],
+        "ar": ["أدوات pdf مجانية", "محرر pdf مجاني", "محول pdf مجاني"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} with no signup required | {{brand}}",
+        "ar": "{{focusKeyword}} بدون تسجيل | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Browse free browser-based PDF tools for compression, conversion, page management, and security workflows without installing desktop software.",
+        "ar": "تصفح أدوات PDF مجانية تعمل من المتصفح للضغط والتحويل وإدارة الصفحات والمهام الأمنية بدون تثبيت برامج سطح مكتب."
+      },
+      "introTemplate": {
+        "en": "If you need practical document work inside the browser, this collection covers the common tasks people search for before uploading, emailing, printing, or archiving PDFs.",
+        "ar": "إذا كنت تحتاج إلى إنجاز أعمال المستندات داخل المتصفح، فهذه المجموعة تغطي المهام الشائعة التي يبحث عنها المستخدمون قبل رفع ملفات PDF أو إرسالها أو طباعتها أو أرشفتها."
+      },
+      "targetToolSlugs": ["compress-pdf", "merge-pdf", "split-pdf", "unlock-pdf", "protect-pdf", "pdf-editor"],
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "Are free PDF tools enough for professional work?",
+            "ar": "هل أدوات PDF المجانية كافية للعمل الاحترافي؟"
+          },
+          "answer": {
+            "en": "For many daily workflows, yes. Teams often need fast conversion, smaller file sizes, and simple page operations before they need heavier document systems.",
+            "ar": "نعم في كثير من المهام اليومية. تحتاج الفرق غالباً إلى تحويل سريع وأحجام ملفات أصغر وعمليات صفحات بسيطة قبل أن تحتاج إلى أنظمة مستندات أثقل."
+          }
+        },
+        {
+          "question": {
+            "en": "Which PDF tool should I open first?",
+            "ar": "ما أول أداة PDF يجب أن أفتحها؟"
+          },
+          "answer": {
+            "en": "Open the workflow that matches the outcome: compress for size, merge for package assembly, split for extraction, unlock for permissions, and editor for cleanup.",
+            "ar": "افتح المسار الذي يطابق النتيجة: الضغط للحجم، والدمج لتجميع الملفات، والتقسيم للاستخراج، وفتح القفل للصلاحيات، والمحرر للتنظيف."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "convert-files-online"]
+    },
+    {
+      "slug": "convert-files-online",
+      "focusKeyword": {
+        "en": "convert files online",
+        "ar": "تحويل الملفات أونلاين"
+      },
+      "supportingKeywords": {
+        "en": ["online file converter", "document converter", "image and pdf converter"],
+        "ar": ["محول ملفات أونلاين", "تحويل مستندات أونلاين", "تحويل الصور وpdf"]
+      },
+      "titleTemplate": {
+        "en": "{{focusKeyword}} across PDF, image, and office formats | {{brand}}",
+        "ar": "{{focusKeyword}} عبر PDF والصور وملفات المكتب | {{brand}}"
+      },
+      "descriptionTemplate": {
+        "en": "Explore file conversion workflows for PDF, Word, Excel, HTML, images, and video in one searchable landing page.",
+        "ar": "استكشف مسارات تحويل الملفات لملفات PDF وWord وExcel وHTML والصور والفيديو في صفحة واحدة قابلة للبحث."
+      },
+      "introTemplate": {
+        "en": "Conversion traffic is broad, so this page groups the workflows people use most when they need one format changed into another quickly from the browser.",
+        "ar": "ترافيك التحويل واسع، لذلك تجمع هذه الصفحة المسارات الأكثر استخداماً عندما يحتاج المستخدم إلى تغيير صيغة ملف إلى أخرى بسرعة من المتصفح."
+      },
+      "targetToolSlugs": ["pdf-to-word", "word-to-pdf", "images-to-pdf", "image-converter", "html-to-pdf", "video-to-gif"],
+      "faqTemplates": [
+        {
+          "question": {
+            "en": "What kinds of files can I convert online here?",
+            "ar": "ما أنواع الملفات التي يمكنني تحويلها أونلاين هنا؟"
+          },
+          "answer": {
+            "en": "This collection covers PDF, Office files, images, HTML, and video-to-GIF workflows, with each tool focused on a specific conversion path.",
+            "ar": "تغطي هذه المجموعة ملفات PDF وملفات أوفيس والصور وHTML ومسارات تحويل الفيديو إلى GIF، مع تركيز كل أداة على مسار تحويل محدد."
+          }
+        },
+        {
+          "question": {
+            "en": "Should I use a direct converter or a multi-step workflow?",
+            "ar": "هل أستخدم محولاً مباشراً أم مساراً متعدد الخطوات؟"
+          },
+          "answer": {
+            "en": "Use a direct converter first. If the source is scanned or image-heavy, pair OCR, compression, or formatting tools to improve the final output.",
+            "ar": "استخدم محولاً مباشراً أولاً. وإذا كان المصدر ممسوحاً ضوئياً أو غنياً بالصور، فاجمع بين OCR أو الضغط أو أدوات التنسيق لتحسين النتيجة النهائية."
+          }
+        }
+      ],
+      "relatedCollectionSlugs": ["best-pdf-tools", "free-pdf-tools-online"]
+    }
+  ]
+}

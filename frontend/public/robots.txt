@@ -2,11 +2,12 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /internal/
 Disallow: /account
 Disallow: /forgot-password
 Disallow: /reset-password
+Disallow: /internal/admin
 
-# Sitemaps
 Sitemap: https://dociva.io/sitemap.xml
 
 # AI/LLM discoverability

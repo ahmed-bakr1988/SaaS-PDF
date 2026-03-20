@@ -21,6 +21,15 @@ export const PAGE_ROUTES = [
   '/blog/:slug',
   '/developers',
   '/internal/admin',
+  '/pdf-to-word',
+  '/word-to-pdf',
+  '/compress-pdf-online',
+  '/convert-jpg-to-pdf',
+  '/merge-pdf-files',
+  '/remove-pdf-password',
+  '/best-pdf-tools',
+  '/free-pdf-tools-online',
+  '/convert-files-online',
 ] as const;
 
 // ─── Tool routes ─────────────────────────────────────────────────

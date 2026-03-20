@@ -10,6 +10,7 @@ Usage:
 """
 
 import argparse
+import json
 import os
 import re
 from datetime import datetime
@@ -97,6 +98,19 @@ TOOL_GROUPS = [
 ]
 
 
+def get_seo_landing_paths() -> tuple[list[str], list[str]]:
+    repo_root = Path(__file__).resolve().parents[1]
+    seo_config_path = repo_root / 'frontend' / 'src' / 'config' / 'seo-tools.json'
+
+    if not seo_config_path.exists():
+        return [], []
+
+    raw = json.loads(seo_config_path.read_text(encoding='utf-8'))
+    tool_pages = [entry.get('slug', '').strip() for entry in raw.get('toolPages', []) if entry.get('slug')]
+    collection_pages = [entry.get('slug', '').strip() for entry in raw.get('collectionPages', []) if entry.get('slug')]
+    return tool_pages, collection_pages
+
+
 def get_blog_slugs() -> list[str]:
     repo_root = Path(__file__).resolve().parents[1]
     blog_articles_path = repo_root / 'frontend' / 'src' / 'content' / 'blogArticles.ts'
@@ -112,6 +126,7 @@ def generate_sitemap(domain: str) -> str:
     today = datetime.now().strftime('%Y-%m-%d')
     urls = []
     blog_slugs = get_blog_slugs()
+    seo_tool_pages, seo_collection_pages = get_seo_landing_paths()
 
     # Static pages
     for page in PAGES:
@@ -143,6 +158,26 @@ def generate_sitemap(domain: str) -> str:
     <priority>{route["priority"]}</priority>
   </url>''')
 
+        if seo_tool_pages:
+                urls.append('\n  <!-- Programmatic SEO Tool Pages -->')
+                for slug in seo_tool_pages:
+                        urls.append(f'''  <url>
+        <loc>{domain}/{slug}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.88</priority>
+    </url>''')
+
+        if seo_collection_pages:
+                urls.append('\n  <!-- SEO Collection Pages -->')
+                for slug in seo_collection_pages:
+                        urls.append(f'''  <url>
+        <loc>{domain}/{slug}</loc>
+        <lastmod>{today}</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.82</priority>
+    </url>''')
+
     sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {chr(10).join(urls)}
@@ -167,7 +202,14 @@ def main():
     with open(args.output, 'w', encoding='utf-8') as f:
         f.write(sitemap)
 
-    total = len(PAGES) + len(get_blog_slugs()) + sum(len(routes) for _, routes in TOOL_GROUPS)
+    seo_tool_pages, seo_collection_pages = get_seo_landing_paths()
+    total = (
+        len(PAGES)
+        + len(get_blog_slugs())
+        + sum(len(routes) for _, routes in TOOL_GROUPS)
+        + len(seo_tool_pages)
+        + len(seo_collection_pages)
+    )
     print(f"Sitemap generated: {args.output}")
     print(f"Total URLs: {total}")
 
