@@ -11,6 +11,7 @@ from app.services.policy_service import (
     resolve_api_actor,
     resolve_web_actor,
 )
+from app.utils.auth import remember_task_access
 
 tasks_bp = Blueprint("tasks", __name__)
 
@@ -51,6 +52,17 @@ def get_task_status(task_id: str):
     elif result.state == "SUCCESS":
         task_result = result.result or {}
         response["result"] = task_result
+
+        # Remember the file UUID in the session so the download route can verify access.
+        # The download URL contains a different UUID than the Celery task ID.
+        download_url = task_result.get("download_url", "")
+        if download_url:
+            parts = download_url.split("/")
+            # URL format: /api/download/<file_uuid>/<filename>
+            if len(parts) >= 4:
+                file_uuid = parts[3]
+                if file_uuid != task_id:
+                    remember_task_access(file_uuid)
 
     elif result.state == "FAILURE":
         response["error"] = str(result.info) if result.info else "Task failed."

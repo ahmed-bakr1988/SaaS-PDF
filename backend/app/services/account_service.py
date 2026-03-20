@@ -678,6 +678,23 @@ def has_task_access(user_id: int, source: str, task_id: str) -> bool:
     return row is not None
 
 
+def has_download_access(user_id: int, file_task_id: str) -> bool:
+    """Return whether one user owns a file_history entry whose download_url contains the given file task id."""
+    pattern = f"/api/download/{file_task_id}/"
+    with _connect() as conn:
+        row = conn.execute(
+            """
+            SELECT 1
+            FROM file_history
+            WHERE user_id = ? AND download_url LIKE ?
+            LIMIT 1
+            """,
+            (user_id, f"%{pattern}%"),
+        ).fetchone()
+
+    return row is not None
+
+
 # ---------------------------------------------------------------------------
 # Password reset tokens
 # ---------------------------------------------------------------------------
