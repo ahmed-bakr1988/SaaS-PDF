@@ -17,6 +17,8 @@ interface SEOHeadProps {
   type?: string;
   /** Optional JSON-LD objects to inject as structured data */
   jsonLd?: object | object[];
+  /** Optional explicit language alternates when route-based locale paths are required */
+  alternates?: Array<{ hrefLang: string; href: string; ogLocale?: string }>;
 }
 
 /**
@@ -27,13 +29,13 @@ interface SEOHeadProps {
  * - Twitter card meta tags
  * - Optional JSON-LD structured data
  */
-export default function SEOHead({ title, description, keywords, path, type = 'website', jsonLd }: SEOHeadProps) {
+export default function SEOHead({ title, description, keywords, path, type = 'website', jsonLd, alternates }: SEOHeadProps) {
   const { i18n } = useTranslation();
   const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);
   const fullTitle = `${title} — ${SITE_NAME}`;
-  const languageAlternates = buildLanguageAlternates(origin, path);
+  const languageAlternates = alternates ?? buildLanguageAlternates(origin, path);
   const currentOgLocale = getOgLocale(i18n.language);
 
   const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];

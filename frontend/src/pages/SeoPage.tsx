@@ -98,6 +98,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
   const relatedCollections = page.relatedCollectionSlugs
     .map((collectionSlug) => getSeoCollectionPage(collectionSlug))
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  const contentSections = page.contentSections ?? [];
 
   const introBody = `${toolDescription} ${description}`;
   const workflowBody = `${t(`seo.${tool.i18nKey}.whatItDoes`)} ${t(`tools.${tool.i18nKey}.shortDesc`)}`;
@@ -108,6 +109,10 @@ export default function SeoPage({ slug }: SeoPageProps) {
     return relatedTool ? t(`tools.${relatedTool.i18nKey}.title`) : relatedSlug;
   });
   const localizedCollectionPath = (collectionSlug: string) => (locale === 'ar' ? `/ar/${collectionSlug}` : `/${collectionSlug}`);
+  const alternates = [
+    { hrefLang: 'en', href: `${siteOrigin}/${page.slug}`, ogLocale: 'en_US' },
+    { hrefLang: 'ar', href: `${siteOrigin}/ar/${page.slug}`, ogLocale: 'ar_SA' },
+  ];
 
   const jsonLd = [
     generateWebPage({
@@ -137,7 +142,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
 
   return (
     <>
-      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} />
+      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} alternates={alternates} />
 
       <div className="mx-auto max-w-6xl space-y-12">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">
@@ -229,6 +234,21 @@ export default function SeoPage({ slug }: SeoPageProps) {
             ))}
           </div>
         </section>
+
+        {contentSections.length > 0 ? (
+          <section className="grid gap-6 lg:grid-cols-2">
+            {contentSections.map((section) => (
+              <article key={section.heading.en} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+                <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  {getLocalizedText(section.heading, locale)}
+                </h2>
+                <p className="mt-4 leading-8 text-slate-700 dark:text-slate-300">
+                  {getLocalizedText(section.body, locale)}
+                </p>
+              </article>
+            ))}
+          </section>
+        ) : null}
 
         <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">

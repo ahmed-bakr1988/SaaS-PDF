@@ -64,9 +64,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
   const description = interpolateTemplate(getLocalizedText(page.descriptionTemplate, locale), tokens);
   const intro = interpolateTemplate(getLocalizedText(page.introTemplate, locale), tokens);
   const keywords = [focusKeyword, ...getLocalizedTextList(page.supportingKeywords, locale)].join(', ');
-  const path = `/${page.slug}`;
   const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
-  const url = `${siteOrigin}${path}`;
   const faqItems = page.faqTemplates.map((item) => ({
     question: getLocalizedText(item.question, locale),
     answer: getLocalizedText(item.answer, locale),
@@ -74,6 +72,13 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
   const relatedCollections = page.relatedCollectionSlugs
     .map((collectionSlug) => getSeoCollectionPage(collectionSlug))
     .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
+  const contentSections = page.contentSections ?? [];
+  const path = locale === 'ar' ? `/ar/${page.slug}` : `/${page.slug}`;
+  const url = `${siteOrigin}${path}`;
+  const alternates = [
+    { hrefLang: 'en', href: `${siteOrigin}/${page.slug}`, ogLocale: 'en_US' },
+    { hrefLang: 'ar', href: `${siteOrigin}/ar/${page.slug}`, ogLocale: 'ar_SA' },
+  ];
 
   const jsonLd = [
     generateWebPage({
@@ -91,7 +96,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
 
   return (
     <>
-      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} />
+      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} alternates={alternates} />
 
       <div className="mx-auto max-w-6xl space-y-10">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">
@@ -166,6 +171,21 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
           </ul>
         </section>
 
+        {contentSections.length > 0 ? (
+          <section className="grid gap-6 lg:grid-cols-2">
+            {contentSections.map((section) => (
+              <article key={section.heading.en} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+                <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
+                  {getLocalizedText(section.heading, locale)}
+                </h2>
+                <p className="mt-4 leading-8 text-slate-700 dark:text-slate-300">
+                  {getLocalizedText(section.body, locale)}
+                </p>
+              </article>
+            ))}
+          </section>
+        ) : null}
+
         <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.relatedHeading}
@@ -180,12 +200,12 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
               return (
                 <Link
                   key={collection.slug}
-                  to={`/${collection.slug}`}
+                  to={locale === 'ar' ? `/ar/${collection.slug}` : `/${collection.slug}`}
                   className="rounded-2xl border border-slate-200 p-5 transition-colors hover:border-primary-300 hover:bg-slate-50 dark:border-slate-700 dark:hover:border-primary-600 dark:hover:bg-slate-800"
                 >
                   <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400">
                     <Link2 className="h-4 w-4" />
-                    <span className="text-sm font-medium">/{collection.slug}</span>
+                    <span className="text-sm font-medium">{locale === 'ar' ? `/ar/${collection.slug}` : `/${collection.slug}`}</span>
                   </div>
                   <p className="mt-3 font-semibold text-slate-900 dark:text-white">{collectionTitle}</p>
                 </Link>

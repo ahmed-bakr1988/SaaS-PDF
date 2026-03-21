@@ -10,7 +10,7 @@ const siteOrigin = String(process.env.VITE_SITE_DOMAIN || 'https://dociva.io').t
 const today = new Date().toISOString().slice(0, 10);
 
 const seoConfig = JSON.parse(
-  await readFile(path.join(frontendRoot, 'src', 'config', 'seo-tools.json'), 'utf8')
+  await readFile(path.join(frontendRoot, 'src', 'seo', 'seoData.json'), 'utf8')
 );
 
 const staticPages = [
@@ -91,11 +91,17 @@ const sitemapEntries = [
   ...[...toolRoutePriorities.entries()].map(([slug, priority]) =>
     makeUrlTag({ loc: `${siteOrigin}/tools/${slug}`, changefreq: 'weekly', priority })
   ),
-  ...seoConfig.toolPages.map((page) =>
+  ...seoConfig.toolPageSeeds.map((page) =>
     makeUrlTag({ loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.88' })
   ),
-  ...seoConfig.collectionPages.map((page) =>
+  ...seoConfig.toolPageSeeds.map((page) =>
+    makeUrlTag({ loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.8' })
+  ),
+  ...seoConfig.collectionPageSeeds.map((page) =>
     makeUrlTag({ loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.82' })
+  ),
+  ...seoConfig.collectionPageSeeds.map((page) =>
+    makeUrlTag({ loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.74' })
   ),
 ];
 

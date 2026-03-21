@@ -1,4 +1,8 @@
-import seoToolsConfig from '@/config/seo-tools.json';
+import {
+  PROGRAMMATIC_TOOL_PAGES,
+  SEO_COLLECTION_PAGES,
+  getLocalizedSeoLandingPaths,
+} from '@/seo/seoData';
 
 export type SeoLocale = 'en' | 'ar';
 
@@ -17,6 +21,11 @@ export interface SeoFaqTemplate {
   answer: LocalizedText;
 }
 
+export interface SeoContentSection {
+  heading: LocalizedText;
+  body: LocalizedText;
+}
+
 export interface ProgrammaticToolPage {
   slug: string;
   toolSlug: string;
@@ -27,6 +36,7 @@ export interface ProgrammaticToolPage {
   descriptionTemplate: LocalizedText;
   faqTemplates: SeoFaqTemplate[];
   relatedCollectionSlugs: string[];
+  contentSections?: SeoContentSection[];
 }
 
 export interface SeoCollectionPage {
@@ -39,17 +49,8 @@ export interface SeoCollectionPage {
   targetToolSlugs: string[];
   faqTemplates: SeoFaqTemplate[];
   relatedCollectionSlugs: string[];
+  contentSections?: SeoContentSection[];
 }
-
-interface SeoToolsConfig {
-  toolPages: ProgrammaticToolPage[];
-  collectionPages: SeoCollectionPage[];
-}
-
-const config = seoToolsConfig as SeoToolsConfig;
-
-export const PROGRAMMATIC_TOOL_PAGES = config.toolPages;
-export const SEO_COLLECTION_PAGES = config.collectionPages;
 
 export function normalizeSeoLocale(language: string): SeoLocale {
   return language.toLowerCase().startsWith('ar') ? 'ar' : 'en';
@@ -85,4 +86,8 @@ export function getAllCollectionSeoPaths(): string[] {
 
 export function getAllSeoLandingPaths(): string[] {
   return [...getAllProgrammaticSeoPaths(), ...getAllCollectionSeoPaths()];
+}
+
+export function getAllLocalizedSeoLandingPaths(): string[] {
+  return [...getLocalizedSeoLandingPaths('en'), ...getLocalizedSeoLandingPaths('ar')];
 }
