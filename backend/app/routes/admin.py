@@ -5,9 +5,15 @@ from app.extensions import limiter
 from app.services.account_service import get_user_by_id, is_user_admin, set_user_role, update_user_plan
 from app.services.admin_service import (
     get_admin_overview,
+    get_admin_ratings_detail,
+    get_admin_system_health,
+    get_admin_tool_analytics,
+    get_admin_user_registration_stats,
+    get_plan_interest_summary,
     list_admin_contacts,
     list_admin_users,
     mark_admin_contact_read,
+    record_plan_interest_click,
 )
 from app.services.ai_cost_service import get_monthly_spend
 from app.utils.auth import get_current_user_id
@@ -155,3 +161,89 @@ def ai_cost_dashboard():
 
     spend = get_monthly_spend()
     return jsonify(spend), 200
+
+
+@admin_bp.route("/ratings", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_ratings_route():
+    """Return detailed ratings and reviews for admin inspection."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    try:
+        page = max(1, int(request.args.get("page", 1)))
+    except ValueError:
+        page = 1
+
+    try:
+        per_page = max(1, min(int(request.args.get("per_page", 20)), 100))
+    except ValueError:
+        per_page = 20
+
+    tool_filter = request.args.get("tool", "").strip()
+
+    return jsonify(get_admin_ratings_detail(page=page, per_page=per_page, tool_filter=tool_filter)), 200
+
+
+@admin_bp.route("/tool-analytics", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_tool_analytics_route():
+    """Return detailed per-tool usage analytics."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    return jsonify(get_admin_tool_analytics()), 200
+
+
+@admin_bp.route("/user-stats", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_user_stats_route():
+    """Return user registration trends and breakdown."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    return jsonify(get_admin_user_registration_stats()), 200
+
+
+@admin_bp.route("/plan-interest", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_plan_interest_route():
+    """Return paid plan click interest summary."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    return jsonify(get_plan_interest_summary()), 200
+
+
+@admin_bp.route("/system-health", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_system_health_route():
+    """Return system health indicators."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    return jsonify(get_admin_system_health()), 200
+
+
+@admin_bp.route("/plan-interest/record", methods=["POST"])
+@limiter.limit("30/hour")
+def record_plan_interest_route():
+    """Record a click on a paid plan button — public endpoint."""
+    data = request.get_json(silent=True) or {}
+    plan = str(data.get("plan", "pro")).strip().lower()
+    billing = str(data.get("billing", "monthly")).strip().lower()
+
+    if plan not in ("pro",):
+        plan = "pro"
+    if billing not in ("monthly", "yearly"):
+        billing = "monthly"
+
+    user_id = get_current_user_id()
+    record_plan_interest_click(user_id=user_id, plan=plan, billing=billing)
+
+    return jsonify({"message": "Interest recorded."}), 200

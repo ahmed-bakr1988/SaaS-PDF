@@ -246,7 +246,8 @@ def stream_site_assistant_chat(
             check_ai_budget()
             settings = get_openrouter_settings()
             if not settings.api_key:
-                raise RuntimeError("OPENROUTER_API_KEY is not configured for the application.")
+                logger.error("OPENROUTER_API_KEY is not set — assistant AI unavailable.")
+                raise RuntimeError("AI assistant is temporarily unavailable. Please try again later.")
 
             response_model = settings.model
             messages = _build_ai_messages(
@@ -436,7 +437,8 @@ def _request_ai_reply(
     settings = get_openrouter_settings()
 
     if not settings.api_key:
-        raise RuntimeError("OPENROUTER_API_KEY is not configured for the application.")
+        logger.error("OPENROUTER_API_KEY is not set — assistant AI unavailable.")
+        raise RuntimeError("AI assistant is temporarily unavailable. Please try again later.")
 
     messages = _build_ai_messages(
         message=message,

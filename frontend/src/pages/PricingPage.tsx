@@ -37,6 +37,13 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(false);
 
   async function handleUpgrade(billing: 'monthly' | 'yearly') {
+    // Track interest in paid plan
+    try {
+      await api.post('/internal/admin/plan-interest/record', { plan: 'pro', billing });
+    } catch {
+      // Non-critical — don't block the flow
+    }
+
     if (!user) {
       window.location.href = '/account?redirect=pricing';
       return;

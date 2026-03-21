@@ -55,8 +55,9 @@ def _call_openrouter(
     settings = get_openrouter_settings()
 
     if not settings.api_key:
+        logger.error("OPENROUTER_API_KEY is not set or is a placeholder value.")
         raise PdfAiError(
-            "AI service is not configured. Set OPENROUTER_API_KEY in the application configuration."
+            "AI features are temporarily unavailable. Our team has been notified."
         )
 
     messages = [
@@ -79,8 +80,39 @@ def _call_openrouter(
             },
             timeout=60,
         )
+
+        if response.status_code == 401:
+            logger.error("OpenRouter API key is invalid or expired (401).")
+            raise PdfAiError(
+                "AI features are temporarily unavailable due to a configuration issue. Our team has been notified."
+            )
+
+        if response.status_code == 402:
+            logger.error("OpenRouter account has insufficient credits (402).")
+            raise PdfAiError(
+                "AI processing credits have been exhausted. Please try again later."
+            )
+
+        if response.status_code == 429:
+            logger.warning("OpenRouter rate limit reached (429).")
+            raise PdfAiError(
+                "AI service is experiencing high demand. Please wait a moment and try again."
+            )
+
+        if response.status_code >= 500:
+            logger.error("OpenRouter server error (%s).", response.status_code)
+            raise PdfAiError(
+                "AI service provider is experiencing issues. Please try again shortly."
+            )
+
         response.raise_for_status()
         data = response.json()
+
+        # Handle model-level errors returned inside a 200 response
+        if data.get("error"):
+            error_msg = data["error"].get("message", "") if isinstance(data["error"], dict) else str(data["error"])
+            logger.error("OpenRouter returned an error payload: %s", error_msg)
+            raise PdfAiError("AI service encountered an issue. Please try again.")
 
         reply = (
             data.get("choices", [{}])[0]
@@ -107,10 +139,15 @@ def _call_openrouter(
 
         return reply
 
+    except PdfAiError:
+        raise
     except requests.exceptions.Timeout:
         raise PdfAiError("AI service timed out. Please try again.")
+    except requests.exceptions.ConnectionError:
+        logger.error("Cannot connect to OpenRouter API at %s", settings.base_url)
+        raise PdfAiError("AI service is unreachable. Please try again shortly.")
     except requests.exceptions.RequestException as e:
-        logger.error(f"OpenRouter API error: {e}")
+        logger.error("OpenRouter API error: %s", e)
         raise PdfAiError("AI service is temporarily unavailable.")
 
 

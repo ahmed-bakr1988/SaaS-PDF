@@ -135,11 +135,30 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for error handling
+// Response interceptor — auto-retry once on CSRF failure
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response) {
+      // Auto-retry on CSRF token mismatch (session expired, cookie lost, etc.)
+      const originalRequest = error.config;
+      if (
+        !originalRequest._csrfRetried &&
+        isCsrfFailure(
+          error.response.status,
+          typeof error.response.data === 'string'
+            ? error.response.data
+            : JSON.stringify(error.response.data ?? '')
+        )
+      ) {
+        originalRequest._csrfRetried = true;
+        const freshToken = await ensureCsrfToken(true);
+        if (freshToken) {
+          setRequestHeader(originalRequest, CSRF_HEADER_NAME, freshToken);
+        }
+        return api(originalRequest);
+      }
+
       if (error.response.status === 429) {
         return Promise.reject(new Error('Too many requests. Please wait a moment and try again.'));
       }
@@ -712,6 +731,133 @@ export async function updateInternalAdminUserRole(
     { role }
   );
   return response.data.user;
+}
+
+// --- Enhanced Admin Analytics ---
+
+export interface AdminRatingItem {
+  id: number;
+  tool: string;
+  rating: number;
+  feedback: string;
+  tag: string;
+  created_at: string;
+}
+
+export interface AdminToolSummary {
+  tool: string;
+  count: number;
+  average: number;
+  positive: number;
+  negative: number;
+}
+
+export interface AdminRatingsDetail {
+  items: AdminRatingItem[];
+  page: number;
+  per_page: number;
+  total: number;
+  tool_summaries: AdminToolSummary[];
+}
+
+export interface AdminToolAnalyticsItem {
+  tool: string;
+  total_runs: number;
+  completed: number;
+  failed: number;
+  success_rate: number;
+  runs_24h: number;
+  runs_7d: number;
+  runs_30d: number;
+  unique_users: number;
+}
+
+export interface AdminDailyUsage {
+  day: string;
+  total: number;
+  completed: number;
+  failed: number;
+}
+
+export interface AdminCommonError {
+  tool: string;
+  error: string;
+  occurrences: number;
+}
+
+export interface AdminToolAnalytics {
+  tools: AdminToolAnalyticsItem[];
+  daily_usage: AdminDailyUsage[];
+  common_errors: AdminCommonError[];
+}
+
+export interface AdminUserStats {
+  total_users: number;
+  new_last_7d: number;
+  new_last_30d: number;
+  pro_users: number;
+  free_users: number;
+  daily_registrations: Array<{ day: string; count: number }>;
+  most_active_users: Array<{
+    id: number;
+    email: string;
+    plan: string;
+    created_at: string;
+    total_tasks: number;
+  }>;
+}
+
+export interface AdminPlanInterest {
+  total_clicks: number;
+  unique_users: number;
+  clicks_last_7d: number;
+  clicks_last_30d: number;
+  by_plan: Array<{ plan: string; billing: string; clicks: number }>;
+  recent: Array<{
+    id: number;
+    user_id: number | null;
+    email: string | null;
+    plan: string;
+    billing: string;
+    created_at: string;
+  }>;
+}
+
+export interface AdminSystemHealth {
+  ai_configured: boolean;
+  ai_model: string;
+  ai_budget_used_percent: number;
+  error_rate_1h: number;
+  tasks_last_1h: number;
+  failures_last_1h: number;
+  database_size_mb: number;
+}
+
+export async function getAdminRatingsDetail(page = 1, perPage = 20, tool = ''): Promise<AdminRatingsDetail> {
+  const response = await api.get<AdminRatingsDetail>('/internal/admin/ratings', {
+    params: { page, per_page: perPage, ...(tool ? { tool } : {}) },
+  });
+  return response.data;
+}
+
+export async function getAdminToolAnalytics(): Promise<AdminToolAnalytics> {
+  const response = await api.get<AdminToolAnalytics>('/internal/admin/tool-analytics');
+  return response.data;
+}
+
+export async function getAdminUserStats(): Promise<AdminUserStats> {
+  const response = await api.get<AdminUserStats>('/internal/admin/user-stats');
+  return response.data;
+}
+
+export async function getAdminPlanInterest(): Promise<AdminPlanInterest> {
+  const response = await api.get<AdminPlanInterest>('/internal/admin/plan-interest');
+  return response.data;
+}
+
+export async function getAdminSystemHealth(): Promise<AdminSystemHealth> {
+  const response = await api.get<AdminSystemHealth>('/internal/admin/system-health');
+  return response.data;
 }
 
 // --- Account / Usage / API Keys ---
