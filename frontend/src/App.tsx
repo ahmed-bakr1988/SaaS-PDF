@@ -25,8 +25,7 @@ const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
 const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
 const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
-const SeoProgrammaticPage = lazy(() => import('@/pages/SeoProgrammaticPage'));
-const SeoCollectionPage = lazy(() => import('@/pages/SeoCollectionPage'));
+const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -119,15 +118,8 @@ export default function App() {
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/developers" element={<DevelopersPage />} />
             <Route path="/internal/admin" element={<InternalAdminPage />} />
-            <Route path="/pdf-to-word" element={<SeoProgrammaticPage slug="pdf-to-word" />} />
-            <Route path="/word-to-pdf" element={<SeoProgrammaticPage slug="word-to-pdf" />} />
-            <Route path="/compress-pdf-online" element={<SeoProgrammaticPage slug="compress-pdf-online" />} />
-            <Route path="/convert-jpg-to-pdf" element={<SeoProgrammaticPage slug="convert-jpg-to-pdf" />} />
-            <Route path="/merge-pdf-files" element={<SeoProgrammaticPage slug="merge-pdf-files" />} />
-            <Route path="/remove-pdf-password" element={<SeoProgrammaticPage slug="remove-pdf-password" />} />
-            <Route path="/best-pdf-tools" element={<SeoCollectionPage slug="best-pdf-tools" />} />
-            <Route path="/free-pdf-tools-online" element={<SeoCollectionPage slug="free-pdf-tools-online" />} />
-            <Route path="/convert-files-online" element={<SeoCollectionPage slug="convert-files-online" />} />
+            <Route path="/ar/:slug" element={<SeoRoutePage />} />
+            <Route path="/:slug" element={<SeoRoutePage />} />
 
             {/* PDF Tools */}
             <Route path="/tools/pdf-to-word" element={<ToolLandingPage slug="pdf-to-word"><PdfToWord /></ToolLandingPage>} />

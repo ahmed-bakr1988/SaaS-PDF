@@ -3,6 +3,7 @@ import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { ALL_ROUTES } from '@/config/routes';
+import { getAllSeoLandingPaths } from '@/config/seoPages';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +23,7 @@ describe('Route safety', () => {
     resolve(__dirname, '../App.tsx'),
     'utf-8'
   );
+  const seoLandingPaths = new Set(getAllSeoLandingPaths());
 
   // Extract all path="..." values from <Route> elements
   const routePathRegex = /path="([^"]+)"/g;
@@ -32,8 +34,24 @@ describe('Route safety', () => {
   }
 
   it('App.tsx contains routes for every entry in the route registry', () => {
-    const missing = ALL_ROUTES.filter((r) => !appPaths.has(r));
+    const hasDynamicSeoRoute = appPaths.has('/:slug');
+    const missing = ALL_ROUTES.filter((route) => {
+      if (appPaths.has(route)) {
+        return false;
+      }
+
+      if (hasDynamicSeoRoute && seoLandingPaths.has(route)) {
+        return false;
+      }
+
+      return true;
+    });
     expect(missing, `Missing routes in App.tsx: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('App.tsx contains the dynamic SEO routes', () => {
+    expect(appPaths.has('/:slug')).toBe(true);
+    expect(appPaths.has('/ar/:slug')).toBe(true);
   });
 
   it('route registry is not empty', () => {

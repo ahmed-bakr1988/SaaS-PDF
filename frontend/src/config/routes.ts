@@ -6,8 +6,9 @@
  * (routes.test.ts) will fail if any existing route is deleted.
  */
 
-// ─── Page routes ─────────────────────────────────────────────────
-export const PAGE_ROUTES = [
+import { getAllSeoLandingPaths } from '@/config/seoPages';
+
+const STATIC_PAGE_ROUTES = [
   '/',
   '/about',
   '/account',
@@ -21,15 +22,16 @@ export const PAGE_ROUTES = [
   '/blog/:slug',
   '/developers',
   '/internal/admin',
-  '/pdf-to-word',
-  '/word-to-pdf',
-  '/compress-pdf-online',
-  '/convert-jpg-to-pdf',
-  '/merge-pdf-files',
-  '/remove-pdf-password',
-  '/best-pdf-tools',
-  '/free-pdf-tools-online',
-  '/convert-files-online',
+] as const;
+
+const SEO_PAGE_ROUTES = getAllSeoLandingPaths();
+
+// ─── Page routes ─────────────────────────────────────────────────
+export const PAGE_ROUTES = [
+  ...STATIC_PAGE_ROUTES,
+  ...SEO_PAGE_ROUTES,
+  '/:slug',
+  '/ar/:slug',
 ] as const;
 
 // ─── Tool routes ─────────────────────────────────────────────────
