@@ -8,7 +8,6 @@ from app.services.account_service import (
     get_api_key_actor,
     get_user_by_id,
     get_current_period_month,
-    has_download_access,
     has_task_access,
     normalize_plan,
     record_usage_event,
@@ -228,21 +227,13 @@ def build_task_tracking_kwargs(actor: ActorContext) -> dict:
 
 def assert_api_task_access(actor: ActorContext, task_id: str):
     """Ensure one API actor can poll one task id."""
-    if actor.user_id is None:
+    if actor.user_id is None or not has_task_access(actor.user_id, "api", task_id):
         raise PolicyError("Task not found.", 404)
-    if has_task_access(actor.user_id, "api", task_id):
-        return
-    if has_download_access(actor.user_id, task_id):
-        return
-    raise PolicyError("Task not found.", 404)
 
 
 def assert_web_task_access(actor: ActorContext, task_id: str):
     """Ensure one web browser session can access one task id."""
     if actor.user_id is not None and has_task_access(actor.user_id, "web", task_id):
-        return
-
-    if actor.user_id is not None and has_download_access(actor.user_id, task_id):
         return
 
     if has_session_task_access(task_id):
