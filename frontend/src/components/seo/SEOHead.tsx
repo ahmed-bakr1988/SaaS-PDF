@@ -44,6 +44,7 @@ export default function SEOHead({ title, description, keywords, path, type = 'we
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
       {keywords ? <meta name="keywords" content={keywords} /> : null}
       <link rel="canonical" href={canonicalUrl} />
       {languageAlternates.map((alternate) => (

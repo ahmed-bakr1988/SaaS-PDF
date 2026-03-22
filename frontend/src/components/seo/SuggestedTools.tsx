@@ -1,7 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getToolSEO } from '@/config/seoData';
+import { getPopularToolSlugs, getToolSEO } from '@/config/seoData';
 
 interface SuggestedToolsProps {
   currentSlug: string;
@@ -24,7 +24,7 @@ export default function SuggestedTools({ currentSlug, limit = 3 }: SuggestedTool
     return null;
   }
 
-  const relatedTools = currentTool.relatedSlugs
+  const relatedTools = getPopularToolSlugs(limit, [currentSlug, ...currentTool.relatedSlugs])
     .map((slug) => getToolSEO(slug))
     .filter(Boolean)
     .slice(0, limit);

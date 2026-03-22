@@ -71,6 +71,7 @@ const imageTools: ToolOption[] = [
   { key: 'removeBg', path: '/tools/remove-background', icon: ImageIcon, bgColor: 'bg-fuchsia-100 dark:bg-fuchsia-900/30', iconColor: 'text-fuchsia-600 dark:text-fuchsia-400' },
   { key: 'imagesToPdf', path: '/tools/images-to-pdf', icon: FileImage, bgColor: 'bg-lime-100 dark:bg-lime-900/30', iconColor: 'text-lime-600 dark:text-lime-400' },
   { key: 'compressImage', path: '/tools/compress-image', icon: Minimize2, bgColor: 'bg-orange-100 dark:bg-orange-900/30', iconColor: 'text-orange-600 dark:text-orange-400' },
+  { key: 'imageToSvg', path: '/tools/image-to-svg', icon: ImageIcon, bgColor: 'bg-indigo-100 dark:bg-indigo-900/30', iconColor: 'text-indigo-600 dark:text-indigo-400' },
 ];
 
 /** Video tools available when a video is uploaded */

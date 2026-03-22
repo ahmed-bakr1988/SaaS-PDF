@@ -12,6 +12,7 @@ const today = new Date().toISOString().slice(0, 10);
 const seoConfig = JSON.parse(
   await readFile(path.join(frontendRoot, 'src', 'seo', 'seoData.json'), 'utf8')
 );
+const routeRegistrySource = await readFile(path.join(frontendRoot, 'src', 'config', 'routes.ts'), 'utf8');
 
 const staticPages = [
   { path: '/', changefreq: 'daily', priority: '1.0' },
@@ -52,6 +53,7 @@ const toolRoutePriorities = new Map([
   ['image-resize', '0.8'],
   ['compress-image', '0.8'],
   ['remove-background', '0.8'],
+  ['image-to-svg', '0.8'],
   ['image-crop', '0.7'],
   ['image-rotate-flip', '0.7'],
   ['ocr', '0.8'],
@@ -70,6 +72,10 @@ const toolRoutePriorities = new Map([
   ['barcode-generator', '0.7'],
 ]);
 
+function extractToolSlugs(source) {
+  return [...source.matchAll(/'\/tools\/([^']+)'/g)].map((match) => match[1]);
+}
+
 function extractBlogSlugs(source) {
   return [...source.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1]);
 }
@@ -78,32 +84,47 @@ function makeUrlTag({ loc, changefreq, priority }) {
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 }
 
+function dedupeEntries(entries) {
+  const seen = new Set();
+  return entries.filter((entry) => {
+    if (seen.has(entry.loc)) {
+      return false;
+    }
+
+    seen.add(entry.loc);
+    return true;
+  });
+}
+
 const blogSource = await readFile(path.join(frontendRoot, 'src', 'content', 'blogArticles.ts'), 'utf8');
 const blogSlugs = extractBlogSlugs(blogSource);
+const toolSlugs = extractToolSlugs(routeRegistrySource);
 
-const sitemapEntries = [
-  ...staticPages.map((page) =>
-    makeUrlTag({ loc: `${siteOrigin}${page.path}`, changefreq: page.changefreq, priority: page.priority })
-  ),
-  ...blogSlugs.map((slug) =>
-    makeUrlTag({ loc: `${siteOrigin}/blog/${slug}`, changefreq: 'monthly', priority: '0.6' })
-  ),
-  ...[...toolRoutePriorities.entries()].map(([slug, priority]) =>
-    makeUrlTag({ loc: `${siteOrigin}/tools/${slug}`, changefreq: 'weekly', priority })
-  ),
-  ...seoConfig.toolPageSeeds.map((page) =>
-    makeUrlTag({ loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.88' })
-  ),
-  ...seoConfig.toolPageSeeds.map((page) =>
-    makeUrlTag({ loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.8' })
-  ),
-  ...seoConfig.collectionPageSeeds.map((page) =>
-    makeUrlTag({ loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.82' })
-  ),
-  ...seoConfig.collectionPageSeeds.map((page) =>
-    makeUrlTag({ loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.74' })
-  ),
-];
+const sitemapEntries = dedupeEntries([
+  ...staticPages.map((page) => ({
+    loc: `${siteOrigin}${page.path}`,
+    changefreq: page.changefreq,
+    priority: page.priority,
+  })),
+  ...blogSlugs.map((slug) => ({
+    loc: `${siteOrigin}/blog/${slug}`,
+    changefreq: 'monthly',
+    priority: '0.6',
+  })),
+  ...toolSlugs.map((slug) => ({
+    loc: `${siteOrigin}/tools/${slug}`,
+    changefreq: 'weekly',
+    priority: toolRoutePriorities.get(slug) || '0.6',
+  })),
+  ...seoConfig.toolPageSeeds.flatMap((page) => ([
+    { loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.88' },
+    { loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.8' },
+  ])),
+  ...seoConfig.collectionPageSeeds.flatMap((page) => ([
+    { loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.82' },
+    { loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.74' },
+  ])),
+]).map((entry) => makeUrlTag(entry));
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join('\n')}\n</urlset>\n`;
 

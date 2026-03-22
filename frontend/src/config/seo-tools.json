@@ -382,7 +382,7 @@
         "en": "Conversion traffic is broad, so this page groups the workflows people use most when they need one format changed into another quickly from the browser.",
         "ar": "ترافيك التحويل واسع، لذلك تجمع هذه الصفحة المسارات الأكثر استخداماً عندما يحتاج المستخدم إلى تغيير صيغة ملف إلى أخرى بسرعة من المتصفح."
       },
-      "targetToolSlugs": ["pdf-to-word", "word-to-pdf", "images-to-pdf", "image-converter", "html-to-pdf", "video-to-gif"],
+      "targetToolSlugs": ["pdf-to-word", "word-to-pdf", "images-to-pdf", "image-converter", "image-to-svg", "html-to-pdf", "video-to-gif"],
       "faqTemplates": [
         {
           "question": {

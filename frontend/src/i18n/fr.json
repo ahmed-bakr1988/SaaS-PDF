@@ -443,6 +443,14 @@
       "lockAspect": "Verrouiller le rapport d'aspect",
       "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect."
     },
+    "imageToSvg": {
+      "title": "Image vers SVG",
+      "description": "Convertissez des images raster (PNG, JPG, WebP) en format vectoriel SVG évolutif. Idéal pour les logos, icônes et illustrations.",
+      "shortDesc": "Convertir en SVG",
+      "modeLabel": "Mode de tracé",
+      "colorMode": "Couleurs complètes",
+      "binaryMode": "Noir et blanc"
+    },
     "ocr": {
       "title": "OCR — Reconnaissance de texte",
       "description": "Extrayez le texte des images et des documents PDF numérisés grâce à la reconnaissance optique de caractères.",
@@ -1232,6 +1240,18 @@
         {"q": "Comment fonctionne la suppression d'arrière-plan ?", "a": "Notre modèle IA détecte automatiquement le sujet dans votre image et supprime l'arrière-plan, produisant un fichier PNG transparent."},
         {"q": "Quels types d'images fonctionnent le mieux ?", "a": "L'outil fonctionne mieux avec des sujets clairs — photos de produits, portraits et objets avec des bords distincts."},
         {"q": "Quel est le format de sortie ?", "a": "La sortie est toujours un fichier PNG avec un arrière-plan transparent."}
+      ]
+    },
+    "imageToSvg": {
+      "whatItDoes": "Convertissez des images raster (PNG, JPG, WebP) en format vectoriel SVG évolutif. Que vous ayez besoin de logos, d'icônes ou d'illustrations vectoriels, cet outil trace les chemins de l'image et produit un SVG propre qui s'adapte à toute taille sans pixelisation.",
+      "howToUse": ["Téléchargez votre fichier image (PNG, JPG ou WebP).", "Choisissez le mode de traçage : Couleurs complètes ou Noir et blanc.", "Cliquez sur Convertir en SVG pour démarrer le traitement.", "Téléchargez votre fichier vectoriel SVG évolutif."],
+      "benefits": ["Conversion de PNG, JPG et WebP en SVG", "Modes de traçage couleur ou noir et blanc", "Sortie vectorielle évolutive — sans pixelisation", "Modifiable dans les éditeurs vectoriels (Illustrator, Figma, Inkscape)", "Gratuit sans inscription"],
+      "useCases": ["Convertir des logos en format vectoriel évolutif", "Créer des icônes SVG pour les sites web et les applications", "Vectoriser des illustrations pour les supports imprimés", "Préparer des graphiques pour le design web responsive", "Convertir des dessins au trait ou des diagrammes en chemins modifiables"],
+      "faq": [
+        {"q": "Quels formats d'image puis-je convertir en SVG ?", "a": "Vous pouvez convertir des images PNG, JPG, JPEG et WebP en format vectoriel SVG."},
+        {"q": "Quelle est la différence entre le mode Couleur et Noir et blanc ?", "a": "Le mode couleur préserve la palette complète de votre image. Le mode noir et blanc convertit d'abord en monochrome, produisant des chemins vectoriels plus propres et plus simples — idéal pour les logos et les dessins au trait."},
+        {"q": "Puis-je modifier le SVG résultant ?", "a": "Oui, le SVG de sortie contient des chemins vectoriels modifiables dans n'importe quel éditeur graphique vectoriel."},
+        {"q": "Y a-t-il une limite de taille de fichier ?", "a": "Les images jusqu'à 10 Mo sont prises en charge. Pour de meilleurs résultats, utilisez des images claires de moins de 4000×4000 pixels."}
       ]
     },
     "ocr": {

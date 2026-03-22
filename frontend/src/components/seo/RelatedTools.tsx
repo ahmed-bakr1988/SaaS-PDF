@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { getToolSEO } from '@/config/seoData';
+import { getInternalLinkToolSlugs, getToolSEO } from '@/config/seoData';
 
 interface RelatedToolsProps {
   currentSlug: string;
+  limit?: number;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -14,12 +15,12 @@ const CATEGORY_COLORS: Record<string, string> = {
   Utility: 'bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400',
 };
 
-export default function RelatedTools({ currentSlug }: RelatedToolsProps) {
+export default function RelatedTools({ currentSlug, limit = 8 }: RelatedToolsProps) {
   const { t } = useTranslation();
   const currentTool = getToolSEO(currentSlug);
   if (!currentTool) return null;
 
-  const relatedTools = currentTool.relatedSlugs
+  const relatedTools = getInternalLinkToolSlugs(currentSlug, limit)
     .map((slug) => getToolSEO(slug))
     .filter(Boolean);
 
@@ -39,7 +40,7 @@ export default function RelatedTools({ currentSlug }: RelatedToolsProps) {
           >
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-slate-800 group-hover:text-primary-600 dark:text-slate-200 dark:group-hover:text-primary-400">
-                {tool!.titleSuffix.replace(/^Free Online\s*/, '').replace(/\s*—.*$/, '')}
+                {t(`tools.${tool!.i18nKey}.title`)}
               </h3>
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${CATEGORY_COLORS[tool!.category] || ''}`}
@@ -48,7 +49,7 @@ export default function RelatedTools({ currentSlug }: RelatedToolsProps) {
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 line-clamp-2">
-              {tool!.metaDescription}
+              {t(`tools.${tool!.i18nKey}.shortDesc`)}
             </p>
           </Link>
         ))}

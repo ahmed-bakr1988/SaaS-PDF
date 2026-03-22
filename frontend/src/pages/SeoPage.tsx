@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, CheckCircle, FileText, Link2 } from 'lucide-react';
+import BreadcrumbNav from '@/components/seo/BreadcrumbNav';
 import SEOHead from '@/components/seo/SEOHead';
 import FAQSection from '@/components/seo/FAQSection';
 import RelatedTools from '@/components/seo/RelatedTools';
@@ -146,6 +147,14 @@ export default function SeoPage({ slug }: SeoPageProps) {
 
       <div className="mx-auto max-w-6xl space-y-12">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">
+          <BreadcrumbNav
+            className="mb-6"
+            items={[
+              { label: t('common.home'), to: '/' },
+              { label: copy.breadcrumbLabel },
+              { label: title },
+            ]}
+          />
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
             <div>
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">

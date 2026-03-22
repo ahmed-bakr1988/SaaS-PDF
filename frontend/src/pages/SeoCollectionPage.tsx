@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, FolderKanban, Link2 } from 'lucide-react';
+import BreadcrumbNav from '@/components/seo/BreadcrumbNav';
 import SEOHead from '@/components/seo/SEOHead';
 import FAQSection from '@/components/seo/FAQSection';
 import {
@@ -100,6 +101,14 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
 
       <div className="mx-auto max-w-6xl space-y-10">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">
+          <BreadcrumbNav
+            className="mb-6"
+            items={[
+              { label: t('common.home'), to: '/' },
+              { label: copy.breadcrumbLabel },
+              { label: title },
+            ]}
+          />
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
               <FolderKanban className="h-7 w-7" />

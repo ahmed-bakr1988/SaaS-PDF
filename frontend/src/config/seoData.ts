@@ -449,6 +449,27 @@ export const TOOLS_SEO: ToolSEO[] = [
     ],
   },
   {
+    i18nKey: 'imageToSvg',
+    slug: 'image-to-svg',
+    titleSuffix: 'Free Online Image to SVG Converter',
+    metaDescription: 'Convert PNG, JPG, and WebP images to scalable SVG vector format online for free. Perfect for logos, icons, and graphics that need to scale without quality loss.',
+    category: 'Image',
+    relatedSlugs: ['image-converter', 'compress-image', 'image-resize', 'remove-background'],
+    keywords: 'image to svg, png to svg, jpg to svg, raster to vector, convert image to svg, vectorize image, image vectorizer',
+    features: [
+      'Convert raster images (PNG, JPG, WebP) to SVG',
+      'Color or black-and-white tracing modes',
+      'Scalable vector output — no pixelation',
+      'Perfect for logos, icons, and illustrations',
+    ],
+    faqs: [
+      { question: 'What image formats can I convert to SVG?', answer: 'You can convert PNG, JPG, JPEG, and WebP images to SVG vector format.' },
+      { question: 'What is the difference between color and binary mode?', answer: 'Color mode preserves the full color palette. Binary mode converts the image to black and white first, producing cleaner vector paths — ideal for logos and line art.' },
+      { question: 'Will the SVG be editable?', answer: 'Yes, the output SVG contains vector paths that can be edited in any vector editor such as Adobe Illustrator, Inkscape, or Figma.' },
+      { question: 'Is there a file size limit?', answer: 'Images up to 10 MB are supported. For best results, use images under 4000×4000 pixels.' },
+    ],
+  },
+  {
     i18nKey: 'ocr',
     slug: 'ocr',
     titleSuffix: 'Free Online OCR — Text Recognition Tool',
@@ -881,6 +902,36 @@ export const TOOLS_SEO: ToolSEO[] = [
   },
 ];
 
+const POPULAR_TOOL_SLUGS = [
+  'pdf-to-word',
+  'word-to-pdf',
+  'compress-pdf',
+  'merge-pdf',
+  'image-converter',
+  'image-resize',
+  'compress-image',
+  'ocr',
+  'html-to-pdf',
+  'pdf-to-excel',
+  'qr-code',
+  'video-to-gif',
+] as const;
+
+function dedupeExistingToolSlugs(slugs: string[], excludeSlugs: string[] = []): string[] {
+  const excluded = new Set(excludeSlugs);
+  const seen = new Set<string>();
+  const validSlugs = new Set(TOOLS_SEO.map((tool) => tool.slug));
+
+  return slugs.filter((slug) => {
+    if (excluded.has(slug) || seen.has(slug) || !validSlugs.has(slug)) {
+      return false;
+    }
+
+    seen.add(slug);
+    return true;
+  });
+}
+
 /** Look up a tool's SEO data by slug */
 export function getToolSEO(slug: string): ToolSEO | undefined {
   return TOOLS_SEO.find((t) => t.slug === slug);
@@ -889,4 +940,26 @@ export function getToolSEO(slug: string): ToolSEO | undefined {
 /** Get all tool slugs for sitemap generation */
 export function getAllToolSlugs(): string[] {
   return TOOLS_SEO.map((t) => t.slug);
+}
+
+export function getPopularToolSlugs(limit = 4, excludeSlugs: string[] = []): string[] {
+  return dedupeExistingToolSlugs([...POPULAR_TOOL_SLUGS], excludeSlugs).slice(0, limit);
+}
+
+export function getInternalLinkToolSlugs(currentSlug: string, limit = 8): string[] {
+  const currentTool = getToolSEO(currentSlug);
+  if (!currentTool) {
+    return [];
+  }
+
+  const sameCategorySlugs = TOOLS_SEO
+    .filter((tool) => tool.category === currentTool.category && tool.slug !== currentSlug)
+    .map((tool) => tool.slug);
+
+  const internalLinks = dedupeExistingToolSlugs(
+    [...currentTool.relatedSlugs, ...sameCategorySlugs, ...POPULAR_TOOL_SLUGS],
+    [currentSlug]
+  );
+
+  return internalLinks.slice(0, limit);
 }

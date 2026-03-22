@@ -62,6 +62,7 @@ export const TOOL_ROUTES = [
   '/tools/compress-image',
   '/tools/ocr',
   '/tools/remove-background',
+  '/tools/image-to-svg',
 
   // Convert Tools
   '/tools/html-to-pdf',

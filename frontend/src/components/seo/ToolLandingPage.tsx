@@ -3,8 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
 import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
+import BreadcrumbNav from './BreadcrumbNav';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
+import SuggestedTools from './SuggestedTools';
 import ToolRating from '@/components/shared/ToolRating';
 import SharePanel from '@/components/shared/SharePanel';
 import ToolWorkflowPanel from '@/components/shared/ToolWorkflowPanel';
@@ -76,6 +78,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <title>{toolTitle} — {seo.titleSuffix} | {t('common.appName')}</title>
         <meta name="description" content={seo.metaDescription} />
         <meta name="keywords" content={seo.keywords} />
+        <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
         <link rel="canonical" href={canonicalUrl} />
         {languageAlternates.map((alternate) => (
           <link
@@ -120,6 +123,14 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
       </Helmet>
 
       {/* Tool Interface */}
+      <div className="mx-auto mb-6 max-w-5xl px-4">
+        <BreadcrumbNav
+          items={[
+            { label: t('common.home'), to: '/' },
+            { label: toolTitle },
+          ]}
+        />
+      </div>
       {children}
 
       <div className="mx-auto mt-6 flex max-w-3xl flex-wrap items-start justify-center gap-3 px-4">
@@ -222,6 +233,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
         {/* Related Tools */}
         <RelatedTools currentSlug={slug} />
+        <SuggestedTools currentSlug={slug} limit={4} />
 
         {/* User Rating */}
         <ToolRating toolSlug={slug} />

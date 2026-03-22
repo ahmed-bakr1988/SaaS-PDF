@@ -443,6 +443,14 @@
       "lockAspect": "Lock aspect ratio",
       "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio."
     },
+    "imageToSvg": {
+      "title": "Image to SVG",
+      "description": "Convert raster images (PNG, JPG, WebP) to scalable SVG vector format. Perfect for logos, icons, and illustrations.",
+      "shortDesc": "Convert to SVG",
+      "modeLabel": "Tracing Mode",
+      "colorMode": "Full Color",
+      "binaryMode": "Black & White"
+    },
     "ocr": {
       "title": "OCR — Text Recognition",
       "description": "Extract text from images and scanned PDF documents using optical character recognition.",
@@ -1232,6 +1240,18 @@
         {"q": "How does background removal work?", "a": "Our AI model automatically detects the subject in your image and removes the background, producing a transparent PNG file."},
         {"q": "What types of images work best?", "a": "The tool works best with clear subjects — product photos, portraits, and objects with distinct edges."},
         {"q": "What format is the output?", "a": "The output is always a PNG file with a transparent background."}
+      ]
+    },
+    "imageToSvg": {
+      "whatItDoes": "Convert raster images (PNG, JPG, WebP) to scalable SVG vector format. Whether you need vector logos, icons, or illustrations, this tool traces the image paths and produces a clean SVG that scales to any size without pixelation.",
+      "howToUse": ["Upload your image file (PNG, JPG, or WebP).", "Choose the tracing mode: Full Color or Black & White.", "Click Convert to SVG to start processing.", "Download your scalable SVG vector file."],
+      "benefits": ["Convert PNG, JPG, and WebP to SVG", "Color or black-and-white tracing modes", "Scalable vector output — no pixelation", "Editable in vector editors (Illustrator, Figma, Inkscape)", "Free with no registration"],
+      "useCases": ["Converting logos to scalable vector format", "Creating SVG icons for websites and apps", "Vectorizing illustrations for print materials", "Preparing graphics for responsive web design", "Converting line art or diagrams to editable paths"],
+      "faq": [
+        {"q": "What image formats can I convert to SVG?", "a": "You can convert PNG, JPG, JPEG, and WebP images to SVG vector format."},
+        {"q": "What is the difference between Color and Black & White mode?", "a": "Color mode preserves the full color palette of your image. Black & White mode converts to monochrome first, producing cleaner and simpler vector paths — ideal for logos and line art."},
+        {"q": "Can I edit the resulting SVG?", "a": "Yes, the output SVG contains vector paths that can be edited in any vector graphics editor."},
+        {"q": "Is there a file size limit?", "a": "Images up to 10 MB are supported. For best results, use clear images under 4000×4000 pixels."}
       ]
     },
     "ocr": {
