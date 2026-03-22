@@ -137,13 +137,14 @@ def resize_image(
                 width = int(orig_width * ratio)
 
             # Resize using high-quality resampling
+            assert width is not None and height is not None
             resized = img.resize((width, height), Image.Resampling.LANCZOS)
 
             # Detect format from output extension
             ext = os.path.splitext(output_path)[1].lower().strip(".")
             pil_format = FORMAT_MAP.get(ext, "PNG")
 
-            save_kwargs = {"optimize": True}
+            save_kwargs: dict[str, int | bool] = {"optimize": True}
             if pil_format in ("JPEG", "WEBP"):
                 save_kwargs["quality"] = quality
                 # Handle RGBA for JPEG
@@ -167,3 +168,67 @@ def resize_image(
 
     except (IOError, OSError, Image.DecompressionBombError) as e:
         raise ImageProcessingError(f"Image resize failed: {str(e)}")
+
+
+# ─── Allowed color modes for SVG tracing ─────────────────────
+ALLOWED_COLOR_MODES = ("color", "binary")
+
+
+def convert_image_to_svg(
+    input_path: str,
+    output_path: str,
+    color_mode: str = "color",
+) -> dict:
+    """
+    Convert a raster image to SVG using vtracer.
+
+    Args:
+        input_path: Path to the input image (PNG, JPG, WebP)
+        output_path: Path for the output SVG file
+        color_mode: "color" for full-colour trace, "binary" for black & white
+
+    Returns:
+        dict with original_size, converted_size, width, height
+
+    Raises:
+        ImageProcessingError: If conversion fails
+    """
+    import vtracer
+
+    if color_mode not in ALLOWED_COLOR_MODES:
+        color_mode = "color"
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    try:
+        original_size = os.path.getsize(input_path)
+
+        # Read dimensions via Pillow (also validates image)
+        with Image.open(input_path) as img:
+            width, height = img.size
+
+        vtracer.convert_image_to_svg_py(
+            input_path,
+            output_path,
+            colormode=color_mode,
+        )
+
+        converted_size = os.path.getsize(output_path)
+
+        logger.info(
+            f"Image→SVG conversion: {input_path} "
+            f"({original_size} → {converted_size})"
+        )
+
+        return {
+            "original_size": original_size,
+            "converted_size": converted_size,
+            "width": width,
+            "height": height,
+            "format": "svg",
+        }
+
+    except (IOError, OSError, Image.DecompressionBombError) as e:
+        raise ImageProcessingError(f"Image to SVG conversion failed: {str(e)}")
+    except Exception as e:
+        raise ImageProcessingError(f"Image to SVG conversion failed: {str(e)}")

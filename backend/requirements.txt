@@ -41,6 +41,9 @@ python-pptx>=0.6.21,<2.0
 # Barcode Generation
 python-barcode>=0.15,<1.0
 
+# Image to SVG (Raster to Vector)
+vtracer>=0.6,<1.0
+
 # Background Removal
 rembg>=2.0,<3.0
 onnxruntime>=1.16,<2.0

@@ -5,7 +5,7 @@ import logging
 from flask import current_app
 
 from app.extensions import celery
-from app.services.image_service import convert_image, resize_image, ImageProcessingError
+from app.services.image_service import convert_image, resize_image, convert_image_to_svg, ImageProcessingError
 from app.services.storage_service import storage
 from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
@@ -238,6 +238,101 @@ def resize_image_task(
             "image-resize",
             original_filename,
             {"status": "failed", "error": "An unexpected error occurred."},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
+
+
+@celery.task(bind=True, name="app.tasks.image_tasks.convert_image_to_svg_task")
+def convert_image_to_svg_task(
+    self,
+    input_path: str,
+    task_id: str,
+    original_filename: str,
+    color_mode: str = "color",
+    user_id: int | None = None,
+    usage_source: str = "web",
+    api_key_id: int | None = None,
+):
+    """
+    Async task: Convert a raster image to SVG.
+
+    Args:
+        input_path: Path to the uploaded image
+        task_id: Unique task identifier
+        original_filename: Original filename for download
+        color_mode: "color" or "binary"
+
+    Returns:
+        dict with download_url and conversion stats
+    """
+    output_dir = _get_output_dir(task_id)
+    output_path = os.path.join(output_dir, f"{task_id}.svg")
+
+    try:
+        self.update_state(
+            state="PROCESSING",
+            meta={"step": "Converting image to SVG..."},
+        )
+
+        stats = convert_image_to_svg(input_path, output_path, color_mode)
+
+        self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
+
+        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
+
+        name_without_ext = os.path.splitext(original_filename)[0]
+        download_name = f"{name_without_ext}.svg"
+
+        download_url = storage.generate_presigned_url(
+            s3_key, original_filename=download_name
+        )
+
+        result = {
+            "status": "completed",
+            "download_url": download_url,
+            "filename": download_name,
+            "original_size": stats["original_size"],
+            "converted_size": stats["converted_size"],
+            "width": stats["width"],
+            "height": stats["height"],
+            "format": "svg",
+        }
+
+        logger.info(f"Task {task_id}: Image to SVG conversion completed")
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-to-svg",
+            original_filename,
+            result,
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
+
+    except ImageProcessingError as e:
+        logger.error(f"Task {task_id}: Image error — {e}")
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-to-svg",
+            original_filename,
+            {"status": "failed", "error": str(e)},
+            usage_source,
+            api_key_id,
+            self.request.id,
+        )
+
+    except Exception as e:
+        logger.exception(f"Task {task_id}: Unexpected error — {e}")
+        return _finalize_task(
+            task_id,
+            user_id,
+            "image-to-svg",
+            original_filename,
+            {"status": "failed", "error": str(e) or "An unexpected error occurred."},
             usage_source,
             api_key_id,
             self.request.id,
