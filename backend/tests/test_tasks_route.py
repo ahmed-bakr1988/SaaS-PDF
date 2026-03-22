@@ -1,6 +1,7 @@
 """Tests for task status polling route."""
 from unittest.mock import patch, MagicMock
 
+from app.services.account_service import create_user, has_task_access
 from app.utils.auth import TASK_ACCESS_SESSION_KEY
 
 
@@ -61,6 +62,30 @@ class TestTaskStatus:
         assert data['state'] == 'SUCCESS'
         assert data['result']['status'] == 'completed'
         assert 'download_url' in data['result']
+
+        with client.session_transaction() as session:
+            assert 'task-id' in session[TASK_ACCESS_SESSION_KEY]
+
+    def test_success_task_persists_download_alias_for_authenticated_user(self, client):
+        """Should persist download aliases for logged-in users as authorized task ids."""
+        user = create_user('tasks-route@example.com', 'secretpass123')
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.result = {
+            'status': 'completed',
+            'download_url': '/api/download/local-download-id/output.pdf',
+            'filename': 'output.pdf',
+        }
+
+        with client.session_transaction() as session:
+            session['user_id'] = user['id']
+            session[TASK_ACCESS_SESSION_KEY] = ['success-id']
+
+        with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
+            response = client.get('/api/tasks/success-id/status')
+
+        assert response.status_code == 200
+        assert has_task_access(user['id'], 'web', 'local-download-id') is True
 
     def test_failure_task(self, client, monkeypatch):
         """Should return FAILURE state with error message."""

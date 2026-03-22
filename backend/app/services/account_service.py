@@ -669,7 +669,8 @@ def has_task_access(user_id: int, source: str, task_id: str) -> bool:
             """
             SELECT 1
             FROM usage_events
-            WHERE user_id = ? AND source = ? AND task_id = ? AND event_type = 'accepted'
+            WHERE user_id = ? AND source = ? AND task_id = ?
+              AND event_type IN ('accepted', 'download_alias')
             LIMIT 1
             """,
             (user_id, source, task_id),

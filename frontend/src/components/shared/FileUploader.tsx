@@ -1,5 +1,5 @@
-import { useCallback } from 'react';
-import { useDropzone, type Accept } from 'react-dropzone';
+import { useState, useCallback } from 'react';
+import { useDropzone, type Accept, type FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { Upload, File, X } from 'lucide-react';
 import { formatFileSize } from '@/utils/textTools';
@@ -37,9 +37,11 @@ export default function FileUploader({
   acceptLabel,
 }: FileUploaderProps) {
   const { t } = useTranslation();
+  const [sizeError, setSizeError] = useState<string | null>(null);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      setSizeError(null);
       if (acceptedFiles.length > 0) {
         onFileSelect(acceptedFiles[0]);
       }
@@ -47,8 +49,19 @@ export default function FileUploader({
     [onFileSelect]
   );
 
+  const onDropRejected = useCallback(
+    (rejectedFiles: FileRejection[]) => {
+      const code = rejectedFiles[0]?.errors[0]?.code;
+      if (code === 'file-too-large') {
+        setSizeError(t('errors.fileTooLarge', { size: maxSizeMB }));
+      }
+    },
+    [maxSizeMB, t]
+  );
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept,
     maxFiles: 1,
     maxSize: maxSizeMB * 1024 * 1024,
@@ -122,9 +135,9 @@ export default function FileUploader({
       )}
 
       {/* Error */}
-      {error && (
+      {(sizeError || error) && (
         <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200 dark:bg-red-900/20 dark:ring-red-800">
-          <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-400">⚠️ {sizeError || error}</p>
         </div>
       )}
     </div>
