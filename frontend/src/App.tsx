@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
+import Clarity from '@microsoft/clarity';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Header from '@/components/layout/Header';
@@ -94,6 +95,14 @@ export default function App() {
     initAnalytics();
     void refreshUser();
   }, [refreshUser]);
+
+  // Microsoft Clarity: Run only in production and browser
+  useEffect(() => {
+    if (import.meta.env.PROD && typeof window !== 'undefined') {
+      // ضع هنا رقم مشروع Clarity الخاص بك بدلاً من 'YOUR_CLARITY_PROJECT_ID'
+      Clarity.start(import.meta.env.VITE_CLARITY_PROJECT_ID);
+    }
+  }, []);
 
   useEffect(() => {
     trackPageView(`${location.pathname}${location.search}`);
