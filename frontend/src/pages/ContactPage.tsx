@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail, Send, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { isAxiosError } from 'axios';
+import { toast } from 'sonner';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { getApiClient } from '@/services/api';
@@ -40,14 +41,18 @@ export default function ContactPage() {
         message: data.get('message'),
       });
       setSubmitted(true);
+      toast.success(t('pages.contact.successMessage'));
     } catch (err: unknown) {
+      let errMsg = '';
       if (isAxiosError(err) && err.response?.data?.error) {
-        setError(err.response.data.error);
+        errMsg = err.response.data.error;
       } else if (err instanceof Error) {
-        setError(err.message);
+        errMsg = err.message;
       } else {
-        setError(String(err));
+        errMsg = String(err);
       }
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

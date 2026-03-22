@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Mail } from 'lucide-react';
+import { toast } from 'sonner';
 import { getApiClient } from '../services/api';
 
 const api = getApiClient();
@@ -21,8 +22,11 @@ export default function ForgotPasswordPage() {
     try {
       await api.post('/auth/forgot-password', { email });
       setSubmitted(true);
+      toast.success(t('auth.forgotPassword.sent'));
     } catch {
-      setError(t('auth.forgotPassword.error'));
+      const errMsg = t('auth.forgotPassword.error');
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }

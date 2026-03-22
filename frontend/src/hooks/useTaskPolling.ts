@@ -1,4 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { toast } from 'sonner';
+import i18n from '@/i18n';
 import { getTaskStatus, type TaskStatus, type TaskResult } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
 
@@ -55,25 +57,31 @@ export function useTaskPolling({
 
           if (taskResult?.status === 'completed') {
             setResult(taskResult);
+            toast.success(i18n.t('result.conversionComplete'), {
+              description: i18n.t('result.downloadReady'),
+            });
             trackEvent('task_completed', { task_id: taskId });
             onComplete?.(taskResult);
           } else {
-            const errMsg = taskResult?.error || 'Processing failed.';
+            const errMsg = taskResult?.error || i18n.t('common.errors.processingFailed');
             setError(errMsg);
+            toast.error(errMsg);
             trackEvent('task_failed', { task_id: taskId, reason: 'result_failed' });
             onError?.(errMsg);
           }
         } else if (taskStatus.state === 'FAILURE') {
           stopPolling();
-          const errMsg = taskStatus.error || 'Task failed.';
+          const errMsg = taskStatus.error || i18n.t('common.errors.processingFailed');
           setError(errMsg);
+          toast.error(errMsg);
           trackEvent('task_failed', { task_id: taskId, reason: 'state_failure' });
           onError?.(errMsg);
         }
       } catch (err) {
         stopPolling();
-        const errMsg = err instanceof Error ? err.message : 'Polling failed.';
+        const errMsg = err instanceof Error ? err.message : i18n.t('common.errors.networkError');
         setError(errMsg);
+        toast.error(errMsg);
         trackEvent('task_failed', { task_id: taskId, reason: 'polling_error' });
         onError?.(errMsg);
       }

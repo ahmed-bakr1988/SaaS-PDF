@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import {
   AlertTriangle,
   BarChart3,
@@ -222,7 +223,9 @@ export default function AccountPage() {
     setSubmitError(null);
 
     if (mode === 'register' && password !== confirmPassword) {
-      setSubmitError(t('account.passwordMismatch'));
+      const msg = t('account.passwordMismatch');
+      setSubmitError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -236,7 +239,9 @@ export default function AccountPage() {
       setPassword('');
       setConfirmPassword('');
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : t('account.loadFailed'));
+      const msg = error instanceof Error ? error.message : t('account.loadFailed');
+      setSubmitError(msg);
+      toast.error(msg);
     }
   };
 
@@ -248,7 +253,9 @@ export default function AccountPage() {
       setUsage(null);
       setApiKeys([]);
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : t('account.loadFailed'));
+      const msg = error instanceof Error ? error.message : t('account.loadFailed');
+      setSubmitError(msg);
+      toast.error(msg);
     }
   };
 
@@ -264,7 +271,9 @@ export default function AccountPage() {
       setRevealedKey(key.raw_key ?? null);
       setNewKeyName('');
     } catch (error) {
-      setNewKeyError(error instanceof Error ? error.message : t('account.loadFailed'));
+      const msg = error instanceof Error ? error.message : t('account.loadFailed');
+      setNewKeyError(msg);
+      toast.error(msg);
     } finally {
       setNewKeyCreating(false);
     }

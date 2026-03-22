@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { Toaster } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import CookieConsent from '@/components/layout/CookieConsent';
@@ -86,6 +87,7 @@ export default function App() {
   useDirection();
   const location = useLocation();
   const refreshUser = useAuthStore((state) => state.refreshUser);
+  const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
 
   useEffect(() => {
     initAnalytics();
@@ -196,6 +198,16 @@ export default function App() {
       <Footer />
       <SiteAssistant />
       <CookieConsent />
+      <Toaster
+        position={isRTL ? 'top-left' : 'top-right'}
+        dir={isRTL ? 'rtl' : 'ltr'}
+        richColors
+        closeButton
+        duration={4000}
+        toastOptions={{
+          className: 'text-sm',
+        }}
+      />
     </div>
   );
 }

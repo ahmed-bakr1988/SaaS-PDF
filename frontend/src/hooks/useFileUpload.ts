@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { uploadFile, type TaskResponse } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
 
@@ -33,6 +35,7 @@ export function useFileUpload({
   const [error, setError] = useState<string | null>(null);
   const extraDataRef = useRef(extraData);
   extraDataRef.current = extraData;
+  const { t } = useTranslation();
 
   const selectFile = useCallback(
     (selectedFile: File) => {
@@ -45,7 +48,9 @@ export function useFileUpload({
       // Client-side size check
       const maxBytes = maxSizeMB * 1024 * 1024;
       if (selectedFile.size > maxBytes) {
-        setError(`File too large. Maximum size is ${maxSizeMB}MB.`);
+        const msg = t('common.errors.fileTooLarge', { size: maxSizeMB });
+        setError(msg);
+        toast.error(msg);
         trackEvent('upload_rejected_client', {
           endpoint,
           reason: 'size_limit',
@@ -60,7 +65,9 @@ export function useFileUpload({
       if (acceptedTypes && acceptedTypes.length > 0) {
         const selectedExt = selectedFile.name.split('.').pop()?.toLowerCase();
         if (!selectedExt || !acceptedTypes.includes(selectedExt)) {
-          setError(`Invalid file type. Accepted: ${acceptedTypes.join(', ')}`);
+          const msg = t('common.errors.invalidFileType', { types: acceptedTypes.join(', ') });
+          setError(msg);
+          toast.error(msg);
           trackEvent('upload_rejected_client', {
             endpoint,
             reason: 'invalid_type',
@@ -82,7 +89,9 @@ export function useFileUpload({
 
   const startUpload = useCallback(async (): Promise<string | null> => {
     if (!file) {
-      setError('No file selected.');
+      const msg = t('common.errors.noFileSelected');
+      setError(msg);
+      toast.error(msg);
       return null;
     }
 
@@ -104,8 +113,9 @@ export function useFileUpload({
       trackEvent('upload_accepted', { endpoint });
       return response.task_id;
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Upload failed.';
+      const message = err instanceof Error ? err.message : t('common.errors.uploadFailed');
       setError(message);
+      toast.error(message);
       setIsUploading(false);
       trackEvent('upload_failed', { endpoint });
       return null;

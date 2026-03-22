@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useDropzone, type Accept, type FileRejection } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { Upload, File, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { formatFileSize } from '@/utils/textTools';
 
 interface FileUploaderProps {
@@ -53,7 +54,9 @@ export default function FileUploader({
     (rejectedFiles: FileRejection[]) => {
       const code = rejectedFiles[0]?.errors[0]?.code;
       if (code === 'file-too-large') {
-        setSizeError(t('errors.fileTooLarge', { size: maxSizeMB }));
+        const msg = t('common.errors.fileTooLarge', { size: maxSizeMB });
+        setSizeError(msg);
+        toast.error(msg);
       }
     },
     [maxSizeMB, t]

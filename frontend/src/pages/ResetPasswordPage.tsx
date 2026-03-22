@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { KeyRound } from 'lucide-react';
+import { toast } from 'sonner';
 import { getApiClient } from '../services/api';
 
 const api = getApiClient();
@@ -24,11 +25,15 @@ export default function ResetPasswordPage() {
     setError(null);
 
     if (password.length < 8) {
-      setError(t('auth.resetPassword.tooShort'));
+      const msg = t('auth.resetPassword.tooShort');
+      setError(msg);
+      toast.error(msg);
       return;
     }
     if (password !== confirm) {
-      setError(t('account.passwordMismatch'));
+      const msg = t('account.passwordMismatch');
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -36,9 +41,12 @@ export default function ResetPasswordPage() {
     try {
       await api.post('/auth/reset-password', { token, password });
       setSuccess(true);
+      toast.success(t('auth.resetPassword.success'));
       setTimeout(() => navigate('/account'), 3000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('auth.resetPassword.error'));
+      const errMsg = err instanceof Error ? err.message : t('auth.resetPassword.error');
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
