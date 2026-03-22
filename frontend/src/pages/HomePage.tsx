@@ -157,7 +157,7 @@ export default function HomePage() {
 
       <SocialProofStrip className="mb-10" />
 
-      <section className="deferred-section mb-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+      <section className="mb-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -191,7 +191,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="deferred-section mb-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+      <section className="mb-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
@@ -222,7 +222,7 @@ export default function HomePage() {
       </section>
 
       {/* Tools Grid */}
-      <section className="deferred-section">
+      <section>
         <h2 className="mb-6 text-center text-xl font-semibold text-slate-800 dark:text-slate-200">
           {t('home.pdfTools')}
         </h2>

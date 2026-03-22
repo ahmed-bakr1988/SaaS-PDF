@@ -34,7 +34,43 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
   }, []);
 
   if (!stats) {
-    return null;
+    return (
+      <section
+        aria-hidden="true"
+        className={`min-h-[260px] rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}
+      >
+        <div className="flex min-h-[212px] flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+          <div className="max-w-2xl flex-1">
+            <div className="h-4 w-32 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-4 h-8 w-72 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-3 h-4 w-full max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-2 h-4 w-5/6 max-w-lg animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+            <div className="mt-5 flex flex-wrap gap-2">
+              {Array.from({ length: 3 }).map((_, index) => (
+                <span
+                  key={index}
+                  className="h-7 w-24 animate-pulse rounded-full bg-slate-200 dark:bg-slate-700"
+                />
+              ))}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:min-w-[420px]">
+            {Array.from({ length: 4 }).map((_, index) => (
+              <div key={index} className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/70">
+                <div className="h-3 w-24 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+                <div className="mt-3 h-8 w-20 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-5 flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-slate-700">
+          <div className="h-4 w-64 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+          <div className="h-4 w-32 animate-pulse rounded-xl bg-slate-200 dark:bg-slate-700" />
+        </div>
+      </section>
+    );
   }
 
   const hasReliableUsageStats = stats.total_files_processed >= 25;
@@ -61,7 +97,7 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
   ].filter((card): card is { label: string; value: string } => Boolean(card));
 
   return (
-    <section className={`rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}>
+    <section className={`min-h-[260px] rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
