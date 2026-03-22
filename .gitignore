@@ -56,3 +56,5 @@ coverage/
 
 backend/celerybeat-schedule
 backend/data/dociva.db
+
+docs/

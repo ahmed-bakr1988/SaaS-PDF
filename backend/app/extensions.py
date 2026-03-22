@@ -13,6 +13,28 @@ talisman = Talisman()
 celery = Celery()
 
 
+def import_celery_tasks() -> None:
+    """Import all Celery task modules so task registration is centralized."""
+    import app.tasks.barcode_tasks  # noqa: F401
+    import app.tasks.compress_image_tasks  # noqa: F401
+    import app.tasks.compress_tasks  # noqa: F401
+    import app.tasks.convert_tasks  # noqa: F401
+    import app.tasks.flowchart_tasks  # noqa: F401
+    import app.tasks.html_to_pdf_tasks  # noqa: F401
+    import app.tasks.image_tasks  # noqa: F401
+    import app.tasks.maintenance_tasks  # noqa: F401
+    import app.tasks.ocr_tasks  # noqa: F401
+    import app.tasks.pdf_ai_tasks  # noqa: F401
+    import app.tasks.pdf_convert_tasks  # noqa: F401
+    import app.tasks.pdf_editor_tasks  # noqa: F401
+    import app.tasks.pdf_extra_tasks  # noqa: F401
+    import app.tasks.pdf_to_excel_tasks  # noqa: F401
+    import app.tasks.pdf_tools_tasks  # noqa: F401
+    import app.tasks.qrcode_tasks  # noqa: F401
+    import app.tasks.removebg_tasks  # noqa: F401
+    import app.tasks.video_tasks  # noqa: F401
+
+
 def init_celery(app):
     """Initialize Celery with Flask app context."""
     celery.conf.broker_url = app.config["CELERY_BROKER_URL"]
@@ -63,4 +85,5 @@ def init_celery(app):
                 return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
+    import_celery_tasks()
     return celery
