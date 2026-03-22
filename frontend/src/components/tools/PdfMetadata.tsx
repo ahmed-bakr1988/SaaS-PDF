@@ -9,6 +9,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { toast } from 'sonner';
 import api, { type TaskResponse } from '@/services/api';
 
 export default function PdfMetadata() {
@@ -37,7 +38,9 @@ export default function PdfMetadata() {
       const res = await api.post<TaskResponse>('/pdf-tools/metadata', fd);
       setTaskId(res.data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to edit metadata.');
+      const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');
+      setError(msg);
+      toast.error(msg);
       setPhase('done');
     }
   };

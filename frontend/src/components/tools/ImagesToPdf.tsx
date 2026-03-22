@@ -6,6 +6,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
+import { toast } from 'sonner';
 import { uploadFiles } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
@@ -66,7 +67,9 @@ export default function ImagesToPdf() {
       setTaskId(data.task_id);
       setPhase('processing');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed.');
+      const msg = err instanceof Error ? err.message : t('common.errors.uploadFailed');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsUploading(false);
     }

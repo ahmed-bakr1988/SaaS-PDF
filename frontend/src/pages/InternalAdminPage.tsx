@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { toast } from 'sonner';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import {
@@ -182,6 +183,12 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     btnPro: 'Pro',
     btnUser: 'User',
     btnAdmin: 'Admin',
+    // Errors
+    loadError: 'Failed to load dashboard data.',
+    loginError: 'Unable to sign in.',
+    updatePlanError: 'Unable to update plan.',
+    updateRoleError: 'Unable to update role.',
+    updateContactError: 'Unable to update contact message.',
   },
   ar: {
     // Page & header
@@ -317,6 +324,12 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     btnPro: 'Pro',
     btnUser: 'مستخدم',
     btnAdmin: 'مشرف',
+    // Errors
+    loadError: 'فشل تحميل بيانات لوحة التحكم.',
+    loginError: 'تعذّر تسجيل الدخول.',
+    updatePlanError: 'تعذّر تحديث الخطة.',
+    updateRoleError: 'تعذّر تحديث الدور.',
+    updateContactError: 'تعذّر تحديث رسالة التواصل.',
   },
 };
 
@@ -475,7 +488,9 @@ export default function InternalAdminPage() {
         }
       }
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load dashboard data.');
+      const msg = e instanceof Error ? e.message : t('loadError');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -492,7 +507,9 @@ export default function InternalAdminPage() {
       }
       setPassword('');
     } catch (e) {
-      setLoginError(e instanceof Error ? e.message : 'Unable to sign in.');
+      const msg = e instanceof Error ? e.message : t('loginError');
+      setLoginError(msg);
+      toast.error(msg);
     }
   }
 
@@ -504,7 +521,9 @@ export default function InternalAdminPage() {
       await updateInternalAdminUserPlan(userId, plan);
       await loadTab('users');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to update plan.');
+      const msg = e instanceof Error ? e.message : t('updatePlanError');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUpdatingUserId(null);
     }
@@ -518,7 +537,9 @@ export default function InternalAdminPage() {
       await updateInternalAdminUserRole(userId, role);
       await loadTab('users');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to update role.');
+      const msg = e instanceof Error ? e.message : t('updateRoleError');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setUpdatingRoleUserId(null);
     }
@@ -532,7 +553,9 @@ export default function InternalAdminPage() {
       await markInternalAdminContactRead(messageId);
       await loadTab('contacts');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to update contact message.');
+      const msg = e instanceof Error ? e.message : t('updateContactError');
+      setError(msg);
+      toast.error(msg);
     } finally {
       setMarkingMessageId(null);
     }

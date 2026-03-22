@@ -6,6 +6,7 @@ import ProgressBar from '@/components/shared/ProgressBar';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
+import { toast } from 'sonner';
 import api, { type TaskResponse } from '@/services/api';
 
 const BARCODE_TYPES = ['code128', 'code39', 'ean13', 'ean8', 'upca', 'isbn13', 'isbn10', 'issn', 'pzn'] as const;
@@ -32,7 +33,9 @@ export default function BarcodeGenerator() {
       });
       setTaskId(res.data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate barcode.');
+      const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');
+      setError(msg);
+      toast.error(msg);
       setPhase('done');
     }
   };

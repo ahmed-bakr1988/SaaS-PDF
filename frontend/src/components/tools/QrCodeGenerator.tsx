@@ -6,6 +6,7 @@ import ProgressBar from '@/components/shared/ProgressBar';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
+import { toast } from 'sonner';
 import api, { type TaskResponse, type TaskResult } from '@/services/api';
 import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
 
@@ -31,7 +32,9 @@ export default function QrCodeGenerator() {
       const res = await api.post<TaskResponse>('/qrcode/generate', { data: data.trim(), size });
       setTaskId(res.data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate QR code.');
+      const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');
+      setError(msg);
+      toast.error(msg);
       setPhase('done');
     }
   };

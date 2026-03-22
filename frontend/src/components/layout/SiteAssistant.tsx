@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Bot, SendHorizontal, Sparkles, X } from 'lucide-react';
+import { toast } from 'sonner';
 import { getToolSEO } from '@/config/seoData';
 import { streamAssistantChat, type AssistantHistoryMessage } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
@@ -181,6 +182,7 @@ export default function SiteAssistant() {
         ? requestError.message
         : t('assistant.unavailable');
       setError(message);
+      toast.error(message);
 
       setMessages((currentMessages) => currentMessages.map((currentMessage) => (
         currentMessage.id === assistantMessageId

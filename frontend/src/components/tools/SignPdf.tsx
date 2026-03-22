@@ -9,6 +9,7 @@ import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import { toast } from 'sonner';
 import api, { type TaskResponse } from '@/services/api';
 
 export default function SignPdf() {
@@ -40,7 +41,9 @@ export default function SignPdf() {
       const res = await api.post<TaskResponse>('/pdf-tools/sign', fd);
       setTaskId(res.data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign PDF.');
+      const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');
+      setError(msg);
+      toast.error(msg);
       setPhase('done');
     }
   };

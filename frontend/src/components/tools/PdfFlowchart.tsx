@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { GitBranch } from 'lucide-react';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
+import { toast } from 'sonner';
 import { startTask, uploadFile } from '@/services/api';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
@@ -91,7 +92,9 @@ export default function PdfFlowchart() {
       const data = await uploadFile('/flowchart/extract', file);
       setTaskId(data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Upload failed.');
+      const msg = err instanceof Error ? err.message : t('common.errors.uploadFailed');
+      setError(msg);
+      toast.error(msg);
       setUploading(false);
     }
   };
@@ -104,7 +107,9 @@ export default function PdfFlowchart() {
       const data = await startTask('/flowchart/extract-sample');
       setTaskId(data.task_id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Sample failed.');
+      const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');
+      setError(msg);
+      toast.error(msg);
       setUploading(false);
     }
   };
