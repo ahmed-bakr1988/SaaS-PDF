@@ -144,7 +144,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
       </div>
 
       {/* SEO Content Below Tool */}
-      <div className="mx-auto mt-16 max-w-3xl">
+      <div className="deferred-section mx-auto mt-16 max-w-3xl">
         <ToolWorkflowPanel />
 
         {/* What this tool does */}

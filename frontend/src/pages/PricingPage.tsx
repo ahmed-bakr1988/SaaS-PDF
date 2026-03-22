@@ -90,7 +90,9 @@ export default function PricingPage() {
           </p>
         </div>
 
-        <SocialProofStrip className="mb-12" />
+        <div className="deferred-section mb-12">
+          <SocialProofStrip />
+        </div>
 
         {/* Plan Cards */}
         <div className="mb-16 grid gap-8 md:grid-cols-2">
@@ -191,7 +193,7 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <section className="mb-16 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section mb-16 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <div className="max-w-3xl">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
               {t('pages.pricing.trustTitle')}

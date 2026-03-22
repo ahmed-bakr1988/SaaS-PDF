@@ -26,6 +26,7 @@
   body {
     @apply bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
     font-family: 'Inter', 'Tajawal', system-ui, sans-serif;
+    text-rendering: optimizeLegibility;
   }
 
   /* RTL Support */
@@ -153,4 +154,9 @@
 
 .modal-content {
   animation: modalSlideUp 0.25s ease-out;
+}
+
+.deferred-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 720px;
 }

@@ -3,8 +3,6 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import CookieConsent from '@/components/layout/CookieConsent';
-import SiteAssistant from '@/components/layout/SiteAssistant';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
 import ToolLandingPage from '@/components/seo/ToolLandingPage';
 import { useDirection } from '@/hooks/useDirection';
@@ -27,6 +25,8 @@ const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
 const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
 const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
 const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
+const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
+const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
 
 // Tool Pages
 const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
@@ -72,6 +72,7 @@ const FlattenPdf = lazy(() => import('@/components/tools/FlattenPdf'));
 const RepairPdf = lazy(() => import('@/components/tools/RepairPdf'));
 const PdfMetadata = lazy(() => import('@/components/tools/PdfMetadata'));
 const ImageCrop = lazy(() => import('@/components/tools/ImageCrop'));
+const ImageToSvg = lazy(() => import('@/components/tools/ImageToSvg'));
 const ImageRotateFlip = lazy(() => import('@/components/tools/ImageRotateFlip'));
 const BarcodeGenerator = lazy(() => import('@/components/tools/BarcodeGenerator'));
 
@@ -145,6 +146,7 @@ export default function App() {
             <Route path="/tools/compress-image" element={<ToolLandingPage slug="compress-image"><CompressImage /></ToolLandingPage>} />
             <Route path="/tools/ocr" element={<ToolLandingPage slug="ocr"><OcrTool /></ToolLandingPage>} />
             <Route path="/tools/remove-background" element={<ToolLandingPage slug="remove-background"><RemoveBackground /></ToolLandingPage>} />
+            <Route path="/tools/image-to-svg" element={<ToolLandingPage slug="image-to-svg"><ImageToSvg /></ToolLandingPage>} />
 
             {/* Convert Tools */}
             <Route path="/tools/pdf-to-excel" element={<ToolLandingPage slug="pdf-to-excel"><PdfToExcel /></ToolLandingPage>} />
@@ -196,8 +198,10 @@ export default function App() {
       </main>
 
       <Footer />
-      <SiteAssistant />
-      <CookieConsent />
+      <Suspense fallback={null}>
+        <SiteAssistant />
+        <CookieConsent />
+      </Suspense>
       <Toaster
         position={isRTL ? 'top-left' : 'top-right'}
         dir={isRTL ? 'rtl' : 'ltr'}

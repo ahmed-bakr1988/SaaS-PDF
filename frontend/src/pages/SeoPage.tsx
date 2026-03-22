@@ -197,7 +197,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
           </div>
         </section>
 
-        <section className="grid gap-8 lg:grid-cols-2">
+        <section className="deferred-section grid gap-8 lg:grid-cols-2">
           <div className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
               {copy.introHeading}
@@ -222,7 +222,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.useCasesHeading}
           </h2>
@@ -236,7 +236,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
         </section>
 
         {contentSections.length > 0 ? (
-          <section className="grid gap-6 lg:grid-cols-2">
+          <section className="deferred-section grid gap-6 lg:grid-cols-2">
             {contentSections.map((section) => (
               <article key={section.heading.en} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
                 <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
@@ -250,7 +250,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.relatedHeading}
           </h2>
@@ -284,7 +284,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.internalLinksHeading}
           </h2>
@@ -292,7 +292,7 @@ export default function SeoPage({ slug }: SeoPageProps) {
           <SuggestedTools currentSlug={page.toolSlug} limit={4} />
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.supportHeading}
           </h2>

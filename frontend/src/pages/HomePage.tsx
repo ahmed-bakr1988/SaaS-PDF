@@ -77,6 +77,7 @@ const otherTools: ToolInfo[] = [
   { key: 'compressImage', path: '/tools/compress-image', icon: <Minimize2 className="h-6 w-6 text-orange-600" />, bgColor: 'bg-orange-50' },
   { key: 'ocr', path: '/tools/ocr', icon: <ScanText className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
   { key: 'removeBg', path: '/tools/remove-background', icon: <Eraser className="h-6 w-6 text-fuchsia-600" />, bgColor: 'bg-fuchsia-50' },
+  { key: 'imageToSvg', path: '/tools/image-to-svg', icon: <ImageIcon className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
   { key: 'videoToGif', path: '/tools/video-to-gif', icon: <Film className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
   { key: 'qrCode', path: '/tools/qr-code', icon: <QrCode className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
   { key: 'htmlToPdf', path: '/tools/html-to-pdf', icon: <Code className="h-6 w-6 text-sky-600" />, bgColor: 'bg-sky-50' },
@@ -156,7 +157,7 @@ export default function HomePage() {
 
       <SocialProofStrip className="mb-10" />
 
-      <section className="mb-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+      <section className="deferred-section mb-10 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
@@ -190,7 +191,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mb-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+      <section className="deferred-section mb-12 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
@@ -221,7 +222,7 @@ export default function HomePage() {
       </section>
 
       {/* Tools Grid */}
-      <section>
+      <section className="deferred-section">
         <h2 className="mb-6 text-center text-xl font-semibold text-slate-800 dark:text-slate-200">
           {t('home.pdfTools')}
         </h2>

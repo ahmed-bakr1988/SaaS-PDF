@@ -122,7 +122,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
           </p>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.toolsHeading}
           </h2>
@@ -158,7 +158,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.selectionHeading}
           </h2>
@@ -172,7 +172,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
         </section>
 
         {contentSections.length > 0 ? (
-          <section className="grid gap-6 lg:grid-cols-2">
+          <section className="deferred-section grid gap-6 lg:grid-cols-2">
             {contentSections.map((section) => (
               <article key={section.heading.en} className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
                 <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
@@ -186,7 +186,7 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+        <section className="deferred-section rounded-2xl border border-slate-200 bg-white p-7 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <h2 className="text-2xl font-semibold text-slate-900 dark:text-white">
             {copy.relatedHeading}
           </h2>

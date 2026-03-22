@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useAuthStore } from '@/stores/authStore';
 
 interface AdSlotProps {
@@ -23,8 +23,9 @@ export default function AdSlot({
   className = '',
 }: AdSlotProps) {
   const user = useAuthStore((s) => s.user);
-  const adRef = useRef<HTMLModElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const isLoaded = useRef(false);
+  const [canLoad, setCanLoad] = useState(false);
   const clientId = (import.meta.env.VITE_ADSENSE_CLIENT_ID || '').trim();
   const slotMap: Record<string, string | undefined> = {
     'home-top': import.meta.env.VITE_ADSENSE_SLOT_HOME_TOP,
@@ -35,7 +36,31 @@ export default function AdSlot({
   const resolvedSlot = /^\d+$/.test(slot) ? slot : slotMap[slot];
 
   useEffect(() => {
-    if (isLoaded.current || !clientId || !resolvedSlot) return;
+    if (canLoad || !containerRef.current) {
+      return;
+    }
+
+    if (typeof IntersectionObserver === 'undefined') {
+      setCanLoad(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setCanLoad(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '320px 0px' }
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [canLoad]);
+
+  useEffect(() => {
+    if (isLoaded.current || !canLoad || !clientId || !resolvedSlot) return;
 
     const existingScript = document.querySelector<HTMLScriptElement>(
       `script[data-adsense-client="${clientId}"]`
@@ -60,7 +85,7 @@ export default function AdSlot({
     } catch {
       // AdSense not loaded (e.g., ad blocker)
     }
-  }, [clientId, resolvedSlot]);
+  }, [canLoad, clientId, resolvedSlot]);
 
   if (!clientId || !resolvedSlot) return null;
 
@@ -68,9 +93,8 @@ export default function AdSlot({
   if (user?.plan === 'pro') return null;
 
   return (
-    <div className={`ad-slot ${className}`}>
+    <div ref={containerRef} className={`ad-slot ${className}`}>
       <ins
-        ref={adRef}
         className="adsbygoogle"
         style={{ display: 'block' }}
         data-ad-client={clientId}

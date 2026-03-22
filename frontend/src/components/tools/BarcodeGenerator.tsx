@@ -98,7 +98,7 @@ export default function BarcodeGenerator() {
         {phase === 'done' && downloadUrl && (
           <div className="space-y-4 text-center">
             <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-              <img src={downloadUrl} alt="Barcode" className="mx-auto max-w-full" />
+              <img src={downloadUrl} alt="Barcode" loading="lazy" decoding="async" className="mx-auto max-w-full" />
             </div>
             <div className="flex gap-3">
               <a href={downloadUrl} download className="btn-primary flex-1">{t('common.download')}</a>
