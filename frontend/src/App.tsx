@@ -100,7 +100,7 @@ export default function App() {
   useEffect(() => {
     if (import.meta.env.PROD && typeof window !== 'undefined') {
       // ضع هنا رقم مشروع Clarity الخاص بك بدلاً من 'YOUR_CLARITY_PROJECT_ID'
-      Clarity.start(import.meta.env.VITE_CLARITY_PROJECT_ID);
+      Clarity.init(import.meta.env.VITE_CLARITY_PROJECT_ID);
     }
   }, []);
 
