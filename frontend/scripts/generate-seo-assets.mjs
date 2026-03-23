@@ -9,9 +9,19 @@ const publicDir = path.join(frontendRoot, 'public');
 const siteOrigin = String(process.env.VITE_SITE_DOMAIN || 'https://dociva.io').trim().replace(/\/$/, '');
 const today = new Date().toISOString().slice(0, 10);
 
-const seoConfig = JSON.parse(
-  await readFile(path.join(frontendRoot, 'src', 'seo', 'seoData.json'), 'utf8')
-);
+// Prefer a generated SEO file if present (created by merge-keywords.mjs). This is opt-in and safe.
+const generatedSeoPath = path.join(frontendRoot, 'src', 'seo', 'seoData.generated.json');
+const baseSeoPath = path.join(frontendRoot, 'src', 'seo', 'seoData.json');
+const seoConfigPath = (await (async () => {
+  try {
+    await readFile(generatedSeoPath, 'utf8');
+    return generatedSeoPath;
+  } catch (e) {
+    return baseSeoPath;
+  }
+})());
+
+const seoConfig = JSON.parse(await readFile(seoConfigPath, 'utf8'));
 const routeRegistrySource = await readFile(path.join(frontendRoot, 'src', 'config', 'routes.ts'), 'utf8');
 
 const staticPages = [

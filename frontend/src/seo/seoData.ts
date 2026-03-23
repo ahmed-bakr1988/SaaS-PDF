@@ -1,4 +1,17 @@
-import seoSeedConfig from '@/seo/seoData.json';
+// Prefer a generated SEO data file at build time if present (seoData.generated.json).
+// This file is optional and created by frontend/scripts/merge-keywords.mjs.
+let seoSeedConfig: any;
+try {
+  // try to load generated first
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  seoSeedConfig = (await import('@/seo/seoData.generated.json')).default;
+} catch (err) {
+  // fallback to original
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+  seoSeedConfig = (await import('@/seo/seoData.json')).default;
+}
 import type {
   LocalizedText,
   LocalizedTextList,

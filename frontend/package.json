@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",
-    "seo:generate": "node scripts/generate-seo-assets.mjs"
+    "seo:generate": "node scripts/merge-keywords.mjs && node scripts/generate-seo-assets.mjs"
   },
   "dependencies": {
     "@microsoft/clarity": "^1.0.2",

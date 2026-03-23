@@ -1,0 +1,2646 @@
+{
+  "toolPageSeeds": [
+    {
+      "slug": "pdf-to-word",
+      "toolSlug": "pdf-to-word",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to word",
+        "ar": "تحويل PDF إلى Word"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf to docx",
+          "convert pdf to word online",
+          "editable word from pdf"
+        ],
+        "ar": [
+          "تحويل pdf الى word",
+          "تحويل pdf إلى docx",
+          "تحويل ملف pdf إلى وورد"
+        ]
+      },
+      "benefit": {
+        "en": "Turn fixed PDF pages into editable Word files without rebuilding the document from scratch.",
+        "ar": "حوّل صفحات PDF الثابتة إلى ملفات Word قابلة للتحرير بدون إعادة بناء المستند من البداية."
+      },
+      "useCase": {
+        "en": "Best for contracts, resumes, reports, and client revisions.",
+        "ar": "مناسب للعقود والسير الذاتية والتقارير وتعديلات العملاء."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "word-to-pdf",
+      "toolSlug": "word-to-pdf",
+      "category": "Convert",
+      "focusKeyword": {
+        "en": "word to pdf",
+        "ar": "تحويل Word إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "docx to pdf",
+          "convert word to pdf online",
+          "save word as pdf"
+        ],
+        "ar": [
+          "تحويل وورد إلى pdf",
+          "docx إلى pdf",
+          "تحويل ملف word إلى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Create clean, shareable PDFs from Word files while preserving layout for print or approvals.",
+        "ar": "أنشئ ملفات PDF نظيفة وقابلة للمشاركة من ملفات Word مع الحفاظ على التنسيق للطباعة أو الاعتماد."
+      },
+      "useCase": {
+        "en": "Useful for proposals, handouts, policies, and invoices.",
+        "ar": "مفيد للعروض والمطبوعات والسياسات والفواتير."
+      },
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "compress-pdf-online",
+      "toolSlug": "compress-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf online",
+        "ar": "ضغط PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "reduce pdf size",
+          "make pdf smaller",
+          "shrink pdf online"
+        ],
+        "ar": [
+          "ضغط ملف pdf",
+          "تقليل حجم pdf",
+          "تصغير ملف pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Reduce large PDFs so they are easier to email, upload, archive, and open on mobile devices.",
+        "ar": "قلّل حجم ملفات PDF الكبيرة لتصبح أسهل في الإرسال والرفع والأرشفة والفتح على الجوال."
+      },
+      "useCase": {
+        "en": "Ideal for email attachments, portals with size limits, and document archives.",
+        "ar": "مثالي لمرفقات البريد الإلكتروني والبوابات ذات حدود الحجم وأرشيف المستندات."
+      },
+      "relatedCollectionSlugs": [
+        "free-pdf-tools-online",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "convert-jpg-to-pdf",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "convert jpg to pdf",
+        "ar": "تحويل JPG إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "jpg to pdf online",
+          "photo to pdf",
+          "combine jpg into pdf"
+        ],
+        "ar": [
+          "تحويل jpg إلى pdf",
+          "صورة إلى pdf",
+          "دمج صور jpg في pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Turn one or more JPG images into a single PDF document that is easier to share and print.",
+        "ar": "حوّل صورة JPG واحدة أو عدة صور إلى ملف PDF واحد أسهل في المشاركة والطباعة."
+      },
+      "useCase": {
+        "en": "Common for receipts, scanned pages, IDs, and application uploads.",
+        "ar": "شائع للإيصالات والصفحات الممسوحة ضوئياً وبطاقات الهوية وملفات التقديم."
+      },
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "merge-pdf-files",
+      "toolSlug": "merge-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "merge pdf files",
+        "ar": "دمج ملفات PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "combine pdf files",
+          "join pdf online",
+          "merge pdf documents"
+        ],
+        "ar": [
+          "دمج ملفات pdf",
+          "دمج pdf",
+          "جمع ملفات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Combine multiple PDFs into one ordered file without changing the original page quality.",
+        "ar": "ادمج عدة ملفات PDF في ملف واحد مرتب بدون التأثير على جودة الصفحات الأصلية."
+      },
+      "useCase": {
+        "en": "Useful for proposals, legal packets, onboarding files, and reporting bundles.",
+        "ar": "مفيد للعروض والملفات القانونية وحزم onboarding وتجميع التقارير."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "secure-pdf-tools"
+      ]
+    },
+    {
+      "slug": "remove-pdf-password",
+      "toolSlug": "unlock-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "remove pdf password",
+        "ar": "إزالة كلمة مرور PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "unlock pdf",
+          "remove pdf protection",
+          "open locked pdf"
+        ],
+        "ar": [
+          "فتح قفل pdf",
+          "إزالة حماية pdf",
+          "إلغاء كلمة سر pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Remove protection from PDFs you already have permission to open so editing and sharing are faster.",
+        "ar": "أزل الحماية من ملفات PDF التي لديك إذن بفتحها بالفعل حتى تصبح عملية التعديل والمشاركة أسرع."
+      },
+      "useCase": {
+        "en": "Helpful when teams need to print, review, merge, or archive secured files.",
+        "ar": "مفيد عندما تحتاج الفرق إلى طباعة الملفات المؤمنة أو مراجعتها أو دمجها أو أرشفتها."
+      },
+      "relatedCollectionSlugs": [
+        "secure-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "pdf-to-word-editable",
+      "toolSlug": "pdf-to-word",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to word editable",
+        "ar": "تحويل PDF إلى Word قابل للتعديل"
+      },
+      "supportingKeywords": {
+        "en": [
+          "editable pdf to word",
+          "make pdf editable in word",
+          "pdf to editable docx"
+        ],
+        "ar": [
+          "pdf إلى word قابل للتعديل",
+          "تحويل pdf قابل للتحرير",
+          "ملف وورد قابل للتعديل من pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Create a Word version that can be revised quickly instead of retyping content from a static PDF.",
+        "ar": "أنشئ نسخة Word قابلة للتعديل بسرعة بدلاً من إعادة كتابة محتوى PDF ثابت يدوياً."
+      },
+      "useCase": {
+        "en": "Best for editable forms, vendor documents, and reused templates.",
+        "ar": "مناسب للنماذج القابلة للتعديل ووثائق الموردين والقوالب المعاد استخدامها."
+      },
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "scanned-document-tools"
+      ]
+    },
+    {
+      "slug": "convert-pdf-to-text",
+      "toolSlug": "ocr",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "convert pdf to text",
+        "ar": "تحويل PDF إلى نص"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf to text online",
+          "extract text from pdf",
+          "pdf text extraction"
+        ],
+        "ar": [
+          "تحويل pdf إلى نص",
+          "استخراج النص من pdf",
+          "قراءة نص pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Extract readable text from scanned or image-based PDFs so content becomes searchable and reusable.",
+        "ar": "استخرج نصاً قابلاً للقراءة من ملفات PDF الممسوحة ضوئياً أو المعتمدة على الصور ليصبح المحتوى قابلاً للبحث وإعادة الاستخدام."
+      },
+      "useCase": {
+        "en": "Useful for reports, scanned forms, research material, and document indexing.",
+        "ar": "مفيد للتقارير والنماذج الممسوحة ضوئياً ومواد البحث وفهرسة المستندات."
+      },
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "scanned-document-tools"
+      ]
+    },
+    {
+      "slug": "split-pdf-online",
+      "toolSlug": "split-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "split pdf online",
+        "ar": "تقسيم PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "split pdf pages",
+          "divide pdf",
+          "separate pdf pages"
+        ],
+        "ar": [
+          "تقسيم ملف pdf",
+          "فصل صفحات pdf",
+          "تجزئة pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Break large PDFs into smaller parts or isolate the exact pages you need for the next workflow.",
+        "ar": "قسّم ملفات PDF الكبيرة إلى أجزاء أصغر أو اعزل الصفحات التي تحتاجها فقط للمسار التالي."
+      },
+      "useCase": {
+        "en": "Helpful for chapter sharing, legal exhibits, and trimmed uploads.",
+        "ar": "مفيد لمشاركة الفصول والمرفقات القانونية ورفع ملفات مختصرة."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "jpg-to-pdf",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "jpg to pdf",
+        "ar": "تحويل JPG إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "image to pdf",
+          "jpg file to pdf",
+          "convert jpg file to pdf"
+        ],
+        "ar": [
+          "jpg إلى pdf",
+          "تحويل صورة jpg إلى pdf",
+          "تحويل الصور الى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Convert JPG files into a clean PDF format that works across devices and office workflows.",
+        "ar": "حوّل ملفات JPG إلى صيغة PDF نظيفة تعمل عبر الأجهزة ومسارات العمل المكتبية."
+      },
+      "useCase": {
+        "en": "Good for homework scans, receipts, forms, and proofs of identity.",
+        "ar": "جيد للواجبات الممسوحة ضوئياً والإيصالات والنماذج وإثباتات الهوية."
+      },
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "arabic-pdf-tools"
+      ]
+    },
+    {
+      "slug": "png-to-pdf",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "png to pdf",
+        "ar": "تحويل PNG إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "convert png to pdf",
+          "png file to pdf",
+          "png image pdf"
+        ],
+        "ar": [
+          "تحويل png إلى pdf",
+          "ملف png إلى pdf",
+          "صورة png إلى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Package PNG images into PDF while keeping diagrams, screenshots, and transparency-heavy content organized.",
+        "ar": "حوّل صور PNG إلى PDF مع إبقاء المخططات ولقطات الشاشة والمحتوى المنظم بصورة مرتبة."
+      },
+      "useCase": {
+        "en": "Useful for mockups, screenshots, annotated notes, and design exports.",
+        "ar": "مفيد للنماذج الأولية ولقطات الشاشة والملاحظات المشروحة وتصدير التصاميم."
+      },
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "online-image-tools"
+      ]
+    },
+    {
+      "slug": "images-to-pdf-online",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "images to pdf online",
+        "ar": "تحويل الصور إلى PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "combine images into pdf",
+          "multiple images to pdf",
+          "photos to pdf online"
+        ],
+        "ar": [
+          "تحويل الصور الى pdf",
+          "دمج الصور في pdf",
+          "عدة صور إلى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Combine multiple images into one portable PDF instead of sending several separate files.",
+        "ar": "ادمج عدة صور في ملف PDF واحد قابل للنقل بدلاً من إرسال عدة ملفات منفصلة."
+      },
+      "useCase": {
+        "en": "Useful for case files, property photos, receipts, and scanned homework.",
+        "ar": "مفيد لملفات القضايا وصور العقارات والإيصالات والواجبات الممسوحة ضوئياً."
+      },
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "pdf-to-jpg",
+      "toolSlug": "pdf-to-images",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to jpg",
+        "ar": "تحويل PDF إلى JPG"
+      },
+      "supportingKeywords": {
+        "en": [
+          "convert pdf to jpg",
+          "pdf page to image",
+          "save pdf as jpg"
+        ],
+        "ar": [
+          "تحويل pdf إلى jpg",
+          "صفحات pdf إلى صور",
+          "حفظ pdf كـ jpg"
+        ]
+      },
+      "benefit": {
+        "en": "Turn PDF pages into JPG images for quick previews, sharing in chat apps, or slide decks.",
+        "ar": "حوّل صفحات PDF إلى صور JPG للمعاينة السريعة أو المشاركة في تطبيقات المحادثة أو العروض."
+      },
+      "useCase": {
+        "en": "Best for presentations, social posts, proof snapshots, and lightweight sharing.",
+        "ar": "مناسب للعروض والمنشورات الاجتماعية ولقطات الإثبات والمشاركة الخفيفة."
+      },
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "pdf-to-png",
+      "toolSlug": "pdf-to-images",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to png",
+        "ar": "تحويل PDF إلى PNG"
+      },
+      "supportingKeywords": {
+        "en": [
+          "convert pdf to png",
+          "pdf page to png",
+          "high quality pdf image"
+        ],
+        "ar": [
+          "تحويل pdf إلى png",
+          "صفحة pdf إلى png",
+          "صورة عالية الجودة من pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Export crisp PNG images from PDF pages when clarity matters for screenshots, interfaces, or graphics.",
+        "ar": "صدّر صور PNG واضحة من صفحات PDF عندما تكون الدقة مهمة لواجهات الاستخدام أو الرسومات أو لقطات الشاشة."
+      },
+      "useCase": {
+        "en": "Good for annotated visuals, UI reviews, graphics handoff, and transparent workflows.",
+        "ar": "جيد للمرئيات المشروحة ومراجعات الواجهات وتسليم الرسومات ومسارات العمل التي تحتاج وضوحاً أعلى."
+      },
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "online-image-tools"
+      ]
+    },
+    {
+      "slug": "compress-pdf-for-email",
+      "toolSlug": "compress-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf for email",
+        "ar": "ضغط PDF للإيميل"
+      },
+      "supportingKeywords": {
+        "en": [
+          "email pdf size limit",
+          "reduce pdf for attachment",
+          "small pdf for email"
+        ],
+        "ar": [
+          "ضغط pdf للبريد",
+          "تقليل حجم pdf للإرسال",
+          "ملف pdf صغير للإيميل"
+        ]
+      },
+      "benefit": {
+        "en": "Shrink PDFs to meet common attachment limits without making documents unreadable.",
+        "ar": "قلّل حجم ملفات PDF لتوافق حدود المرفقات الشائعة بدون أن تصبح المستندات غير قابلة للقراءة."
+      },
+      "useCase": {
+        "en": "Useful for HR forms, vendor documents, client approvals, and support tickets.",
+        "ar": "مفيد لنماذج الموارد البشرية ووثائق الموردين وموافقات العملاء وتذاكر الدعم."
+      },
+      "relatedCollectionSlugs": [
+        "free-pdf-tools-online",
+        "secure-pdf-tools"
+      ]
+    },
+    {
+      "slug": "compress-scanned-pdf",
+      "toolSlug": "compress-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress scanned pdf",
+        "ar": "ضغط PDF ممسوح ضوئياً"
+      },
+      "supportingKeywords": {
+        "en": [
+          "reduce scanned pdf size",
+          "scan pdf compressor",
+          "shrink image-based pdf"
+        ],
+        "ar": [
+          "ضغط ملف pdf ممسوح",
+          "تقليل حجم pdf ممسوح",
+          "ضغط pdf صور"
+        ]
+      },
+      "benefit": {
+        "en": "Cut the size of image-heavy scanned PDFs so they can be uploaded and shared more easily.",
+        "ar": "خفّض حجم ملفات PDF الممسوحة ضوئياً والغنية بالصور حتى يمكن رفعها ومشاركتها بسهولة أكبر."
+      },
+      "useCase": {
+        "en": "Helpful for archive scans, office paperwork, and portal submissions.",
+        "ar": "مفيد للأرشفة الممسوحة ضوئياً والأوراق المكتبية والرفع إلى البوابات."
+      },
+      "relatedCollectionSlugs": [
+        "scanned-document-tools",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "merge-pdf-online-free",
+      "toolSlug": "merge-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "merge pdf online free",
+        "ar": "دمج PDF أونلاين مجاناً"
+      },
+      "supportingKeywords": {
+        "en": [
+          "free merge pdf",
+          "combine pdf online free",
+          "join pdf files free"
+        ],
+        "ar": [
+          "دمج pdf مجاناً",
+          "جمع pdf أونلاين",
+          "دمج ملفات pdf مجانا"
+        ]
+      },
+      "benefit": {
+        "en": "Assemble multiple PDFs into one document in the browser without extra desktop software.",
+        "ar": "اجمع عدة ملفات PDF في مستند واحد داخل المتصفح بدون برامج سطح مكتب إضافية."
+      },
+      "useCase": {
+        "en": "Common for bid packs, onboarding bundles, and document handoffs.",
+        "ar": "شائع لحزم العطاءات وملفات onboarding وتسليم المستندات."
+      },
+      "relatedCollectionSlugs": [
+        "free-pdf-tools-online",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "combine-pdf-files",
+      "toolSlug": "merge-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "combine pdf files",
+        "ar": "جمع ملفات PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "combine multiple pdf files",
+          "join pdf documents",
+          "put pdf files together"
+        ],
+        "ar": [
+          "جمع ملفات pdf",
+          "تجميع مستندات pdf",
+          "ضم ملفات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Put related PDF files together so teams review one document instead of many separate attachments.",
+        "ar": "اجمع ملفات PDF المرتبطة معاً حتى تراجع الفرق مستنداً واحداً بدلاً من عدة مرفقات منفصلة."
+      },
+      "useCase": {
+        "en": "Useful for applications, case files, board packs, and proposal sets.",
+        "ar": "مفيد لطلبات التقديم وملفات القضايا وحزم الاجتماعات ومجموعات العروض."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "extract-pages-from-pdf",
+      "toolSlug": "extract-pages",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "extract pages from pdf",
+        "ar": "استخراج صفحات من PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "select pages from pdf",
+          "save selected pdf pages",
+          "pdf page extractor"
+        ],
+        "ar": [
+          "استخراج صفحات من pdf",
+          "حفظ صفحات pdf محددة",
+          "أداة استخراج صفحات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Keep only the pages you need from a larger PDF before sending or reusing the document.",
+        "ar": "احتفظ فقط بالصفحات التي تحتاجها من ملف PDF أكبر قبل إرسال المستند أو إعادة استخدامه."
+      },
+      "useCase": {
+        "en": "Helpful for exhibits, chapter handoffs, and trimmed submissions.",
+        "ar": "مفيد للملاحق والفصول المقتطعة وعمليات الرفع المختصرة."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "secure-pdf-tools"
+      ]
+    },
+    {
+      "slug": "reorder-pdf-pages",
+      "toolSlug": "reorder-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "reorder pdf pages",
+        "ar": "إعادة ترتيب صفحات PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "rearrange pdf pages",
+          "organize pdf pages",
+          "sort pages in pdf"
+        ],
+        "ar": [
+          "إعادة ترتيب صفحات pdf",
+          "تنظيم صفحات pdf",
+          "تبديل صفحات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Fix page order in PDFs before sharing, printing, or merging with other files.",
+        "ar": "أصلح ترتيب الصفحات في ملفات PDF قبل المشاركة أو الطباعة أو الدمج مع ملفات أخرى."
+      },
+      "useCase": {
+        "en": "Useful for reports, scanned batches, contracts, and course packs.",
+        "ar": "مفيد للتقارير والدفعات الممسوحة ضوئياً والعقود وحزم الدروس."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "rotate-pdf-pages",
+      "toolSlug": "rotate-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "rotate pdf pages",
+        "ar": "تدوير صفحات PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "rotate pdf online",
+          "fix pdf orientation",
+          "turn pdf pages"
+        ],
+        "ar": [
+          "تدوير pdf",
+          "تصحيح اتجاه pdf",
+          "إدارة صفحات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Correct sideways or upside-down PDF pages so they read properly on screen and on paper.",
+        "ar": "صحّح صفحات PDF المائلة أو المقلوبة حتى تُقرأ بشكل صحيح على الشاشة وعلى الورق."
+      },
+      "useCase": {
+        "en": "Common for scans, phone-captured documents, and mixed page sets.",
+        "ar": "شائع للملفات الممسوحة ضوئياً والمستندات الملتقطة بالجوال ومجموعات الصفحات المختلطة."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "scanned-document-tools"
+      ]
+    },
+    {
+      "slug": "add-page-numbers-to-pdf",
+      "toolSlug": "page-numbers",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "add page numbers to pdf",
+        "ar": "إضافة أرقام الصفحات إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf page numbering",
+          "number pdf pages",
+          "insert page numbers pdf"
+        ],
+        "ar": [
+          "إضافة أرقام للصفحات في pdf",
+          "ترقيم صفحات pdf",
+          "أرقام صفحات pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Add consistent numbering to PDFs so longer documents are easier to reference and review.",
+        "ar": "أضف ترقيمًا ثابتًا إلى ملفات PDF حتى يسهل الرجوع إلى المستندات الطويلة ومراجعتها."
+      },
+      "useCase": {
+        "en": "Useful for legal files, manuals, reports, and printed course packs.",
+        "ar": "مفيد للملفات القانونية والأدلة والتقارير وحزم الدراسة المطبوعة."
+      },
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "protect-pdf-with-password",
+      "toolSlug": "protect-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "protect pdf with password",
+        "ar": "حماية PDF بكلمة مرور"
+      },
+      "supportingKeywords": {
+        "en": [
+          "password protect pdf",
+          "secure pdf online",
+          "encrypt pdf file"
+        ],
+        "ar": [
+          "حماية pdf بكلمة مرور",
+          "تأمين ملف pdf",
+          "تشفير pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Restrict access to PDFs before sending them outside your team or organization.",
+        "ar": "قيّد الوصول إلى ملفات PDF قبل إرسالها خارج فريقك أو مؤسستك."
+      },
+      "useCase": {
+        "en": "Useful for HR, finance, legal, and sensitive client documents.",
+        "ar": "مفيد لوثائق الموارد البشرية والمالية والقانونية ووثائق العملاء الحساسة."
+      },
+      "relatedCollectionSlugs": [
+        "secure-pdf-tools",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "unlock-pdf-online",
+      "toolSlug": "unlock-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "unlock pdf online",
+        "ar": "فتح قفل PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "unlock protected pdf",
+          "remove password from pdf",
+          "decrypt pdf online"
+        ],
+        "ar": [
+          "فتح قفل pdf أونلاين",
+          "إزالة كلمة المرور من pdf",
+          "فك حماية pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Open up protected PDFs that you are authorized to use so the next editing or sharing step is easier.",
+        "ar": "افتح ملفات PDF المحمية التي لديك تصريح باستخدامها حتى تصبح الخطوة التالية من التعديل أو المشاركة أسهل."
+      },
+      "useCase": {
+        "en": "Helpful before merging, printing, annotating, or converting files.",
+        "ar": "مفيد قبل الدمج أو الطباعة أو التعليق أو تحويل الملفات."
+      },
+      "relatedCollectionSlugs": [
+        "secure-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "watermark-pdf-online",
+      "toolSlug": "watermark-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "watermark pdf online",
+        "ar": "وضع علامة مائية على PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "add watermark to pdf",
+          "pdf watermark online",
+          "brand pdf document"
+        ],
+        "ar": [
+          "إضافة علامة مائية إلى pdf",
+          "علامة مائية pdf",
+          "وضع شعار على pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Add a visible ownership layer to PDFs before sharing drafts, proofs, or client-facing documents.",
+        "ar": "أضف طبقة ملكية واضحة إلى ملفات PDF قبل مشاركة المسودات أو الإثباتات أو مستندات العملاء."
+      },
+      "useCase": {
+        "en": "Useful for draft reviews, branded exports, and controlled circulation.",
+        "ar": "مفيد لمراجعة المسودات والتصدير الممهور بالعلامة التجارية والتوزيع المحدود."
+      },
+      "relatedCollectionSlugs": [
+        "secure-pdf-tools",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "remove-watermark-from-pdf",
+      "toolSlug": "remove-watermark-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "remove watermark from pdf",
+        "ar": "إزالة العلامة المائية من PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "delete pdf watermark",
+          "clean pdf watermark",
+          "remove text watermark pdf"
+        ],
+        "ar": [
+          "إزالة العلامة المائية من pdf",
+          "حذف العلامة المائية pdf",
+          "تنظيف pdf من العلامة المائية"
+        ]
+      },
+      "benefit": {
+        "en": "Clean up PDFs by removing unwanted watermark text when you are working with authorized source files.",
+        "ar": "نظّف ملفات PDF بإزالة نص العلامة المائية غير المرغوب عندما تعمل على ملفات مصدر مصرح بها."
+      },
+      "useCase": {
+        "en": "Useful for final copies, internal working versions, and cleaned archives.",
+        "ar": "مفيد للنسخ النهائية ونسخ العمل الداخلية والأرشيفات النظيفة."
+      },
+      "relatedCollectionSlugs": [
+        "secure-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "edit-pdf-online-free",
+      "toolSlug": "pdf-editor",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "edit pdf online free",
+        "ar": "تعديل PDF أونلاين مجاناً"
+      },
+      "supportingKeywords": {
+        "en": [
+          "free pdf editor online",
+          "annotate pdf",
+          "modify pdf online"
+        ],
+        "ar": [
+          "تعديل pdf مجاناً",
+          "محرر pdf أونلاين",
+          "تعديل ملف pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Make quick PDF edits and annotations in the browser without switching to heavier desktop software.",
+        "ar": "أجرِ تعديلات سريعة وتعليقات على PDF داخل المتصفح بدون الانتقال إلى برامج سطح مكتب أثقل."
+      },
+      "useCase": {
+        "en": "Useful for notes, approvals, markup, and light document cleanup.",
+        "ar": "مفيد للملاحظات والموافقات ووضع العلامات وتنظيف المستندات بشكل خفيف."
+      },
+      "relatedCollectionSlugs": [
+        "free-pdf-tools-online",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "pdf-to-excel-online",
+      "toolSlug": "pdf-to-excel",
+      "category": "Convert",
+      "focusKeyword": {
+        "en": "pdf to excel online",
+        "ar": "تحويل PDF إلى Excel أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "convert pdf to xlsx",
+          "pdf table to excel",
+          "pdf spreadsheet converter"
+        ],
+        "ar": [
+          "تحويل pdf إلى excel",
+          "pdf إلى xlsx",
+          "جدول pdf إلى excel"
+        ]
+      },
+      "benefit": {
+        "en": "Move tabular data out of PDF and into Excel so teams can filter, calculate, and reuse it.",
+        "ar": "انقل البيانات الجدولية من PDF إلى Excel حتى تتمكن الفرق من التصفية والحساب وإعادة الاستخدام."
+      },
+      "useCase": {
+        "en": "Helpful for invoices, statements, reports, and operations data.",
+        "ar": "مفيد للفواتير والكشوفات والتقارير وبيانات العمليات."
+      },
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "extract-tables-from-pdf",
+      "toolSlug": "extract-tables",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "extract tables from pdf",
+        "ar": "استخراج الجداول من PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf table extractor",
+          "capture tables from pdf",
+          "pdf table to spreadsheet"
+        ],
+        "ar": [
+          "استخراج الجداول من pdf",
+          "أداة جداول pdf",
+          "تحويل جدول pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Pull structured tables from PDF pages when data needs to move into spreadsheets or analysis tools.",
+        "ar": "استخرج الجداول المنظمة من صفحات PDF عندما تحتاج البيانات إلى الانتقال إلى جداول البيانات أو أدوات التحليل."
+      },
+      "useCase": {
+        "en": "Useful for finance data, procurement sheets, and operational reporting.",
+        "ar": "مفيد للبيانات المالية وجداول المشتريات وتقارير العمليات."
+      },
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "pdf-converter-tools"
+      ]
+    },
+    {
+      "slug": "html-to-pdf-online",
+      "toolSlug": "html-to-pdf",
+      "category": "Convert",
+      "focusKeyword": {
+        "en": "html to pdf online",
+        "ar": "تحويل HTML إلى PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "convert html to pdf",
+          "webpage to pdf",
+          "html file to pdf"
+        ],
+        "ar": [
+          "تحويل html إلى pdf",
+          "صفحة ويب إلى pdf",
+          "ملف html إلى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Capture web layouts as PDFs for sharing, approval, printing, or archiving.",
+        "ar": "التقط تنسيقات الويب كملفات PDF للمشاركة أو الاعتماد أو الطباعة أو الأرشفة."
+      },
+      "useCase": {
+        "en": "Helpful for invoices, landing page proofs, templates, and documentation exports.",
+        "ar": "مفيد للفواتير وإثباتات صفحات الهبوط والقوالب وتصدير الوثائق."
+      },
+      "relatedCollectionSlugs": [
+        "convert-files-online",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "scan-pdf-to-text",
+      "toolSlug": "ocr",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "scan pdf to text",
+        "ar": "تحويل PDF الممسوح إلى نص"
+      },
+      "supportingKeywords": {
+        "en": [
+          "ocr scanned pdf",
+          "scanned pdf text extraction",
+          "scan to editable text"
+        ],
+        "ar": [
+          "تحويل pdf الممسوح إلى نص",
+          "ocr pdf ممسوح",
+          "استخراج النص من pdf ممسوح"
+        ]
+      },
+      "benefit": {
+        "en": "Use OCR to recover editable text from scanned PDFs that would otherwise stay image-based.",
+        "ar": "استخدم OCR لاستعادة نص قابل للتحرير من ملفات PDF الممسوحة ضوئياً والتي كانت ستبقى معتمدة على الصور."
+      },
+      "useCase": {
+        "en": "Best for archive scans, old records, paperwork, and compliance files.",
+        "ar": "مناسب للأرشيفات الممسوحة والملفات القديمة والأوراق الإدارية وملفات الامتثال."
+      },
+      "relatedCollectionSlugs": [
+        "scanned-document-tools",
+        "ai-document-tools"
+      ]
+    },
+    {
+      "slug": "chat-with-pdf",
+      "toolSlug": "chat-pdf",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "chat with pdf",
+        "ar": "الدردشة مع PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "ask pdf questions",
+          "ai pdf chat",
+          "chat pdf online"
+        ],
+        "ar": [
+          "الدردشة مع pdf",
+          "سؤال pdf بالذكاء الاصطناعي",
+          "chat pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Ask direct questions about long PDF documents instead of manually searching page by page.",
+        "ar": "اسأل أسئلة مباشرة عن ملفات PDF الطويلة بدلاً من البحث اليدوي صفحةً صفحة."
+      },
+      "useCase": {
+        "en": "Useful for contracts, manuals, research papers, and policy reviews.",
+        "ar": "مفيد للعقود والأدلة وأوراق البحث ومراجعة السياسات."
+      },
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "scanned-document-tools"
+      ]
+    },
+    {
+      "slug": "summarize-pdf-online",
+      "toolSlug": "summarize-pdf",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "summarize pdf online",
+        "ar": "تلخيص PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf summary tool",
+          "summarize document pdf",
+          "ai pdf summary"
+        ],
+        "ar": [
+          "تلخيص pdf أونلاين",
+          "ملخص pdf",
+          "تلخيص مستند pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Extract the core points from long PDF files faster so review cycles and decision-making move sooner.",
+        "ar": "استخرج النقاط الأساسية من ملفات PDF الطويلة بسرعة أكبر حتى تتحرك دورات المراجعة واتخاذ القرار أسرع."
+      },
+      "useCase": {
+        "en": "Great for research, internal memos, reports, and customer documents.",
+        "ar": "ممتاز للبحث والمذكرات الداخلية والتقارير ووثائق العملاء."
+      },
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "best-pdf-tools"
+      ]
+    },
+    {
+      "slug": "translate-pdf-online",
+      "toolSlug": "translate-pdf",
+      "category": "AI",
+      "focusKeyword": {
+        "en": "translate pdf online",
+        "ar": "ترجمة PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf translator online",
+          "translate document pdf",
+          "multilingual pdf translation"
+        ],
+        "ar": [
+          "ترجمة pdf أونلاين",
+          "مترجم pdf",
+          "ترجمة مستند pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Translate PDF content so multilingual teams can understand and share documents faster.",
+        "ar": "ترجم محتوى PDF حتى تتمكن الفرق متعددة اللغات من فهم المستندات ومشاركتها بسرعة أكبر."
+      },
+      "useCase": {
+        "en": "Useful for cross-border teams, customer support, procurement, and research.",
+        "ar": "مفيد للفرق العابرة للحدود ودعم العملاء والمشتريات والبحث."
+      },
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "arabic-pdf-tools"
+      ]
+    },
+    {
+      "slug": "convert-image-to-pdf",
+      "toolSlug": "images-to-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "convert image to pdf",
+        "ar": "تحويل الصورة إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "image to pdf converter",
+          "photo to pdf online",
+          "turn image into pdf"
+        ],
+        "ar": [
+          "تحويل الصورة إلى pdf",
+          "صورة إلى pdf",
+          "تحويل الصور الى pdf"
+        ]
+      },
+      "benefit": {
+        "en": "Wrap image files in PDF format when the receiving system expects documents rather than photos.",
+        "ar": "حوّل ملفات الصور إلى صيغة PDF عندما يتوقع النظام المستقبل مستندات بدلاً من صور."
+      },
+      "useCase": {
+        "en": "Common for applications, government forms, receipts, and proof uploads.",
+        "ar": "شائع لطلبات التقديم والنماذج الحكومية والإيصالات ورفع ملفات الإثبات."
+      },
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "convert-webp-to-jpg",
+      "toolSlug": "image-converter",
+      "category": "Image",
+      "focusKeyword": {
+        "en": "convert webp to jpg",
+        "ar": "تحويل WebP إلى JPG"
+      },
+      "supportingKeywords": {
+        "en": [
+          "webp to jpg online",
+          "change webp to jpeg",
+          "image format converter"
+        ],
+        "ar": [
+          "تحويل webp إلى jpg",
+          "webp إلى jpeg",
+          "محول صيغ الصور"
+        ]
+      },
+      "benefit": {
+        "en": "Make WebP images compatible with apps, clients, and workflows that still expect JPG files.",
+        "ar": "اجعل صور WebP متوافقة مع التطبيقات والعملاء ومسارات العمل التي لا تزال تتوقع ملفات JPG."
+      },
+      "useCase": {
+        "en": "Useful for uploads, ecommerce operations, publishing, and legacy systems.",
+        "ar": "مفيد للرفع وعمليات التجارة الإلكترونية والنشر والأنظمة القديمة."
+      },
+      "relatedCollectionSlugs": [
+        "online-image-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "resize-image-online",
+      "toolSlug": "image-resize",
+      "category": "Image",
+      "focusKeyword": {
+        "en": "resize image online",
+        "ar": "تغيير حجم الصورة أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "image resizer online",
+          "change image dimensions",
+          "resize photo"
+        ],
+        "ar": [
+          "تغيير حجم الصورة أونلاين",
+          "مغير حجم الصورة",
+          "تعديل أبعاد الصورة"
+        ]
+      },
+      "benefit": {
+        "en": "Adjust image dimensions quickly for upload requirements, web layouts, or marketplace listings.",
+        "ar": "عدّل أبعاد الصور بسرعة لمتطلبات الرفع أو تنسيقات الويب أو قوائم المتاجر."
+      },
+      "useCase": {
+        "en": "Useful for avatars, banners, product listings, and CMS uploads.",
+        "ar": "مفيد للصور الشخصية والبنرات وقوائم المنتجات ورفع ملفات أنظمة إدارة المحتوى."
+      },
+      "relatedCollectionSlugs": [
+        "online-image-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "compress-image-online",
+      "toolSlug": "compress-image",
+      "category": "Image",
+      "focusKeyword": {
+        "en": "compress image online",
+        "ar": "ضغط الصورة أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "reduce image size",
+          "image compressor online",
+          "shrink photo file"
+        ],
+        "ar": [
+          "ضغط الصورة أونلاين",
+          "تقليل حجم الصورة",
+          "ضغط ملف الصورة"
+        ]
+      },
+      "benefit": {
+        "en": "Lower image file sizes for faster pages, smaller uploads, and easier sharing.",
+        "ar": "خفّض أحجام ملفات الصور لصفحات أسرع وملفات رفع أصغر ومشاركة أسهل."
+      },
+      "useCase": {
+        "en": "Useful for web publishing, product catalogs, forms, and mobile transfers.",
+        "ar": "مفيد للنشر على الويب وكتالوجات المنتجات والنماذج والنقل عبر الجوال."
+      },
+      "relatedCollectionSlugs": [
+        "online-image-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "remove-image-background",
+      "toolSlug": "remove-background",
+      "category": "Image",
+      "focusKeyword": {
+        "en": "remove image background",
+        "ar": "إزالة خلفية الصورة"
+      },
+      "supportingKeywords": {
+        "en": [
+          "background remover online",
+          "transparent background tool",
+          "remove photo background"
+        ],
+        "ar": [
+          "إزالة خلفية الصورة",
+          "حذف خلفية الصورة",
+          "أداة إزالة الخلفية"
+        ]
+      },
+      "benefit": {
+        "en": "Create transparent-background images quickly for storefronts, ads, and branded assets.",
+        "ar": "أنشئ صوراً بخلفية شفافة بسرعة للمتاجر والإعلانات والأصول ذات العلامة التجارية."
+      },
+      "useCase": {
+        "en": "Useful for ecommerce, presentations, catalog design, and social content.",
+        "ar": "مفيد للتجارة الإلكترونية والعروض وتصميم الكتالوجات والمحتوى الاجتماعي."
+      },
+      "relatedCollectionSlugs": [
+        "online-image-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "pdf-to-word-editable-free",
+      "toolSlug": "pdf-to-word-editable-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to word editable free",
+        "ar": "pdf to word editable free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to word editable free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "compress-pdf-to-100kb",
+      "toolSlug": "compress-pdf-to-100kb",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf to 100kb online free",
+        "ar": "compress pdf to 100kb online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to compress pdf to 100kb online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ai-extract-text-from-pdf",
+      "toolSlug": "ai-extract-text-from-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "ai extract text from pdf online",
+        "ar": "ai extract text from pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to ai extract text from pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-to-excel-accurate-free",
+      "toolSlug": "pdf-to-excel-accurate-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to excel accurate free online",
+        "ar": "pdf to excel accurate free online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to excel accurate free online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "split-pdf-online-free",
+      "toolSlug": "split-pdf-online-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "split pdf online free",
+        "ar": "split pdf online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to split pdf online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "compress-pdf-online-free",
+      "toolSlug": "compress-pdf-online-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf online free",
+        "ar": "compress pdf online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to compress pdf online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "unlock-pdf-online-free",
+      "toolSlug": "unlock-pdf-online-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "unlock pdf online free",
+        "ar": "unlock pdf online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to unlock pdf online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "summarize-pdf-ai",
+      "toolSlug": "summarize-pdf-ai",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "summarize pdf ai",
+        "ar": "summarize pdf ai"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to summarize pdf ai.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "convert-pdf-to-text-ai",
+      "toolSlug": "convert-pdf-to-text-ai",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "convert pdf to text ai",
+        "ar": "convert pdf to text ai"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to convert pdf to text ai.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-to-jpg-high-quality",
+      "toolSlug": "pdf-to-jpg-high-quality",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to jpg high quality online",
+        "ar": "pdf to jpg high quality online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to jpg high quality online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "jpg-to-pdf-online-free",
+      "toolSlug": "jpg-to-pdf-online-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "jpg to pdf online free",
+        "ar": "jpg to pdf online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to jpg to pdf online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "reduce-pdf-size-for-email",
+      "toolSlug": "reduce-pdf-size-for-email",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "reduce pdf size for email",
+        "ar": "reduce pdf size for email"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to reduce pdf size for email.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ocr-for-scanned-pdfs",
+      "toolSlug": "ocr-for-scanned-pdfs",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "ocr for scanned pdfs online",
+        "ar": "ocr for scanned pdfs online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to ocr for scanned pdfs online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "remove-watermark-from-pdf-online",
+      "toolSlug": "remove-watermark-from-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "remove watermark from pdf online",
+        "ar": "remove watermark from pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to remove watermark from pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "add-watermark-to-pdf-online",
+      "toolSlug": "add-watermark-to-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "add watermark to pdf online",
+        "ar": "add watermark to pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to add watermark to pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "repair-corrupted-pdf-online",
+      "toolSlug": "repair-corrupted-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "repair corrupted pdf online",
+        "ar": "repair corrupted pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to repair corrupted pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "rotate-pdf-pages-online",
+      "toolSlug": "rotate-pdf-pages-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "rotate pdf pages online",
+        "ar": "rotate pdf pages online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to rotate pdf pages online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "reorder-pdf-pages-online",
+      "toolSlug": "reorder-pdf-pages-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "reorder pdf pages online",
+        "ar": "reorder pdf pages online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to reorder pdf pages online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-to-png-online",
+      "toolSlug": "pdf-to-png-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to png online",
+        "ar": "pdf to png online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to png online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "images-to-pdf-multiple",
+      "toolSlug": "images-to-pdf-multiple",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "combine images to pdf online",
+        "ar": "combine images to pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to combine images to pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "split-pdf-by-range-online",
+      "toolSlug": "split-pdf-by-range-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "split pdf by range online",
+        "ar": "split pdf by range online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to split pdf by range online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "compress-scanned-pdf-online",
+      "toolSlug": "compress-scanned-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress scanned pdf online",
+        "ar": "compress scanned pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to compress scanned pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-metadata-editor-online",
+      "toolSlug": "pdf-metadata-editor-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "edit pdf metadata online",
+        "ar": "edit pdf metadata online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to edit pdf metadata online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "add-page-numbers-to-pdf-online",
+      "toolSlug": "add-page-numbers-to-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "add page numbers to pdf online",
+        "ar": "add page numbers to pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to add page numbers to pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "protect-pdf-with-password-online",
+      "toolSlug": "protect-pdf-with-password-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "protect pdf with password online",
+        "ar": "protect pdf with password online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to protect pdf with password online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "unlock-encrypted-pdf-online",
+      "toolSlug": "unlock-encrypted-pdf-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "unlock encrypted pdf online",
+        "ar": "unlock encrypted pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to unlock encrypted pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ocr-table-extraction-from-pdf",
+      "toolSlug": "ocr-table-extraction-from-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "extract tables from pdf online",
+        "ar": "extract tables from pdf online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to extract tables from pdf online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-to-excel-converter-online",
+      "toolSlug": "pdf-to-excel-converter-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to excel converter online free",
+        "ar": "pdf to excel converter online free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to excel converter online free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "extract-text-from-protected-pdf",
+      "toolSlug": "extract-text-from-protected-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "extract text from protected pdf",
+        "ar": "extract text from protected pdf"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to extract text from protected pdf.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "bulk-convert-pdf-to-word",
+      "toolSlug": "bulk-convert-pdf-to-word",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "bulk convert pdf to word online",
+        "ar": "bulk convert pdf to word online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to bulk convert pdf to word online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "compress-pdf-for-web-upload",
+      "toolSlug": "compress-pdf-for-web-upload",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "compress pdf for web upload",
+        "ar": "compress pdf for web upload"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to compress pdf for web upload.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ocr-multi-language-pdf",
+      "toolSlug": "ocr-multi-language-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "ocr multi language pdf",
+        "ar": "ocr multi language pdf"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to ocr multi language pdf.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "summarize-long-pdf-ai",
+      "toolSlug": "summarize-long-pdf-ai",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "summarize long pdf ai",
+        "ar": "summarize long pdf ai"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to summarize long pdf ai.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "convert-pdf-to-ppt-online",
+      "toolSlug": "convert-pdf-to-ppt-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "convert pdf to ppt online",
+        "ar": "convert pdf to ppt online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to convert pdf to ppt online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "pdf-to-pptx-free-online",
+      "toolSlug": "pdf-to-pptx-free-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "pdf to pptx free online",
+        "ar": "pdf to pptx free online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to pdf to pptx free online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "دمج-ملفات-pdf-مجاناً",
+      "toolSlug": "دمج-ملفات-pdf-مجاناً",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "دمج ملفات PDF مجاناً",
+        "ar": "دمج ملفات PDF مجاناً"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to دمج ملفات PDF مجاناً.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ضغط-بي-دي-اف-اونلاين",
+      "toolSlug": "ضغط-بي-دي-اف-اونلاين",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "ضغط بي دي اف اونلاين",
+        "ar": "ضغط بي دي اف اونلاين"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to ضغط بي دي اف اونلاين.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "تحويل-pdf-الى-word-قابل-للتعديل",
+      "toolSlug": "تحويل-pdf-الى-word-قابل-للتعديل",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "تحويل PDF إلى Word قابل للتعديل",
+        "ar": "تحويل PDF إلى Word قابل للتعديل"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to تحويل PDF إلى Word قابل للتعديل.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "تحويل-jpg-الى-pdf-اونلاين",
+      "toolSlug": "تحويل-jpg-الى-pdf-اونلاين",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "تحويل JPG الى PDF اونلاين",
+        "ar": "تحويل JPG الى PDF اونلاين"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to تحويل JPG الى PDF اونلاين.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "فصل-صفحات-pdf-اونلاين",
+      "toolSlug": "فصل-صفحات-pdf-اونلاين",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "فصل صفحات PDF أونلاين",
+        "ar": "فصل صفحات PDF أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to فصل صفحات PDF أونلاين.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "ازالة-كلمة-مرور-من-pdf",
+      "toolSlug": "ازالة-كلمة-مرور-من-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "إزالة كلمة مرور من PDF",
+        "ar": "إزالة كلمة مرور من PDF"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to إزالة كلمة مرور من PDF.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "تحويل-pdf-الى-نص-باستخدام-ocr",
+      "toolSlug": "تحويل-pdf-الى-نص-باستخدام-ocr",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "تحويل PDF إلى نص باستخدام OCR",
+        "ar": "تحويل PDF إلى نص باستخدام OCR"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to تحويل PDF إلى نص باستخدام OCR.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "تحويل-pdf-الى-excel-اونلاين",
+      "toolSlug": "تحويل-pdf-الى-excel-اونلاين",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "تحويل PDF إلى Excel أونلاين",
+        "ar": "تحويل PDF إلى Excel أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to تحويل PDF إلى Excel أونلاين.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "تحويل-pdf-الى-صور",
+      "toolSlug": "تحويل-pdf-الى-صور",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "تحويل PDF الى صور",
+        "ar": "تحويل PDF الى صور"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to تحويل PDF الى صور.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    }
+  ],
+  "collectionPageSeeds": [
+    {
+      "slug": "best-pdf-tools",
+      "focusKeyword": {
+        "en": "best pdf tools",
+        "ar": "أفضل أدوات PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "online pdf toolkit",
+          "top pdf tools",
+          "document workflows"
+        ],
+        "ar": [
+          "أفضل أدوات pdf",
+          "مجموعة أدوات pdf",
+          "أدوات المستندات"
+        ]
+      },
+      "introAngle": {
+        "en": "Group the highest-utility PDF workflows in one place so users can move from search intent to the right tool quickly.",
+        "ar": "اجمع أكثر مسارات PDF فائدة في مكان واحد حتى ينتقل المستخدم من نية البحث إلى الأداة المناسبة بسرعة."
+      },
+      "targetToolSlugs": [
+        "pdf-to-word",
+        "word-to-pdf",
+        "compress-pdf",
+        "merge-pdf",
+        "split-pdf",
+        "unlock-pdf"
+      ],
+      "relatedCollectionSlugs": [
+        "free-pdf-tools-online",
+        "pdf-converter-tools"
+      ]
+    },
+    {
+      "slug": "free-pdf-tools-online",
+      "focusKeyword": {
+        "en": "free pdf tools online",
+        "ar": "أدوات PDF مجانية أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "free online pdf tools",
+          "browser pdf utilities",
+          "pdf tools without signup"
+        ],
+        "ar": [
+          "أدوات pdf مجانية أونلاين",
+          "أدوات pdf بدون تسجيل",
+          "أدوات pdf من المتصفح"
+        ]
+      },
+      "introAngle": {
+        "en": "Capture users who want practical browser-based PDF work without downloads, subscriptions, or account setup.",
+        "ar": "استهدف المستخدمين الذين يريدون إنجاز أعمال PDF من المتصفح بدون تنزيلات أو اشتراكات أو إعداد حساب."
+      },
+      "targetToolSlugs": [
+        "compress-pdf",
+        "merge-pdf",
+        "split-pdf",
+        "unlock-pdf",
+        "protect-pdf",
+        "pdf-editor"
+      ],
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "secure-pdf-tools"
+      ]
+    },
+    {
+      "slug": "convert-files-online",
+      "focusKeyword": {
+        "en": "convert files online",
+        "ar": "تحويل الملفات أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "online file converter",
+          "document conversion tools",
+          "format converter online"
+        ],
+        "ar": [
+          "تحويل الملفات أونلاين",
+          "محول ملفات أونلاين",
+          "أدوات تحويل الصيغ"
+        ]
+      },
+      "introAngle": {
+        "en": "Bring together the most common format changes across PDF, Office, images, and HTML in one discoverable page.",
+        "ar": "اجمع أكثر عمليات تغيير الصيغ شيوعاً عبر PDF وأوفيس والصور وHTML في صفحة واحدة قابلة للاكتشاف."
+      },
+      "targetToolSlugs": [
+        "pdf-to-word",
+        "word-to-pdf",
+        "images-to-pdf",
+        "image-converter",
+        "html-to-pdf",
+        "pdf-to-excel"
+      ],
+      "relatedCollectionSlugs": [
+        "pdf-converter-tools",
+        "online-image-tools"
+      ]
+    },
+    {
+      "slug": "pdf-converter-tools",
+      "focusKeyword": {
+        "en": "pdf converter tools",
+        "ar": "أدوات تحويل PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf conversion tools",
+          "convert from pdf",
+          "convert to pdf workflows"
+        ],
+        "ar": [
+          "أدوات تحويل pdf",
+          "تحويل من pdf",
+          "التحويل إلى pdf"
+        ]
+      },
+      "introAngle": {
+        "en": "Capture conversion-intent traffic around moving content between PDF and editable, shareable, or image-based formats.",
+        "ar": "استهدف ترافيك نية التحويل حول نقل المحتوى بين PDF والصيغ القابلة للتحرير أو المشاركة أو المعتمدة على الصور."
+      },
+      "targetToolSlugs": [
+        "pdf-to-word",
+        "word-to-pdf",
+        "pdf-to-excel",
+        "pdf-to-images",
+        "images-to-pdf",
+        "html-to-pdf"
+      ],
+      "relatedCollectionSlugs": [
+        "convert-files-online",
+        "office-to-pdf-tools"
+      ]
+    },
+    {
+      "slug": "secure-pdf-tools",
+      "focusKeyword": {
+        "en": "secure pdf tools",
+        "ar": "أدوات تأمين PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf security tools",
+          "protect and unlock pdf",
+          "pdf permission workflows"
+        ],
+        "ar": [
+          "أدوات تأمين pdf",
+          "حماية وفتح pdf",
+          "صلاحيات pdf"
+        ]
+      },
+      "introAngle": {
+        "en": "Cover the workflows people search when documents need access control, branding, or safer circulation.",
+        "ar": "غطِ مسارات العمل التي يبحث عنها المستخدمون عندما تحتاج المستندات إلى التحكم في الوصول أو العلامة التجارية أو التوزيع الآمن."
+      },
+      "targetToolSlugs": [
+        "protect-pdf",
+        "unlock-pdf",
+        "watermark-pdf",
+        "remove-watermark-pdf",
+        "compress-pdf",
+        "merge-pdf"
+      ],
+      "relatedCollectionSlugs": [
+        "best-pdf-tools",
+        "free-pdf-tools-online"
+      ]
+    },
+    {
+      "slug": "ai-document-tools",
+      "focusKeyword": {
+        "en": "ai document tools",
+        "ar": "أدوات المستندات بالذكاء الاصطناعي"
+      },
+      "supportingKeywords": {
+        "en": [
+          "ai pdf tools",
+          "smart document workflows",
+          "document ai online"
+        ],
+        "ar": [
+          "أدوات pdf بالذكاء الاصطناعي",
+          "أدوات مستندات ذكية",
+          "ذكاء اصطناعي للمستندات"
+        ]
+      },
+      "introAngle": {
+        "en": "Group AI-assisted document workflows for question answering, OCR, translation, table extraction, and summarization.",
+        "ar": "اجمع مسارات المستندات المدعومة بالذكاء الاصطناعي للأسئلة وOCR والترجمة واستخراج الجداول والتلخيص."
+      },
+      "targetToolSlugs": [
+        "chat-pdf",
+        "summarize-pdf",
+        "translate-pdf",
+        "ocr",
+        "extract-tables",
+        "pdf-flowchart"
+      ],
+      "relatedCollectionSlugs": [
+        "scanned-document-tools",
+        "arabic-pdf-tools"
+      ]
+    },
+    {
+      "slug": "image-to-pdf-tools",
+      "focusKeyword": {
+        "en": "image to pdf tools",
+        "ar": "أدوات تحويل الصور إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "images into pdf",
+          "photo to pdf workflows",
+          "scan images to pdf"
+        ],
+        "ar": [
+          "تحويل الصور إلى pdf",
+          "صورة إلى pdf",
+          "أدوات صور إلى pdf"
+        ]
+      },
+      "introAngle": {
+        "en": "Target users who start with image files but need a document-friendly PDF result for submission or storage.",
+        "ar": "استهدف المستخدمين الذين يبدأون بملفات صور لكنهم يحتاجون نتيجة PDF مناسبة للتقديم أو التخزين."
+      },
+      "targetToolSlugs": [
+        "images-to-pdf",
+        "pdf-to-images",
+        "image-resize",
+        "compress-image",
+        "remove-background",
+        "image-converter"
+      ],
+      "relatedCollectionSlugs": [
+        "online-image-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "online-image-tools",
+      "focusKeyword": {
+        "en": "online image tools",
+        "ar": "أدوات الصور أونلاين"
+      },
+      "supportingKeywords": {
+        "en": [
+          "browser image tools",
+          "image editing tools online",
+          "online photo utilities"
+        ],
+        "ar": [
+          "أدوات الصور أونلاين",
+          "أدوات تعديل الصور",
+          "أدوات الصور من المتصفح"
+        ]
+      },
+      "introAngle": {
+        "en": "Group lightweight image workflows for format changes, compression, resizing, cleanup, and PDF handoff.",
+        "ar": "اجمع مسارات الصور الخفيفة لتغيير الصيغ والضغط وتغيير الحجم والتنظيف والتمرير إلى PDF."
+      },
+      "targetToolSlugs": [
+        "image-converter",
+        "image-resize",
+        "compress-image",
+        "remove-background",
+        "images-to-pdf",
+        "image-crop"
+      ],
+      "relatedCollectionSlugs": [
+        "image-to-pdf-tools",
+        "convert-files-online"
+      ]
+    },
+    {
+      "slug": "office-to-pdf-tools",
+      "focusKeyword": {
+        "en": "office to pdf tools",
+        "ar": "أدوات تحويل ملفات أوفيس إلى PDF"
+      },
+      "supportingKeywords": {
+        "en": [
+          "word excel powerpoint to pdf",
+          "office document pdf conversion",
+          "export office files to pdf"
+        ],
+        "ar": [
+          "تحويل ملفات أوفيس إلى pdf",
+          "word excel powerpoint إلى pdf",
+          "تصدير ملفات أوفيس إلى pdf"
+        ]
+      },
+      "introAngle": {
+        "en": "Focus on workflows where teams convert Office documents into portable PDF files for sharing or approval.",
+        "ar": "ركّز على المسارات التي تحول فيها الفرق ملفات أوفيس إلى PDF قابل للنقل للمشاركة أو الاعتماد."
+      },
+      "targetToolSlugs": [
+        "word-to-pdf",
+        "excel-to-pdf",
+        "pptx-to-pdf",
+        "html-to-pdf",
+        "sign-pdf",
+        "pdf-editor"
+      ],
+      "relatedCollectionSlugs": [
+        "convert-files-online",
+        "pdf-converter-tools"
+      ]
+    },
+    {
+      "slug": "scanned-document-tools",
+      "focusKeyword": {
+        "en": "scanned document tools",
+        "ar": "أدوات المستندات الممسوحة ضوئياً"
+      },
+      "supportingKeywords": {
+        "en": [
+          "scan to text tools",
+          "ocr pdf tools",
+          "scan document workflows"
+        ],
+        "ar": [
+          "أدوات المستندات الممسوحة",
+          "ocr للمستندات",
+          "مسارات المستندات الممسوحة"
+        ]
+      },
+      "introAngle": {
+        "en": "Capture users who need OCR, cleanup, compression, and reuse workflows for image-heavy or scanned files.",
+        "ar": "استهدف المستخدمين الذين يحتاجون إلى OCR والتنظيف والضغط وإعادة الاستخدام للملفات الممسوحة أو المعتمدة على الصور."
+      },
+      "targetToolSlugs": [
+        "ocr",
+        "compress-pdf",
+        "pdf-to-word",
+        "extract-tables",
+        "rotate-pdf",
+        "pdf-to-images"
+      ],
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "arabic-pdf-tools"
+      ]
+    },
+    {
+      "slug": "arabic-pdf-tools",
+      "focusKeyword": {
+        "en": "arabic pdf tools",
+        "ar": "أدوات PDF العربية"
+      },
+      "supportingKeywords": {
+        "en": [
+          "pdf tools for arabic documents",
+          "arabic document workflows",
+          "rtl pdf tools"
+        ],
+        "ar": [
+          "أدوات pdf العربية",
+          "أدوات للمستندات العربية",
+          "pdf للغة العربية"
+        ]
+      },
+      "introAngle": {
+        "en": "Position Dociva for Arabic-language document workflows where RTL support and bilingual search intent matter.",
+        "ar": "ضع Dociva في موقع قوي لمسارات المستندات العربية حيث يكون دعم RTL ونية البحث ثنائية اللغة مهمين."
+      },
+      "targetToolSlugs": [
+        "pdf-to-word",
+        "word-to-pdf",
+        "ocr",
+        "translate-pdf",
+        "images-to-pdf",
+        "compress-pdf"
+      ],
+      "relatedCollectionSlugs": [
+        "ai-document-tools",
+        "best-pdf-tools"
+      ]
+    }
+  ]
+}
