@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "node scripts/generate-seo-assets.mjs",
+    "prebuild": "node scripts/merge-keywords.mjs && node scripts/generate-seo-assets.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
