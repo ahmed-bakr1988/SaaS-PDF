@@ -13,6 +13,7 @@
     "seo:generate": "node scripts/generate-seo-assets.mjs"
   },
   "dependencies": {
+    "@microsoft/clarity": "^1.0.2",
     "axios": "^1.7.0",
     "fabric": "^6.4.3",
     "i18next": "^23.11.0",
