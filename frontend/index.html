@@ -1,61 +1,78 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Free online tools for PDF, image, video, and text processing. Merge, split, compress, convert, watermark, protect & more — instantly." />
-    <meta name="google-site-verification" content="tx9YptvPfrvb115PeFBWpYpRhw_4CYHQXzpLKNXXV20" />
-    <meta name="msvalidate.01" content="65E1161EF971CA2810FE8EABB5F229B4" />
-    <meta name="keywords" content="PDF tools, merge PDF, split PDF, compress PDF, PDF to Word, image converter, free online tools, Arabic PDF tools" />
-    <meta name="author" content="Dociva" />
-    <meta name="robots" content="index, follow" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Dociva — Free Online File Tools" />
-    <meta property="og:description" content="30+ free tools: merge, split, compress, convert PDFs, images, videos & text. No signup required." />
-    <meta property="og:site_name" content="Dociva" />
-    <meta property="og:image" content="/social-preview.svg" />
-    <meta property="og:image:alt" content="Dociva social preview" />
-    <meta property="og:locale" content="en_US" />
-    <meta property="og:locale:alternate" content="ar_SA" />
-    <meta property="og:locale:alternate" content="fr_FR" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Dociva — Free Online File Tools" />
-    <meta name="twitter:description" content="30+ free tools: merge, split, compress, convert PDFs, images, videos & text. No signup required." />
-    <meta name="twitter:image" content="/social-preview.svg" />
-    <meta name="twitter:image:alt" content="Dociva social preview" />
-    <script>
-      (function () {
-        try {
-          var storedTheme = localStorage.getItem('theme');
-          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
-            document.documentElement.classList.add('dark');
-          }
 
-          var storedLanguage = localStorage.getItem('i18nextLng') || 'en';
-          var normalizedLanguage = storedLanguage.split('-')[0];
-          var resolvedLanguage = normalizedLanguage === 'ar' || normalizedLanguage === 'fr'
-            ? normalizedLanguage
-            : 'en';
-          document.documentElement.lang = resolvedLanguage;
-          document.documentElement.dir = resolvedLanguage === 'ar' ? 'rtl' : 'ltr';
-        } catch (error) {
-          document.documentElement.lang = 'en';
-          document.documentElement.dir = 'ltr';
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Free online tools for PDF, image, video, and text processing. Merge, split, compress, convert, watermark, protect & more — instantly." />
+  <meta name="google-site-verification" content="tx9YptvPfrvb115PeFBWpYpRhw_4CYHQXzpLKNXXV20" />
+  <meta name="msvalidate.01" content="65E1161EF971CA2810FE8EABB5F229B4" />
+  <meta name="keywords"
+    content="PDF tools, merge PDF, split PDF, compress PDF, PDF to Word, image converter, free online tools, Arabic PDF tools" />
+  <meta name="author" content="Dociva" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Dociva — Free Online File Tools" />
+  <meta property="og:description"
+    content="30+ free tools: merge, split, compress, convert PDFs, images, videos & text. No signup required." />
+  <meta property="og:site_name" content="Dociva" />
+  <meta property="og:image" content="/social-preview.svg" />
+  <meta property="og:image:alt" content="Dociva social preview" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="ar_SA" />
+  <meta property="og:locale:alternate" content="fr_FR" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Dociva — Free Online File Tools" />
+  <meta name="twitter:description"
+    content="30+ free tools: merge, split, compress, convert PDFs, images, videos & text. No signup required." />
+  <meta name="twitter:image" content="/social-preview.svg" />
+  <meta name="twitter:image:alt" content="Dociva social preview" />
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "vzw2jb2ipq");
+  </script>
+  <script>
+    (function () {
+      try {
+        var storedTheme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (storedTheme === 'dark' || (!storedTheme && prefersDark)) {
+          document.documentElement.classList.add('dark');
         }
-      })();
-    </script>
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet" />
-    <title>Dociva — Free Online File Tools</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+        var storedLanguage = localStorage.getItem('i18nextLng') || 'en';
+        var normalizedLanguage = storedLanguage.split('-')[0];
+        var resolvedLanguage = normalizedLanguage === 'ar' || normalizedLanguage === 'fr'
+          ? normalizedLanguage
+          : 'en';
+        document.documentElement.lang = resolvedLanguage;
+        document.documentElement.dir = resolvedLanguage === 'ar' ? 'rtl' : 'ltr';
+      } catch (error) {
+        document.documentElement.lang = 'en';
+        document.documentElement.dir = 'ltr';
+      }
+    })();
+  </script>
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700&display=swap"
+    rel="stylesheet" />
+  <title>Dociva — Free Online File Tools</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
