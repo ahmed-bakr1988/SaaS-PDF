@@ -54,6 +54,57 @@ def _remember_download_alias(actor, download_task_id: str | None):
     )
 
 
+def _normalized_error_payload(task_id: str, error_code: str, user_message: str, trace_id: str | None = None) -> dict:
+    """Return unified error payload for task status responses."""
+    payload = {
+        "error_code": error_code,
+        "user_message": user_message,
+        "task_id": task_id,
+    }
+    if trace_id:
+        payload["trace_id"] = trace_id
+    return payload
+
+
+def _infer_failure_error(task_id: str, info) -> dict:
+    """Classify celery failure information into a normalized payload."""
+    if isinstance(info, dict) and info.get("error_code") and info.get("user_message"):
+        return _normalized_error_payload(
+            task_id=task_id,
+            error_code=info["error_code"],
+            user_message=info["user_message"],
+            trace_id=info.get("trace_id"),
+        )
+
+    message = str(info) if info else "Task failed."
+    lowered = message.lower()
+
+    if "notregistered" in lowered or "received unregistered task" in lowered:
+        return _normalized_error_payload(
+            task_id,
+            "CELERY_NOT_REGISTERED",
+            "Task worker is temporarily unavailable. Please retry in a moment.",
+        )
+    if "openrouter" in lowered and "401" in lowered:
+        return _normalized_error_payload(
+            task_id,
+            "OPENROUTER_UNAUTHORIZED",
+            "AI features are temporarily unavailable due to a configuration issue.",
+        )
+    if "openrouter" in lowered and "429" in lowered:
+        return _normalized_error_payload(
+            task_id,
+            "OPENROUTER_RATE_LIMIT",
+            "AI service is currently busy. Please try again shortly.",
+        )
+
+    return _normalized_error_payload(
+        task_id,
+        "TASK_FAILURE",
+        "Task processing failed. Please retry.",
+    )
+
+
 @tasks_bp.route("/<task_id>/status", methods=["GET"])
 @limiter.limit("300/minute", override_defaults=True)
 def get_task_status(task_id: str):
@@ -91,8 +142,15 @@ def get_task_status(task_id: str):
         task_result = result.result or {}
         _remember_download_alias(actor, _extract_download_task_id(task_result.get("download_url")))
         response["result"] = task_result
+        if task_result.get("status") == "failed":
+            response["error"] = _normalized_error_payload(
+                task_id=task_id,
+                error_code=task_result.get("error_code", "TASK_FAILURE"),
+                user_message=task_result.get("user_message", task_result.get("error", "Task processing failed.")),
+                trace_id=task_result.get("trace_id"),
+            )
 
     elif result.state == "FAILURE":
-        response["error"] = str(result.info) if result.info else "Task failed."
+        response["error"] = _infer_failure_error(task_id, result.info)
 
     return jsonify(response)
