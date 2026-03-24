@@ -1,4 +1,6 @@
 """Flask extensions initialization."""
+from importlib import import_module
+
 from celery import Celery
 from celery.schedules import crontab
 from flask_cors import CORS
@@ -12,27 +14,33 @@ limiter = Limiter(key_func=get_remote_address)
 talisman = Talisman()
 celery = Celery()
 
+CELERY_TASK_MODULES = (
+    "app.tasks.barcode_tasks",
+    "app.tasks.compress_image_tasks",
+    "app.tasks.compress_tasks",
+    "app.tasks.convert_tasks",
+    "app.tasks.flowchart_tasks",
+    "app.tasks.html_to_pdf_tasks",
+    "app.tasks.image_extra_tasks",
+    "app.tasks.image_tasks",
+    "app.tasks.maintenance_tasks",
+    "app.tasks.ocr_tasks",
+    "app.tasks.pdf_ai_tasks",
+    "app.tasks.pdf_convert_tasks",
+    "app.tasks.pdf_editor_tasks",
+    "app.tasks.pdf_extra_tasks",
+    "app.tasks.pdf_to_excel_tasks",
+    "app.tasks.pdf_tools_tasks",
+    "app.tasks.qrcode_tasks",
+    "app.tasks.removebg_tasks",
+    "app.tasks.video_tasks",
+)
+
 
 def import_celery_tasks() -> None:
     """Import all Celery task modules so task registration is centralized."""
-    import app.tasks.barcode_tasks  # noqa: F401
-    import app.tasks.compress_image_tasks  # noqa: F401
-    import app.tasks.compress_tasks  # noqa: F401
-    import app.tasks.convert_tasks  # noqa: F401
-    import app.tasks.flowchart_tasks  # noqa: F401
-    import app.tasks.html_to_pdf_tasks  # noqa: F401
-    import app.tasks.image_tasks  # noqa: F401
-    import app.tasks.maintenance_tasks  # noqa: F401
-    import app.tasks.ocr_tasks  # noqa: F401
-    import app.tasks.pdf_ai_tasks  # noqa: F401
-    import app.tasks.pdf_convert_tasks  # noqa: F401
-    import app.tasks.pdf_editor_tasks  # noqa: F401
-    import app.tasks.pdf_extra_tasks  # noqa: F401
-    import app.tasks.pdf_to_excel_tasks  # noqa: F401
-    import app.tasks.pdf_tools_tasks  # noqa: F401
-    import app.tasks.qrcode_tasks  # noqa: F401
-    import app.tasks.removebg_tasks  # noqa: F401
-    import app.tasks.video_tasks  # noqa: F401
+    for module in CELERY_TASK_MODULES:
+        import_module(module)
 
 
 def init_celery(app):
@@ -45,6 +53,7 @@ def init_celery(app):
     celery.conf.accept_content = ["json"]
     celery.conf.timezone = "UTC"
     celery.conf.task_track_started = True
+    celery.conf.imports = CELERY_TASK_MODULES
 
     # Set task routes
     celery.conf.task_routes = {
