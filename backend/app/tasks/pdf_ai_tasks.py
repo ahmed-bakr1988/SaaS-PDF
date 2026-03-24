@@ -1,6 +1,7 @@
 """Celery tasks for PDF AI tools — Chat, Summarize, Translate, Table Extract."""
 import os
 import logging
+import json
 
 from flask import current_app
 
@@ -20,6 +21,35 @@ logger = logging.getLogger(__name__)
 
 def _cleanup(task_id: str):
     cleanup_task_files(task_id, keep_outputs=False)
+
+
+def _build_pdf_ai_error_payload(task_id: str, error: PdfAiError, tool: str) -> dict:
+    """Build a normalized error payload for AI tasks and emit structured logs."""
+    payload = {
+        "status": "failed",
+        "error_code": getattr(error, "error_code", "PDF_AI_ERROR"),
+        "user_message": getattr(error, "user_message", str(error)) or "AI processing failed.",
+        "task_id": task_id,
+    }
+
+    detail = getattr(error, "detail", None)
+    if detail:
+        payload["detail"] = detail
+
+    logger.error(
+        json.dumps(
+            {
+                "event": "pdf_ai_task_failed",
+                "tool": tool,
+                "task_id": task_id,
+                "error_code": payload["error_code"],
+                "user_message": payload["user_message"],
+                "detail": detail,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -59,8 +89,7 @@ def chat_with_pdf_task(
         return result
 
     except PdfAiError as e:
-        logger.error(f"Task {task_id}: {e}")
-        result = {"status": "failed", "error": str(e)}
+        result = _build_pdf_ai_error_payload(task_id, e, "chat-pdf")
         finalize_task_tracking(
             user_id=user_id, tool="chat-pdf",
             original_filename=original_filename, result=result,
@@ -120,8 +149,7 @@ def summarize_pdf_task(
         return result
 
     except PdfAiError as e:
-        logger.error(f"Task {task_id}: {e}")
-        result = {"status": "failed", "error": str(e)}
+        result = _build_pdf_ai_error_payload(task_id, e, "summarize-pdf")
         finalize_task_tracking(
             user_id=user_id, tool="summarize-pdf",
             original_filename=original_filename, result=result,
@@ -182,8 +210,7 @@ def translate_pdf_task(
         return result
 
     except PdfAiError as e:
-        logger.error(f"Task {task_id}: {e}")
-        result = {"status": "failed", "error": str(e)}
+        result = _build_pdf_ai_error_payload(task_id, e, "translate-pdf")
         finalize_task_tracking(
             user_id=user_id, tool="translate-pdf",
             original_filename=original_filename, result=result,
@@ -242,8 +269,7 @@ def extract_tables_task(
         return result
 
     except PdfAiError as e:
-        logger.error(f"Task {task_id}: {e}")
-        result = {"status": "failed", "error": str(e)}
+        result = _build_pdf_ai_error_payload(task_id, e, "extract-tables")
         finalize_task_tracking(
             user_id=user_id, tool="extract-tables",
             original_filename=original_filename, result=result,

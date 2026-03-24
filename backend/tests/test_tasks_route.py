@@ -88,7 +88,7 @@ class TestTaskStatus:
         assert has_task_access(user['id'], 'web', 'local-download-id') is True
 
     def test_failure_task(self, client, monkeypatch):
-        """Should return FAILURE state with error message."""
+        """Should return FAILURE state with normalized error payload."""
         mock_result = MagicMock()
         mock_result.state = 'FAILURE'
         mock_result.info = Exception('Conversion failed due to corrupt PDF.')
@@ -102,7 +102,47 @@ class TestTaskStatus:
         assert response.status_code == 200
         data = response.get_json()
         assert data['state'] == 'FAILURE'
-        assert 'error' in data
+        assert data['error']['error_code'] == 'TASK_FAILURE'
+        assert 'user_message' in data['error']
+        assert data['error']['task_id'] == 'failed-id'
+
+    def test_failure_task_unregistered_maps_to_specific_code(self, client):
+        """Should classify unregistered celery task errors."""
+        mock_result = MagicMock()
+        mock_result.state = 'FAILURE'
+        mock_result.info = Exception("Received unregistered task of type 'app.tasks.missing_task'.")
+
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['missing-task-id']
+
+        with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
+            response = client.get('/api/tasks/missing-task-id/status')
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['error']['error_code'] == 'CELERY_NOT_REGISTERED'
+
+    def test_success_failed_result_returns_normalized_error(self, client):
+        """Should normalize task-level failure payload returned inside SUCCESS state."""
+        mock_result = MagicMock()
+        mock_result.state = 'SUCCESS'
+        mock_result.result = {
+            'status': 'failed',
+            'error_code': 'OPENROUTER_RATE_LIMIT',
+            'user_message': 'AI service is experiencing high demand.',
+        }
+
+        with client.session_transaction() as session:
+            session[TASK_ACCESS_SESSION_KEY] = ['ai-failed-id']
+
+        with patch('app.routes.tasks.AsyncResult', return_value=mock_result):
+            response = client.get('/api/tasks/ai-failed-id/status')
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data['state'] == 'SUCCESS'
+        assert data['error']['error_code'] == 'OPENROUTER_RATE_LIMIT'
+        assert data['error']['task_id'] == 'ai-failed-id'
 
     def test_unknown_task_without_access_returns_404(self, client):
         """Should not expose task state without session or API ownership."""
