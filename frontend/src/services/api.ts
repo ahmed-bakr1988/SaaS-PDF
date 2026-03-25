@@ -187,12 +187,22 @@ export interface TaskResponse {
   message: string;
 }
 
+export interface TaskErrorPayload {
+  error_code?: string;
+  user_message?: string;
+  task_id?: string;
+  trace_id?: string;
+  message?: string;
+  error?: string;
+  detail?: string;
+}
+
 export interface TaskStatus {
   task_id: string;
   state: 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILURE';
   progress?: string;
   result?: TaskResult;
-  error?: string;
+  error?: string | TaskErrorPayload;
 }
 
 export interface TaskResult {
@@ -200,6 +210,10 @@ export interface TaskResult {
   download_url?: string;
   filename?: string;
   error?: string;
+  error_code?: string;
+  user_message?: string;
+  task_id?: string;
+  trace_id?: string;
   original_size?: number;
   compressed_size?: number;
   reduction_percent?: number;
@@ -227,6 +241,33 @@ export interface TaskResult {
   // Table extraction fields
   tables?: Array<{ page: number; table_index: number; headers: string[]; rows: string[][] }>;
   tables_found?: number;
+}
+
+function isTaskErrorPayload(value: unknown): value is TaskErrorPayload {
+  return Boolean(value) && typeof value === 'object';
+}
+
+export function getTaskErrorMessage(error: unknown, fallback: string): string {
+  if (typeof error === 'string' && error.trim()) {
+    return error.trim();
+  }
+
+  if (isTaskErrorPayload(error)) {
+    const candidates = [
+      error.user_message,
+      error.message,
+      error.error,
+      error.detail,
+    ];
+
+    for (const candidate of candidates) {
+      if (typeof candidate === 'string' && candidate.trim()) {
+        return candidate.trim();
+      }
+    }
+  }
+
+  return fallback;
 }
 
 export interface AuthUser {

@@ -28,29 +28,64 @@ if [ ! -f ".env" ]; then
     exit 1
 fi
 
-echo -e "${YELLOW}1/5 — Pulling latest code...${NC}"
+echo -e "${YELLOW}1/7 — Pulling latest code...${NC}"
 git pull origin main 2>/dev/null || echo "Not a git repo or no remote, skipping pull."
 
-echo -e "${YELLOW}2/5 — Building Docker images...${NC}"
+echo -e "${YELLOW}2/7 — Building Docker images...${NC}"
 docker compose -f docker-compose.prod.yml build --no-cache
 
-echo -e "${YELLOW}3/5 — Stopping old containers...${NC}"
+echo -e "${YELLOW}3/7 — Stopping old containers...${NC}"
 docker compose -f docker-compose.prod.yml down --remove-orphans
 
-echo -e "${YELLOW}4/5 — Starting services...${NC}"
+echo -e "${YELLOW}4/7 — Starting services...${NC}"
 docker compose -f docker-compose.prod.yml up -d
 
-echo -e "${YELLOW}5/5 — Waiting for health check...${NC}"
+if [ "${SKIP_AI_RUNTIME_CHECKS:-0}" != "1" ]; then
+    echo -e "${YELLOW}5/7 — Verifying AI runtime in backend + worker...${NC}"
+    for service in backend celery_worker; do
+        if ! docker compose -f docker-compose.prod.yml exec -T "$service" python - <<'PY'
+import importlib.util
+import os
+import sys
+
+issues = []
+api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
+if not api_key or api_key.startswith("replace-with-"):
+    issues.append("OPENROUTER_API_KEY is missing or still set to a placeholder")
+if importlib.util.find_spec("vtracer") is None:
+    issues.append("vtracer is not installed in this container")
+
+if issues:
+    print("; ".join(issues))
+    sys.exit(1)
+
+print("AI runtime OK")
+PY
+        then
+            echo -e "${RED}✗ AI runtime check failed in ${service}.${NC}"
+            echo "  Fix the container env/dependencies, then redeploy backend and celery_worker."
+            echo "  Do not redeploy the frontend alone when backend routes, Celery tasks, or AI dependencies changed."
+            exit 1
+        fi
+    done
+else
+    echo -e "${YELLOW}5/7 — Skipping AI runtime checks (SKIP_AI_RUNTIME_CHECKS=1).${NC}"
+fi
+
+echo -e "${YELLOW}6/7 — Waiting for health check...${NC}"
 sleep 10
 
 # Health check
-if curl -sf http://localhost/health > /dev/null 2>&1; then
+if curl -sf http://localhost/api/health > /dev/null 2>&1; then
     echo -e "${GREEN}✓ Deployment successful! Service is healthy.${NC}"
 else
     echo -e "${RED}✗ Health check failed. Check logs:${NC}"
     echo "  docker compose -f docker-compose.prod.yml logs backend"
     exit 1
 fi
+
+echo -e "${YELLOW}7/7 — Current containers:${NC}"
+docker compose -f docker-compose.prod.yml ps
 
 echo ""
 echo -e "${GREEN}Deployment complete!${NC}"

@@ -3,9 +3,13 @@ import { renderHook, act } from '@testing-library/react';
 import { useTaskPolling } from './useTaskPolling';
 
 // ── mock the api module ────────────────────────────────────────────────────
-vi.mock('@/services/api', () => ({
-  getTaskStatus: vi.fn(),
-}));
+vi.mock('@/services/api', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/services/api')>();
+  return {
+    ...actual,
+    getTaskStatus: vi.fn(),
+  };
+});
 
 import { getTaskStatus } from '@/services/api';
 const mockGetStatus = vi.mocked(getTaskStatus);
@@ -122,6 +126,33 @@ describe('useTaskPolling', () => {
     expect(onError).toHaveBeenCalledWith('Ghostscript not found.');
   });
 
+  it('prefers a structured task error payload when SUCCESS contains a failed result', async () => {
+    mockGetStatus.mockResolvedValueOnce({
+      task_id: 'task-4b',
+      state: 'SUCCESS',
+      error: {
+        error_code: 'OPENROUTER_MISSING_API_KEY',
+        user_message: 'AI features are temporarily unavailable. Our team has been notified.',
+        task_id: 'task-4b',
+      },
+      result: { status: 'failed' },
+    });
+
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useTaskPolling({ taskId: 'task-4b', intervalMs: 500, onError })
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(result.current.isPolling).toBe(false);
+    expect(result.current.result).toBeNull();
+    expect(result.current.error).toBe('AI features are temporarily unavailable. Our team has been notified.');
+    expect(onError).toHaveBeenCalledWith('AI features are temporarily unavailable. Our team has been notified.');
+  });
+
   // ── FAILURE state ──────────────────────────────────────────────────────
   it('stops polling and sets error on FAILURE state', async () => {
     mockGetStatus.mockResolvedValueOnce({
@@ -142,6 +173,31 @@ describe('useTaskPolling', () => {
     expect(result.current.isPolling).toBe(false);
     expect(result.current.error).toBe('Worker crashed.');
     expect(onError).toHaveBeenCalledWith('Worker crashed.');
+  });
+
+  it('normalizes a structured FAILURE payload into a safe string message', async () => {
+    mockGetStatus.mockResolvedValueOnce({
+      task_id: 'task-5b',
+      state: 'FAILURE',
+      error: {
+        error_code: 'TASK_FAILURE',
+        user_message: 'Task processing failed. Please retry.',
+        task_id: 'task-5b',
+      },
+    });
+
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useTaskPolling({ taskId: 'task-5b', intervalMs: 500, onError })
+    );
+
+    await act(async () => {
+      await vi.runAllTimersAsync();
+    });
+
+    expect(result.current.isPolling).toBe(false);
+    expect(result.current.error).toBe('Task processing failed. Please retry.');
+    expect(onError).toHaveBeenCalledWith('Task processing failed. Please retry.');
   });
 
   // ── network error ──────────────────────────────────────────────────────
