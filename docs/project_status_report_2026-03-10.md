@@ -1,6 +1,7 @@
 # SaaS-PDF Project Status Report
 
 Generated on: 2026-03-10
+Updated on: 2026-03-25
 Branch reviewed: feature/seo-content
 
 ## Executive Summary
@@ -27,7 +28,7 @@ The main remaining gaps are consistency and production hardening:
 
 ### Backend
 
-- Flask application factory with 24 registered blueprints
+- Flask application factory with 33 registered blueprints
 - Celery async task processing
 - Redis-backed task flow
 - Service-oriented architecture under backend/app/services
@@ -133,7 +134,7 @@ Implemented pages:
 
 Notes:
 
-- Contact currently uses a mailto flow rather than a backend contact form endpoint.
+- Contact now uses a backend submission endpoint plus direct email fallback.
 - About, Privacy, and Terms are SEO-enabled pages with structured metadata.
 
 ## Phase 6 — Technical SEO Optimization
@@ -215,11 +216,11 @@ The following improvements were started as part of this implementation step:
 1. Refresh docs/tool_inventory.md so it becomes the current source of truth again.
 2. Remove duplicate Helmet metadata from tool components that are already wrapped by ToolLandingPage.
 3. Replace placeholder domain values in public SEO files with the production domain.
-4. Decide whether contact should remain mailto-based or move to a backend endpoint.
+4. Surface or intentionally defer the tools that exist in routes but are not shown on the homepage.
 5. Run full backend and frontend test/build validation in the target environment.
 
 ## Final Assessment
 
 SaaS-PDF is no longer just a basic MVP. It is already a broad multi-tool document-processing platform with strong progress across product scope, frontend SEO architecture, and backend task-based processing.
 
-The current priority is not missing core features. The current priority is tightening consistency, production configuration, and documentation so the implemented work is easier to maintain and safer to ship.
+The current priority is not missing core features. The current priority is tightening consistency, production configuration, homepage/catalog alignment, and documentation so the implemented work is easier to maintain and safer to ship.

@@ -12,7 +12,7 @@
 | **OpenGraph tags** | `og:title`, `og:description`, `og:url`, `og:type`, `og:site_name`, `og:locale` on all pages |
 | **Twitter cards** | `twitter:card`, `twitter:title`, `twitter:description` on all pages |
 | **Structured data** | `WebSite`, `Organization`, `WebPage`, `WebApplication`, `BreadcrumbList`, `FAQPage` JSON-LD |
-| **Sitemap** | Auto-generated via `scripts/generate_sitemap.py` — 37 URLs (5 pages + 32 tools) |
+| **Sitemap** | Auto-generated via frontend SEO scripts — current committed snapshot contains 245 URLs across static pages, blog posts, tool routes, and programmatic SEO pages |
 | **robots.txt** | Allows all crawlers; blocks `/api/`, `/account`, auth pages |
 | **Internationalization** | Full i18n in EN, AR, FR — all tool pages, SEO content, and static pages |
 | **Font loading** | `dns-prefetch` + `preconnect` + `display=swap` for Google Fonts |
@@ -58,7 +58,7 @@ VITE_GOOGLE_SITE_VERIFICATION=your-verification-code
 
 ## 3. SEO Content Architecture
 
-### 3.1 Tool Landing Pages (32 pages)
+### 3.1 Tool Landing Pages (44 direct tool routes + programmatic SEO pages)
 
 Each tool page (`/tools/{slug}`) renders via `ToolLandingPage` wrapper:
 
@@ -79,7 +79,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 |------|--------|---------|
 | `/` | `WebSite` + `Organization` | Homepage with hero + tool grid |
 | `/about` | `WebPage` | Mission, technology, security |
-| `/contact` | `WebPage` | Contact form (mailto-based) |
+| `/contact` | `WebPage` | Contact form backed by `/api/contact/submit` plus email fallback |
 | `/privacy` | `WebPage` | Privacy policy |
 | `/terms` | `WebPage` | Terms of service |
 
@@ -87,7 +87,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 
 | File | Purpose |
 |------|---------|
-| `sitemap.xml` | All 37 indexable URLs with priority and changefreq |
+| `sitemap.xml` | Current public snapshot includes 245 indexable URLs with priority and changefreq values |
 | `robots.txt` | Crawler directives + sitemap pointer |
 | `llms.txt` | AI/LLM discoverability file |
 | `humans.txt` | Team credits |
@@ -106,7 +106,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 - [ ] Verify Core Web Vitals pass (LCP < 2.5s, FID < 100ms, CLS < 0.1)
 
 **Content:**
-- [ ] Publish all 32 tool pages with full SEO content
+- [ ] Publish and maintain the 44 direct tool pages with full SEO content
 - [ ] Ensure hreflang tags work across EN/AR/FR (add `hreflang` links if using subdomains or subdirectories)
 - [ ] Add FAQ schema to all tool pages (already done)
 
@@ -209,7 +209,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 **Key differentiators for Dociva:**
 1. **Trilingual** — EN/AR/FR from day one (Arabic market is largely unserved)
 2. **No signup** — zero friction, instant file processing
-3. **32 tools** — broader coverage than most competitors
+3. **44 direct tool routes** — broad product coverage with room to surface more of the catalog on the homepage
 4. **AI-powered tools** — OCR, Chat PDF, Summarize, Translate (unique value)
 5. **Privacy-first** — files auto-deleted within 30 minutes
 
@@ -219,7 +219,7 @@ All text is i18n-driven from `seo.{toolKey}.*` keys in EN/AR/FR.
 
 ```
 □ Review Search Console for crawl errors and fix immediately
-□ Check index coverage — ensure all 37+ pages are indexed
+□ Check index coverage — ensure the current sitemap inventory is being indexed as expected
 □ Review top queries — identify rising keywords to create content for
 □ Publish 8–16 blog posts (2–4/week × 3 languages)
 □ Build 5–10 backlinks through outreach

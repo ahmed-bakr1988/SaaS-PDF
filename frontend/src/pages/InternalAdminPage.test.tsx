@@ -5,6 +5,9 @@ import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest';
 import InternalAdminPage from './InternalAdminPage';
 import { useAuthStore } from '@/stores/authStore';
 import {
+  getAdminPlanInterest,
+  getAdminSystemHealth,
+  getAdminUserStats,
   getInternalAdminContacts,
   getInternalAdminOverview,
   listInternalAdminUsers,
@@ -18,6 +21,9 @@ vi.mock('@/stores/authStore', () => ({
 }));
 
 vi.mock('@/services/api', () => ({
+  getAdminPlanInterest: vi.fn(),
+  getAdminSystemHealth: vi.fn(),
+  getAdminUserStats: vi.fn(),
   getInternalAdminContacts: vi.fn(),
   getInternalAdminOverview: vi.fn(),
   listInternalAdminUsers: vi.fn(),
@@ -37,7 +43,7 @@ const authState = {
 function renderPage() {
   return render(
     <HelmetProvider>
-      <MemoryRouter>
+      <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <InternalAdminPage />
       </MemoryRouter>
     </HelmetProvider>
@@ -56,11 +62,49 @@ describe('InternalAdminPage', () => {
       (selector: (state: typeof authState) => unknown) => selector(authState)
     );
     (getInternalAdminOverview as Mock).mockReset();
+    (getAdminSystemHealth as Mock).mockReset();
+    (getAdminPlanInterest as Mock).mockReset();
+    (getAdminUserStats as Mock).mockReset();
     (listInternalAdminUsers as Mock).mockReset();
     (getInternalAdminContacts as Mock).mockReset();
     (markInternalAdminContactRead as Mock).mockReset();
     (updateInternalAdminUserPlan as Mock).mockReset();
     (updateInternalAdminUserRole as Mock).mockReset();
+
+    (getAdminSystemHealth as Mock).mockResolvedValue({
+      ai_configured: true,
+      ai_model: 'nvidia/nemotron-3-super-120b-a12b:free',
+      ai_budget_used_percent: 25,
+      error_rate_1h: 0,
+      tasks_last_1h: 0,
+      failures_last_1h: 0,
+      database_size_mb: 1.5,
+    });
+    (getAdminPlanInterest as Mock).mockResolvedValue({
+      total_clicks: 0,
+      unique_users: 0,
+      clicks_last_7d: 0,
+      clicks_last_30d: 0,
+      by_plan: [],
+      recent: [],
+    });
+    (getAdminUserStats as Mock).mockResolvedValue({
+      total_users: 2,
+      new_last_7d: 1,
+      new_last_30d: 2,
+      pro_users: 1,
+      free_users: 1,
+      daily_registrations: [{ day: '2026-03-16', count: 1 }],
+      most_active_users: [
+        {
+          id: 2,
+          email: 'operator@example.com',
+          plan: 'free',
+          created_at: '2026-03-16T10:00:00Z',
+          total_tasks: 3,
+        },
+      ],
+    });
   });
 
   it('shows the admin sign-in form for anonymous users', () => {
@@ -129,10 +173,16 @@ describe('InternalAdminPage', () => {
     renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText('Users and monetization')).toBeTruthy();
+      expect(screen.getByText('Top tools')).toBeTruthy();
     });
 
-    fireEvent.click(screen.getByRole('button', { name: 'Set admin' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Users' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('User management')).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Admin' }));
 
     await waitFor(() => {
       expect(updateInternalAdminUserRole).toHaveBeenCalledWith(2, 'admin');

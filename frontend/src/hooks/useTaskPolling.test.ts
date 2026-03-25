@@ -225,6 +225,6 @@ describe('useTaskPolling', () => {
       await vi.runAllTimersAsync();
     });
 
-    expect(result.current.error).toBe('Task failed.');
+    expect(result.current.error).toBe('Processing failed. Please try again.');
   });
 });
