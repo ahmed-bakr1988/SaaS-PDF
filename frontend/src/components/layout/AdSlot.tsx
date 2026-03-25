@@ -92,11 +92,18 @@ export default function AdSlot({
   // Pro users see no ads
   if (user?.plan === 'pro') return null;
 
+  // حجز مساحة ثابتة لتقليل CLS
+  // يمكن تخصيص الارتفاع حسب نوع الإعلان
+  const minHeight = format === 'horizontal' ? 90 : format === 'rectangle' ? 250 : 120;
   return (
-    <div ref={containerRef} className={`ad-slot ${className}`}>
+    <div
+      ref={containerRef}
+      className={`ad-slot ${className}`}
+      style={{ minHeight, position: 'relative' }}
+    >
       <ins
         className="adsbygoogle"
-        style={{ display: 'block' }}
+        style={{ display: 'block', width: '100%', minHeight }}
         data-ad-client={clientId}
         data-ad-slot={resolvedSlot}
         data-ad-format={format}

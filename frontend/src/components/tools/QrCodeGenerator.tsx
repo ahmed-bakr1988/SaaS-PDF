@@ -113,7 +113,7 @@ export default function QrCodeGenerator() {
         {phase === 'done' && result && result.status === 'completed' && downloadUrl && (
           <div className="space-y-6 text-center">
             <div className="rounded-2xl bg-white p-8 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-              <img src={downloadUrl} alt="QR Code" loading="lazy" decoding="async" className="mx-auto max-w-[300px] rounded-lg" />
+              <img src={downloadUrl} alt="QR Code" loading="lazy" decoding="async" className="mx-auto max-w-[300px] rounded-lg" width={size} height={size} style={{aspectRatio:'1/1'}} />
             </div>
             <div className="flex gap-3">
               <a href={downloadUrl} download={result.filename || 'qrcode.png'}
