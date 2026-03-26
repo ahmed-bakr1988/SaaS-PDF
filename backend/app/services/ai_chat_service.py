@@ -3,7 +3,10 @@ import json
 import logging
 import requests
 
-from app.services.openrouter_config_service import get_openrouter_settings
+from app.services.openrouter_config_service import (
+    extract_openrouter_text,
+    get_openrouter_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -72,12 +75,7 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
         response.raise_for_status()
         data = response.json()
 
-        reply = (
-            data.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-            .strip()
-        )
+        reply = extract_openrouter_text(data)
 
         if not reply:
             reply = "I couldn't generate a response. Please try again."

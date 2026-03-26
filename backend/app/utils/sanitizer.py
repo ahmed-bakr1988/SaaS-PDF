@@ -70,8 +70,17 @@ def cleanup_task_files(task_id: str, keep_outputs: bool = False):
     if os.path.exists(upload_task_dir):
         shutil.rmtree(upload_task_dir, ignore_errors=True)
 
-    # Only clean outputs when using S3 (files already uploaded to S3)
-    if not keep_outputs:
+    # Preserve local outputs whenever local fallback is enabled so download links remain valid.
+    preserve_outputs = keep_outputs
+    if not preserve_outputs:
+        try:
+            from app.services.storage_service import storage
+
+            preserve_outputs = storage.allow_local_fallback
+        except Exception:
+            preserve_outputs = False
+
+    if not preserve_outputs:
         output_task_dir = os.path.join(output_dir, task_id)
         if os.path.exists(output_task_dir):
             shutil.rmtree(output_task_dir, ignore_errors=True)

@@ -32,9 +32,33 @@ class TestStripeRoutes:
         })
         assert response.status_code == 503
 
+    def test_checkout_placeholder_config_returns_503(self, client, app):
+        """Copied sample Stripe values should be treated as not configured."""
+        self._login(client, email="stripe-placeholder@test.com")
+        app.config.update({
+            "STRIPE_SECRET_KEY": "sk_test_XXXXXXXXXXXXXXXXXXXXXXXX",
+            "STRIPE_PRICE_ID_PRO_MONTHLY": "price_XXXXXXXXXXXXXXXX",
+            "STRIPE_PRICE_ID_PRO_YEARLY": "price_XXXXXXXXXXXXXXXX",
+        })
+        response = client.post("/api/stripe/create-checkout-session", json={
+            "billing": "monthly",
+        })
+        assert response.status_code == 503
+
     def test_portal_requires_auth(self, client):
         response = client.post("/api/stripe/create-portal-session")
         assert response.status_code == 401
+
+    def test_portal_placeholder_config_returns_503(self, client, app):
+        """Portal access should not attempt Stripe calls when config is only sample data."""
+        self._login(client, email="stripe-portal@test.com")
+        app.config.update({
+            "STRIPE_SECRET_KEY": "sk_test_XXXXXXXXXXXXXXXXXXXXXXXX",
+            "STRIPE_PRICE_ID_PRO_MONTHLY": "price_XXXXXXXXXXXXXXXX",
+            "STRIPE_PRICE_ID_PRO_YEARLY": "price_XXXXXXXXXXXXXXXX",
+        })
+        response = client.post("/api/stripe/create-portal-session")
+        assert response.status_code == 503
 
     def test_webhook_missing_signature(self, client):
         """Webhook without config returns ignored status."""

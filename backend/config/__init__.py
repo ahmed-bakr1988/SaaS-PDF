@@ -37,6 +37,9 @@ class BaseConfig:
     UPLOAD_FOLDER = _env_or_default("UPLOAD_FOLDER", "/tmp/uploads")
     OUTPUT_FOLDER = _env_or_default("OUTPUT_FOLDER", "/tmp/outputs")
     FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
+    STORAGE_ALLOW_LOCAL_FALLBACK = os.getenv(
+        "STORAGE_ALLOW_LOCAL_FALLBACK", "true"
+    ).lower() == "true"
     DATABASE_PATH = _env_or_default(
         "DATABASE_PATH", os.path.join(BASE_DIR, "data", "dociva.db")
     )

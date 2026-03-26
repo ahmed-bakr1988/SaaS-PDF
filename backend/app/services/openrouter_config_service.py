@@ -18,6 +18,42 @@ class OpenRouterSettings:
     base_url: str
 
 
+def extract_openrouter_text(payload: dict) -> str:
+    """Extract assistant text from OpenRouter/OpenAI-style payloads safely."""
+    choices = payload.get("choices") or []
+    if not choices:
+        return ""
+
+    message = choices[0].get("message") or {}
+    content = message.get("content")
+
+    if isinstance(content, str):
+        return content.strip()
+
+    if isinstance(content, list):
+        text_parts: list[str] = []
+        for item in content:
+            if isinstance(item, str):
+                if item.strip():
+                    text_parts.append(item.strip())
+                continue
+
+            if not isinstance(item, dict):
+                continue
+
+            if isinstance(item.get("text"), str) and item["text"].strip():
+                text_parts.append(item["text"].strip())
+                continue
+
+            nested_text = item.get("content")
+            if item.get("type") == "text" and isinstance(nested_text, str) and nested_text.strip():
+                text_parts.append(nested_text.strip())
+
+        return "\n".join(text_parts).strip()
+
+    return ""
+
+
 def _load_dotenv_settings() -> dict[str, str]:
     """Read .env values directly so workers can recover from blank in-app config."""
     service_dir = os.path.abspath(os.path.dirname(__file__))

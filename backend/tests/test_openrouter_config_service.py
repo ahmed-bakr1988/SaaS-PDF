@@ -1,6 +1,10 @@
 """Tests for shared OpenRouter configuration resolution across AI services."""
 
-from app.services.openrouter_config_service import get_openrouter_settings
+from app.services.openrouter_config_service import (
+    LEGACY_SAMPLE_OPENROUTER_API_KEY,
+    extract_openrouter_text,
+    get_openrouter_settings,
+)
 from app.services.pdf_ai_service import _call_openrouter
 from app.services.site_assistant_service import _request_ai_reply
 
@@ -85,7 +89,7 @@ class TestOpenRouterConfigService:
         monkeypatch.setattr(
             'app.services.openrouter_config_service._load_dotenv_settings',
             lambda: {
-                'OPENROUTER_API_KEY': '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',
+                'OPENROUTER_API_KEY': LEGACY_SAMPLE_OPENROUTER_API_KEY,
             },
         )
 
@@ -94,6 +98,27 @@ class TestOpenRouterConfigService:
             settings = get_openrouter_settings()
 
         assert settings.api_key == ''
+
+    def test_extract_openrouter_text_supports_string_and_list_content(self):
+        assert extract_openrouter_text({
+            'choices': [{'message': {'content': '  plain text reply  '}}],
+        }) == 'plain text reply'
+
+        assert extract_openrouter_text({
+            'choices': [{
+                'message': {
+                    'content': [
+                        {'type': 'text', 'text': 'First part'},
+                        {'type': 'text', 'content': 'Second part'},
+                        None,
+                    ],
+                },
+            }],
+        }) == 'First part\nSecond part'
+
+        assert extract_openrouter_text({
+            'choices': [{'message': {'content': None}}],
+        }) == ''
 
 
 class TestAiServicesUseSharedConfig:

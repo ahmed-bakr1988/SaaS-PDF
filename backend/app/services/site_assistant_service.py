@@ -9,7 +9,10 @@ from datetime import datetime, timezone
 import requests
 from flask import current_app
 
-from app.services.openrouter_config_service import get_openrouter_settings
+from app.services.openrouter_config_service import (
+    extract_openrouter_text,
+    get_openrouter_settings,
+)
 from app.services.ai_cost_service import AiBudgetExceededError, check_ai_budget, log_ai_usage
 
 logger = logging.getLogger(__name__)
@@ -465,12 +468,7 @@ def _request_ai_reply(
     response.raise_for_status()
     data = response.json()
 
-    reply = (
-        data.get("choices", [{}])[0]
-        .get("message", {})
-        .get("content", "")
-        .strip()
-    )
+    reply = extract_openrouter_text(data)
     if not reply:
         raise RuntimeError("Assistant returned an empty reply.")
 

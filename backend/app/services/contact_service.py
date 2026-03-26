@@ -63,7 +63,10 @@ def save_message(name: str, email: str, category: str, subject: str, message: st
         conn.close()
 
     # Send notification email to admin
-    admin_email = current_app.config.get("SMTP_FROM", "noreply@dociva.io")
+    admin_emails = tuple(current_app.config.get("INTERNAL_ADMIN_EMAILS", ()))
+    admin_email = admin_emails[0] if admin_emails else current_app.config.get(
+        "SMTP_FROM", "noreply@dociva.io"
+    )
     try:
         send_email(
             to=admin_email,

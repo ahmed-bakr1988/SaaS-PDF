@@ -1,5 +1,6 @@
 """Tests for storage service — local mode (S3 not configured in tests)."""
 import os
+from unittest.mock import Mock
 
 from app.services.storage_service import StorageService
 
@@ -54,3 +55,46 @@ class TestStorageServiceLocal:
                 f.write('test')
 
             assert svc.file_exists(f'outputs/{task_id}/test.pdf') is True
+
+    def test_placeholder_s3_credentials_disable_s3(self, app):
+        """Copied sample AWS credentials should not activate S3 mode."""
+        with app.app_context():
+            app.config.update({
+                'AWS_ACCESS_KEY_ID': 'your-access-key',
+                'AWS_SECRET_ACCESS_KEY': 'your-secret-key',
+                'AWS_S3_BUCKET': 'dociva-temp-files',
+            })
+            svc = StorageService()
+            assert svc.use_s3 is False
+
+    def test_upload_falls_back_to_local_when_s3_upload_fails(self, app, monkeypatch):
+        """A broken S3 upload should still preserve a working local download."""
+        with app.app_context():
+            app.config.update({
+                'AWS_ACCESS_KEY_ID': 'real-looking-key',
+                'AWS_SECRET_ACCESS_KEY': 'real-looking-secret',
+                'AWS_S3_BUCKET': 'dociva-temp-files',
+                'STORAGE_ALLOW_LOCAL_FALLBACK': True,
+            })
+            svc = StorageService()
+            task_id = 's3-fallback-test'
+            input_path = '/tmp/test_storage_fallback.pdf'
+            with open(input_path, 'wb') as f:
+                f.write(b'%PDF-1.4 fallback')
+
+            class DummyClientError(Exception):
+                pass
+
+            failing_client = Mock()
+            failing_client.upload_file.side_effect = DummyClientError('boom')
+            monkeypatch.setattr('botocore.exceptions.ClientError', DummyClientError)
+            monkeypatch.setattr(StorageService, 'client', property(lambda self: failing_client))
+
+            key = svc.upload_file(input_path, task_id)
+            url = svc.generate_presigned_url(key, original_filename='fallback.pdf')
+
+            assert key == f'outputs/{task_id}/test_storage_fallback.pdf'
+            assert svc.file_exists(key) is True
+            assert '/api/download/s3-fallback-test/test_storage_fallback.pdf' in url
+
+            os.unlink(input_path)

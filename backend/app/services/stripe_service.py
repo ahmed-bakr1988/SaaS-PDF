@@ -1,18 +1,47 @@
 """Stripe payment service — checkout sessions, webhooks, and subscription management."""
 import logging
-import os
 
 import stripe
 from flask import current_app
 
-from app.services.account_service import update_user_plan, get_user_by_id, _connect, _utc_now
+from app.services.account_service import update_user_plan, _connect, _utc_now
+from app.utils.config_placeholders import normalize_optional_config
 
 logger = logging.getLogger(__name__)
 
 
+def get_stripe_secret_key() -> str:
+    """Return the configured Stripe secret key, ignoring copied sample values."""
+    return normalize_optional_config(
+        current_app.config.get("STRIPE_SECRET_KEY", ""),
+        ("replace-with",),
+    )
+
+
+def get_stripe_price_id(billing: str = "monthly") -> str:
+    """Return the configured Stripe price id for the requested billing cycle."""
+    monthly = normalize_optional_config(
+        current_app.config.get("STRIPE_PRICE_ID_PRO_MONTHLY", ""),
+        ("replace-with",),
+    )
+    yearly = normalize_optional_config(
+        current_app.config.get("STRIPE_PRICE_ID_PRO_YEARLY", ""),
+        ("replace-with",),
+    )
+
+    if billing == "yearly" and yearly:
+        return yearly
+    return monthly
+
+
+def is_stripe_configured() -> bool:
+    """Return True when billing has a usable secret key and at least one price id."""
+    return bool(get_stripe_secret_key() and (get_stripe_price_id("monthly") or get_stripe_price_id("yearly")))
+
+
 def _init_stripe():
     """Configure stripe with the app's secret key."""
-    stripe.api_key = current_app.config.get("STRIPE_SECRET_KEY", "")
+    stripe.api_key = get_stripe_secret_key()
 
 
 def _ensure_stripe_columns():
@@ -109,7 +138,10 @@ def create_portal_session(user_id: int, return_url: str) -> str:
 
 def handle_webhook_event(payload: bytes, sig_header: str) -> dict:
     """Process a Stripe webhook event. Returns a status dict."""
-    webhook_secret = current_app.config.get("STRIPE_WEBHOOK_SECRET", "")
+    webhook_secret = normalize_optional_config(
+        current_app.config.get("STRIPE_WEBHOOK_SECRET", ""),
+        ("replace-with",),
+    )
     if not webhook_secret:
         logger.warning("STRIPE_WEBHOOK_SECRET not configured — ignoring webhook.")
         return {"status": "ignored", "reason": "no webhook secret"}

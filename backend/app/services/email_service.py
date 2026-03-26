@@ -6,16 +6,27 @@ from email.mime.multipart import MIMEMultipart
 
 from flask import current_app
 
+from app.utils.config_placeholders import normalize_optional_config
+
 logger = logging.getLogger(__name__)
 
 
 def _get_smtp_config() -> dict:
     """Read SMTP settings from Flask config."""
     return {
-        "host": current_app.config.get("SMTP_HOST", ""),
+        "host": normalize_optional_config(
+            current_app.config.get("SMTP_HOST", ""),
+            ("your-provider", "replace-with"),
+        ),
         "port": current_app.config.get("SMTP_PORT", 587),
-        "user": current_app.config.get("SMTP_USER", ""),
-        "password": current_app.config.get("SMTP_PASSWORD", ""),
+        "user": normalize_optional_config(
+            current_app.config.get("SMTP_USER", ""),
+            ("replace-with",),
+        ),
+        "password": normalize_optional_config(
+            current_app.config.get("SMTP_PASSWORD", ""),
+            ("replace-with",),
+        ),
         "from_addr": current_app.config.get("SMTP_FROM", "noreply@dociva.io"),
         "use_tls": current_app.config.get("SMTP_USE_TLS", True),
     }

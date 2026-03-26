@@ -4,7 +4,10 @@ import logging
 
 import requests
 
-from app.services.openrouter_config_service import get_openrouter_settings
+from app.services.openrouter_config_service import (
+    extract_openrouter_text,
+    get_openrouter_settings,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,12 @@ def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
         from PyPDF2 import PdfReader
 
         reader = PdfReader(input_path)
+        if reader.is_encrypted and reader.decrypt("") == 0:
+            raise PdfAiError(
+                "This PDF is password-protected. Please unlock it first.",
+                error_code="PDF_ENCRYPTED",
+            )
+
         pages = reader.pages[:max_pages]
         texts = []
         for i, page in enumerate(pages):
@@ -41,6 +50,8 @@ def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
             if text.strip():
                 texts.append(f"[Page {i + 1}]\n{text}")
         return "\n\n".join(texts)
+    except PdfAiError:
+        raise
     except Exception as e:
         raise PdfAiError(
             "Failed to extract text from PDF.",
@@ -98,29 +109,31 @@ def _call_openrouter(
             timeout=60,
         )
 
-        if response.status_code == 401:
+        status_code = getattr(response, "status_code", 200)
+
+        if status_code == 401:
             logger.error("OpenRouter API key is invalid or expired (401).")
             raise PdfAiError(
                 "AI features are temporarily unavailable due to a configuration issue. Our team has been notified.",
                 error_code="OPENROUTER_UNAUTHORIZED",
             )
 
-        if response.status_code == 402:
+        if status_code == 402:
             logger.error("OpenRouter account has insufficient credits (402).")
             raise PdfAiError(
                 "AI processing credits have been exhausted. Please try again later.",
                 error_code="OPENROUTER_INSUFFICIENT_CREDITS",
             )
 
-        if response.status_code == 429:
+        if status_code == 429:
             logger.warning("OpenRouter rate limit reached (429).")
             raise PdfAiError(
                 "AI service is experiencing high demand. Please wait a moment and try again.",
                 error_code="OPENROUTER_RATE_LIMIT",
             )
 
-        if response.status_code >= 500:
-            logger.error("OpenRouter server error (%s).", response.status_code)
+        if status_code >= 500:
+            logger.error("OpenRouter server error (%s).", status_code)
             raise PdfAiError(
                 "AI service provider is experiencing issues. Please try again shortly.",
                 error_code="OPENROUTER_SERVER_ERROR",
@@ -139,12 +152,7 @@ def _call_openrouter(
                 detail=error_msg,
             )
 
-        reply = (
-            data.get("choices", [{}])[0]
-            .get("message", {})
-            .get("content", "")
-            .strip()
-        )
+        reply = extract_openrouter_text(data)
 
         if not reply:
             raise PdfAiError(

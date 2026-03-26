@@ -8,6 +8,8 @@ from app.services.stripe_service import (
     create_checkout_session,
     create_portal_session,
     handle_webhook_event,
+    get_stripe_price_id,
+    is_stripe_configured,
 )
 
 logger = logging.getLogger(__name__)
@@ -31,11 +33,9 @@ def checkout():
     data = request.get_json(silent=True) or {}
     billing = data.get("billing", "monthly")
 
-    monthly_price = current_app.config.get("STRIPE_PRICE_ID_PRO_MONTHLY", "")
-    yearly_price = current_app.config.get("STRIPE_PRICE_ID_PRO_YEARLY", "")
-    price_id = yearly_price if billing == "yearly" and yearly_price else monthly_price
+    price_id = get_stripe_price_id(billing)
 
-    if not price_id:
+    if not is_stripe_configured() or not price_id:
         return jsonify({"error": "Payment is not configured yet."}), 503
 
     frontend_url = current_app.config.get("FRONTEND_URL", "http://localhost:5173")
@@ -61,6 +61,9 @@ def portal():
 
     frontend_url = current_app.config.get("FRONTEND_URL", "http://localhost:5173")
     return_url = f"{frontend_url}/account"
+
+    if not is_stripe_configured():
+        return jsonify({"error": "Payment is not configured yet."}), 503
 
     try:
         url = create_portal_session(user_id, return_url)
