@@ -564,7 +564,8 @@
       "addMore": "Ajouter plus d'images",
       "imagesSelected": "{{count}} images sélectionnées",
       "invalidFiles": "Veuillez sélectionner des fichiers images valides (JPG, PNG, WebP).",
-      "minFiles": "Veuillez sélectionner au moins une image."
+      "minFiles": "Veuillez sélectionner au moins une image.",
+      "mobilePickerHint": "Sur certains téléphones, sélectionnez une image à la fois puis appuyez sur Enregistrer avant d'ajouter la suivante."
     },
     "watermarkPdf": {
       "title": "Filigrane PDF",

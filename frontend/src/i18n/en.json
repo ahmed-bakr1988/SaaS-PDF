@@ -564,7 +564,8 @@
       "addMore": "Add More Images",
       "imagesSelected": "{{count}} images selected",
       "invalidFiles": "Please select valid image files (JPG, PNG, WebP).",
-      "minFiles": "Please select at least one image."
+      "minFiles": "Please select at least one image.",
+      "mobilePickerHint": "On some phones, select one image at a time and tap Save to confirm it before adding the next image."
     },
     "watermarkPdf": {
       "title": "Watermark PDF",
