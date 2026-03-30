@@ -21,6 +21,7 @@ const STATIC_PAGE_ROUTES = [
   '/blog',
   '/blog/:slug',
   '/developers',
+  '/tools',
   '/internal/admin',
 ] as const;
 

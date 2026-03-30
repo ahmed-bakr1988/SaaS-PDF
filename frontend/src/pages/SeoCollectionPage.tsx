@@ -6,13 +6,19 @@ import SEOHead from '@/components/seo/SEOHead';
 import FAQSection from '@/components/seo/FAQSection';
 import {
   getLocalizedText,
-  getLocalizedTextList,
   getSeoCollectionPage,
   interpolateTemplate,
   normalizeSeoLocale,
 } from '@/config/seoPages';
 import { getToolSEO } from '@/config/seoData';
-import { generateBreadcrumbs, generateFAQ, generateWebPage, getSiteOrigin } from '@/utils/seo';
+import {
+  generateBreadcrumbs,
+  generateCollectionPage,
+  generateFAQ,
+  generateItemList,
+  generateWebPage,
+  getSiteOrigin,
+} from '@/utils/seo';
 import NotFoundPage from '@/pages/NotFoundPage';
 
 interface SeoCollectionPageProps {
@@ -64,7 +70,6 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
   const title = interpolateTemplate(getLocalizedText(page.titleTemplate, locale), tokens);
   const description = interpolateTemplate(getLocalizedText(page.descriptionTemplate, locale), tokens);
   const intro = interpolateTemplate(getLocalizedText(page.introTemplate, locale), tokens);
-  const keywords = [focusKeyword, ...getLocalizedTextList(page.supportingKeywords, locale)].join(', ');
   const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const faqItems = page.faqTemplates.map((item) => ({
     question: getLocalizedText(item.question, locale),
@@ -82,6 +87,11 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
   ];
 
   const jsonLd = [
+    generateCollectionPage({
+      name: title,
+      description,
+      url,
+    }),
     generateWebPage({
       name: title,
       description,
@@ -93,11 +103,18 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
       { name: title, url },
     ]),
     generateFAQ(faqItems),
+    generateItemList(page.targetToolSlugs.map((toolSlug) => {
+      const tool = getToolSEO(toolSlug);
+      return {
+        name: tool ? t(`tools.${tool.i18nKey}.title`) : toolSlug,
+        url: `${siteOrigin}/tools/${toolSlug}`,
+      };
+    })),
   ];
 
   return (
     <>
-      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} alternates={alternates} />
+      <SEOHead title={title} description={description} path={path} jsonLd={jsonLd} alternates={alternates} />
 
       <div className="mx-auto max-w-6xl space-y-10">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">

@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,6 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const frontendRoot = path.resolve(__dirname, '..');
 const publicDir = path.join(frontendRoot, 'public');
+const sitemapDir = path.join(publicDir, 'sitemaps');
 const siteOrigin = String(process.env.VITE_SITE_DOMAIN || 'https://dociva.io').trim().replace(/\/$/, '');
 const today = new Date().toISOString().slice(0, 10);
 
@@ -26,6 +27,7 @@ const routeRegistrySource = await readFile(path.join(frontendRoot, 'src', 'confi
 
 const staticPages = [
   { path: '/', changefreq: 'daily', priority: '1.0' },
+  { path: '/tools', changefreq: 'weekly', priority: '0.8' },
   { path: '/about', changefreq: 'monthly', priority: '0.4' },
   { path: '/contact', changefreq: 'monthly', priority: '0.4' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
@@ -94,6 +96,18 @@ function makeUrlTag({ loc, changefreq, priority }) {
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
 }
 
+function makeSitemapUrlSet(entries) {
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
+}
+
+function makeSitemapIndex(entries) {
+  const items = entries
+    .map((entry) => `  <sitemap>\n    <loc>${entry.loc}</loc>\n    <lastmod>${today}</lastmod>\n  </sitemap>`)
+    .join('\n');
+
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${items}\n</sitemapindex>\n`;
+}
+
 function dedupeEntries(entries) {
   const seen = new Set();
   return entries.filter((entry) => {
@@ -110,22 +124,33 @@ const blogSource = await readFile(path.join(frontendRoot, 'src', 'content', 'blo
 const blogSlugs = extractBlogSlugs(blogSource);
 const toolSlugs = extractToolSlugs(routeRegistrySource);
 
-const sitemapEntries = dedupeEntries([
-  ...staticPages.map((page) => ({
+await mkdir(sitemapDir, { recursive: true });
+
+const staticEntries = dedupeEntries(
+  staticPages.map((page) => ({
     loc: `${siteOrigin}${page.path}`,
     changefreq: page.changefreq,
     priority: page.priority,
   })),
-  ...blogSlugs.map((slug) => ({
+).map((entry) => makeUrlTag(entry));
+
+const blogEntries = dedupeEntries(
+  blogSlugs.map((slug) => ({
     loc: `${siteOrigin}/blog/${slug}`,
     changefreq: 'monthly',
     priority: '0.6',
   })),
-  ...toolSlugs.map((slug) => ({
+).map((entry) => makeUrlTag(entry));
+
+const toolEntries = dedupeEntries(
+  toolSlugs.map((slug) => ({
     loc: `${siteOrigin}/tools/${slug}`,
     changefreq: 'weekly',
     priority: toolRoutePriorities.get(slug) || '0.6',
   })),
+).map((entry) => makeUrlTag(entry));
+
+const seoEntries = dedupeEntries([
   ...seoConfig.toolPageSeeds.flatMap((page) => ([
     { loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.88' },
     { loc: `${siteOrigin}/ar/${page.slug}`, changefreq: 'weekly', priority: '0.8' },
@@ -136,7 +161,12 @@ const sitemapEntries = dedupeEntries([
   ])),
 ]).map((entry) => makeUrlTag(entry));
 
-const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapEntries.join('\n')}\n</urlset>\n`;
+const sitemapIndex = makeSitemapIndex([
+  { loc: `${siteOrigin}/sitemaps/static.xml` },
+  { loc: `${siteOrigin}/sitemaps/blog.xml` },
+  { loc: `${siteOrigin}/sitemaps/tools.xml` },
+  { loc: `${siteOrigin}/sitemaps/seo.xml` },
+]);
 
 const robots = [
   '# robots.txt — Dociva',
@@ -156,7 +186,11 @@ const robots = [
   '',
 ].join('\n');
 
-await writeFile(path.join(publicDir, 'sitemap.xml'), sitemap, 'utf8');
+await writeFile(path.join(publicDir, 'sitemap.xml'), sitemapIndex, 'utf8');
+await writeFile(path.join(sitemapDir, 'static.xml'), makeSitemapUrlSet(staticEntries), 'utf8');
+await writeFile(path.join(sitemapDir, 'blog.xml'), makeSitemapUrlSet(blogEntries), 'utf8');
+await writeFile(path.join(sitemapDir, 'tools.xml'), makeSitemapUrlSet(toolEntries), 'utf8');
+await writeFile(path.join(sitemapDir, 'seo.xml'), makeSitemapUrlSet(seoEntries), 'utf8');
 await writeFile(path.join(publicDir, 'robots.txt'), robots, 'utf8');
 
 console.log(`Generated SEO assets for ${siteOrigin}`);

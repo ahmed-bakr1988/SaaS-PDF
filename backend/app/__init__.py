@@ -1,4 +1,5 @@
 """Flask Application Factory."""
+
 import os
 
 from flask import Flask, jsonify
@@ -11,7 +12,12 @@ from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
 from app.services.contact_service import init_contact_db
 from app.services.stripe_service import init_stripe_db
-from app.utils.csrf import CSRFError, apply_csrf_cookie, should_enforce_csrf, validate_csrf_request
+from app.utils.csrf import (
+    CSRFError,
+    apply_csrf_cookie,
+    should_enforce_csrf,
+    validate_csrf_request,
+)
 
 
 def _init_sentry(app):
@@ -35,13 +41,15 @@ def _init_sentry(app):
         app.logger.warning("sentry-sdk not installed — monitoring disabled.")
 
 
-def create_app(config_name=None):
+def create_app(config_name=None, config_overrides=None):
     """Create and configure the Flask application."""
     if config_name is None:
         config_name = os.getenv("FLASK_ENV", "development")
 
     app = Flask(__name__)
     app.config.from_object(config[config_name])
+    if config_overrides:
+        app.config.update(config_overrides)
 
     # Initialize Sentry early
     _init_sentry(app)

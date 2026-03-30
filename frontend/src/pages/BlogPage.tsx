@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateWebPage, getSiteOrigin } from '@/utils/seo';
+import { generateCollectionPage, generateItemList, getSiteOrigin } from '@/utils/seo';
 import { BookOpen, Calendar, ArrowRight, Search, X } from 'lucide-react';
 import {
   BLOG_ARTICLES,
@@ -44,11 +44,17 @@ export default function BlogPage() {
         title={t('pages.blog.metaTitle')}
         description={t('pages.blog.metaDescription')}
         path="/blog"
-        jsonLd={generateWebPage({
-          name: t('pages.blog.metaTitle'),
-          description: t('pages.blog.metaDescription'),
-          url: `${siteOrigin}/blog`,
-        })}
+        jsonLd={[
+          generateCollectionPage({
+            name: t('pages.blog.metaTitle'),
+            description: t('pages.blog.metaDescription'),
+            url: `${siteOrigin}/blog`,
+          }),
+          generateItemList(posts.map((post) => ({
+            name: post.title,
+            url: `${siteOrigin}/blog/${post.slug}`,
+          }))),
+        ]}
       />
 
       <div className="mx-auto max-w-4xl">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { FileImage } from 'lucide-react';
@@ -18,6 +18,8 @@ export default function ImagesToPdf() {
   const [isUploading, setIsUploading] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [useSinglePickerFlow, setUseSinglePickerFlow] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const { status, result, error: taskError } = useTaskPolling({
     taskId,
@@ -35,7 +37,22 @@ export default function ImagesToPdf() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const coarsePointer = window.matchMedia?.('(pointer: coarse)').matches ?? false;
+    const mobileUserAgent = /android|iphone|ipad|ipod|mobile/i.test(navigator.userAgent);
+    setUseSinglePickerFlow(coarsePointer || mobileUserAgent);
+  }, []);
+
   const acceptedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/bmp'];
+  const acceptValue = acceptedTypes.join(',');
+
+  const openPicker = () => {
+    inputRef.current?.click();
+  };
 
   const handleFilesSelect = (newFiles: FileList | File[]) => {
     const fileArray = Array.from(newFiles).filter((f) =>
@@ -45,7 +62,19 @@ export default function ImagesToPdf() {
       setError(t('tools.imagesToPdf.invalidFiles'));
       return;
     }
-    setFiles((prev) => [...prev, ...fileArray]);
+    setFiles((prev) => {
+      const seen = new Set(prev.map((file) => `${file.name}:${file.size}:${file.lastModified}`));
+      const uniqueNewFiles = fileArray.filter((file) => {
+        const key = `${file.name}:${file.size}:${file.lastModified}`;
+        if (seen.has(key)) {
+          return false;
+        }
+        seen.add(key);
+        return true;
+      });
+
+      return [...prev, ...uniqueNewFiles];
+    });
     setError(null);
   };
 
@@ -112,8 +141,7 @@ export default function ImagesToPdf() {
           <div className="space-y-4">
             {/* Drop zone */}
             <div
-              className="upload-zone cursor-pointer"
-              onClick={() => document.getElementById('images-file-input')?.click()}
+              className="upload-zone"
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => {
                 e.preventDefault();
@@ -122,9 +150,10 @@ export default function ImagesToPdf() {
             >
               <input
                 id="images-file-input"
+                ref={inputRef}
                 type="file"
-                accept=".png,.jpg,.jpeg,.webp,.bmp"
-                multiple
+                accept={acceptValue}
+                multiple={!useSinglePickerFlow}
                 className="hidden"
                 onChange={(e) => {
                   if (e.target.files) handleFilesSelect(e.target.files);
@@ -133,12 +162,24 @@ export default function ImagesToPdf() {
               />
               <FileImage className="mb-4 h-12 w-12 text-slate-400" />
               <p className="mb-2 text-base font-medium text-slate-700">
-                {t('common.dragDrop')}
+                {files.length > 0 ? t('tools.imagesToPdf.addMore') : t('tools.imagesToPdf.selectImages')}
               </p>
               <p className="text-sm text-slate-500">PNG, JPG, WebP, BMP</p>
+              {useSinglePickerFlow && (
+                <p className="mt-2 text-xs text-slate-500">
+                  {t('tools.imagesToPdf.mobilePickerHint')}
+                </p>
+              )}
               <p className="mt-1 text-xs text-slate-400">
                 {t('common.maxSize', { size: 10 })}
               </p>
+              <button
+                type="button"
+                onClick={openPicker}
+                className="btn-secondary mt-4"
+              >
+                {files.length > 0 ? t('tools.imagesToPdf.addMore') : t('tools.imagesToPdf.selectImages')}
+              </button>
             </div>
 
             {/* File list */}

@@ -24,6 +24,7 @@ const PricingPage = lazy(() => import('@/pages/PricingPage'));
 const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
 const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
+const AllToolsPage = lazy(() => import('@/pages/AllToolsPage'));
 const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
 const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
@@ -129,6 +130,7 @@ export default function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/developers" element={<DevelopersPage />} />
+            <Route path="/tools" element={<AllToolsPage />} />
             <Route path="/internal/admin" element={<InternalAdminPage />} />
             <Route path="/ar/:slug" element={<SeoRoutePage />} />
             <Route path="/:slug" element={<SeoRoutePage />} />
