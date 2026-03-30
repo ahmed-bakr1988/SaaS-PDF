@@ -1,4 +1,5 @@
 """PDF AI tool routes — Chat, Summarize, Translate, Table Extract."""
+
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
@@ -70,10 +71,12 @@ def chat_pdf_route():
     )
     record_accepted_usage(actor, "chat-pdf", task.id)
 
-    return jsonify({
-        "task_id": task.id,
-        "message": "Processing your question. Poll /api/tasks/{task_id}/status for progress.",
-    }), 202
+    return jsonify(
+        {
+            "task_id": task.id,
+            "message": "Processing your question. Poll /api/tasks/{task_id}/status for progress.",
+        }
+    ), 202
 
 
 # ---------------------------------------------------------------------------
@@ -124,10 +127,12 @@ def summarize_pdf_route():
     )
     record_accepted_usage(actor, "summarize-pdf", task.id)
 
-    return jsonify({
-        "task_id": task.id,
-        "message": "Summarizing document. Poll /api/tasks/{task_id}/status for progress.",
-    }), 202
+    return jsonify(
+        {
+            "task_id": task.id,
+            "message": "Summarizing document. Poll /api/tasks/{task_id}/status for progress.",
+        }
+    ), 202
 
 
 # ---------------------------------------------------------------------------
@@ -149,6 +154,7 @@ def translate_pdf_route():
 
     file = request.files["file"]
     target_language = request.form.get("target_language", "").strip()
+    source_language = request.form.get("source_language", "auto").strip()
 
     if not target_language:
         return jsonify({"error": "No target language specified."}), 400
@@ -174,14 +180,17 @@ def translate_pdf_route():
         task_id,
         original_filename,
         target_language,
+        source_language,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "translate-pdf", task.id)
 
-    return jsonify({
-        "task_id": task.id,
-        "message": "Translating document. Poll /api/tasks/{task_id}/status for progress.",
-    }), 202
+    return jsonify(
+        {
+            "task_id": task.id,
+            "message": "Translating document. Poll /api/tasks/{task_id}/status for progress.",
+        }
+    ), 202
 
 
 # ---------------------------------------------------------------------------
@@ -226,7 +235,9 @@ def extract_tables_route():
     )
     record_accepted_usage(actor, "extract-tables", task.id)
 
-    return jsonify({
-        "task_id": task.id,
-        "message": "Extracting tables. Poll /api/tasks/{task_id}/status for progress.",
-    }), 202
+    return jsonify(
+        {
+            "task_id": task.id,
+            "message": "Extracting tables. Poll /api/tasks/{task_id}/status for progress.",
+        }
+    ), 202

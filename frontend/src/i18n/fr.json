@@ -827,9 +827,16 @@
     },
     "translatePdf": {
       "title": "Traduire un PDF",
-      "description": "Traduisez le contenu de votre document PDF dans n'importe quelle langue grâce à l'IA.",
+      "description": "Traduisez vos PDF avec un pipeline premium, un fallback automatique et une meilleure prise en charge des fichiers scannés.",
       "shortDesc": "Traduire le PDF",
+      "sourceLang": "Langue source",
       "targetLang": "Langue cible",
+      "autoDetect": "Détection automatique",
+      "engineTitle": "Traduction documentaire de niveau production",
+      "engineDescription": "Votre fichier passe d'abord par un fournisseur de traduction premium, puis bascule automatiquement vers l'IA seulement si nécessaire. Cela réduit les erreurs de forte demande et améliore la stabilité.",
+      "processingHint": "Les documents volumineux peuvent être traduits en plusieurs segments avec retries et fallback entre fournisseurs. Laissez cette page ouverte jusqu'à la fin du traitement.",
+      "sourceDetected": "Source détectée",
+      "translationEngine": "Moteur de traduction",
       "resultTitle": "Traduction"
     },
     "tableExtractor": {

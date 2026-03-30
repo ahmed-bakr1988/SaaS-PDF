@@ -827,9 +827,16 @@
     },
     "translatePdf": {
       "title": "Translate PDF",
-      "description": "Translate your PDF document content to any language using AI.",
+      "description": "Translate PDF documents with a premium translation pipeline, automatic fallback, and better handling for scanned files.",
       "shortDesc": "Translate PDF",
+      "sourceLang": "Source Language",
       "targetLang": "Target Language",
+      "autoDetect": "Auto detect",
+      "engineTitle": "Production-grade document translation",
+      "engineDescription": "Your file is translated with a premium translation provider first, then automatically falls back to AI only if needed. This reduces high-demand failures and improves consistency.",
+      "processingHint": "Large documents may be translated in multiple chunks with retries and provider fallback. Keep this page open until the job completes.",
+      "sourceDetected": "Detected source",
+      "translationEngine": "Translation engine",
       "resultTitle": "Translation"
     },
     "tableExtractor": {

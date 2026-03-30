@@ -26,20 +26,21 @@ def _env_or_default(name: str, default: str) -> str:
 
 class BaseConfig:
     """Base configuration."""
+
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
     INTERNAL_ADMIN_SECRET = os.getenv("INTERNAL_ADMIN_SECRET", "")
     INTERNAL_ADMIN_EMAILS = _parse_csv_env("INTERNAL_ADMIN_EMAILS")
 
     # File upload settings
-    MAX_CONTENT_LENGTH = int(
-        os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 100)
-    ) * 1024 * 1024
+    MAX_CONTENT_LENGTH = (
+        int(os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 100)) * 1024 * 1024
+    )
     UPLOAD_FOLDER = _env_or_default("UPLOAD_FOLDER", "/tmp/uploads")
     OUTPUT_FOLDER = _env_or_default("OUTPUT_FOLDER", "/tmp/outputs")
     FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
-    STORAGE_ALLOW_LOCAL_FALLBACK = os.getenv(
-        "STORAGE_ALLOW_LOCAL_FALLBACK", "true"
-    ).lower() == "true"
+    STORAGE_ALLOW_LOCAL_FALLBACK = (
+        os.getenv("STORAGE_ALLOW_LOCAL_FALLBACK", "true").lower() == "true"
+    )
     DATABASE_PATH = _env_or_default(
         "DATABASE_PATH", os.path.join(BASE_DIR, "data", "dociva.db")
     )
@@ -69,31 +70,29 @@ class BaseConfig:
             "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         ],
         "ppt": ["application/vnd.ms-powerpoint"],
-        "xlsx": [
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        ],
+        "xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
         "xls": ["application/vnd.ms-excel"],
     }
 
     # File size limits per type (bytes)
     FILE_SIZE_LIMITS = {
-        "pdf": 20 * 1024 * 1024,      # 20MB
-        "doc": 15 * 1024 * 1024,       # 15MB
-        "docx": 15 * 1024 * 1024,      # 15MB
-        "html": 10 * 1024 * 1024,      # 10MB
-        "htm": 10 * 1024 * 1024,       # 10MB
-        "png": 10 * 1024 * 1024,       # 10MB
-        "jpg": 10 * 1024 * 1024,       # 10MB
-        "jpeg": 10 * 1024 * 1024,      # 10MB
-        "webp": 10 * 1024 * 1024,      # 10MB
-        "tiff": 15 * 1024 * 1024,      # 15MB
-        "bmp": 15 * 1024 * 1024,       # 15MB
-        "mp4": 50 * 1024 * 1024,       # 50MB
-        "webm": 50 * 1024 * 1024,      # 50MB
-        "pptx": 20 * 1024 * 1024,      # 20MB
-        "ppt": 20 * 1024 * 1024,       # 20MB
-        "xlsx": 15 * 1024 * 1024,      # 15MB
-        "xls": 15 * 1024 * 1024,       # 15MB
+        "pdf": 20 * 1024 * 1024,  # 20MB
+        "doc": 15 * 1024 * 1024,  # 15MB
+        "docx": 15 * 1024 * 1024,  # 15MB
+        "html": 10 * 1024 * 1024,  # 10MB
+        "htm": 10 * 1024 * 1024,  # 10MB
+        "png": 10 * 1024 * 1024,  # 10MB
+        "jpg": 10 * 1024 * 1024,  # 10MB
+        "jpeg": 10 * 1024 * 1024,  # 10MB
+        "webp": 10 * 1024 * 1024,  # 10MB
+        "tiff": 15 * 1024 * 1024,  # 15MB
+        "bmp": 15 * 1024 * 1024,  # 15MB
+        "mp4": 50 * 1024 * 1024,  # 50MB
+        "webm": 50 * 1024 * 1024,  # 50MB
+        "pptx": 20 * 1024 * 1024,  # 20MB
+        "ppt": 20 * 1024 * 1024,  # 20MB
+        "xlsx": 15 * 1024 * 1024,  # 15MB
+        "xls": 15 * 1024 * 1024,  # 15MB
     }
 
     # Redis
@@ -109,7 +108,7 @@ class BaseConfig:
     AWS_S3_BUCKET = os.getenv("AWS_S3_BUCKET", "dociva-temp-files")
     AWS_S3_REGION = os.getenv("AWS_S3_REGION", "eu-west-1")
 
-    # CORS 
+    # CORS
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
     # Rate Limiting
@@ -118,10 +117,19 @@ class BaseConfig:
 
     # OpenRouter AI
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-    OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
+    OPENROUTER_MODEL = os.getenv(
+        "OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
+    )
     OPENROUTER_BASE_URL = os.getenv(
         "OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1/chat/completions"
     )
+
+    # Premium translation provider (recommended for Translate PDF)
+    DEEPL_API_KEY = os.getenv("DEEPL_API_KEY", "")
+    DEEPL_API_URL = os.getenv(
+        "DEEPL_API_URL", "https://api-free.deepl.com/v2/translate"
+    )
+    DEEPL_TIMEOUT_SECONDS = int(os.getenv("DEEPL_TIMEOUT_SECONDS", 90))
 
     # SMTP (for password reset emails)
     SMTP_HOST = os.getenv("SMTP_HOST", "")
@@ -156,12 +164,14 @@ class BaseConfig:
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
+
     DEBUG = True
     TESTING = False
 
 
 class ProductionConfig(BaseConfig):
     """Production configuration."""
+
     DEBUG = False
     TESTING = False
     SESSION_COOKIE_SECURE = True
@@ -172,6 +182,7 @@ class ProductionConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     """Testing configuration."""
+
     DEBUG = True
     TESTING = True
     UPLOAD_FOLDER = "/tmp/test_uploads"

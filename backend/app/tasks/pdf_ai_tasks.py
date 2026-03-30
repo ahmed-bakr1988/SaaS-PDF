@@ -1,4 +1,5 @@
 """Celery tasks for PDF AI tools — Chat, Summarize, Translate, Table Extract."""
+
 import os
 import logging
 import json
@@ -28,7 +29,8 @@ def _build_pdf_ai_error_payload(task_id: str, error: PdfAiError, tool: str) -> d
     payload = {
         "status": "failed",
         "error_code": getattr(error, "error_code", "PDF_AI_ERROR"),
-        "user_message": getattr(error, "user_message", str(error)) or "AI processing failed.",
+        "user_message": getattr(error, "user_message", str(error))
+        or "AI processing failed.",
         "task_id": task_id,
     }
 
@@ -80,9 +82,12 @@ def chat_with_pdf_task(
 
         logger.info(f"Task {task_id}: Chat with PDF completed")
         finalize_task_tracking(
-            user_id=user_id, tool="chat-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="chat-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -91,9 +96,12 @@ def chat_with_pdf_task(
     except PdfAiError as e:
         result = _build_pdf_ai_error_payload(task_id, e, "chat-pdf")
         finalize_task_tracking(
-            user_id=user_id, tool="chat-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="chat-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -103,9 +111,12 @@ def chat_with_pdf_task(
         logger.error(f"Task {task_id}: Unexpected error — {e}")
         result = {"status": "failed", "error": "An unexpected error occurred."}
         finalize_task_tracking(
-            user_id=user_id, tool="chat-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="chat-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -140,9 +151,12 @@ def summarize_pdf_task(
 
         logger.info(f"Task {task_id}: PDF summarize completed")
         finalize_task_tracking(
-            user_id=user_id, tool="summarize-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="summarize-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -151,9 +165,12 @@ def summarize_pdf_task(
     except PdfAiError as e:
         result = _build_pdf_ai_error_payload(task_id, e, "summarize-pdf")
         finalize_task_tracking(
-            user_id=user_id, tool="summarize-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="summarize-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -163,9 +180,12 @@ def summarize_pdf_task(
         logger.error(f"Task {task_id}: Unexpected error — {e}")
         result = {"status": "failed", "error": "An unexpected error occurred."}
         finalize_task_tracking(
-            user_id=user_id, tool="summarize-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="summarize-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -182,28 +202,41 @@ def translate_pdf_task(
     task_id: str,
     original_filename: str,
     target_language: str,
+    source_language: str | None = None,
     user_id: int | None = None,
     usage_source: str = "web",
     api_key_id: int | None = None,
 ):
     """Translate a PDF document to another language."""
     try:
-        self.update_state(state="PROCESSING", meta={"step": "Translating document..."})
+        self.update_state(
+            state="PROCESSING",
+            meta={"step": "Translating document with provider fallback..."},
+        )
 
-        data = translate_pdf(input_path, target_language)
+        data = translate_pdf(
+            input_path, target_language, source_language=source_language
+        )
 
         result = {
             "status": "completed",
             "translation": data["translation"],
             "pages_analyzed": data["pages_analyzed"],
             "target_language": data["target_language"],
+            "source_language": data.get("source_language"),
+            "detected_source_language": data.get("detected_source_language"),
+            "provider": data.get("provider"),
+            "chunks_translated": data.get("chunks_translated"),
         }
 
         logger.info(f"Task {task_id}: PDF translate completed")
         finalize_task_tracking(
-            user_id=user_id, tool="translate-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="translate-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -212,9 +245,12 @@ def translate_pdf_task(
     except PdfAiError as e:
         result = _build_pdf_ai_error_payload(task_id, e, "translate-pdf")
         finalize_task_tracking(
-            user_id=user_id, tool="translate-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="translate-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -224,9 +260,12 @@ def translate_pdf_task(
         logger.error(f"Task {task_id}: Unexpected error — {e}")
         result = {"status": "failed", "error": "An unexpected error occurred."}
         finalize_task_tracking(
-            user_id=user_id, tool="translate-pdf",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="translate-pdf",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -260,9 +299,12 @@ def extract_tables_task(
 
         logger.info(f"Task {task_id}: Table extraction completed")
         finalize_task_tracking(
-            user_id=user_id, tool="extract-tables",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="extract-tables",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -271,9 +313,12 @@ def extract_tables_task(
     except PdfAiError as e:
         result = _build_pdf_ai_error_payload(task_id, e, "extract-tables")
         finalize_task_tracking(
-            user_id=user_id, tool="extract-tables",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="extract-tables",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)
@@ -283,9 +328,12 @@ def extract_tables_task(
         logger.error(f"Task {task_id}: Unexpected error — {e}")
         result = {"status": "failed", "error": "An unexpected error occurred."}
         finalize_task_tracking(
-            user_id=user_id, tool="extract-tables",
-            original_filename=original_filename, result=result,
-            usage_source=usage_source, api_key_id=api_key_id,
+            user_id=user_id,
+            tool="extract-tables",
+            original_filename=original_filename,
+            result=result,
+            usage_source=usage_source,
+            api_key_id=api_key_id,
             celery_task_id=self.request.id,
         )
         _cleanup(task_id)

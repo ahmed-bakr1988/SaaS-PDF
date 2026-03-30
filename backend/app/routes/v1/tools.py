@@ -1,4 +1,5 @@
 """B2B API v1 tool routes — authenticated via X-API-Key, Pro plan only."""
+
 import os
 import uuid
 import logging
@@ -37,16 +38,25 @@ from app.tasks.flowchart_tasks import extract_flowchart_task
 from app.tasks.ocr_tasks import ocr_image_task, ocr_pdf_task
 from app.tasks.removebg_tasks import remove_bg_task
 from app.tasks.pdf_ai_tasks import (
-    chat_with_pdf_task, summarize_pdf_task, translate_pdf_task, extract_tables_task,
+    chat_with_pdf_task,
+    summarize_pdf_task,
+    translate_pdf_task,
+    extract_tables_task,
 )
 from app.tasks.pdf_to_excel_tasks import pdf_to_excel_task
 from app.tasks.html_to_pdf_tasks import html_to_pdf_task
 from app.tasks.qrcode_tasks import generate_qr_task
 from app.tasks.pdf_convert_tasks import (
-    pdf_to_pptx_task, excel_to_pdf_task, pptx_to_pdf_task, sign_pdf_task,
+    pdf_to_pptx_task,
+    excel_to_pdf_task,
+    pptx_to_pdf_task,
+    sign_pdf_task,
 )
 from app.tasks.pdf_extra_tasks import (
-    crop_pdf_task, flatten_pdf_task, repair_pdf_task, edit_metadata_task,
+    crop_pdf_task,
+    flatten_pdf_task,
+    repair_pdf_task,
+    edit_metadata_task,
 )
 from app.tasks.image_extra_tasks import crop_image_task, rotate_flip_image_task
 from app.tasks.barcode_tasks import generate_barcode_task
@@ -79,6 +89,7 @@ def _resolve_and_check() -> tuple:
 # ---------------------------------------------------------------------------
 # Task status — GET /api/v1/tasks/<task_id>/status
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/tasks/<task_id>/status", methods=["GET"])
 @limiter.limit("300/minute", override_defaults=True)
@@ -113,6 +124,7 @@ def get_task_status(task_id: str):
 # Compress — POST /api/v1/compress/pdf
 # ---------------------------------------------------------------------------
 
+
 @v1_bp.route("/compress/pdf", methods=["POST"])
 @limiter.limit("10/minute")
 def compress_pdf_route():
@@ -130,7 +142,9 @@ def compress_pdf_route():
         quality = "medium"
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
@@ -138,7 +152,10 @@ def compress_pdf_route():
     file.save(input_path)
 
     task = compress_pdf_task.delay(
-        input_path, task_id, original_filename, quality,
+        input_path,
+        task_id,
+        original_filename,
+        quality,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "compress-pdf", task.id)
@@ -149,6 +166,7 @@ def compress_pdf_route():
 # ---------------------------------------------------------------------------
 # Convert — POST /api/v1/convert/pdf-to-word  &  /api/v1/convert/word-to-pdf
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/convert/pdf-to-word", methods=["POST"])
 @limiter.limit("10/minute")
@@ -163,7 +181,9 @@ def pdf_to_word_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
@@ -171,7 +191,9 @@ def pdf_to_word_route():
     file.save(input_path)
 
     task = convert_pdf_to_word.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pdf-to-word", task.id)
@@ -201,7 +223,9 @@ def word_to_pdf_route():
     file.save(input_path)
 
     task = convert_word_to_pdf.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "word-to-pdf", task.id)
@@ -211,6 +235,7 @@ def word_to_pdf_route():
 # ---------------------------------------------------------------------------
 # Image — POST /api/v1/image/convert  &  /api/v1/image/resize
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/image/convert", methods=["POST"])
 @limiter.limit("10/minute")
@@ -226,7 +251,9 @@ def convert_image_route():
     file = request.files["file"]
     output_format = request.form.get("format", "").lower()
     if output_format not in ALLOWED_OUTPUT_FORMATS:
-        return jsonify({"error": f"Invalid format. Supported: {', '.join(ALLOWED_OUTPUT_FORMATS)}"}), 400
+        return jsonify(
+            {"error": f"Invalid format. Supported: {', '.join(ALLOWED_OUTPUT_FORMATS)}"}
+        ), 400
 
     try:
         quality = max(1, min(100, int(request.form.get("quality", "85"))))
@@ -244,7 +271,11 @@ def convert_image_route():
     file.save(input_path)
 
     task = convert_image_task.delay(
-        input_path, task_id, original_filename, output_format, quality,
+        input_path,
+        task_id,
+        original_filename,
+        output_format,
+        quality,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "image-convert", task.id)
@@ -292,7 +323,12 @@ def resize_image_route():
     file.save(input_path)
 
     task = resize_image_task.delay(
-        input_path, task_id, original_filename, width, height, quality,
+        input_path,
+        task_id,
+        original_filename,
+        width,
+        height,
+        quality,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "image-resize", task.id)
@@ -302,6 +338,7 @@ def resize_image_route():
 # ---------------------------------------------------------------------------
 # Video — POST /api/v1/video/to-gif
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/video/to-gif", methods=["POST"])
 @limiter.limit("5/minute")
@@ -343,7 +380,13 @@ def video_to_gif_route():
     file.save(input_path)
 
     task = create_gif_task.delay(
-        input_path, task_id, original_filename, start_time, duration, fps, width,
+        input_path,
+        task_id,
+        original_filename,
+        start_time,
+        duration,
+        fps,
+        width,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "video-to-gif", task.id)
@@ -353,6 +396,7 @@ def video_to_gif_route():
 # ---------------------------------------------------------------------------
 # PDF Tools — all single-file and multi-file routes
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/merge", methods=["POST"])
 @limiter.limit("10/minute")
@@ -372,7 +416,9 @@ def merge_pdfs_route():
     input_paths, original_filenames = [], []
     for f in files:
         try:
-            original_filename, ext = validate_actor_file(f, allowed_types=["pdf"], actor=actor)
+            original_filename, ext = validate_actor_file(
+                f, allowed_types=["pdf"], actor=actor
+            )
         except FileValidationError as e:
             return jsonify({"error": e.message}), e.code
         upload_dir = os.path.join(current_app.config["UPLOAD_FOLDER"], task_id)
@@ -383,7 +429,9 @@ def merge_pdfs_route():
         original_filenames.append(original_filename)
 
     task = merge_pdfs_task.delay(
-        input_paths, task_id, original_filenames,
+        input_paths,
+        task_id,
+        original_filenames,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "merge-pdf", task.id)
@@ -410,14 +458,20 @@ def split_pdf_route():
         return jsonify({"error": "Please specify which pages to extract."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = split_pdf_task.delay(
-        input_path, task_id, original_filename, mode, pages,
+        input_path,
+        task_id,
+        original_filename,
+        mode,
+        pages,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "split-pdf", task.id)
@@ -445,14 +499,20 @@ def rotate_pdf_route():
     pages = request.form.get("pages", "all")
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = rotate_pdf_task.delay(
-        input_path, task_id, original_filename, rotation, pages,
+        input_path,
+        task_id,
+        original_filename,
+        rotation,
+        pages,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "rotate-pdf", task.id)
@@ -473,8 +533,12 @@ def add_page_numbers_route():
     file = request.files["file"]
     position = request.form.get("position", "bottom-center")
     valid_positions = [
-        "bottom-center", "bottom-right", "bottom-left",
-        "top-center", "top-right", "top-left",
+        "bottom-center",
+        "bottom-right",
+        "bottom-left",
+        "top-center",
+        "top-right",
+        "top-left",
     ]
     if position not in valid_positions:
         position = "bottom-center"
@@ -484,14 +548,20 @@ def add_page_numbers_route():
         start_number = 1
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = add_page_numbers_task.delay(
-        input_path, task_id, original_filename, position, start_number,
+        input_path,
+        task_id,
+        original_filename,
+        position,
+        start_number,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "page-numbers", task.id)
@@ -519,14 +589,20 @@ def pdf_to_images_route():
         dpi = 200
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = pdf_to_images_task.delay(
-        input_path, task_id, original_filename, output_format, dpi,
+        input_path,
+        task_id,
+        original_filename,
+        output_format,
+        dpi,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pdf-to-images", task.id)
@@ -564,7 +640,9 @@ def images_to_pdf_route():
         original_filenames.append(original_filename)
 
     task = images_to_pdf_task.delay(
-        input_paths, task_id, original_filenames,
+        input_paths,
+        task_id,
+        original_filenames,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "images-to-pdf", task.id)
@@ -594,14 +672,20 @@ def watermark_pdf_route():
         opacity = 0.3
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = watermark_pdf_task.delay(
-        input_path, task_id, original_filename, watermark_text, opacity,
+        input_path,
+        task_id,
+        original_filename,
+        watermark_text,
+        opacity,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "watermark-pdf", task.id)
@@ -627,14 +711,19 @@ def protect_pdf_route():
         return jsonify({"error": "Password must be at least 4 characters."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = protect_pdf_task.delay(
-        input_path, task_id, original_filename, password,
+        input_path,
+        task_id,
+        original_filename,
+        password,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "protect-pdf", task.id)
@@ -658,14 +747,19 @@ def unlock_pdf_route():
         return jsonify({"error": "Password is required."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = unlock_pdf_task.delay(
-        input_path, task_id, original_filename, password,
+        input_path,
+        task_id,
+        original_filename,
+        password,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "unlock-pdf", task.id)
@@ -685,18 +779,24 @@ def extract_flowchart_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext)
     file.save(input_path)
     task = extract_flowchart_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pdf-flowchart", task.id)
-    return jsonify({"task_id": task.id, "message": "Flowchart extraction started."}), 202
+    return jsonify(
+        {"task_id": task.id, "message": "Flowchart extraction started."}
+    ), 202
 
 
 # ===========================================================================
@@ -706,6 +806,7 @@ def extract_flowchart_route():
 # ---------------------------------------------------------------------------
 # OCR — POST /api/v1/ocr/image  &  /api/v1/ocr/pdf
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/ocr/image", methods=["POST"])
 @limiter.limit("10/minute")
@@ -731,7 +832,10 @@ def ocr_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = ocr_image_task.delay(
-        input_path, task_id, original_filename, lang,
+        input_path,
+        task_id,
+        original_filename,
+        lang,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "ocr-image", task.id)
@@ -753,14 +857,19 @@ def ocr_pdf_route():
     lang = request.form.get("lang", "eng")
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = ocr_pdf_task.delay(
-        input_path, task_id, original_filename, lang,
+        input_path,
+        task_id,
+        original_filename,
+        lang,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "ocr-pdf", task.id)
@@ -770,6 +879,7 @@ def ocr_pdf_route():
 # ---------------------------------------------------------------------------
 # Remove Background — POST /api/v1/image/remove-bg
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/image/remove-bg", methods=["POST"])
 @limiter.limit("5/minute")
@@ -793,7 +903,9 @@ def remove_bg_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = remove_bg_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "remove-bg", task.id)
@@ -803,6 +915,7 @@ def remove_bg_route():
 # ---------------------------------------------------------------------------
 # PDF AI — POST /api/v1/pdf-ai/chat, summarize, translate, extract-tables
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-ai/chat", methods=["POST"])
 @limiter.limit("5/minute")
@@ -821,14 +934,19 @@ def chat_pdf_route():
         return jsonify({"error": "Question is required."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = chat_with_pdf_task.delay(
-        input_path, task_id, original_filename, question,
+        input_path,
+        task_id,
+        original_filename,
+        question,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "chat-pdf", task.id)
@@ -852,14 +970,19 @@ def summarize_pdf_route():
         length = "medium"
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = summarize_pdf_task.delay(
-        input_path, task_id, original_filename, length,
+        input_path,
+        task_id,
+        original_filename,
+        length,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "summarize-pdf", task.id)
@@ -879,18 +1002,25 @@ def translate_pdf_route():
 
     file = request.files["file"]
     target_language = request.form.get("target_language", "").strip()
+    source_language = request.form.get("source_language", "auto").strip()
     if not target_language:
         return jsonify({"error": "Target language is required."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = translate_pdf_task.delay(
-        input_path, task_id, original_filename, target_language,
+        input_path,
+        task_id,
+        original_filename,
+        target_language,
+        source_language,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "translate-pdf", task.id)
@@ -910,14 +1040,18 @@ def extract_tables_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = extract_tables_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "extract-tables", task.id)
@@ -927,6 +1061,7 @@ def extract_tables_route():
 # ---------------------------------------------------------------------------
 # PDF to Excel — POST /api/v1/convert/pdf-to-excel
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/convert/pdf-to-excel", methods=["POST"])
 @limiter.limit("10/minute")
@@ -941,14 +1076,18 @@ def pdf_to_excel_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = pdf_to_excel_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pdf-to-excel", task.id)
@@ -958,6 +1097,7 @@ def pdf_to_excel_route():
 # ---------------------------------------------------------------------------
 # HTML to PDF — POST /api/v1/convert/html-to-pdf
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/convert/html-to-pdf", methods=["POST"])
 @limiter.limit("10/minute")
@@ -981,7 +1121,9 @@ def html_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = html_to_pdf_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "html-to-pdf", task.id)
@@ -991,6 +1133,7 @@ def html_to_pdf_route():
 # ---------------------------------------------------------------------------
 # QR Code — POST /api/v1/qrcode/generate
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/qrcode/generate", methods=["POST"])
 @limiter.limit("20/minute")
@@ -1018,7 +1161,10 @@ def generate_qr_route():
 
     task_id = str(uuid.uuid4())
     task = generate_qr_task.delay(
-        task_id, str(data).strip(), size, "png",
+        task_id,
+        str(data).strip(),
+        size,
+        "png",
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "qr-code", task.id)
@@ -1033,6 +1179,7 @@ def generate_qr_route():
 # PDF to PowerPoint — POST /api/v1/convert/pdf-to-pptx
 # ---------------------------------------------------------------------------
 
+
 @v1_bp.route("/convert/pdf-to-pptx", methods=["POST"])
 @limiter.limit("10/minute")
 def v1_pdf_to_pptx_route():
@@ -1046,14 +1193,18 @@ def v1_pdf_to_pptx_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = pdf_to_pptx_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pdf-to-pptx", task.id)
@@ -1063,6 +1214,7 @@ def v1_pdf_to_pptx_route():
 # ---------------------------------------------------------------------------
 # Excel to PDF — POST /api/v1/convert/excel-to-pdf
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/convert/excel-to-pdf", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1086,7 +1238,9 @@ def v1_excel_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = excel_to_pdf_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "excel-to-pdf", task.id)
@@ -1096,6 +1250,7 @@ def v1_excel_to_pdf_route():
 # ---------------------------------------------------------------------------
 # PowerPoint to PDF — POST /api/v1/convert/pptx-to-pdf
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/convert/pptx-to-pdf", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1119,7 +1274,9 @@ def v1_pptx_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = pptx_to_pdf_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "pptx-to-pdf", task.id)
@@ -1129,6 +1286,7 @@ def v1_pptx_to_pdf_route():
 # ---------------------------------------------------------------------------
 # Sign PDF — POST /api/v1/pdf-tools/sign
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/sign", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1147,12 +1305,16 @@ def v1_sign_pdf_route():
     sig_file = request.files["signature"]
 
     try:
-        original_filename, ext = validate_actor_file(pdf_file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            pdf_file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     try:
-        _, sig_ext = validate_actor_file(sig_file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor)
+        _, sig_ext = validate_actor_file(
+            sig_file, allowed_types=ALLOWED_IMAGE_TYPES, actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": f"Signature: {e.message}"}), e.code
 
@@ -1174,8 +1336,15 @@ def v1_sign_pdf_route():
     sig_file.save(signature_path)
 
     task = sign_pdf_task.delay(
-        input_path, signature_path, task_id, original_filename,
-        page, x, y, width, height,
+        input_path,
+        signature_path,
+        task_id,
+        original_filename,
+        page,
+        x,
+        y,
+        width,
+        height,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "sign-pdf", task.id)
@@ -1185,6 +1354,7 @@ def v1_sign_pdf_route():
 # ---------------------------------------------------------------------------
 # Crop PDF — POST /api/v1/pdf-tools/crop
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/crop", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1209,15 +1379,23 @@ def v1_crop_pdf_route():
     pages = request.form.get("pages", "all")
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = crop_pdf_task.delay(
-        input_path, task_id, original_filename,
-        margin_left, margin_right, margin_top, margin_bottom, pages,
+        input_path,
+        task_id,
+        original_filename,
+        margin_left,
+        margin_right,
+        margin_top,
+        margin_bottom,
+        pages,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "crop-pdf", task.id)
@@ -1227,6 +1405,7 @@ def v1_crop_pdf_route():
 # ---------------------------------------------------------------------------
 # Flatten PDF — POST /api/v1/pdf-tools/flatten
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/flatten", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1241,14 +1420,18 @@ def v1_flatten_pdf_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = flatten_pdf_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "flatten-pdf", task.id)
@@ -1258,6 +1441,7 @@ def v1_flatten_pdf_route():
 # ---------------------------------------------------------------------------
 # Repair PDF — POST /api/v1/pdf-tools/repair
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/repair", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1272,14 +1456,18 @@ def v1_repair_pdf_route():
 
     file = request.files["file"]
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = repair_pdf_task.delay(
-        input_path, task_id, original_filename,
+        input_path,
+        task_id,
+        original_filename,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "repair-pdf", task.id)
@@ -1289,6 +1477,7 @@ def v1_repair_pdf_route():
 # ---------------------------------------------------------------------------
 # Edit PDF Metadata — POST /api/v1/pdf-tools/metadata
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/pdf-tools/metadata", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1312,15 +1501,23 @@ def v1_edit_metadata_route():
         return jsonify({"error": "At least one metadata field required."}), 400
 
     try:
-        original_filename, ext = validate_actor_file(file, allowed_types=["pdf"], actor=actor)
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = edit_metadata_task.delay(
-        input_path, task_id, original_filename,
-        title, author, subject, keywords, creator,
+        input_path,
+        task_id,
+        original_filename,
+        title,
+        author,
+        subject,
+        keywords,
+        creator,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "edit-metadata", task.id)
@@ -1330,6 +1527,7 @@ def v1_edit_metadata_route():
 # ---------------------------------------------------------------------------
 # Image Crop — POST /api/v1/image/crop
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/image/crop", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1364,8 +1562,13 @@ def v1_crop_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = crop_image_task.delay(
-        input_path, task_id, original_filename,
-        left, top, right, bottom,
+        input_path,
+        task_id,
+        original_filename,
+        left,
+        top,
+        right,
+        bottom,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "image-crop", task.id)
@@ -1375,6 +1578,7 @@ def v1_crop_image_route():
 # ---------------------------------------------------------------------------
 # Image Rotate/Flip — POST /api/v1/image/rotate-flip
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/image/rotate-flip", methods=["POST"])
 @limiter.limit("10/minute")
@@ -1408,8 +1612,12 @@ def v1_rotate_flip_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
     task = rotate_flip_image_task.delay(
-        input_path, task_id, original_filename,
-        rotation, flip_horizontal, flip_vertical,
+        input_path,
+        task_id,
+        original_filename,
+        rotation,
+        flip_horizontal,
+        flip_vertical,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "image-rotate-flip", task.id)
@@ -1419,6 +1627,7 @@ def v1_rotate_flip_image_route():
 # ---------------------------------------------------------------------------
 # Barcode — POST /api/v1/barcode/generate
 # ---------------------------------------------------------------------------
+
 
 @v1_bp.route("/barcode/generate", methods=["POST"])
 @limiter.limit("20/minute")
@@ -1442,14 +1651,21 @@ def v1_generate_barcode_route():
         return jsonify({"error": "Barcode data is required."}), 400
 
     if barcode_type not in SUPPORTED_BARCODE_TYPES:
-        return jsonify({"error": f"Unsupported type. Supported: {', '.join(SUPPORTED_BARCODE_TYPES)}"}), 400
+        return jsonify(
+            {
+                "error": f"Unsupported type. Supported: {', '.join(SUPPORTED_BARCODE_TYPES)}"
+            }
+        ), 400
 
     if output_format not in ("png", "svg"):
         output_format = "png"
 
     task_id = str(uuid.uuid4())
     task = generate_barcode_task.delay(
-        data, barcode_type, task_id, output_format,
+        data,
+        barcode_type,
+        task_id,
+        output_format,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "barcode", task.id)

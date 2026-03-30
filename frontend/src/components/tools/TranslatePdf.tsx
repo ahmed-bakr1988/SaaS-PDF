@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { Languages } from 'lucide-react';
+import { Languages, ShieldCheck, Sparkles } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import AdSlot from '@/components/layout/AdSlot';
@@ -26,11 +26,22 @@ const LANGUAGES = [
   { value: 'it', label: 'Italiano' },
 ];
 
+const getLanguageLabel = (value: string) => {
+  if (!value || value === 'auto') {
+    return null;
+  }
+
+  return LANGUAGES.find((language) => language.value === value)?.label ?? value;
+};
+
 export default function TranslatePdf() {
   const { t } = useTranslation();
   const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
+  const [sourceLang, setSourceLang] = useState('auto');
   const [targetLang, setTargetLang] = useState('en');
   const [translation, setTranslation] = useState('');
+  const [provider, setProvider] = useState('');
+  const [detectedSourceLanguage, setDetectedSourceLanguage] = useState('');
 
   const {
     file, uploadProgress, isUploading, taskId,
@@ -39,7 +50,7 @@ export default function TranslatePdf() {
     endpoint: '/pdf-ai/translate',
     maxSizeMB: 20,
     acceptedTypes: ['pdf'],
-    extraData: { target_language: targetLang },
+    extraData: { target_language: targetLang, source_language: sourceLang },
   });
 
   const { status, result, error: taskError } = useTaskPolling({
@@ -47,6 +58,8 @@ export default function TranslatePdf() {
     onComplete: (r) => {
       setPhase('done');
       setTranslation(r.translation || '');
+      setProvider(r.provider || '');
+      setDetectedSourceLanguage(r.detected_source_language || '');
       dispatchRatingPrompt('translate-pdf');
     },
     onError: () => setPhase('done'),
@@ -63,7 +76,17 @@ export default function TranslatePdf() {
     if (id) setPhase('processing');
   };
 
-  const handleReset = () => { reset(); setPhase('upload'); setTargetLang('en'); setTranslation(''); };
+  const handleReset = () => {
+    reset();
+    setPhase('upload');
+    setSourceLang('auto');
+    setTargetLang('en');
+    setTranslation('');
+    setProvider('');
+    setDetectedSourceLanguage('');
+  };
+
+  const resolvedDetectedLanguage = getLanguageLabel(detectedSourceLanguage) || getLanguageLabel(sourceLang);
 
   const schema = generateToolSchema({
     name: t('tools.translatePdf.title'),
@@ -103,15 +126,44 @@ export default function TranslatePdf() {
             {file && !isUploading && (
               <>
                 <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                  <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
-                    {t('tools.translatePdf.targetLang')}
-                  </label>
-                  <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
-                    {LANGUAGES.map((lang) => (
-                      <option key={lang.value} value={lang.value}>{lang.label}</option>
-                    ))}
-                  </select>
+                  <div className="mb-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60">
+                    <ShieldCheck className="mt-0.5 h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        {t('tools.translatePdf.engineTitle')}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                        {t('tools.translatePdf.engineDescription')}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t('tools.translatePdf.sourceLang')}
+                      </label>
+                      <select value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                        <option value="auto">{t('tools.translatePdf.autoDetect')}</option>
+                        {LANGUAGES.map((lang) => (
+                          <option key={`source-${lang.value}`} value={lang.value}>{lang.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {t('tools.translatePdf.targetLang')}
+                      </label>
+                      <select value={targetLang} onChange={(e) => setTargetLang(e.target.value)}
+                        className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200">
+                        {LANGUAGES.map((lang) => (
+                          <option key={lang.value} value={lang.value}>{lang.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
                 </div>
                 <button onClick={handleUpload} className="btn-primary w-full">
                   {t('tools.translatePdf.shortDesc')}
@@ -122,11 +174,39 @@ export default function TranslatePdf() {
         )}
 
         {phase === 'processing' && !result && (
-          <ProgressBar state={status?.state || 'PENDING'} message={status?.progress} />
+          <div className="space-y-4">
+            <ProgressBar state={status?.state || 'PENDING'} message={status?.progress} />
+            <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-0.5 h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <p className="text-sm text-slate-600 dark:text-slate-400">
+                  {t('tools.translatePdf.processingHint')}
+                </p>
+              </div>
+            </div>
+          </div>
         )}
 
         {phase === 'done' && translation && (
           <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  {t('tools.translatePdf.sourceDetected')}
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
+                  {resolvedDetectedLanguage || t('tools.translatePdf.autoDetect')}
+                </p>
+              </div>
+              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                  {t('tools.translatePdf.translationEngine')}
+                </p>
+                <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
+                  {provider || 'auto'}
+                </p>
+              </div>
+            </div>
             <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
               <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
                 {t('tools.translatePdf.resultTitle')}

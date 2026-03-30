@@ -237,6 +237,10 @@ export interface TaskResult {
   summary?: string;
   translation?: string;
   target_language?: string;
+  source_language?: string;
+  detected_source_language?: string;
+  provider?: string;
+  chunks_translated?: number;
   pages_analyzed?: number;
   // Table extraction fields
   tables?: Array<{ page: number; table_index: number; headers: string[]; rows: string[][] }>;

@@ -1,6 +1,11 @@
 """PDF AI services — Chat, Summarize, Translate, Table Extract."""
+
 import json
 import logging
+import os
+import tempfile
+import time
+from dataclasses import dataclass
 
 import requests
 
@@ -11,9 +16,84 @@ from app.services.openrouter_config_service import (
 
 logger = logging.getLogger(__name__)
 
+DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
+DEFAULT_DEEPL_TIMEOUT_SECONDS = 90
+MAX_TRANSLATION_CHUNK_CHARS = 3500
+TRANSLATION_RETRY_ATTEMPTS = 3
+TRANSLATION_RETRY_DELAY_SECONDS = 2
+
+LANGUAGE_LABELS = {
+    "auto": "Auto Detect",
+    "en": "English",
+    "ar": "Arabic",
+    "fr": "French",
+    "es": "Spanish",
+    "de": "German",
+    "zh": "Chinese",
+    "ja": "Japanese",
+    "ko": "Korean",
+    "pt": "Portuguese",
+    "ru": "Russian",
+    "tr": "Turkish",
+    "it": "Italian",
+}
+
+DEEPL_LANGUAGE_CODES = {
+    "ar": "AR",
+    "de": "DE",
+    "en": "EN",
+    "es": "ES",
+    "fr": "FR",
+    "it": "IT",
+    "ja": "JA",
+    "ko": "KO",
+    "pt": "PT-PT",
+    "ru": "RU",
+    "tr": "TR",
+    "zh": "ZH",
+}
+
+OCR_LANGUAGE_CODES = {
+    "ar": "ara",
+    "en": "eng",
+    "fr": "fra",
+}
+
+
+@dataclass(frozen=True)
+class DeepLSettings:
+    api_key: str
+    base_url: str
+    timeout_seconds: int
+
+
+def _normalize_language_code(value: str | None, default: str = "") -> str:
+    normalized = str(value or "").strip().lower()
+    return normalized or default
+
+
+def _language_label(value: str | None) -> str:
+    normalized = _normalize_language_code(value)
+    return LANGUAGE_LABELS.get(normalized, normalized or "Unknown")
+
+
+def _get_deepl_settings() -> DeepLSettings:
+    api_key = str(os.getenv("DEEPL_API_KEY", "")).strip()
+    base_url = (
+        str(os.getenv("DEEPL_API_URL", DEFAULT_DEEPL_API_URL)).strip()
+        or DEFAULT_DEEPL_API_URL
+    )
+    timeout_seconds = int(
+        os.getenv("DEEPL_TIMEOUT_SECONDS", DEFAULT_DEEPL_TIMEOUT_SECONDS)
+    )
+    return DeepLSettings(
+        api_key=api_key, base_url=base_url, timeout_seconds=timeout_seconds
+    )
+
 
 class PdfAiError(Exception):
     """Custom exception for PDF AI service failures."""
+
     def __init__(
         self,
         user_message: str,
@@ -24,6 +104,42 @@ class PdfAiError(Exception):
         self.user_message = user_message
         self.error_code = error_code
         self.detail = detail
+
+
+class RetryableTranslationError(PdfAiError):
+    """Error wrapper used for provider failures that should be retried."""
+
+
+def _translate_with_retry(action, provider_name: str) -> dict:
+    last_error: PdfAiError | None = None
+
+    for attempt in range(1, TRANSLATION_RETRY_ATTEMPTS + 1):
+        try:
+            return action()
+        except RetryableTranslationError as error:
+            last_error = error
+            logger.warning(
+                "%s translation attempt %s/%s failed with retryable error %s",
+                provider_name,
+                attempt,
+                TRANSLATION_RETRY_ATTEMPTS,
+                error.error_code,
+            )
+            if attempt == TRANSLATION_RETRY_ATTEMPTS:
+                break
+            time.sleep(TRANSLATION_RETRY_DELAY_SECONDS * attempt)
+
+    if last_error:
+        raise PdfAiError(
+            last_error.user_message,
+            error_code=last_error.error_code,
+            detail=last_error.detail,
+        )
+
+    raise PdfAiError(
+        "Translation provider failed unexpectedly.",
+        error_code="TRANSLATION_PROVIDER_FAILED",
+    )
 
 
 def _estimate_tokens(text: str) -> int:
@@ -49,7 +165,30 @@ def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
             text = page.extract_text() or ""
             if text.strip():
                 texts.append(f"[Page {i + 1}]\n{text}")
-        return "\n\n".join(texts)
+
+        extracted = "\n\n".join(texts)
+        if extracted.strip():
+            return extracted
+
+        # Fall back to OCR for scanned/image-only PDFs instead of failing fast.
+        try:
+            from app.services.ocr_service import ocr_pdf
+
+            with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as handle:
+                ocr_output_path = handle.name
+
+            try:
+                data = ocr_pdf(input_path, ocr_output_path, lang="eng")
+                ocr_text = str(data.get("text", "")).strip()
+                if ocr_text:
+                    return ocr_text
+            finally:
+                if os.path.exists(ocr_output_path):
+                    os.unlink(ocr_output_path)
+        except Exception as ocr_error:
+            logger.warning("OCR fallback for PDF text extraction failed: %s", ocr_error)
+
+        return ""
     except PdfAiError:
         raise
     except Exception as e:
@@ -70,14 +209,17 @@ def _call_openrouter(
     # Budget guard
     try:
         from app.services.ai_cost_service import check_ai_budget, AiBudgetExceededError
+
         check_ai_budget()
-    except AiBudgetExceededError:
-        raise PdfAiError(
-            "Monthly AI processing budget has been reached. Please try again next month.",
-            error_code="AI_BUDGET_EXCEEDED",
-        )
-    except Exception:
-        pass  # Don't block if cost service unavailable
+    except ImportError:
+        pass
+    except Exception as error:
+        if error.__class__.__name__ == "AiBudgetExceededError":
+            raise PdfAiError(
+                "Monthly AI processing budget has been reached. Please try again next month.",
+                error_code="AI_BUDGET_EXCEEDED",
+            )
+        pass
 
     settings = get_openrouter_settings()
 
@@ -127,14 +269,14 @@ def _call_openrouter(
 
         if status_code == 429:
             logger.warning("OpenRouter rate limit reached (429).")
-            raise PdfAiError(
+            raise RetryableTranslationError(
                 "AI service is experiencing high demand. Please wait a moment and try again.",
                 error_code="OPENROUTER_RATE_LIMIT",
             )
 
         if status_code >= 500:
             logger.error("OpenRouter server error (%s).", status_code)
-            raise PdfAiError(
+            raise RetryableTranslationError(
                 "AI service provider is experiencing issues. Please try again shortly.",
                 error_code="OPENROUTER_SERVER_ERROR",
             )
@@ -144,7 +286,11 @@ def _call_openrouter(
 
         # Handle model-level errors returned inside a 200 response
         if data.get("error"):
-            error_msg = data["error"].get("message", "") if isinstance(data["error"], dict) else str(data["error"])
+            error_msg = (
+                data["error"].get("message", "")
+                if isinstance(data["error"], dict)
+                else str(data["error"])
+            )
             logger.error("OpenRouter returned an error payload: %s", error_msg)
             raise PdfAiError(
                 "AI service encountered an issue. Please try again.",
@@ -163,6 +309,7 @@ def _call_openrouter(
         # Log usage
         try:
             from app.services.ai_cost_service import log_ai_usage
+
             usage = data.get("usage", {})
             log_ai_usage(
                 tool=tool_name,
@@ -178,13 +325,13 @@ def _call_openrouter(
     except PdfAiError:
         raise
     except requests.exceptions.Timeout:
-        raise PdfAiError(
+        raise RetryableTranslationError(
             "AI service timed out. Please try again.",
             error_code="OPENROUTER_TIMEOUT",
         )
     except requests.exceptions.ConnectionError:
         logger.error("Cannot connect to OpenRouter API at %s", settings.base_url)
-        raise PdfAiError(
+        raise RetryableTranslationError(
             "AI service is unreachable. Please try again shortly.",
             error_code="OPENROUTER_CONNECTION_ERROR",
         )
@@ -195,6 +342,218 @@ def _call_openrouter(
             error_code="OPENROUTER_REQUEST_ERROR",
             detail=str(e),
         )
+
+
+def _split_translation_chunks(
+    text: str, max_chars: int = MAX_TRANSLATION_CHUNK_CHARS
+) -> list[str]:
+    """Split extracted PDF text into stable chunks while preserving page markers."""
+    chunks: list[str] = []
+    current: list[str] = []
+    current_length = 0
+
+    for block in text.split("\n\n"):
+        normalized = block.strip()
+        if not normalized:
+            continue
+
+        block_length = len(normalized) + 2
+        if current and current_length + block_length > max_chars:
+            chunks.append("\n\n".join(current))
+            current = [normalized]
+            current_length = block_length
+            continue
+
+        current.append(normalized)
+        current_length += block_length
+
+    if current:
+        chunks.append("\n\n".join(current))
+
+    return chunks or [text]
+
+
+def _call_deepl_translate(
+    chunk: str, target_language: str, source_language: str | None = None
+) -> dict:
+    """Translate a chunk with DeepL when premium credentials are configured."""
+    settings = _get_deepl_settings()
+    if not settings.api_key:
+        raise PdfAiError(
+            "DeepL is not configured.",
+            error_code="DEEPL_NOT_CONFIGURED",
+        )
+
+    target_code = DEEPL_LANGUAGE_CODES.get(_normalize_language_code(target_language))
+    if not target_code:
+        raise PdfAiError(
+            f"Target language '{target_language}' is not supported by the premium translation provider.",
+            error_code="DEEPL_UNSUPPORTED_TARGET_LANGUAGE",
+        )
+
+    payload: dict[str, object] = {
+        "text": [chunk],
+        "target_lang": target_code,
+        "preserve_formatting": True,
+        "tag_handling": "xml",
+        "split_sentences": "nonewlines",
+    }
+
+    source_code = DEEPL_LANGUAGE_CODES.get(_normalize_language_code(source_language))
+    if source_code:
+        payload["source_lang"] = source_code
+
+    try:
+        response = requests.post(
+            settings.base_url,
+            headers={
+                "Authorization": f"DeepL-Auth-Key {settings.api_key}",
+                "Content-Type": "application/json",
+            },
+            json=payload,
+            timeout=settings.timeout_seconds,
+        )
+    except requests.exceptions.Timeout:
+        raise RetryableTranslationError(
+            "Premium translation service timed out. Retrying...",
+            error_code="DEEPL_TIMEOUT",
+        )
+    except requests.exceptions.ConnectionError:
+        raise RetryableTranslationError(
+            "Premium translation service is temporarily unreachable. Retrying...",
+            error_code="DEEPL_CONNECTION_ERROR",
+        )
+    except requests.exceptions.RequestException as error:
+        raise PdfAiError(
+            "Premium translation service is temporarily unavailable.",
+            error_code="DEEPL_REQUEST_ERROR",
+            detail=str(error),
+        )
+
+    if response.status_code == 429:
+        raise RetryableTranslationError(
+            "Premium translation service is busy. Retrying...",
+            error_code="DEEPL_RATE_LIMIT",
+        )
+
+    if response.status_code >= 500:
+        raise RetryableTranslationError(
+            "Premium translation service is experiencing issues. Retrying...",
+            error_code="DEEPL_SERVER_ERROR",
+        )
+
+    if response.status_code in {403, 456}:
+        raise PdfAiError(
+            "Premium translation provider credits or permissions need attention.",
+            error_code="DEEPL_CREDITS_OR_PERMISSIONS",
+        )
+
+    response.raise_for_status()
+    data = response.json()
+    translations = data.get("translations") or []
+    if not translations:
+        raise PdfAiError(
+            "Premium translation provider returned an empty response.",
+            error_code="DEEPL_EMPTY_RESPONSE",
+        )
+
+    first = translations[0]
+    translated_text = str(first.get("text", "")).strip()
+    if not translated_text:
+        raise PdfAiError(
+            "Premium translation provider returned an empty response.",
+            error_code="DEEPL_EMPTY_TEXT",
+        )
+
+    return {
+        "translation": translated_text,
+        "provider": "deepl",
+        "detected_source_language": str(first.get("detected_source_language", ""))
+        .strip()
+        .lower(),
+    }
+
+
+def _call_openrouter_translate(
+    chunk: str, target_language: str, source_language: str | None = None
+) -> dict:
+    source_hint = "auto-detect the source language"
+    if source_language and _normalize_language_code(source_language) != "auto":
+        source_hint = f"treat {_language_label(source_language)} as the source language"
+
+    system_prompt = (
+        "You are a professional document translator. "
+        f"Translate the provided PDF content into {_language_label(target_language)}. "
+        f"Please {source_hint}. Preserve headings, lists, tables, and page markers. "
+        "Return only the translated text."
+    )
+    translation = _call_openrouter(
+        system_prompt,
+        chunk,
+        max_tokens=2200,
+        tool_name="pdf_translate_fallback",
+    )
+    return {
+        "translation": translation,
+        "provider": "openrouter",
+        "detected_source_language": _normalize_language_code(
+            source_language, default=""
+        ),
+    }
+
+
+def _translate_document_text(
+    text: str, target_language: str, source_language: str | None = None
+) -> dict:
+    chunks = _split_translation_chunks(text)
+    translations: list[str] = []
+    detected_source_language = _normalize_language_code(source_language)
+    if detected_source_language == "auto":
+        detected_source_language = ""
+    providers_used: list[str] = []
+
+    for chunk in chunks:
+        chunk_result: dict | None = None
+
+        deepl_settings = _get_deepl_settings()
+        if deepl_settings.api_key:
+            try:
+                chunk_result = _translate_with_retry(
+                    lambda: _call_deepl_translate(
+                        chunk, target_language, source_language
+                    ),
+                    provider_name="DeepL",
+                )
+            except PdfAiError as deepl_error:
+                logger.warning(
+                    "DeepL translation failed for chunk; falling back to OpenRouter. code=%s detail=%s",
+                    deepl_error.error_code,
+                    deepl_error.detail,
+                )
+
+        if chunk_result is None:
+            chunk_result = _translate_with_retry(
+                lambda: _call_openrouter_translate(
+                    chunk, target_language, source_language
+                ),
+                provider_name="OpenRouter",
+            )
+
+        translations.append(str(chunk_result["translation"]).strip())
+        providers_used.append(str(chunk_result["provider"]))
+        if not detected_source_language and chunk_result.get(
+            "detected_source_language"
+        ):
+            detected_source_language = _normalize_language_code(
+                chunk_result["detected_source_language"]
+            )
+
+    return {
+        "translation": "\n\n".join(part for part in translations if part),
+        "provider": ", ".join(sorted(set(providers_used))),
+        "detected_source_language": detected_source_language,
+        "chunks_translated": len(translations),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -212,11 +571,15 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
         {"reply": "...", "pages_analyzed": int}
     """
     if not question or not question.strip():
-        raise PdfAiError("Please provide a question.", error_code="PDF_AI_INVALID_INPUT")
+        raise PdfAiError(
+            "Please provide a question.", error_code="PDF_AI_INVALID_INPUT"
+        )
 
     text = _extract_text_from_pdf(input_path)
     if not text.strip():
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
+        raise PdfAiError(
+            "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
+        )
 
     # Truncate to fit context window
     max_chars = 12000
@@ -230,7 +593,9 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
     )
 
     user_msg = f"Document content:\n{truncated}\n\nQuestion: {question}"
-    reply = _call_openrouter(system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat")
+    reply = _call_openrouter(
+        system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
+    )
 
     page_count = text.count("[Page ")
     return {"reply": reply, "pages_analyzed": page_count}
@@ -252,7 +617,9 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     """
     text = _extract_text_from_pdf(input_path)
     if not text.strip():
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
+        raise PdfAiError(
+            "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
+        )
 
     length_instruction = {
         "short": "Provide a brief summary in 2-3 sentences.",
@@ -270,7 +637,9 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     )
 
     user_msg = f"{length_instruction}\n\nDocument content:\n{truncated}"
-    summary = _call_openrouter(system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize")
+    summary = _call_openrouter(
+        system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
+    )
 
     page_count = text.count("[Page ")
     return {"summary": summary, "pages_analyzed": page_count}
@@ -279,7 +648,9 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
 # ---------------------------------------------------------------------------
 # 3. Translate PDF
 # ---------------------------------------------------------------------------
-def translate_pdf(input_path: str, target_language: str) -> dict:
+def translate_pdf(
+    input_path: str, target_language: str, source_language: str | None = None
+) -> dict:
     """
     Translate the text content of a PDF to another language.
 
@@ -290,29 +661,46 @@ def translate_pdf(input_path: str, target_language: str) -> dict:
     Returns:
         {"translation": "...", "pages_analyzed": int, "target_language": str}
     """
-    if not target_language or not target_language.strip():
-        raise PdfAiError("Please specify a target language.", error_code="PDF_AI_INVALID_INPUT")
+    normalized_target_language = _normalize_language_code(target_language)
+    normalized_source_language = _normalize_language_code(
+        source_language, default="auto"
+    )
+
+    if not normalized_target_language:
+        raise PdfAiError(
+            "Please specify a target language.", error_code="PDF_AI_INVALID_INPUT"
+        )
+
+    if (
+        normalized_target_language == normalized_source_language
+        and normalized_source_language != "auto"
+    ):
+        raise PdfAiError(
+            "Please choose different source and target languages.",
+            error_code="PDF_AI_INVALID_INPUT",
+        )
 
     text = _extract_text_from_pdf(input_path)
     if not text.strip():
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
+        raise PdfAiError(
+            "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
+        )
 
-    max_chars = 10000
-    truncated = text[:max_chars]
-
-    system_prompt = (
-        f"You are a professional translator. Translate the following document "
-        f"content into {target_language}. Preserve the original formatting and "
-        f"structure as much as possible. Only output the translation, nothing else."
+    translated = _translate_document_text(
+        text,
+        target_language=normalized_target_language,
+        source_language=normalized_source_language,
     )
-
-    translation = _call_openrouter(system_prompt, truncated, max_tokens=2000, tool_name="pdf_translate")
 
     page_count = text.count("[Page ")
     return {
-        "translation": translation,
+        "translation": translated["translation"],
         "pages_analyzed": page_count,
-        "target_language": target_language,
+        "target_language": normalized_target_language,
+        "source_language": normalized_source_language,
+        "detected_source_language": translated["detected_source_language"],
+        "provider": translated["provider"],
+        "chunks_translated": translated["chunks_translated"],
     }
 
 
@@ -361,12 +749,14 @@ def extract_tables(input_path: str) -> dict:
                             cells.append(str(val))
                     rows.append(cells)
 
-                result_tables.append({
-                    "page": page_num,
-                    "table_index": table_index,
-                    "headers": headers,
-                    "rows": rows,
-                })
+                result_tables.append(
+                    {
+                        "page": page_num,
+                        "table_index": table_index,
+                        "headers": headers,
+                        "rows": rows,
+                    }
+                )
                 table_index += 1
 
         if not result_tables:
@@ -385,7 +775,9 @@ def extract_tables(input_path: str) -> dict:
     except PdfAiError:
         raise
     except ImportError:
-        raise PdfAiError("tabula-py library is not installed.", error_code="TABULA_NOT_INSTALLED")
+        raise PdfAiError(
+            "tabula-py library is not installed.", error_code="TABULA_NOT_INSTALLED"
+        )
     except Exception as e:
         raise PdfAiError(
             "Failed to extract tables.",
