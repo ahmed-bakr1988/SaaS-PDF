@@ -256,6 +256,19 @@
       "contactTitle": "8. Contact",
       "contactText": "Questions about these terms? Contact us at"
     },
+    "toolsHub": {
+      "metaTitle": "All Tools",
+      "metaDescription": "Browse every Dociva tool in one place. Explore PDF, image, AI, conversion, and utility workflows from a single search-friendly directory.",
+      "title": "All Dociva Tools",
+      "description": "Use this directory to explore every Dociva workflow by category and jump directly to the tool you need.",
+      "categories": {
+        "PDF": "PDF Tools",
+        "Convert": "Convert Tools",
+        "Image": "Image Tools",
+        "AI": "AI Tools",
+        "Utility": "Utility Tools"
+      }
+    },
     "cookie": {
       "title": "Cookie Settings",
       "message": "We use cookies to improve your experience and analyze site traffic. By accepting, you consent to analytics cookies.",

@@ -2,7 +2,7 @@ import { useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { generateOrganization, getSiteOrigin } from '@/utils/seo';
+import { generateOrganization, generateWebSite, getSiteOrigin } from '@/utils/seo';
 import {
   FileText,
   FileOutput,
@@ -121,18 +121,10 @@ export default function HomePage() {
         description={t('home.heroSub')}
         path="/"
         jsonLd={[
-          {
-            '@context': 'https://schema.org',
-            '@type': 'WebSite',
-            name: t('common.appName'),
-            url: siteOrigin,
+          generateWebSite({
+            origin: siteOrigin,
             description: t('home.heroSub'),
-            potentialAction: {
-              '@type': 'SearchAction',
-              target: `${siteOrigin}/?q={search_term_string}`,
-              'query-input': 'required name=search_term_string',
-            },
-          },
+          }),
           generateOrganization(siteOrigin),
         ]}
       />

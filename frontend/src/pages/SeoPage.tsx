@@ -8,7 +8,6 @@ import RelatedTools from '@/components/seo/RelatedTools';
 import SuggestedTools from '@/components/seo/SuggestedTools';
 import {
   getLocalizedText,
-  getLocalizedTextList,
   getProgrammaticToolPage,
   getSeoCollectionPage,
   interpolateTemplate,
@@ -19,6 +18,7 @@ import {
   generateBreadcrumbs,
   generateFAQ,
   generateHowTo,
+  generateItemList,
   generateToolSchema,
   generateWebPage,
   getSiteOrigin,
@@ -82,7 +82,6 @@ export default function SeoPage({ slug }: SeoPageProps) {
   const useCases = t(`seo.${tool.i18nKey}.useCases`, { returnObjects: true }) as string[];
 
   const focusKeyword = getLocalizedText(page.focusKeyword, locale);
-  const keywords = [focusKeyword, ...getLocalizedTextList(page.supportingKeywords, locale)].join(', ');
   const tokens = {
     brand: 'Dociva',
     focusKeyword,
@@ -139,11 +138,25 @@ export default function SeoPage({ slug }: SeoPageProps) {
       url,
     }),
     generateFAQ(faqItems),
+    generateItemList(page.relatedCollectionSlugs.map((collectionSlug) => {
+      const collection = getSeoCollectionPage(collectionSlug);
+      const collectionTitle = collection
+        ? interpolateTemplate(getLocalizedText(collection.titleTemplate, locale), {
+            brand: 'Dociva',
+            focusKeyword: getLocalizedText(collection.focusKeyword, locale),
+          })
+        : collectionSlug;
+
+      return {
+        name: collectionTitle,
+        url: `${siteOrigin}${localizedCollectionPath(collectionSlug)}`,
+      };
+    })),
   ];
 
   return (
     <>
-      <SEOHead title={title} description={description} path={path} keywords={keywords} jsonLd={jsonLd} alternates={alternates} />
+      <SEOHead title={title} description={description} path={path} jsonLd={jsonLd} alternates={alternates} />
 
       <div className="mx-auto max-w-6xl space-y-12">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 sm:p-10">

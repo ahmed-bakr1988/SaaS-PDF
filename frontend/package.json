@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/merge-keywords.mjs && node scripts/generate-seo-assets.mjs",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && vite build && node scripts/render-seo-shells.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "test": "vitest run",

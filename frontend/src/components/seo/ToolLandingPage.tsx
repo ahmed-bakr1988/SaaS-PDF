@@ -2,7 +2,7 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle } from 'lucide-react';
 import { getToolSEO } from '@/config/seoData';
-import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
+import { buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
 import BreadcrumbNav from './BreadcrumbNav';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
@@ -43,7 +43,6 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
   const path = `/tools/${slug}`;
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);
-  const languageAlternates = buildLanguageAlternates(origin, path);
   const currentOgLocale = getOgLocale(i18n.language);
 
   const toolSchema = generateToolSchema({
@@ -77,18 +76,8 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
       <Helmet>
         <title>{toolTitle} — {seo.titleSuffix} | {t('common.appName')}</title>
         <meta name="description" content={seo.metaDescription} />
-        <meta name="keywords" content={seo.keywords} />
         <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
         <link rel="canonical" href={canonicalUrl} />
-        {languageAlternates.map((alternate) => (
-          <link
-            key={alternate.hrefLang}
-            rel="alternate"
-            hrefLang={alternate.hrefLang}
-            href={alternate.href}
-          />
-        ))}
-        <link rel="alternate" hrefLang="x-default" href={canonicalUrl} />
 
         {/* Open Graph */}
         <meta property="og:title" content={`${toolTitle} — ${seo.titleSuffix}`} />
@@ -98,11 +87,6 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <meta property="og:image" content={socialImageUrl} />
         <meta property="og:image:alt" content={`${toolTitle} social preview`} />
         <meta property="og:locale" content={currentOgLocale} />
-        {languageAlternates
-          .filter((alternate) => alternate.ogLocale !== currentOgLocale)
-          .map((alternate) => (
-            <meta key={alternate.ogLocale} property="og:locale:alternate" content={alternate.ogLocale} />
-          ))}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
