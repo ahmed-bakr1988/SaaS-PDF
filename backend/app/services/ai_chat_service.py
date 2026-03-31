@@ -7,6 +7,7 @@ from app.services.openrouter_config_service import (
     extract_openrouter_text,
     get_openrouter_settings,
 )
+from app.services import google_ai_service
 
 logger = logging.getLogger(__name__)
 
@@ -33,11 +34,35 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
     """
     settings = get_openrouter_settings()
 
+    try:
+        g_settings = google_ai_service.get_google_settings()
+    except Exception:
+        g_settings = None
+
+    # If OpenRouter is not configured, try Google as a fallback.
     if not settings.api_key:
-        return {
-            "reply": _fallback_response(message, flow_data),
-            "updated_flow": None,
-        }
+        if g_settings and g_settings.api_key:
+            context = ""
+            if flow_data:
+                steps_summary = []
+                for s in flow_data.get("steps", []):
+                    steps_summary.append(
+                        f"- [{s.get('type', 'process')}] {s.get('title', '')}"
+                    )
+                context = (
+                    f"\nCurrent flowchart: {flow_data.get('title', 'Untitled')}\n"
+                    f"Steps:\n" + "\n".join(steps_summary)
+                )
+            try:
+                reply = google_ai_service.call_google_text(
+                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
+                )
+                return {"reply": reply, "updated_flow": None}
+            except Exception as e:
+                logger.exception("Google AI fallback failed: %s", e)
+                return {"reply": _fallback_response(message, flow_data), "updated_flow": None}
+
+        return {"reply": _fallback_response(message, flow_data), "updated_flow": None}
 
     # Build context
     context = ""
@@ -97,12 +122,30 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
 
     except requests.exceptions.Timeout:
         logger.warning("OpenRouter API timeout")
+        # Try Google fallback on timeout
+        if g_settings and g_settings.api_key:
+            try:
+                reply = google_ai_service.call_google_text(
+                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
+                )
+                return {"reply": reply, "updated_flow": None}
+            except Exception as e:
+                logger.exception("Google fallback failed after OpenRouter timeout: %s", e)
         return {
             "reply": "The AI service is taking too long. Please try again.",
             "updated_flow": None,
         }
     except Exception as e:
         logger.error(f"OpenRouter API error: {e}")
+        # Try Google as a fallback on generic errors
+        if g_settings and g_settings.api_key:
+            try:
+                reply = google_ai_service.call_google_text(
+                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
+                )
+                return {"reply": reply, "updated_flow": None}
+            except Exception as ge:
+                logger.exception("Google fallback failed: %s", ge)
         return {
             "reply": _fallback_response(message, flow_data),
             "updated_flow": None,

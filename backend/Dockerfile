@@ -51,3 +51,8 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
 
 # Run with Gunicorn (--preload ensures DB tables are created once before forking workers)
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "--preload", "wsgi:app"]
+
+# ... (الإعدادات السابقة)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+# ... (باقي الإعدادات)

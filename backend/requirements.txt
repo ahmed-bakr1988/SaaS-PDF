@@ -76,3 +76,7 @@ pytest-mock>=3.11.0
 requests-mock>=1.11.0
 fakeredis>=2.18.0
 httpx>=0.24.0
+
+# AI Integration google-generativeai>=0.1,<1.0
+google-generativeai>=0.1,<1.0
+

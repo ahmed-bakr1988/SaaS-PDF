@@ -13,6 +13,7 @@ from app.services.openrouter_config_service import (
     extract_openrouter_text,
     get_openrouter_settings,
 )
+from app.services import google_ai_service
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +374,58 @@ def _split_translation_chunks(
     return chunks or [text]
 
 
+def _call_openrouter_translate(
+    chunk: str, target_language: str, source_language: str | None = None
+) -> dict:
+    """Attempt translation via OpenRouter, fall back to Google Generative AI if configured."""
+    source_hint = "auto-detect the source language"
+    if source_language and _normalize_language_code(source_language) != "auto":
+        source_hint = f"treat {_language_label(source_language)} as the source language"
+
+    system_prompt = (
+        "You are a professional document translator. "
+        f"Translate the provided PDF content into {_language_label(target_language)}. "
+        f"Please {source_hint}. Preserve headings, lists, tables, and page markers. "
+        "Return only the translated text."
+    )
+
+    # Try OpenRouter first
+    try:
+        translation = _call_openrouter(
+            system_prompt,
+            chunk,
+            max_tokens=2200,
+            tool_name="pdf_translate_fallback",
+        )
+        provider = "openrouter"
+    except (RetryableTranslationError, PdfAiError) as open_err:
+        # If Google is configured, try as a fallback
+        try:
+            g_settings = google_ai_service.get_google_settings()
+        except Exception:
+            g_settings = None
+
+        if g_settings and g_settings.api_key:
+            try:
+                translation = google_ai_service.call_google_text(
+                    system_prompt, chunk, max_tokens=2200, tool_name="pdf_translate_fallback"
+                )
+                provider = "google"
+            except Exception as google_err:
+                logger.exception("Google fallback for translation failed: %s", google_err)
+                raise open_err
+        else:
+            raise open_err
+
+    return {
+        "translation": translation,
+        "provider": provider,
+        "detected_source_language": _normalize_language_code(
+            source_language, default=""
+        ),
+    }
+
+
 def _call_deepl_translate(
     chunk: str, target_language: str, source_language: str | None = None
 ) -> dict:
@@ -593,9 +646,26 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
     )
 
     user_msg = f"Document content:\n{truncated}\n\nQuestion: {question}"
-    reply = _call_openrouter(
-        system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
-    )
+    try:
+        reply = _call_openrouter(
+            system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
+        )
+    except (RetryableTranslationError, PdfAiError) as open_err:
+        try:
+            g_settings = google_ai_service.get_google_settings()
+        except Exception:
+            g_settings = None
+
+        if g_settings and g_settings.api_key:
+            try:
+                reply = google_ai_service.call_google_text(
+                    system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
+                )
+            except Exception as google_err:
+                logger.exception("Google fallback for pdf chat failed: %s", google_err)
+                raise open_err
+        else:
+            raise open_err
 
     page_count = text.count("[Page ")
     return {"reply": reply, "pages_analyzed": page_count}
@@ -637,9 +707,26 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     )
 
     user_msg = f"{length_instruction}\n\nDocument content:\n{truncated}"
-    summary = _call_openrouter(
-        system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
-    )
+    try:
+        summary = _call_openrouter(
+            system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
+        )
+    except (RetryableTranslationError, PdfAiError) as open_err:
+        try:
+            g_settings = google_ai_service.get_google_settings()
+        except Exception:
+            g_settings = None
+
+        if g_settings and g_settings.api_key:
+            try:
+                summary = google_ai_service.call_google_text(
+                    system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
+                )
+            except Exception as google_err:
+                logger.exception("Google fallback for pdf summarize failed: %s", google_err)
+                raise open_err
+        else:
+            raise open_err
 
     page_count = text.count("[Page ")
     return {"summary": summary, "pages_analyzed": page_count}
