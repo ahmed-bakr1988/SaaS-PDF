@@ -58,12 +58,12 @@ def _ensure_stripe_columns():
                 "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')"
             )
             row = cursor.fetchone()
-            if not row or not row[0]:
+            if not row or not row.get("exists"):
                 return
             cursor.execute(
                 "SELECT column_name FROM information_schema.columns WHERE table_name = 'users'"
             )
-            cols = [row[0] for row in cursor.fetchall()]
+            cols = [row["column_name"] for row in cursor.fetchall()]
         else:
             table_exists = conn.execute(
                 "SELECT name FROM sqlite_master WHERE type='table' AND name='users'"
