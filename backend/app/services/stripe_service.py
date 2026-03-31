@@ -57,7 +57,8 @@ def _ensure_stripe_columns():
             cursor.execute(
                 "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'users')"
             )
-            if not cursor.fetchone()[0]:
+            row = cursor.fetchone()
+            if not row or not row[0]:
                 return
             cursor.execute(
                 "SELECT column_name FROM information_schema.columns WHERE table_name = 'users'"
