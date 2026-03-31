@@ -44,10 +44,17 @@ import {
   type InternalAdminUser,
   getDatabaseStats,
   type DatabaseStats,
+  getProjectEvents,
+  type ProjectEvent,
+  type ProjectEventsResponse,
+  createAdminUser,
+  deleteAdminUser,
+  updateAdminUserPlan,
+  updateAdminUserRole,
 } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
 
-type AdminTab = 'overview' | 'users' | 'tools' | 'ratings' | 'contacts' | 'system' | 'database';
+type AdminTab = 'overview' | 'users' | 'tools' | 'ratings' | 'contacts' | 'system' | 'database' | 'events';
 type Lang = 'ar' | 'en';
 
 const TRANSLATIONS: Record<Lang, Record<string, string>> = {
@@ -78,6 +85,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     tabContacts: 'Inbox',
     tabSystem: 'System Health',
     tabDatabase: 'Database',
+    tabEvents: 'Events Timeline',
     // Overview cards
     totalUsers: 'Total users',
     filesProcessed: 'Files processed',
@@ -192,6 +200,32 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     updatePlanError: 'Unable to update plan.',
     updateRoleError: 'Unable to update role.',
     updateContactError: 'Unable to update contact message.',
+    // Events tab
+    eventsTimeline: 'Events Timeline',
+    eventsDesc: 'Chronological view of all important project activities.',
+    eventUserRegistered: 'User registered',
+    eventFileProcessed: 'File processed',
+    eventFileFailed: 'File failed',
+    eventContactMessage: 'Contact message',
+    eventSummary: 'Event Summary',
+    totalEvents: 'Total events',
+    periodDays: 'Last {days} days',
+    // User management
+    createUser: 'Create User',
+    deleteUser: 'Delete',
+    deleteUserConfirm: 'Are you sure you want to delete this user? This cannot be undone.',
+    createUserTitle: 'Create New User',
+    createUserDesc: 'Add a new user to the system.',
+    emailLabel: 'Email',
+    passwordLabel: 'Password',
+    planLabel: 'Plan',
+    roleLabel: 'Role',
+    createBtn: 'Create',
+    cancelBtn: 'Cancel',
+    userCreated: 'User created successfully.',
+    userDeleted: 'User deleted successfully.',
+    planUpdated: 'Plan updated successfully.',
+    roleUpdated: 'Role updated successfully.',
   },
   ar: {
     // Page & header
@@ -220,6 +254,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     tabContacts: 'صندوق الوارد',
     tabSystem: 'صحة النظام',
     tabDatabase: 'قاعدة البيانات',
+    tabEvents: 'الجدول الزمني للأحداث',
     // Overview cards
     totalUsers: 'إجمالي المستخدمين',
     filesProcessed: 'الملفات المعالجة',
@@ -334,6 +369,32 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     updatePlanError: 'تعذّر تحديث الخطة.',
     updateRoleError: 'تعذّر تحديث الدور.',
     updateContactError: 'تعذّر تحديث رسالة التواصل.',
+    // Events tab
+    eventsTimeline: 'الجدول الزمني للأحداث',
+    eventsDesc: 'عرض زمني لجميع أنشطة المشروع المهمة.',
+    eventUserRegistered: 'تسجيل مستخدم',
+    eventFileProcessed: 'معالجة ملف',
+    eventFileFailed: 'فشل ملف',
+    eventContactMessage: 'رسالة تواصل',
+    eventSummary: 'ملخص الأحداث',
+    totalEvents: 'إجمالي الأحداث',
+    periodDays: 'آخر {days} يوم',
+    // User management
+    createUser: 'إنشاء مستخدم',
+    deleteUser: 'حذف',
+    deleteUserConfirm: 'هل أنت متأكد من حذف هذا المستخدم؟ لا يمكن التراجع عن هذا.',
+    createUserTitle: 'إنشاء مستخدم جديد',
+    createUserDesc: 'إضافة مستخدم جديد إلى النظام.',
+    emailLabel: 'البريد الإلكتروني',
+    passwordLabel: 'كلمة المرور',
+    planLabel: 'الخطة',
+    roleLabel: 'الدور',
+    createBtn: 'إنشاء',
+    cancelBtn: 'إلغاء',
+    userCreated: 'تم إنشاء المستخدم بنجاح.',
+    userDeleted: 'تم حذف المستخدم بنجاح.',
+    planUpdated: 'تم تحديث الخطة بنجاح.',
+    roleUpdated: 'تم تحديث الدور بنجاح.',
   },
 };
 
@@ -403,6 +464,17 @@ export default function InternalAdminPage() {
   // Database state
   const [databaseStats, setDatabaseStats] = useState<DatabaseStats | null>(null);
 
+  // Events state
+  const [projectEvents, setProjectEvents] = useState<ProjectEventsResponse | null>(null);
+  const [eventsDays, setEventsDays] = useState(30);
+
+  // User management state
+  const [showCreateUser, setShowCreateUser] = useState(false);
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPassword, setNewUserPassword] = useState('');
+  const [newUserPlan, setNewUserPlan] = useState('free');
+  const [newUserRole, setNewUserRole] = useState('user');
+
   // Language
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('admin-lang') as Lang) ?? 'en');
   const isRtl = lang === 'ar';
@@ -431,6 +503,7 @@ export default function InternalAdminPage() {
     { key: 'contacts', label: t('tabContacts'), icon: Inbox },
     { key: 'system', label: t('tabSystem'), icon: ShieldCheck },
     { key: 'database', label: t('tabDatabase'), icon: Database },
+    { key: 'events', label: t('tabEvents'), icon: Clock },
   ];
 
   useEffect(() => {
@@ -499,6 +572,11 @@ export default function InternalAdminPage() {
           setDatabaseStats(dbStats);
           break;
         }
+        case 'events': {
+          const events = await getProjectEvents(eventsDays);
+          setProjectEvents(events);
+          break;
+        }
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : t('loadError');
@@ -531,7 +609,7 @@ export default function InternalAdminPage() {
     setUpdatingUserId(userId);
     setError(null);
     try {
-      await updateInternalAdminUserPlan(userId, plan);
+      await updateAdminUserPlan(userId, plan);
       await loadTab('users');
     } catch (e) {
       const msg = e instanceof Error ? e.message : t('updatePlanError');
@@ -547,7 +625,7 @@ export default function InternalAdminPage() {
     setUpdatingRoleUserId(userId);
     setError(null);
     try {
-      await updateInternalAdminUserRole(userId, role);
+      await updateAdminUserRole(userId, role);
       await loadTab('users');
     } catch (e) {
       const msg = e instanceof Error ? e.message : t('updateRoleError');
@@ -819,30 +897,39 @@ export default function InternalAdminPage() {
         <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('userManagement')}</h2>
-            <form
-              onSubmit={(e: FormEvent<HTMLFormElement>) => {
-                e.preventDefault();
-                void loadTab('users');
-              }}
-              className="flex w-full max-w-md items-center gap-2"
-            >
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="search"
-                  value={userQuery}
-                  onChange={(e) => setUserQuery(e.target.value)}
-                  placeholder={t('searchEmailPlaceholder')}
-                  className="w-full rounded-2xl border border-slate-300 bg-white py-2.5 ps-10 pe-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-primary-500/30"
-                />
-              </div>
-              <button
-                type="submit"
-                className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500"
+            <div className="flex w-full max-w-md items-center gap-2">
+              <form
+                onSubmit={(e: FormEvent<HTMLFormElement>) => {
+                  e.preventDefault();
+                  void loadTab('users');
+                }}
+                className="flex flex-1 items-center gap-2"
               >
-                {t('searchBtn')}
+                <div className="relative flex-1">
+                  <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="search"
+                    value={userQuery}
+                    onChange={(e) => setUserQuery(e.target.value)}
+                    placeholder={t('searchEmailPlaceholder')}
+                    className="w-full rounded-2xl border border-slate-300 bg-white py-2.5 ps-10 pe-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-primary-500/30"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 hover:text-slate-900 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500"
+                >
+                  {t('searchBtn')}
+                </button>
+              </form>
+              <button
+                type="button"
+                onClick={() => setShowCreateUser(true)}
+                className="shrink-0 rounded-2xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+              >
+                {t('createUser')}
               </button>
-            </form>
+            </div>
           </div>
 
           <div className="mt-6 overflow-x-auto">
@@ -908,6 +995,13 @@ export default function InternalAdminPage() {
                           className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                         >
                           {t('btnAdmin')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleDeleteUser(u.id)}
+                          className="rounded-full border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 transition-colors hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-500/20"
+                        >
+                          {t('deleteUser')}
                         </button>
                       </div>
                     </td>
@@ -1481,6 +1575,160 @@ export default function InternalAdminPage() {
     );
   }
 
+  // ====================== EVENTS TAB ======================
+
+  function renderEventsTab() {
+    if (!projectEvents) return null;
+
+    const eventColors: Record<string, string> = {
+      user_registered: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300',
+      file_processed: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
+      file_failed: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300',
+      contact_message: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
+    };
+
+    const eventIcons: Record<string, typeof Activity> = {
+      user_registered: Users,
+      file_processed: Zap,
+      file_failed: AlertTriangle,
+      contact_message: MessageSquare,
+    };
+
+    return (
+      <>
+        {/* Summary cards */}
+        <section className="grid gap-4 md:grid-cols-4">
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('totalEvents')}</p>
+                <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{projectEvents.total_events.toLocaleString()}</p>
+              </div>
+              <BarChart3 className="h-5 w-5 text-slate-400" />
+            </div>
+          </article>
+          {Object.entries(projectEvents.summary).map(([type, count]) => {
+            const Icon = eventIcons[type] || Activity;
+            return (
+              <article key={type} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      {t(`event${type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`)}
+                    </p>
+                    <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{count.toLocaleString()}</p>
+                  </div>
+                  <Icon className="h-5 w-5 text-slate-400" />
+                </div>
+              </article>
+            );
+          })}
+        </section>
+
+        {/* Period selector */}
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-slate-500 dark:text-slate-400">{t('periodDays').replace('{days}', String(eventsDays))}</span>
+          {[7, 14, 30, 90].map(d => (
+            <button
+              key={d}
+              onClick={() => { setEventsDays(d); void loadTab('events'); }}
+              className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+                eventsDays === d
+                  ? 'bg-primary-600 text-white'
+                  : 'border border-slate-300 text-slate-600 hover:border-slate-400 dark:border-slate-600 dark:text-slate-300'
+              }`}
+            >
+              {d}d
+            </button>
+          ))}
+        </div>
+
+        {/* Events timeline */}
+        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('eventsTimeline')}</h2>
+          <div className="mt-4 space-y-3">
+            {projectEvents.events.length === 0 ? (
+              <p className="py-8 text-center text-slate-500 dark:text-slate-400">No events found.</p>
+            ) : (
+              projectEvents.events.map((event, i) => {
+                const Icon = eventIcons[event.type] || Activity;
+                const colorClass = eventColors[event.type] || 'bg-slate-100 text-slate-700 dark:bg-slate-500/20 dark:text-slate-300';
+                return (
+                  <div key={`${event.entity_id}-${i}`} className="flex items-start gap-4 rounded-2xl border border-slate-100 p-4 dark:border-slate-800">
+                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${colorClass}`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${colorClass}`}>
+                          {t(`event${event.type.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')}`)}
+                        </span>
+                      </div>
+                      <p className="mt-1 truncate text-sm text-slate-700 dark:text-slate-200">{event.detail}</p>
+                      <p className="mt-0.5 text-xs text-slate-400 dark:text-slate-500">{new Date(event.time).toLocaleString()}</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </article>
+      </>
+    );
+  }
+
+  // ====================== CREATE USER MODAL ======================
+
+  async function handleCreateUser(event: FormEvent) {
+    event.preventDefault();
+    if (!newUserEmail || !newUserPassword) return;
+    try {
+      await createAdminUser(newUserEmail, newUserPassword, newUserPlan, newUserRole);
+      toast.success(t('userCreated'));
+      setShowCreateUser(false);
+      setNewUserEmail('');
+      setNewUserPassword('');
+      setNewUserPlan('free');
+      setNewUserRole('user');
+      void loadTab('users');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : t('loadError');
+      toast.error(msg);
+    }
+  }
+
+  async function handleDeleteUser(userId: number) {
+    if (!confirm(t('deleteUserConfirm'))) return;
+    try {
+      await deleteAdminUser(userId);
+      toast.success(t('userDeleted'));
+      void loadTab('users');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : t('loadError');
+      toast.error(msg);
+    }
+  }
+
+  async function handleUpdateUserPlan(userId: number, plan: string) {
+    try {
+      await updateAdminUserPlan(userId, plan);
+      toast.success(t('planUpdated'));
+      void loadTab('users');
+    } catch (e) {
+      toast.error(t('updatePlanError'));
+    }
+  }
+
+  async function handleUpdateUserRole(userId: number, role: string) {
+    try {
+      await updateAdminUserRole(userId, role);
+      toast.success(t('roleUpdated'));
+      void loadTab('users');
+    } catch (e) {
+      toast.error(t('updateRoleError'));
+    }
+  }
+
   // ====================== MAIN RENDER ======================
 
   return (
@@ -1650,8 +1898,81 @@ export default function InternalAdminPage() {
             {activeTab === 'contacts' && renderContactsTab()}
             {activeTab === 'system' && renderSystemTab()}
             {activeTab === 'database' && renderDatabaseTab()}
+            {activeTab === 'events' && renderEventsTab()}
           </div>
         </>
+      )}
+
+      {/* Create User Modal */}
+      {showCreateUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCreateUser(false)}>
+          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('createUserTitle')}</h2>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('createUserDesc')}</p>
+            <form onSubmit={handleCreateUser} className="mt-5 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('emailLabel')}</label>
+                <input
+                  type="email"
+                  value={newUserEmail}
+                  onChange={(e) => setNewUserEmail(e.target.value)}
+                  required
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('passwordLabel')}</label>
+                <input
+                  type="password"
+                  value={newUserPassword}
+                  onChange={(e) => setNewUserPassword(e.target.value)}
+                  required
+                  minLength={8}
+                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('planLabel')}</label>
+                  <select
+                    value={newUserPlan}
+                    onChange={(e) => setNewUserPlan(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  >
+                    <option value="free">Free</option>
+                    <option value="pro">Pro</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('roleLabel')}</label>
+                  <select
+                    value={newUserRole}
+                    onChange={(e) => setNewUserRole(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+                >
+                  {t('createBtn')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowCreateUser(false)}
+                  className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-200"
+                >
+                  {t('cancelBtn')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );

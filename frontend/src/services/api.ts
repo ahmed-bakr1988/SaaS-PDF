@@ -922,6 +922,47 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
   return response.data;
 }
 
+export interface ProjectEvent {
+  time: string;
+  type: string;
+  detail: string;
+  entity_id: number;
+}
+
+export interface ProjectEventsResponse {
+  events: ProjectEvent[];
+  summary: Record<string, number>;
+  total_events: number;
+  period_days: number;
+}
+
+export async function getProjectEvents(days = 30): Promise<ProjectEventsResponse> {
+  const response = await api.get<ProjectEventsResponse>('/internal/admin/project-events', {
+    params: { days },
+  });
+  return response.data;
+}
+
+export async function createAdminUser(email: string, password: string, plan = 'free', role = 'user'): Promise<{ message: string; user: InternalAdminUser }> {
+  const response = await api.post('/internal/admin/users/create', { email, password, plan, role });
+  return response.data;
+}
+
+export async function deleteAdminUser(userId: number): Promise<{ message: string }> {
+  const response = await api.delete(`/internal/admin/users/${userId}`);
+  return response.data;
+}
+
+export async function updateAdminUserPlan(userId: number, plan: string): Promise<{ message: string; user: InternalAdminUser }> {
+  const response = await api.put(`/internal/admin/users/${userId}/plan`, { plan });
+  return response.data;
+}
+
+export async function updateAdminUserRole(userId: number, role: string): Promise<{ message: string; user: InternalAdminUser }> {
+  const response = await api.put(`/internal/admin/users/${userId}/role`, { role });
+  return response.data;
+}
+
 // --- Account / Usage / API Keys ---
 
 export interface UsageSummary {
