@@ -42,10 +42,12 @@ import {
   type InternalAdminContact,
   type InternalAdminOverview,
   type InternalAdminUser,
+  getDatabaseStats,
+  type DatabaseStats,
 } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
 
-type AdminTab = 'overview' | 'users' | 'tools' | 'ratings' | 'contacts' | 'system';
+type AdminTab = 'overview' | 'users' | 'tools' | 'ratings' | 'contacts' | 'system' | 'database';
 type Lang = 'ar' | 'en';
 
 const TRANSLATIONS: Record<Lang, Record<string, string>> = {
@@ -75,6 +77,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     tabRatings: 'Ratings & Reviews',
     tabContacts: 'Inbox',
     tabSystem: 'System Health',
+    tabDatabase: 'Database',
     // Overview cards
     totalUsers: 'Total users',
     filesProcessed: 'Files processed',
@@ -216,6 +219,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     tabRatings: 'التقييمات والمراجعات',
     tabContacts: 'صندوق الوارد',
     tabSystem: 'صحة النظام',
+    tabDatabase: 'قاعدة البيانات',
     // Overview cards
     totalUsers: 'إجمالي المستخدمين',
     filesProcessed: 'الملفات المعالجة',
@@ -396,6 +400,9 @@ export default function InternalAdminPage() {
   // Plan interest state
   const [planInterest, setPlanInterest] = useState<AdminPlanInterest | null>(null);
 
+  // Database state
+  const [databaseStats, setDatabaseStats] = useState<DatabaseStats | null>(null);
+
   // Language
   const [lang, setLang] = useState<Lang>(() => (localStorage.getItem('admin-lang') as Lang) ?? 'en');
   const isRtl = lang === 'ar';
@@ -423,6 +430,7 @@ export default function InternalAdminPage() {
     { key: 'ratings', label: t('tabRatings'), icon: Star },
     { key: 'contacts', label: t('tabContacts'), icon: Inbox },
     { key: 'system', label: t('tabSystem'), icon: ShieldCheck },
+    { key: 'database', label: t('tabDatabase'), icon: Database },
   ];
 
   useEffect(() => {
@@ -484,6 +492,11 @@ export default function InternalAdminPage() {
           ]);
           setSystemHealth(health);
           setPlanInterest(pi);
+          break;
+        }
+        case 'database': {
+          const dbStats = await getDatabaseStats();
+          setDatabaseStats(dbStats);
           break;
         }
       }
@@ -1398,6 +1411,76 @@ export default function InternalAdminPage() {
     );
   }
 
+  // ====================== DATABASE TAB ======================
+
+  function renderDatabaseTab() {
+    if (!databaseStats) return null;
+
+    return (
+      <>
+        <section className="grid gap-4 md:grid-cols-3">
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Database Type</p>
+                <p className="mt-3 text-2xl font-bold capitalize text-slate-900 dark:text-white">{databaseStats.database_type}</p>
+              </div>
+              <Database className="h-5 w-5 text-slate-400" />
+            </div>
+          </article>
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Tables</p>
+                <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{databaseStats.table_count}</p>
+              </div>
+              <Database className="h-5 w-5 text-slate-400" />
+            </div>
+          </article>
+          <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Rows</p>
+                <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
+                  {databaseStats.tables.reduce((sum, t) => sum + t.row_count, 0).toLocaleString()}
+                </p>
+              </div>
+              <Database className="h-5 w-5 text-slate-400" />
+            </div>
+          </article>
+        </section>
+
+        <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Tables</h2>
+          <div className="mt-4 overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
+              <thead>
+                <tr className="text-left text-slate-500 dark:text-slate-400">
+                  <th className="py-2 pe-3 font-medium">Table Name</th>
+                  <th className="py-2 pe-3 font-medium">Row Count</th>
+                  {databaseStats.tables[0]?.total_size_kb !== undefined && (
+                    <th className="py-2 pe-3 font-medium">Size (KB)</th>
+                  )}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {databaseStats.tables.map((table) => (
+                  <tr key={table.table_name} className="text-slate-700 dark:text-slate-200">
+                    <td className="py-2 pe-3 font-mono text-xs">{table.table_name}</td>
+                    <td className="py-2 pe-3">{table.row_count.toLocaleString()}</td>
+                    {table.total_size_kb !== undefined && (
+                      <td className="py-2 pe-3">{table.total_size_kb.toLocaleString()} KB</td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </>
+    );
+  }
+
   // ====================== MAIN RENDER ======================
 
   return (
@@ -1566,6 +1649,7 @@ export default function InternalAdminPage() {
             {activeTab === 'ratings' && renderRatingsTab()}
             {activeTab === 'contacts' && renderContactsTab()}
             {activeTab === 'system' && renderSystemTab()}
+            {activeTab === 'database' && renderDatabaseTab()}
           </div>
         </>
       )}

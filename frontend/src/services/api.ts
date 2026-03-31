@@ -876,6 +876,18 @@ export interface AdminSystemHealth {
   tasks_last_1h: number;
   failures_last_1h: number;
   database_size_mb: number;
+  database_type: string;
+}
+
+export interface DatabaseStats {
+  database_type: string;
+  tables: Array<{
+    table_name: string;
+    row_count: number;
+    total_size_kb?: number;
+    data_size_kb?: number;
+  }>;
+  table_count: number;
 }
 
 export async function getAdminRatingsDetail(page = 1, perPage = 20, tool = ''): Promise<AdminRatingsDetail> {
@@ -902,6 +914,11 @@ export async function getAdminPlanInterest(): Promise<AdminPlanInterest> {
 
 export async function getAdminSystemHealth(): Promise<AdminSystemHealth> {
   const response = await api.get<AdminSystemHealth>('/internal/admin/system-health');
+  return response.data;
+}
+
+export async function getDatabaseStats(): Promise<DatabaseStats> {
+  const response = await api.get<DatabaseStats>('/internal/admin/database-stats');
   return response.data;
 }
 
