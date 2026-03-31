@@ -1,8 +1,14 @@
 """Internal admin endpoints secured by authenticated admin sessions."""
+
 from flask import Blueprint, jsonify, request
 
 from app.extensions import limiter
-from app.services.account_service import get_user_by_id, is_user_admin, set_user_role, update_user_plan
+from app.services.account_service import (
+    get_user_by_id,
+    is_user_admin,
+    set_user_role,
+    update_user_plan,
+)
 from app.services.admin_service import (
     get_admin_overview,
     get_admin_ratings_detail,
@@ -138,7 +144,9 @@ def update_role_route(user_id: int):
         return jsonify({"error": "User not found."}), 404
 
     if bool(user.get("is_allowlisted_admin")):
-        return jsonify({"error": "Allowlisted admin access is managed by INTERNAL_ADMIN_EMAILS."}), 400
+        return jsonify(
+            {"error": "Allowlisted admin access is managed by INTERNAL_ADMIN_EMAILS."}
+        ), 400
 
     if actor_user_id == user_id and role != "admin":
         return jsonify({"error": "You cannot remove your own admin role."}), 400
@@ -183,7 +191,9 @@ def admin_ratings_route():
 
     tool_filter = request.args.get("tool", "").strip()
 
-    return jsonify(get_admin_ratings_detail(page=page, per_page=per_page, tool_filter=tool_filter)), 200
+    return jsonify(
+        get_admin_ratings_detail(page=page, per_page=per_page, tool_filter=tool_filter)
+    ), 200
 
 
 @admin_bp.route("/tool-analytics", methods=["GET"])
@@ -247,3 +257,69 @@ def record_plan_interest_route():
     record_plan_interest_click(user_id=user_id, plan=plan, billing=billing)
 
     return jsonify({"message": "Interest recorded."}), 200
+
+
+@admin_bp.route("/database-stats", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_database_stats_route():
+    """Return database statistics (table sizes, row counts)."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    from app.utils.database import (
+        db_connection,
+        execute_query,
+        is_postgres,
+        row_to_dict,
+    )
+
+    with db_connection() as conn:
+        if is_postgres():
+            tables_sql = """
+                SELECT
+                    schemaname,
+                    relname AS table_name,
+                    n_live_tup AS row_count,
+                    pg_total_relation_size(relid) AS total_size,
+                    pg_relation_size(relid) AS data_size
+                FROM pg_stat_user_tables
+                ORDER BY n_live_tup DESC
+            """
+        else:
+            tables_sql = """
+                SELECT name AS table_name FROM sqlite_master
+                WHERE type='table' ORDER BY name
+            """
+        cursor = execute_query(conn, tables_sql)
+        tables = []
+        for row in cursor.fetchall():
+            row = row_to_dict(row)
+            if is_postgres():
+                tables.append(
+                    {
+                        "table_name": row["table_name"],
+                        "row_count": int(row["row_count"]),
+                        "total_size_kb": round(int(row["total_size"]) / 1024, 1),
+                        "data_size_kb": round(int(row["data_size"]) / 1024, 1),
+                    }
+                )
+            else:
+                count_cursor = execute_query(
+                    conn, f"SELECT COUNT(*) AS cnt FROM {row['table_name']}"
+                )
+                count_row = row_to_dict(count_cursor.fetchone())
+                tables.append(
+                    {
+                        "table_name": row["table_name"],
+                        "row_count": int(count_row["cnt"]),
+                    }
+                )
+
+    return jsonify(
+        {
+            "database_type": "postgresql" if is_postgres() else "sqlite",
+            "tables": tables,
+            "table_count": len(tables),
+        }
+    ), 200

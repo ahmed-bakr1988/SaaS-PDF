@@ -1,19 +1,25 @@
-"""Site assistant service — page-aware AI help plus persistent conversation logging."""
+"""Site assistant service — page-aware AI help plus persistent conversation logging.
+
+Supports both SQLite (development) and PostgreSQL (production).
+"""
+
 import json
 import logging
-import os
-import sqlite3
 import uuid
 from datetime import datetime, timezone
 
 import requests
-from flask import current_app
 
 from app.services.openrouter_config_service import (
     extract_openrouter_text,
     get_openrouter_settings,
 )
-from app.services.ai_cost_service import AiBudgetExceededError, check_ai_budget, log_ai_usage
+from app.services.ai_cost_service import (
+    AiBudgetExceededError,
+    check_ai_budget,
+    log_ai_usage,
+)
+from app.utils.database import db_connection, execute_query, is_postgres, row_to_dict
 
 logger = logging.getLogger(__name__)
 
@@ -21,38 +27,166 @@ MAX_HISTORY_MESSAGES = 8
 MAX_MESSAGE_LENGTH = 4000
 
 TOOL_CATALOG = [
-    {"slug": "pdf-to-word", "label": "PDF to Word", "summary": "convert PDF files into editable Word documents"},
-    {"slug": "word-to-pdf", "label": "Word to PDF", "summary": "turn DOC or DOCX files into PDF documents"},
-    {"slug": "compress-pdf", "label": "Compress PDF", "summary": "reduce PDF file size while preserving readability"},
-    {"slug": "merge-pdf", "label": "Merge PDF", "summary": "combine multiple PDF files into one document"},
-    {"slug": "split-pdf", "label": "Split PDF", "summary": "extract ranges or split one PDF into separate pages"},
-    {"slug": "rotate-pdf", "label": "Rotate PDF", "summary": "rotate PDF pages to the correct orientation"},
-    {"slug": "pdf-to-images", "label": "PDF to Images", "summary": "convert each PDF page into PNG or JPG images"},
-    {"slug": "images-to-pdf", "label": "Images to PDF", "summary": "combine multiple images into one PDF"},
-    {"slug": "watermark-pdf", "label": "Watermark PDF", "summary": "add text watermarks to PDF pages"},
-    {"slug": "remove-watermark-pdf", "label": "Remove Watermark", "summary": "remove supported text and image-overlay watermarks from PDFs"},
-    {"slug": "protect-pdf", "label": "Protect PDF", "summary": "add password protection to PDF files"},
-    {"slug": "unlock-pdf", "label": "Unlock PDF", "summary": "remove PDF password protection when the password is known"},
-    {"slug": "page-numbers", "label": "Page Numbers", "summary": "add page numbers in different positions"},
-    {"slug": "pdf-editor", "label": "PDF Editor", "summary": "optimize and clean PDF copies"},
-    {"slug": "pdf-flowchart", "label": "PDF Flowchart", "summary": "analyze PDF procedures and turn them into flowcharts"},
-    {"slug": "pdf-to-excel", "label": "PDF to Excel", "summary": "extract structured table data into spreadsheet files"},
-    {"slug": "html-to-pdf", "label": "HTML to PDF", "summary": "convert HTML documents into PDF"},
-    {"slug": "reorder-pdf", "label": "Reorder PDF", "summary": "rearrange PDF pages using a full page order"},
-    {"slug": "extract-pages", "label": "Extract Pages", "summary": "create a PDF from selected pages"},
-    {"slug": "chat-pdf", "label": "Chat with PDF", "summary": "ask questions about one uploaded PDF"},
-    {"slug": "summarize-pdf", "label": "Summarize PDF", "summary": "generate a concise summary of one PDF"},
-    {"slug": "translate-pdf", "label": "Translate PDF", "summary": "translate PDF content into another language"},
-    {"slug": "extract-tables", "label": "Extract Tables", "summary": "find tables in a PDF and export them"},
-    {"slug": "image-converter", "label": "Image Converter", "summary": "convert images between common formats"},
-    {"slug": "image-resize", "label": "Image Resize", "summary": "resize images to exact dimensions"},
-    {"slug": "compress-image", "label": "Compress Image", "summary": "reduce image file size"},
-    {"slug": "ocr", "label": "OCR", "summary": "extract text from image or scanned PDF content"},
-    {"slug": "remove-background", "label": "Remove Background", "summary": "remove image backgrounds automatically"},
-    {"slug": "qr-code", "label": "QR Code", "summary": "generate QR codes from text or URLs"},
-    {"slug": "video-to-gif", "label": "Video to GIF", "summary": "convert short videos into GIF animations"},
-    {"slug": "word-counter", "label": "Word Counter", "summary": "count words, characters, and reading metrics"},
-    {"slug": "text-cleaner", "label": "Text Cleaner", "summary": "clean up text spacing and formatting"},
+    {
+        "slug": "pdf-to-word",
+        "label": "PDF to Word",
+        "summary": "convert PDF files into editable Word documents",
+    },
+    {
+        "slug": "word-to-pdf",
+        "label": "Word to PDF",
+        "summary": "turn DOC or DOCX files into PDF documents",
+    },
+    {
+        "slug": "compress-pdf",
+        "label": "Compress PDF",
+        "summary": "reduce PDF file size while preserving readability",
+    },
+    {
+        "slug": "merge-pdf",
+        "label": "Merge PDF",
+        "summary": "combine multiple PDF files into one document",
+    },
+    {
+        "slug": "split-pdf",
+        "label": "Split PDF",
+        "summary": "extract ranges or split one PDF into separate pages",
+    },
+    {
+        "slug": "rotate-pdf",
+        "label": "Rotate PDF",
+        "summary": "rotate PDF pages to the correct orientation",
+    },
+    {
+        "slug": "pdf-to-images",
+        "label": "PDF to Images",
+        "summary": "convert each PDF page into PNG or JPG images",
+    },
+    {
+        "slug": "images-to-pdf",
+        "label": "Images to PDF",
+        "summary": "combine multiple images into one PDF",
+    },
+    {
+        "slug": "watermark-pdf",
+        "label": "Watermark PDF",
+        "summary": "add text watermarks to PDF pages",
+    },
+    {
+        "slug": "remove-watermark-pdf",
+        "label": "Remove Watermark",
+        "summary": "remove supported text and image-overlay watermarks from PDFs",
+    },
+    {
+        "slug": "protect-pdf",
+        "label": "Protect PDF",
+        "summary": "add password protection to PDF files",
+    },
+    {
+        "slug": "unlock-pdf",
+        "label": "Unlock PDF",
+        "summary": "remove PDF password protection when the password is known",
+    },
+    {
+        "slug": "page-numbers",
+        "label": "Page Numbers",
+        "summary": "add page numbers in different positions",
+    },
+    {
+        "slug": "pdf-editor",
+        "label": "PDF Editor",
+        "summary": "optimize and clean PDF copies",
+    },
+    {
+        "slug": "pdf-flowchart",
+        "label": "PDF Flowchart",
+        "summary": "analyze PDF procedures and turn them into flowcharts",
+    },
+    {
+        "slug": "pdf-to-excel",
+        "label": "PDF to Excel",
+        "summary": "extract structured table data into spreadsheet files",
+    },
+    {
+        "slug": "html-to-pdf",
+        "label": "HTML to PDF",
+        "summary": "convert HTML documents into PDF",
+    },
+    {
+        "slug": "reorder-pdf",
+        "label": "Reorder PDF",
+        "summary": "rearrange PDF pages using a full page order",
+    },
+    {
+        "slug": "extract-pages",
+        "label": "Extract Pages",
+        "summary": "create a PDF from selected pages",
+    },
+    {
+        "slug": "chat-pdf",
+        "label": "Chat with PDF",
+        "summary": "ask questions about one uploaded PDF",
+    },
+    {
+        "slug": "summarize-pdf",
+        "label": "Summarize PDF",
+        "summary": "generate a concise summary of one PDF",
+    },
+    {
+        "slug": "translate-pdf",
+        "label": "Translate PDF",
+        "summary": "translate PDF content into another language",
+    },
+    {
+        "slug": "extract-tables",
+        "label": "Extract Tables",
+        "summary": "find tables in a PDF and export them",
+    },
+    {
+        "slug": "image-converter",
+        "label": "Image Converter",
+        "summary": "convert images between common formats",
+    },
+    {
+        "slug": "image-resize",
+        "label": "Image Resize",
+        "summary": "resize images to exact dimensions",
+    },
+    {
+        "slug": "compress-image",
+        "label": "Compress Image",
+        "summary": "reduce image file size",
+    },
+    {
+        "slug": "ocr",
+        "label": "OCR",
+        "summary": "extract text from image or scanned PDF content",
+    },
+    {
+        "slug": "remove-background",
+        "label": "Remove Background",
+        "summary": "remove image backgrounds automatically",
+    },
+    {
+        "slug": "qr-code",
+        "label": "QR Code",
+        "summary": "generate QR codes from text or URLs",
+    },
+    {
+        "slug": "video-to-gif",
+        "label": "Video to GIF",
+        "summary": "convert short videos into GIF animations",
+    },
+    {
+        "slug": "word-counter",
+        "label": "Word Counter",
+        "summary": "count words, characters, and reading metrics",
+    },
+    {
+        "slug": "text-cleaner",
+        "label": "Text Cleaner",
+        "summary": "clean up text spacing and formatting",
+    },
 ]
 
 SYSTEM_PROMPT = """You are the Dociva site assistant.
@@ -68,62 +202,92 @@ Rules:
 """
 
 
-def _connect() -> sqlite3.Connection:
-    db_path = current_app.config["DATABASE_PATH"]
-    db_dir = os.path.dirname(db_path)
-    if db_dir:
-        os.makedirs(db_dir, exist_ok=True)
-
-    connection = sqlite3.connect(db_path)
-    connection.row_factory = sqlite3.Row
-    connection.execute("PRAGMA foreign_keys = ON")
-    return connection
-
-
 def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
 def init_site_assistant_db() -> None:
     """Create assistant conversation tables if they do not exist."""
-    with _connect() as conn:
-        conn.executescript(
-            """
-            CREATE TABLE IF NOT EXISTS assistant_conversations (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                session_id TEXT NOT NULL UNIQUE,
-                user_id INTEGER,
-                fingerprint TEXT NOT NULL,
-                tool_slug TEXT DEFAULT '',
-                page_url TEXT DEFAULT '',
-                locale TEXT DEFAULT 'en',
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL
-            );
+    with db_connection() as conn:
+        if is_postgres():
+            cursor = conn.cursor()
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS assistant_conversations (
+                    id SERIAL PRIMARY KEY,
+                    session_id TEXT NOT NULL UNIQUE,
+                    user_id INTEGER,
+                    fingerprint TEXT NOT NULL,
+                    tool_slug TEXT DEFAULT '',
+                    page_url TEXT DEFAULT '',
+                    locale TEXT DEFAULT 'en',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS assistant_messages (
+                    id SERIAL PRIMARY KEY,
+                    conversation_id INTEGER NOT NULL,
+                    role TEXT NOT NULL CHECK(role IN ('user', 'assistant', 'system')),
+                    content TEXT NOT NULL,
+                    tool_slug TEXT DEFAULT '',
+                    page_url TEXT DEFAULT '',
+                    locale TEXT DEFAULT 'en',
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+                )
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_assistant_conversations_user_id
+                ON assistant_conversations(user_id)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_assistant_messages_conversation_id
+                ON assistant_messages(conversation_id)
+            """)
+            cursor.execute("""
+                CREATE INDEX IF NOT EXISTS idx_assistant_messages_created_at
+                ON assistant_messages(created_at)
+            """)
+        else:
+            conn.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS assistant_conversations (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    session_id TEXT NOT NULL UNIQUE,
+                    user_id INTEGER,
+                    fingerprint TEXT NOT NULL,
+                    tool_slug TEXT DEFAULT '',
+                    page_url TEXT DEFAULT '',
+                    locale TEXT DEFAULT 'en',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
 
-            CREATE TABLE IF NOT EXISTS assistant_messages (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                conversation_id INTEGER NOT NULL,
-                role TEXT NOT NULL CHECK(role IN ('user', 'assistant', 'system')),
-                content TEXT NOT NULL,
-                tool_slug TEXT DEFAULT '',
-                page_url TEXT DEFAULT '',
-                locale TEXT DEFAULT 'en',
-                metadata_json TEXT NOT NULL DEFAULT '{}',
-                created_at TEXT NOT NULL,
-                FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
-            );
+                CREATE TABLE IF NOT EXISTS assistant_messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    conversation_id INTEGER NOT NULL,
+                    role TEXT NOT NULL CHECK(role IN ('user', 'assistant', 'system')),
+                    content TEXT NOT NULL,
+                    tool_slug TEXT DEFAULT '',
+                    page_url TEXT DEFAULT '',
+                    locale TEXT DEFAULT 'en',
+                    metadata_json TEXT NOT NULL DEFAULT '{}',
+                    created_at TEXT NOT NULL,
+                    FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+                );
 
-            CREATE INDEX IF NOT EXISTS idx_assistant_conversations_user_id
-            ON assistant_conversations(user_id);
+                CREATE INDEX IF NOT EXISTS idx_assistant_conversations_user_id
+                ON assistant_conversations(user_id);
 
-            CREATE INDEX IF NOT EXISTS idx_assistant_messages_conversation_id
-            ON assistant_messages(conversation_id);
+                CREATE INDEX IF NOT EXISTS idx_assistant_messages_conversation_id
+                ON assistant_messages(conversation_id);
 
-            CREATE INDEX IF NOT EXISTS idx_assistant_messages_created_at
-            ON assistant_messages(created_at);
-            """
-        )
+                CREATE INDEX IF NOT EXISTS idx_assistant_messages_created_at
+                ON assistant_messages(created_at);
+                """
+            )
 
 
 def chat_with_site_assistant(
@@ -249,8 +413,12 @@ def stream_site_assistant_chat(
             check_ai_budget()
             settings = get_openrouter_settings()
             if not settings.api_key:
-                logger.error("OPENROUTER_API_KEY is not set — assistant AI unavailable.")
-                raise RuntimeError("AI assistant is temporarily unavailable. Please try again later.")
+                logger.error(
+                    "OPENROUTER_API_KEY is not set — assistant AI unavailable."
+                )
+                raise RuntimeError(
+                    "AI assistant is temporarily unavailable. Please try again later."
+                )
 
             response_model = settings.model
             messages = _build_ai_messages(
@@ -317,32 +485,60 @@ def _ensure_conversation(
     locale: str,
 ) -> int:
     now = _utc_now()
-    with _connect() as conn:
-        row = conn.execute(
-            "SELECT id FROM assistant_conversations WHERE session_id = ?",
-            (session_id,),
-        ).fetchone()
+    with db_connection() as conn:
+        sql = (
+            "SELECT id FROM assistant_conversations WHERE session_id = %s"
+            if is_postgres()
+            else "SELECT id FROM assistant_conversations WHERE session_id = ?"
+        )
+        cursor = execute_query(conn, sql, (session_id,))
+        row = row_to_dict(cursor.fetchone())
 
         if row is not None:
-            conn.execute(
+            update_sql = (
                 """
+                UPDATE assistant_conversations
+                SET user_id = %s, fingerprint = %s, tool_slug = %s, page_url = %s, locale = %s, updated_at = %s
+                WHERE id = %s
+            """
+                if is_postgres()
+                else """
                 UPDATE assistant_conversations
                 SET user_id = ?, fingerprint = ?, tool_slug = ?, page_url = ?, locale = ?, updated_at = ?
                 WHERE id = ?
-                """,
+            """
+            )
+            execute_query(
+                conn,
+                update_sql,
                 (user_id, fingerprint, tool_slug, page_url, locale, now, row["id"]),
             )
             return int(row["id"])
 
-        cursor = conn.execute(
+        insert_sql = (
             """
             INSERT INTO assistant_conversations (
                 session_id, user_id, fingerprint, tool_slug, page_url, locale, created_at, updated_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            RETURNING id
+        """
+            if is_postgres()
+            else """
+            INSERT INTO assistant_conversations (
+                session_id, user_id, fingerprint, tool_slug, page_url, locale, created_at, updated_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
+        """
+        )
+        cursor2 = execute_query(
+            conn,
+            insert_sql,
             (session_id, user_id, fingerprint, tool_slug, page_url, locale, now, now),
         )
-        return int(cursor.lastrowid)
+
+        if is_postgres():
+            result = cursor2.fetchone()
+            return int(result["id"]) if result else 0
+        return int(cursor2.lastrowid)
 
 
 def _record_message(
@@ -354,13 +550,23 @@ def _record_message(
     locale: str,
     metadata: dict | None = None,
 ) -> None:
-    with _connect() as conn:
-        conn.execute(
+    with db_connection() as conn:
+        sql = (
             """
             INSERT INTO assistant_messages (
                 conversation_id, role, content, tool_slug, page_url, locale, metadata_json, created_at
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        """
+            if is_postgres()
+            else """
+            INSERT INTO assistant_messages (
+                conversation_id, role, content, tool_slug, page_url, locale, metadata_json, created_at
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            """,
+        """
+        )
+        execute_query(
+            conn,
+            sql,
             (
                 conversation_id,
                 role,
@@ -441,7 +647,9 @@ def _request_ai_reply(
 
     if not settings.api_key:
         logger.error("OPENROUTER_API_KEY is not set — assistant AI unavailable.")
-        raise RuntimeError("AI assistant is temporarily unavailable. Please try again later.")
+        raise RuntimeError(
+            "AI assistant is temporarily unavailable. Please try again later."
+        )
 
     messages = _build_ai_messages(
         message=message,

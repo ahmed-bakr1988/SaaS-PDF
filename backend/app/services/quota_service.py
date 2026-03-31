@@ -1,24 +1,14 @@
 """
 QuotaService
 Manages usage quotas and limits for Free, Pro, and Business tiers
-
-Quota Structure:
-- Free: 5 conversions/day, 10MB max file size, no batch processing
-- Pro: 100 conversions/day, 100MB max file size, batch processing (5 files)
-- Business: Unlimited conversions, 500MB max file size, batch processing (20 files)
-
-Tracks:
-- Daily usage (resets at UTC midnight)
-- Storage usage
-- API rate limits
-- Feature access (premium features)
 """
 
 import logging
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Tuple
 from flask import current_app
-from app.services.account_service import _connect, _utc_now
+from app.utils.database import db_connection, execute_query, is_postgres, row_to_dict
+from app.services.account_service import _utc_now
 
 logger = logging.getLogger(__name__)
 
@@ -26,49 +16,42 @@ logger = logging.getLogger(__name__)
 class QuotaLimits:
     """Define quota limits for each tier"""
 
-    # Conversions per day
     CONVERSIONS_PER_DAY = {
         "free": 5,
         "pro": 100,
         "business": float("inf"),
     }
 
-    # Maximum file size in MB
     MAX_FILE_SIZE_MB = {
         "free": 10,
         "pro": 100,
         "business": 500,
     }
 
-    # Storage limit in MB (monthly)
     STORAGE_LIMIT_MB = {
         "free": 500,
         "pro": 5000,
         "business": float("inf"),
     }
 
-    # API rate limit (requests per minute)
     API_RATE_LIMIT = {
         "free": 10,
         "pro": 60,
         "business": float("inf"),
     }
 
-    # Concurrent processing jobs
     CONCURRENT_JOBS = {
         "free": 1,
         "pro": 3,
         "business": 10,
     }
 
-    # Batch file limit
     BATCH_FILE_LIMIT = {
         "free": 1,
         "pro": 5,
         "business": 20,
     }
 
-    # Premium features (Pro/Business)
     PREMIUM_FEATURES = {
         "free": set(),
         "pro": {"batch_processing", "priority_queue", "email_delivery", "api_access"},
@@ -89,67 +72,100 @@ class QuotaService:
     @staticmethod
     def _ensure_quota_tables():
         """Create quota tracking tables if they don't exist"""
-        conn = _connect()
-        try:
-            # Daily usage tracking
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS daily_usage (
-                    id INTEGER PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    date TEXT NOT NULL,
-                    conversions INTEGER DEFAULT 0,
-                    files_processed INTEGER DEFAULT 0,
-                    total_size_mb REAL DEFAULT 0,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(user_id, date),
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            """)
+        with db_connection() as conn:
+            if is_postgres():
+                cursor = conn.cursor()
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS daily_usage (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        date TEXT NOT NULL,
+                        conversions INTEGER DEFAULT 0,
+                        files_processed INTEGER DEFAULT 0,
+                        total_size_mb REAL DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, date),
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS storage_usage (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        month TEXT NOT NULL,
+                        total_size_mb REAL DEFAULT 0,
+                        file_count INTEGER DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, month),
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS api_requests (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        endpoint TEXT NOT NULL,
+                        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS feature_access (
+                        id SERIAL PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        feature TEXT NOT NULL,
+                        accessed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        allowed BOOLEAN DEFAULT TRUE,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+            else:
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS daily_usage (
+                        id INTEGER PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        date TEXT NOT NULL,
+                        conversions INTEGER DEFAULT 0,
+                        files_processed INTEGER DEFAULT 0,
+                        total_size_mb REAL DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, date),
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS storage_usage (
+                        id INTEGER PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        month TEXT NOT NULL,
+                        total_size_mb REAL DEFAULT 0,
+                        file_count INTEGER DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        UNIQUE(user_id, month),
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS api_requests (
+                        id INTEGER PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        endpoint TEXT NOT NULL,
+                        timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS feature_access (
+                        id INTEGER PRIMARY KEY,
+                        user_id INTEGER NOT NULL,
+                        feature TEXT NOT NULL,
+                        accessed_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        allowed BOOLEAN DEFAULT 1,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
 
-            # Storage usage tracking
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS storage_usage (
-                    id INTEGER PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    month TEXT NOT NULL,
-                    total_size_mb REAL DEFAULT 0,
-                    file_count INTEGER DEFAULT 0,
-                    created_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    UNIQUE(user_id, month),
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            """)
-
-            # API rate limiting
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS api_requests (
-                    id INTEGER PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    endpoint TEXT NOT NULL,
-                    timestamp TEXT DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            """)
-
-            # Feature access log
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS feature_access (
-                    id INTEGER PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    feature TEXT NOT NULL,
-                    accessed_at TEXT DEFAULT CURRENT_TIMESTAMP,
-                    allowed BOOLEAN DEFAULT 1,
-                    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
-                )
-            """)
-
-            conn.commit()
             logger.info("Quota tables initialized")
-        except Exception as e:
-            logger.error(f"Failed to create quota tables: {e}")
-            raise
-        finally:
-            conn.close()
 
     @staticmethod
     def init_quota_db():
@@ -159,36 +175,29 @@ class QuotaService:
     @staticmethod
     def get_user_plan(user_id: int) -> str:
         """Get user's current plan"""
-        conn = _connect()
-        try:
-            row = conn.execute(
-                "SELECT plan FROM users WHERE id = ?", (user_id,)
-            ).fetchone()
+        with db_connection() as conn:
+            sql = (
+                "SELECT plan FROM users WHERE id = %s"
+                if is_postgres()
+                else "SELECT plan FROM users WHERE id = ?"
+            )
+            cursor = execute_query(conn, sql, (user_id,))
+            row = row_to_dict(cursor.fetchone())
             return row["plan"] if row else "free"
-        finally:
-            conn.close()
 
     @staticmethod
     def get_daily_usage(user_id: int, date: Optional[str] = None) -> Dict:
-        """
-        Get daily usage for a user
-
-        Args:
-            user_id: User ID
-            date: Date in YYYY-MM-DD format (defaults to today)
-
-        Returns:
-            Usage stats dict
-        """
         if not date:
             date = datetime.utcnow().strftime("%Y-%m-%d")
 
-        conn = _connect()
-        try:
-            row = conn.execute(
-                "SELECT * FROM daily_usage WHERE user_id = ? AND date = ?",
-                (user_id, date),
-            ).fetchone()
+        with db_connection() as conn:
+            sql = (
+                "SELECT * FROM daily_usage WHERE user_id = %s AND date = %s"
+                if is_postgres()
+                else "SELECT * FROM daily_usage WHERE user_id = ? AND date = ?"
+            )
+            cursor = execute_query(conn, sql, (user_id, date))
+            row = row_to_dict(cursor.fetchone())
 
             if not row:
                 return {
@@ -196,33 +205,21 @@ class QuotaService:
                     "files_processed": 0,
                     "total_size_mb": 0,
                 }
-
-            return dict(row)
-        finally:
-            conn.close()
+            return row
 
     @staticmethod
     def record_conversion(user_id: int, file_size_mb: float) -> bool:
-        """
-        Record a file conversion
-
-        Args:
-            user_id: User ID
-            file_size_mb: File size in MB
-
-        Returns:
-            True if allowed, False if quota exceeded
-        """
         plan = QuotaService.get_user_plan(user_id)
         today = datetime.utcnow().strftime("%Y-%m-%d")
 
-        conn = _connect()
-        try:
-            # Check daily conversion limit
-            usage = conn.execute(
-                "SELECT conversions FROM daily_usage WHERE user_id = ? AND date = ?",
-                (user_id, today),
-            ).fetchone()
+        with db_connection() as conn:
+            sql = (
+                "SELECT conversions FROM daily_usage WHERE user_id = %s AND date = %s"
+                if is_postgres()
+                else "SELECT conversions FROM daily_usage WHERE user_id = ? AND date = ?"
+            )
+            cursor = execute_query(conn, sql, (user_id, today))
+            usage = row_to_dict(cursor.fetchone())
 
             current_conversions = usage["conversions"] if usage else 0
             limit = QuotaLimits.CONVERSIONS_PER_DAY[plan]
@@ -231,7 +228,6 @@ class QuotaService:
                 logger.warning(f"User {user_id} exceeded daily conversion limit")
                 return False
 
-            # Check file size limit
             max_size = QuotaLimits.MAX_FILE_SIZE_MB[plan]
             if file_size_mb > max_size:
                 logger.warning(
@@ -239,120 +235,95 @@ class QuotaService:
                 )
                 return False
 
-            # Record the conversion
-            conn.execute(
+            upsert_sql = (
                 """
+                INSERT INTO daily_usage (user_id, date, conversions, files_processed, total_size_mb)
+                VALUES (%s, %s, 1, 1, %s)
+                ON CONFLICT(user_id, date) DO UPDATE SET
+                    conversions = conversions + 1,
+                    files_processed = files_processed + 1,
+                    total_size_mb = total_size_mb + %s
+            """
+                if is_postgres()
+                else """
                 INSERT INTO daily_usage (user_id, date, conversions, files_processed, total_size_mb)
                 VALUES (?, ?, 1, 1, ?)
                 ON CONFLICT(user_id, date) DO UPDATE SET
                     conversions = conversions + 1,
                     files_processed = files_processed + 1,
                     total_size_mb = total_size_mb + ?
-                """,
-                (user_id, today, file_size_mb, file_size_mb),
+            """
             )
-            conn.commit()
+            execute_query(
+                conn, upsert_sql, (user_id, today, file_size_mb, file_size_mb)
+            )
 
             logger.info(f"Recorded conversion for user {user_id}: {file_size_mb}MB")
             return True
-        except Exception as e:
-            logger.error(f"Failed to record conversion: {e}")
-            return False
-        finally:
-            conn.close()
 
     @staticmethod
     def check_rate_limit(user_id: int) -> Tuple[bool, int]:
-        """
-        Check if user has exceeded API rate limit
-
-        Args:
-            user_id: User ID
-
-        Returns:
-            (allowed, remaining_requests_in_window) tuple
-        """
         plan = QuotaService.get_user_plan(user_id)
         limit = QuotaLimits.API_RATE_LIMIT[plan]
 
         if limit == float("inf"):
-            return True, -1  # Unlimited
+            return True, -1
 
-        # Check requests in last minute
         one_minute_ago = (datetime.utcnow() - timedelta(minutes=1)).isoformat()
 
-        conn = _connect()
-        try:
-            count = conn.execute(
-                "SELECT COUNT(*) as count FROM api_requests WHERE user_id = ? AND timestamp > ?",
-                (user_id, one_minute_ago),
-            ).fetchone()["count"]
+        with db_connection() as conn:
+            sql = (
+                "SELECT COUNT(*) as count FROM api_requests WHERE user_id = %s AND timestamp > %s"
+                if is_postgres()
+                else "SELECT COUNT(*) as count FROM api_requests WHERE user_id = ? AND timestamp > ?"
+            )
+            cursor = execute_query(conn, sql, (user_id, one_minute_ago))
+            row = row_to_dict(cursor.fetchone())
+            count = row["count"] if row else 0
 
             if count >= limit:
                 return False, 0
 
-            # Record this request
-            conn.execute(
-                "INSERT INTO api_requests (user_id, endpoint) VALUES (?, ?)",
-                (user_id, "api"),
+            sql2 = (
+                "INSERT INTO api_requests (user_id, endpoint) VALUES (%s, %s)"
+                if is_postgres()
+                else "INSERT INTO api_requests (user_id, endpoint) VALUES (?, ?)"
             )
-            conn.commit()
+            execute_query(conn, sql2, (user_id, "api"))
 
             return True, limit - count - 1
-        finally:
-            conn.close()
 
     @staticmethod
     def has_feature(user_id: int, feature: str) -> bool:
-        """
-        Check if user has access to a premium feature
-
-        Args:
-            user_id: User ID
-            feature: Feature name (e.g., 'batch_processing')
-
-        Returns:
-            True if user can access feature
-        """
         plan = QuotaService.get_user_plan(user_id)
         allowed = feature in QuotaLimits.PREMIUM_FEATURES[plan]
 
-        # Log feature access attempt
-        conn = _connect()
         try:
-            conn.execute(
-                "INSERT INTO feature_access (user_id, feature, allowed) VALUES (?, ?, ?)",
-                (user_id, feature, allowed),
-            )
-            conn.commit()
+            with db_connection() as conn:
+                sql = (
+                    "INSERT INTO feature_access (user_id, feature, allowed) VALUES (%s, %s, %s)"
+                    if is_postgres()
+                    else "INSERT INTO feature_access (user_id, feature, allowed) VALUES (?, ?, ?)"
+                )
+                execute_query(conn, sql, (user_id, feature, allowed))
         except Exception as e:
             logger.error(f"Failed to log feature access: {e}")
-        finally:
-            conn.close()
 
         return allowed
 
     @staticmethod
     def get_quota_status(user_id: int) -> Dict:
-        """
-        Get comprehensive quota status for a user
-
-        Args:
-            user_id: User ID
-
-        Returns:
-            Complete quota status dict
-        """
         plan = QuotaService.get_user_plan(user_id)
         today = datetime.utcnow().strftime("%Y-%m-%d")
 
-        conn = _connect()
-        try:
-            # Get daily usage
-            daily = conn.execute(
-                "SELECT conversions FROM daily_usage WHERE user_id = ? AND date = ?",
-                (user_id, today),
-            ).fetchone()
+        with db_connection() as conn:
+            sql = (
+                "SELECT conversions FROM daily_usage WHERE user_id = %s AND date = %s"
+                if is_postgres()
+                else "SELECT conversions FROM daily_usage WHERE user_id = ? AND date = ?"
+            )
+            cursor = execute_query(conn, sql, (user_id, today))
+            daily = row_to_dict(cursor.fetchone())
 
             conversions_used = daily["conversions"] if daily else 0
             conversions_limit = QuotaLimits.CONVERSIONS_PER_DAY[plan]
@@ -383,63 +354,42 @@ class QuotaService:
                     user_id, "email_delivery"
                 ),
             }
-        finally:
-            conn.close()
 
     @staticmethod
     def get_monthly_storage_usage(user_id: int, year: int, month: int) -> float:
-        """Get storage usage for a specific month"""
         month_key = f"{year}-{month:02d}"
 
-        conn = _connect()
-        try:
-            row = conn.execute(
-                "SELECT total_size_mb FROM storage_usage WHERE user_id = ? AND month = ?",
-                (user_id, month_key),
-            ).fetchone()
-
+        with db_connection() as conn:
+            sql = (
+                "SELECT total_size_mb FROM storage_usage WHERE user_id = %s AND month = %s"
+                if is_postgres()
+                else "SELECT total_size_mb FROM storage_usage WHERE user_id = ? AND month = ?"
+            )
+            cursor = execute_query(conn, sql, (user_id, month_key))
+            row = row_to_dict(cursor.fetchone())
             return row["total_size_mb"] if row else 0
-        finally:
-            conn.close()
 
     @staticmethod
     def upgrade_plan(user_id: int, new_plan: str) -> bool:
-        """
-        Upgrade user to a new plan
-
-        Args:
-            user_id: User ID
-            new_plan: New plan ('pro' or 'business')
-
-        Returns:
-            Success status
-        """
         if new_plan not in QuotaLimits.CONVERSIONS_PER_DAY:
             logger.error(f"Invalid plan: {new_plan}")
             return False
 
-        conn = _connect()
-        try:
-            conn.execute(
-                "UPDATE users SET plan = ?, updated_at = ? WHERE id = ?",
-                (new_plan, _utc_now(), user_id),
+        with db_connection() as conn:
+            sql = (
+                "UPDATE users SET plan = %s, updated_at = %s WHERE id = %s"
+                if is_postgres()
+                else "UPDATE users SET plan = ?, updated_at = ? WHERE id = ?"
             )
-            conn.commit()
+            execute_query(conn, sql, (new_plan, _utc_now(), user_id))
             logger.info(f"User {user_id} upgraded to {new_plan}")
             return True
-        except Exception as e:
-            logger.error(f"Failed to upgrade user plan: {e}")
-            return False
-        finally:
-            conn.close()
 
     @staticmethod
     def downgrade_plan(user_id: int, new_plan: str = "free") -> bool:
-        """Downgrade user to a lower plan"""
         return QuotaService.upgrade_plan(user_id, new_plan)
 
 
-# Convenience functions
 def init_quota_db():
     return QuotaService.init_quota_db()
 

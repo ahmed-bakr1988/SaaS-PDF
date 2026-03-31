@@ -12,6 +12,24 @@ services:
       timeout: 3s
       retries: 5
 
+  # --- PostgreSQL ---
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=dociva
+      - POSTGRES_USER=dociva
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dociva_secret_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dociva -d dociva"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
   # --- Flask Backend ---
   backend:
     build:
@@ -26,12 +44,15 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-dociva_secret_password}@postgres:5432/dociva
     volumes:
       - ./backend:/app
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     restart: unless-stopped
 
@@ -52,12 +73,15 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-dociva_secret_password}@postgres:5432/dociva
     volumes:
       - ./backend:/app
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "celery", "-A", "celery_worker.celery", "inspect", "ping"]
@@ -82,10 +106,13 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-dociva_secret_password}@postgres:5432/dociva
     volumes:
       - ./backend:/app
     depends_on:
       redis:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     restart: unless-stopped
 
@@ -141,5 +168,6 @@ services:
 
 volumes:
   redis_data:
+  postgres_data:
   upload_data:
   output_data:
