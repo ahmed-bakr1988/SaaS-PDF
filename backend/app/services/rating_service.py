@@ -142,14 +142,14 @@ def get_tool_rating_summary(tool: str) -> dict:
 
         return {
             "tool": tool,
-            "count": row["count"],
-            "average": round(row["average"], 1),
+            "count": int(row["count"]),
+            "average": round(float(row["average"]), 1),
             "distribution": {
-                "5": row["star5"],
-                "4": row["star4"],
-                "3": row["star3"],
-                "2": row["star2"],
-                "1": row["star1"],
+                "5": int(row["star5"]),
+                "4": int(row["star4"]),
+                "3": int(row["star3"]),
+                "2": int(row["star2"]),
+                "1": int(row["star1"]),
             },
         }
 
@@ -170,8 +170,8 @@ def get_all_ratings_summary() -> list[dict]:
         return [
             {
                 "tool": row["tool"],
-                "count": row["count"],
-                "average": round(row["average"], 1),
+                "count": int(row["count"]),
+                "average": round(float(row["average"]), 1),
             }
             for row in rows
         ]
@@ -189,7 +189,9 @@ def get_global_rating_summary() -> dict:
         cursor = execute_query(conn, sql)
         row = row_to_dict(cursor.fetchone())
 
+    avg = float(row["average"]) if row and row["average"] is not None else 0.0
+
     return {
         "rating_count": int(row["count"]) if row else 0,
-        "average_rating": round(row["average"], 1) if row else 0.0,
+        "average_rating": round(avg, 1),
     }

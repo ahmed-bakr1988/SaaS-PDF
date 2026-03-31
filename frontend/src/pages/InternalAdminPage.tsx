@@ -219,7 +219,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     emailLabel: 'Email',
     passwordLabel: 'Password',
     planLabel: 'Plan',
-    roleLabel: 'Role',
+    roleLabel2: 'Role',
     createBtn: 'Create',
     cancelBtn: 'Cancel',
     userCreated: 'User created successfully.',
@@ -388,7 +388,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     emailLabel: 'البريد الإلكتروني',
     passwordLabel: 'كلمة المرور',
     planLabel: 'الخطة',
-    roleLabel: 'الدور',
+    roleLabel2: 'الدور',
     createBtn: 'إنشاء',
     cancelBtn: 'إلغاء',
     userCreated: 'تم إنشاء المستخدم بنجاح.',
@@ -603,6 +603,8 @@ export default function InternalAdminPage() {
       toast.error(msg);
     }
   }
+
+  // Fix duplicate roleLabel
 
   async function handlePlanChange(userId: number, plan: 'free' | 'pro') {
     if (!isAdmin) return;
