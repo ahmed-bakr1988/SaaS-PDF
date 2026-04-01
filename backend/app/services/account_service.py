@@ -228,6 +228,30 @@ def _init_postgres_tables(conn):
         ON file_events(created_at DESC)
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_credit_windows (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL UNIQUE,
+            window_start_at TEXT NOT NULL,
+            window_end_at TEXT NOT NULL,
+            credits_allocated INTEGER NOT NULL,
+            credits_used INTEGER NOT NULL DEFAULT 0,
+            plan TEXT NOT NULL DEFAULT 'free',
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_ucw_user
+        ON user_credit_windows(user_id)
+    """)
+
+    # Add cost_points column to usage_events if missing
+    if not _column_exists(conn, "usage_events", "cost_points"):
+        cursor.execute(
+            "ALTER TABLE usage_events ADD COLUMN cost_points INTEGER NOT NULL DEFAULT 1"
+        )
+
 
 def _init_sqlite_tables(conn):
     conn.executescript(
@@ -316,6 +340,21 @@ def _init_sqlite_tables(conn):
 
         CREATE INDEX IF NOT EXISTS idx_file_events_created
         ON file_events(created_at DESC);
+
+        CREATE TABLE IF NOT EXISTS user_credit_windows (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL UNIQUE,
+            window_start_at TEXT NOT NULL,
+            window_end_at TEXT NOT NULL,
+            credits_allocated INTEGER NOT NULL,
+            credits_used INTEGER NOT NULL DEFAULT 0,
+            plan TEXT NOT NULL DEFAULT 'free',
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_ucw_user
+        ON user_credit_windows(user_id);
         """
     )
 
@@ -325,6 +364,8 @@ def _init_sqlite_tables(conn):
         conn.execute("ALTER TABLE users ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''")
     if not _column_exists(conn, "users", "role"):
         conn.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
+    if not _column_exists(conn, "usage_events", "cost_points"):
+        conn.execute("ALTER TABLE usage_events ADD COLUMN cost_points INTEGER NOT NULL DEFAULT 1")
 
 
 def create_user(email: str, password: str) -> dict:
@@ -842,6 +883,7 @@ def record_usage_event(
     task_id: str,
     event_type: str,
     api_key_id: int | None = None,
+    cost_points: int = 1,
 ):
     if user_id is None:
         return
@@ -851,17 +893,17 @@ def record_usage_event(
             """
             INSERT INTO usage_events (
                 user_id, api_key_id, source, tool, task_id,
-                event_type, created_at, period_month
+                event_type, created_at, period_month, cost_points
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
             if is_postgres()
             else """
             INSERT INTO usage_events (
                 user_id, api_key_id, source, tool, task_id,
-                event_type, created_at, period_month
+                event_type, created_at, period_month, cost_points
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         )
         execute_query(
@@ -876,6 +918,7 @@ def record_usage_event(
                 event_type,
                 _utc_now(),
                 get_current_period_month(),
+                cost_points,
             ),
         )
 

@@ -326,6 +326,18 @@
         "وصول API"
       ],
       "featureCompare": "مقارنة الميزات",
+      "features": {
+        "credits": "الرصيد لكل نافذة",
+        "apiAccess": "الوصول عبر API",
+        "apiRequests": "طلبات API",
+        "maxFileSize": "الحد الأقصى لحجم الملف",
+        "historyRetention": "حفظ السجل",
+        "allTools": "جميع الأدوات (44)",
+        "aiTools": "أدوات الذكاء الاصطناعي",
+        "priorityProcessing": "المعالجة ذات الأولوية",
+        "noAds": "بدون إعلانات",
+        "emailSupport": "دعم عبر البريد الإلكتروني"
+      },
       "faqTitle": "الأسئلة الشائعة",
       "faq": [
         {
@@ -971,6 +983,8 @@
     "webQuotaTitle": "مهام الويب هذا الشهر",
     "apiQuotaTitle": "مهام API هذا الشهر",
     "quotaPeriod": "الفترة",
+    "creditBalanceTitle": "رصيد الاستخدام",
+    "creditWindowResets": "يتجدد في",
     "apiKeysTitle": "مفاتيح API",
     "apiKeysSubtitle": "أدر مفاتيح B2B API. كل مفتاح يمنحك وصولاً متزامناً بمستوى برو لجميع الأدوات.",
     "apiKeyNamePlaceholder": "اسم المفتاح (مثال: إنتاج)",
@@ -1016,6 +1030,17 @@
     "reduction": "نسبة التقليل",
     "downloadReady": "ملفك جاهز للتحميل.",
     "linkExpiry": "رابط التحميل ينتهي خلال 30 دقيقة."
+  },
+  "downloadGate": {
+    "title": "سجّل لتحميل ملفك",
+    "subtitle": "ملفك جاهز. أنشئ حسابًا مجانيًا لتحميله.",
+    "benefit1": "حمّل ملفاتك المعالجة فورًا",
+    "benefit2": "50 رصيدًا مجانيًا كل 30 يومًا",
+    "benefit3": "الوصول إلى جميع الأدوات بدون قيود",
+    "createAccount": "إنشاء حساب مجاني",
+    "signIn": "لديك حساب بالفعل؟ سجّل الدخول",
+    "switchToRegister": "ليس لديك حساب؟ أنشئ واحدًا",
+    "downloadCta": "سجّل لتحميل الملف"
   },
   "seo": {
     "headings": {

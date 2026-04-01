@@ -326,6 +326,18 @@
         "Accès API"
       ],
       "featureCompare": "Comparaison des fonctionnalités",
+      "features": {
+        "credits": "Crédits par fenêtre",
+        "apiAccess": "Accès API",
+        "apiRequests": "Requêtes API",
+        "maxFileSize": "Taille max. de fichier",
+        "historyRetention": "Conservation de l'historique",
+        "allTools": "Tous les 44 outils",
+        "aiTools": "Outils IA inclus",
+        "priorityProcessing": "Traitement prioritaire",
+        "noAds": "Sans publicité",
+        "emailSupport": "Support par e-mail"
+      },
       "faqTitle": "Questions fréquentes",
       "faq": [
         {
@@ -971,6 +983,8 @@
     "webQuotaTitle": "Tâches web ce mois-ci",
     "apiQuotaTitle": "Tâches API ce mois-ci",
     "quotaPeriod": "Période",
+    "creditBalanceTitle": "Solde de crédits",
+    "creditWindowResets": "Se renouvelle le",
     "apiKeysTitle": "Clés API",
     "apiKeysSubtitle": "Gérez vos clés API B2B. Chaque clé donne un accès asynchrone Pro à tous les outils.",
     "apiKeyNamePlaceholder": "Nom de la clé (ex. Production)",
@@ -1016,6 +1030,17 @@
     "reduction": "Réduction",
     "downloadReady": "Votre fichier est prêt à être téléchargé.",
     "linkExpiry": "Le lien de téléchargement expire dans 30 minutes."
+  },
+  "downloadGate": {
+    "title": "Inscrivez-vous pour télécharger votre fichier",
+    "subtitle": "Votre fichier est traité et prêt. Créez un compte gratuit pour le télécharger.",
+    "benefit1": "Téléchargez vos fichiers traités instantanément",
+    "benefit2": "50 crédits gratuits tous les 30 jours",
+    "benefit3": "Accès à tous les outils sans restrictions",
+    "createAccount": "Créer un compte gratuit",
+    "signIn": "Vous avez déjà un compte ? Connectez-vous",
+    "switchToRegister": "Pas de compte ? Créez-en un",
+    "downloadCta": "Inscrivez-vous pour télécharger"
   },
   "seo": {
     "headings": {

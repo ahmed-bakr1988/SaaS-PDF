@@ -326,6 +326,18 @@
         "API access"
       ],
       "featureCompare": "Feature Comparison",
+      "features": {
+        "credits": "Credits per window",
+        "apiAccess": "API access",
+        "apiRequests": "API requests",
+        "maxFileSize": "Max file size",
+        "historyRetention": "History retention",
+        "allTools": "All 44 tools",
+        "aiTools": "AI tools included",
+        "priorityProcessing": "Priority processing",
+        "noAds": "No ads",
+        "emailSupport": "Email support"
+      },
       "faqTitle": "Frequently Asked Questions",
       "faq": [
         {
@@ -971,6 +983,8 @@
     "webQuotaTitle": "Web Tasks This Month",
     "apiQuotaTitle": "API Tasks This Month",
     "quotaPeriod": "Period",
+    "creditBalanceTitle": "Credit Balance",
+    "creditWindowResets": "Resets on",
     "apiKeysTitle": "API Keys",
     "apiKeysSubtitle": "Manage your B2B API keys. Each key gives Pro-level async access to all tools.",
     "apiKeyNamePlaceholder": "Key name (e.g. Production)",
@@ -1016,6 +1030,17 @@
     "reduction": "Reduction",
     "downloadReady": "Your file is ready for download.",
     "linkExpiry": "Download link expires in 30 minutes."
+  },
+  "downloadGate": {
+    "title": "Sign up to download your file",
+    "subtitle": "Your file is processed and ready. Create a free account to download it.",
+    "benefit1": "Download your processed files instantly",
+    "benefit2": "50 free credits every 30 days",
+    "benefit3": "Access to all tools with no restrictions",
+    "createAccount": "Create Free Account",
+    "signIn": "Already have an account? Sign in",
+    "switchToRegister": "Don't have an account? Create one",
+    "downloadCta": "Sign up to download"
   },
   "seo": {
     "headings": {

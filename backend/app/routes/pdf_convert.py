@@ -40,7 +40,7 @@ def pdf_to_pptx_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pdf-to-pptx")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -77,7 +77,7 @@ def excel_to_pdf_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="excel-to-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -116,7 +116,7 @@ def pptx_to_pdf_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pptx-to-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -167,7 +167,7 @@ def sign_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="sign-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

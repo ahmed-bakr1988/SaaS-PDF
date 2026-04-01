@@ -46,7 +46,8 @@ class TestConfigEndpoint:
         usage = data["usage"]
         assert usage["plan"] == "free"
         assert "web_quota" in usage
-        assert "api_quota" in usage
+        assert "credits" in usage
+        assert usage["credits"]["credits_allocated"] == 50
 
     def test_max_upload_mb_is_correct(self, client):
         """max_upload_mb should equal the largest single-type limit."""

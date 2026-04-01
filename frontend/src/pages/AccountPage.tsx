@@ -356,28 +356,30 @@ export default function AccountPage() {
             </div>
           </section>
 
-          {/* Usage / Quota Cards */}
-          {usage && (
+          {/* Credit Balance Cards */}
+          {usage && usage.credits && (
             <section className="grid gap-4 sm:grid-cols-2">
               <div className="card rounded-[1.5rem] p-5">
                 <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                  {t('account.webQuotaTitle')}
+                  {t('account.creditBalanceTitle')}
                 </p>
                 <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                  {usage.web_quota.used}
-                  <span className="text-base font-normal text-slate-400"> / {usage.web_quota.limit ?? '∞'}</span>
+                  {usage.credits.credits_remaining}
+                  <span className="text-base font-normal text-slate-400"> / {usage.credits.credits_allocated}</span>
                 </p>
-                {usage.web_quota.limit != null && (
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div
-                      className="h-full rounded-full bg-primary-500 transition-all"
-                      style={{ width: `${Math.min(100, (usage.web_quota.used / usage.web_quota.limit) * 100)}%` }}
-                    />
-                  </div>
+                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+                  <div
+                    className="h-full rounded-full bg-primary-500 transition-all"
+                    style={{ width: `${Math.min(100, (usage.credits.credits_used / usage.credits.credits_allocated) * 100)}%` }}
+                  />
+                </div>
+                {usage.credits.window_end && (
+                  <p className="mt-2 text-xs text-slate-400">
+                    {t('account.creditWindowResets')}: {new Date(usage.credits.window_end).toLocaleDateString()}
+                  </p>
                 )}
-                <p className="mt-2 text-xs text-slate-400">{t('account.quotaPeriod')}: {usage.period_month}</p>
               </div>
-              {usage.api_quota.limit != null && (
+              {usage.api_quota?.limit != null && (
                 <div className="card rounded-[1.5rem] p-5">
                   <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
                     {t('account.apiQuotaTitle')}
@@ -392,7 +394,6 @@ export default function AccountPage() {
                       style={{ width: `${Math.min(100, (usage.api_quota.used / usage.api_quota.limit) * 100)}%` }}
                     />
                   </div>
-                  <p className="mt-2 text-xs text-slate-400">{t('account.quotaPeriod')}: {usage.period_month}</p>
                 </div>
               )}
             </section>

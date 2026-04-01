@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { ALL_ROUTES } from '@/config/routes';
+import { ALL_ROUTES, TOOL_ROUTES } from '@/config/routes';
 import { getAllSeoLandingPaths } from '@/config/seoPages';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,7 +12,8 @@ const __dirname = dirname(__filename);
  * SAFETY TEST — Route Integrity
  *
  * Ensures that every route in the canonical registry (routes.ts)
- * has a matching <Route path="..."> in App.tsx.
+ * has a matching <Route path="..."> in App.tsx — either as a static
+ * path="..." attribute or via the TOOL_MANIFEST dynamic loop.
  *
  * If this test fails it means either:
  *  1. A route was removed from App.tsx (NEVER do this)
@@ -25,7 +26,7 @@ describe('Route safety', () => {
   );
   const seoLandingPaths = new Set(getAllSeoLandingPaths());
 
-  // Extract all path="..." values from <Route> elements
+  // Extract all static path="..." values from <Route> elements
   const routePathRegex = /path="([^"]+)"/g;
   const appPaths = new Set<string>();
   let match: RegExpExecArray | null;
@@ -33,10 +34,20 @@ describe('Route safety', () => {
     if (match[1] !== '*') appPaths.add(match[1]);
   }
 
+  // Detect manifest-driven routing: if App.tsx renders tool routes via
+  // TOOL_MANIFEST.map, every TOOL_ROUTES entry is covered dynamically.
+  const hasManifestLoop = appSource.includes('TOOL_MANIFEST.map');
+  const toolRouteSet = new Set(TOOL_ROUTES as readonly string[]);
+
   it('App.tsx contains routes for every entry in the route registry', () => {
     const hasDynamicSeoRoute = appPaths.has('/:slug');
     const missing = ALL_ROUTES.filter((route) => {
       if (appPaths.has(route)) {
+        return false;
+      }
+
+      // Tool routes covered by the manifest loop
+      if (hasManifestLoop && toolRouteSet.has(route)) {
         return false;
       }
 

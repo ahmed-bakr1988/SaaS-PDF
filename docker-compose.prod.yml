@@ -60,7 +60,7 @@ services:
       celery -A celery_worker.celery worker
       --loglevel=warning
       --concurrency=4
-      -Q default,convert,compress,image,video,pdf_tools,flowchart
+      -Q default,convert,compress,image,video,pdf_tools,flowchart,ai_heavy
     env_file:
       - .env
     environment:

@@ -43,7 +43,7 @@ def compress_image_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="compress-image")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

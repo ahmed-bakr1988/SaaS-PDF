@@ -9,6 +9,7 @@ import ToolLandingPage from '@/components/seo/ToolLandingPage';
 import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
+import { TOOL_MANIFEST } from '@/config/toolManifest';
 
 let clarityInitialized = false;
 
@@ -32,53 +33,10 @@ const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
 const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
 
-// Tool Pages
-const PdfToWord = lazy(() => import('@/components/tools/PdfToWord'));
-const WordToPdf = lazy(() => import('@/components/tools/WordToPdf'));
-const PdfCompressor = lazy(() => import('@/components/tools/PdfCompressor'));
-const ImageConverter = lazy(() => import('@/components/tools/ImageConverter'));
-const VideoToGif = lazy(() => import('@/components/tools/VideoToGif'));
-const WordCounter = lazy(() => import('@/components/tools/WordCounter'));
-const TextCleaner = lazy(() => import('@/components/tools/TextCleaner'));
-const MergePdf = lazy(() => import('@/components/tools/MergePdf'));
-const SplitPdf = lazy(() => import('@/components/tools/SplitPdf'));
-const RotatePdf = lazy(() => import('@/components/tools/RotatePdf'));
-const PdfToImages = lazy(() => import('@/components/tools/PdfToImages'));
-const ImagesToPdf = lazy(() => import('@/components/tools/ImagesToPdf'));
-const WatermarkPdf = lazy(() => import('@/components/tools/WatermarkPdf'));
-const ProtectPdf = lazy(() => import('@/components/tools/ProtectPdf'));
-const UnlockPdf = lazy(() => import('@/components/tools/UnlockPdf'));
-const AddPageNumbers = lazy(() => import('@/components/tools/AddPageNumbers'));
-const PdfEditor = lazy(() => import('@/components/tools/PdfEditor'));
-const PdfFlowchart = lazy(() => import('@/components/tools/PdfFlowchart'));
-const ImageResize = lazy(() => import('@/components/tools/ImageResize'));
-const OcrTool = lazy(() => import('@/components/tools/OcrTool'));
-const RemoveBackground = lazy(() => import('@/components/tools/RemoveBackground'));
-const CompressImage = lazy(() => import('@/components/tools/CompressImage'));
-const PdfToExcel = lazy(() => import('@/components/tools/PdfToExcel'));
-const RemoveWatermark = lazy(() => import('@/components/tools/RemoveWatermark'));
-const ReorderPdf = lazy(() => import('@/components/tools/ReorderPdf'));
-const ExtractPages = lazy(() => import('@/components/tools/ExtractPages'));
-const QrCodeGenerator = lazy(() => import('@/components/tools/QrCodeGenerator'));
-const HtmlToPdf = lazy(() => import('@/components/tools/HtmlToPdf'));
-const ChatPdf = lazy(() => import('@/components/tools/ChatPdf'));
-const SummarizePdf = lazy(() => import('@/components/tools/SummarizePdf'));
-const TranslatePdf = lazy(() => import('@/components/tools/TranslatePdf'));
-const TableExtractor = lazy(() => import('@/components/tools/TableExtractor'));
-
-// Phase 2 lazy imports
-const PdfToPptx = lazy(() => import('@/components/tools/PdfToPptx'));
-const ExcelToPdf = lazy(() => import('@/components/tools/ExcelToPdf'));
-const PptxToPdf = lazy(() => import('@/components/tools/PptxToPdf'));
-const SignPdf = lazy(() => import('@/components/tools/SignPdf'));
-const CropPdf = lazy(() => import('@/components/tools/CropPdf'));
-const FlattenPdf = lazy(() => import('@/components/tools/FlattenPdf'));
-const RepairPdf = lazy(() => import('@/components/tools/RepairPdf'));
-const PdfMetadata = lazy(() => import('@/components/tools/PdfMetadata'));
-const ImageCrop = lazy(() => import('@/components/tools/ImageCrop'));
-const ImageToSvg = lazy(() => import('@/components/tools/ImageToSvg'));
-const ImageRotateFlip = lazy(() => import('@/components/tools/ImageRotateFlip'));
-const BarcodeGenerator = lazy(() => import('@/components/tools/BarcodeGenerator'));
+// Tool components — derived from manifest using React.lazy
+const ToolComponents = Object.fromEntries(
+  TOOL_MANIFEST.map((tool) => [tool.slug, lazy(tool.component)])
+) as Record<string, React.LazyExoticComponent<React.ComponentType>>;
 
 function LoadingFallback() {
   return (
@@ -165,71 +123,17 @@ export default function App() {
             <Route path="/ar/:slug" element={<SeoRoutePage />} />
             <Route path="/:slug" element={<SeoRoutePage />} />
 
-            {/* PDF Tools */}
-            <Route path="/tools/pdf-to-word" element={<ToolLandingPage slug="pdf-to-word"><PdfToWord /></ToolLandingPage>} />
-            <Route path="/tools/word-to-pdf" element={<ToolLandingPage slug="word-to-pdf"><WordToPdf /></ToolLandingPage>} />
-            <Route path="/tools/compress-pdf" element={<ToolLandingPage slug="compress-pdf"><PdfCompressor /></ToolLandingPage>} />
-            <Route path="/tools/merge-pdf" element={<ToolLandingPage slug="merge-pdf"><MergePdf /></ToolLandingPage>} />
-            <Route path="/tools/split-pdf" element={<ToolLandingPage slug="split-pdf"><SplitPdf /></ToolLandingPage>} />
-            <Route path="/tools/rotate-pdf" element={<ToolLandingPage slug="rotate-pdf"><RotatePdf /></ToolLandingPage>} />
-            <Route path="/tools/pdf-to-images" element={<ToolLandingPage slug="pdf-to-images"><PdfToImages /></ToolLandingPage>} />
-            <Route path="/tools/images-to-pdf" element={<ToolLandingPage slug="images-to-pdf"><ImagesToPdf /></ToolLandingPage>} />
-            <Route path="/tools/watermark-pdf" element={<ToolLandingPage slug="watermark-pdf"><WatermarkPdf /></ToolLandingPage>} />
-            <Route path="/tools/protect-pdf" element={<ToolLandingPage slug="protect-pdf"><ProtectPdf /></ToolLandingPage>} />
-            <Route path="/tools/unlock-pdf" element={<ToolLandingPage slug="unlock-pdf"><UnlockPdf /></ToolLandingPage>} />
-            <Route path="/tools/page-numbers" element={<ToolLandingPage slug="page-numbers"><AddPageNumbers /></ToolLandingPage>} />
-            <Route path="/tools/pdf-editor" element={<ToolLandingPage slug="pdf-editor"><PdfEditor /></ToolLandingPage>} />
-            <Route path="/tools/pdf-flowchart" element={<ToolLandingPage slug="pdf-flowchart"><PdfFlowchart /></ToolLandingPage>} />
-
-            {/* Image Tools */}
-            <Route path="/tools/image-converter" element={<ToolLandingPage slug="image-converter"><ImageConverter /></ToolLandingPage>} />
-            <Route path="/tools/image-resize" element={<ToolLandingPage slug="image-resize"><ImageResize /></ToolLandingPage>} />
-            <Route path="/tools/compress-image" element={<ToolLandingPage slug="compress-image"><CompressImage /></ToolLandingPage>} />
-            <Route path="/tools/ocr" element={<ToolLandingPage slug="ocr"><OcrTool /></ToolLandingPage>} />
-            <Route path="/tools/remove-background" element={<ToolLandingPage slug="remove-background"><RemoveBackground /></ToolLandingPage>} />
-            <Route path="/tools/image-to-svg" element={<ToolLandingPage slug="image-to-svg"><ImageToSvg /></ToolLandingPage>} />
-
-            {/* Convert Tools */}
-            <Route path="/tools/pdf-to-excel" element={<ToolLandingPage slug="pdf-to-excel"><PdfToExcel /></ToolLandingPage>} />
-            <Route path="/tools/html-to-pdf" element={<ToolLandingPage slug="html-to-pdf"><HtmlToPdf /></ToolLandingPage>} />
-
-            {/* PDF Extra Tools */}
-            <Route path="/tools/remove-watermark-pdf" element={<ToolLandingPage slug="remove-watermark-pdf"><RemoveWatermark /></ToolLandingPage>} />
-            <Route path="/tools/reorder-pdf" element={<ToolLandingPage slug="reorder-pdf"><ReorderPdf /></ToolLandingPage>} />
-            <Route path="/tools/extract-pages" element={<ToolLandingPage slug="extract-pages"><ExtractPages /></ToolLandingPage>} />
-
-            {/* AI Tools */}
-            <Route path="/tools/chat-pdf" element={<ToolLandingPage slug="chat-pdf"><ChatPdf /></ToolLandingPage>} />
-            <Route path="/tools/summarize-pdf" element={<ToolLandingPage slug="summarize-pdf"><SummarizePdf /></ToolLandingPage>} />
-            <Route path="/tools/translate-pdf" element={<ToolLandingPage slug="translate-pdf"><TranslatePdf /></ToolLandingPage>} />
-            <Route path="/tools/extract-tables" element={<ToolLandingPage slug="extract-tables"><TableExtractor /></ToolLandingPage>} />
-
-            {/* Other Tools */}
-            <Route path="/tools/qr-code" element={<ToolLandingPage slug="qr-code"><QrCodeGenerator /></ToolLandingPage>} />
-
-            {/* Video Tools */}
-            <Route path="/tools/video-to-gif" element={<ToolLandingPage slug="video-to-gif"><VideoToGif /></ToolLandingPage>} />
-
-            {/* Text Tools */}
-            <Route path="/tools/word-counter" element={<ToolLandingPage slug="word-counter"><WordCounter /></ToolLandingPage>} />
-            <Route path="/tools/text-cleaner" element={<ToolLandingPage slug="text-cleaner"><TextCleaner /></ToolLandingPage>} />
-
-            {/* Phase 2 – PDF Conversion */}
-            <Route path="/tools/pdf-to-pptx" element={<ToolLandingPage slug="pdf-to-pptx"><PdfToPptx /></ToolLandingPage>} />
-            <Route path="/tools/excel-to-pdf" element={<ToolLandingPage slug="excel-to-pdf"><ExcelToPdf /></ToolLandingPage>} />
-            <Route path="/tools/pptx-to-pdf" element={<ToolLandingPage slug="pptx-to-pdf"><PptxToPdf /></ToolLandingPage>} />
-            <Route path="/tools/sign-pdf" element={<ToolLandingPage slug="sign-pdf"><SignPdf /></ToolLandingPage>} />
-
-            {/* Phase 2 – PDF Extra */}
-            <Route path="/tools/crop-pdf" element={<ToolLandingPage slug="crop-pdf"><CropPdf /></ToolLandingPage>} />
-            <Route path="/tools/flatten-pdf" element={<ToolLandingPage slug="flatten-pdf"><FlattenPdf /></ToolLandingPage>} />
-            <Route path="/tools/repair-pdf" element={<ToolLandingPage slug="repair-pdf"><RepairPdf /></ToolLandingPage>} />
-            <Route path="/tools/pdf-metadata" element={<ToolLandingPage slug="pdf-metadata"><PdfMetadata /></ToolLandingPage>} />
-
-            {/* Phase 2 – Image & Utility */}
-            <Route path="/tools/image-crop" element={<ToolLandingPage slug="image-crop"><ImageCrop /></ToolLandingPage>} />
-            <Route path="/tools/image-rotate-flip" element={<ToolLandingPage slug="image-rotate-flip"><ImageRotateFlip /></ToolLandingPage>} />
-            <Route path="/tools/barcode-generator" element={<ToolLandingPage slug="barcode-generator"><BarcodeGenerator /></ToolLandingPage>} />
+            {/* Tool Routes — driven by the unified manifest */}
+            {TOOL_MANIFEST.map((tool) => {
+              const Component = ToolComponents[tool.slug];
+              return (
+                <Route
+                  key={tool.slug}
+                  path={`/tools/${tool.slug}`}
+                  element={<ToolLandingPage slug={tool.slug}><Component /></ToolLandingPage>}
+                />
+              );
+            })}
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />

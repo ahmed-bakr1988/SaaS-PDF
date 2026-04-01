@@ -33,11 +33,31 @@ import {
   Table,
   Search,
   X,
+  Crop,
+  FileDown,
+  Wrench,
+  Presentation,
+  Barcode,
 } from 'lucide-react';
 import ToolCard from '@/components/shared/ToolCard';
 import HeroUploadZone from '@/components/shared/HeroUploadZone';
 import AdSlot from '@/components/layout/AdSlot';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
+import { getHomepageTools, type ToolEntry } from '@/config/toolManifest';
+
+// Map icon names from manifest to lucide components
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+  FileText, FileOutput, Minimize2, ImageIcon, Film, Hash, Eraser, Layers,
+  Scissors, RotateCw, Image, FileImage, Droplets, Lock, Unlock, ListOrdered,
+  PenLine, GitBranch, Scaling, ScanText, Sheet, ArrowUpDown, QrCode, Code,
+  MessageSquare, Languages, Table, Crop, FileDown, Wrench, Presentation, Barcode,
+};
+
+function renderToolIcon(tool: ToolEntry) {
+  const IconComponent = ICON_MAP[tool.iconName];
+  if (!IconComponent) return null;
+  return <IconComponent className={`h-6 w-6 ${tool.iconColor}`} />;
+}
 
 interface ToolInfo {
   key: string;
@@ -46,44 +66,17 @@ interface ToolInfo {
   bgColor: string;
 }
 
-const pdfTools: ToolInfo[] = [
-  { key: 'pdfEditor', path: '/tools/pdf-editor', icon: <PenLine className="h-6 w-6 text-rose-600" />, bgColor: 'bg-rose-50' },
-  { key: 'pdfToWord', path: '/tools/pdf-to-word', icon: <FileText className="h-6 w-6 text-red-600" />, bgColor: 'bg-red-50' },
-  { key: 'wordToPdf', path: '/tools/word-to-pdf', icon: <FileOutput className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
-  { key: 'compressPdf', path: '/tools/compress-pdf', icon: <Minimize2 className="h-6 w-6 text-orange-600" />, bgColor: 'bg-orange-50' },
-  { key: 'mergePdf', path: '/tools/merge-pdf', icon: <Layers className="h-6 w-6 text-violet-600" />, bgColor: 'bg-violet-50' },
-  { key: 'splitPdf', path: '/tools/split-pdf', icon: <Scissors className="h-6 w-6 text-pink-600" />, bgColor: 'bg-pink-50' },
-  { key: 'rotatePdf', path: '/tools/rotate-pdf', icon: <RotateCw className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
-  { key: 'pdfToImages', path: '/tools/pdf-to-images', icon: <Image className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
-  { key: 'imagesToPdf', path: '/tools/images-to-pdf', icon: <FileImage className="h-6 w-6 text-lime-600" />, bgColor: 'bg-lime-50' },
-  { key: 'watermarkPdf', path: '/tools/watermark-pdf', icon: <Droplets className="h-6 w-6 text-cyan-600" />, bgColor: 'bg-cyan-50' },
-  { key: 'protectPdf', path: '/tools/protect-pdf', icon: <Lock className="h-6 w-6 text-red-600" />, bgColor: 'bg-red-50' },
-  { key: 'unlockPdf', path: '/tools/unlock-pdf', icon: <Unlock className="h-6 w-6 text-green-600" />, bgColor: 'bg-green-50' },
-  { key: 'pageNumbers', path: '/tools/page-numbers', icon: <ListOrdered className="h-6 w-6 text-sky-600" />, bgColor: 'bg-sky-50' },
-  { key: 'pdfFlowchart', path: '/tools/pdf-flowchart', icon: <GitBranch className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
-  { key: 'pdfToExcel', path: '/tools/pdf-to-excel', icon: <Sheet className="h-6 w-6 text-green-600" />, bgColor: 'bg-green-50' },
-  { key: 'removeWatermark', path: '/tools/remove-watermark-pdf', icon: <Droplets className="h-6 w-6 text-rose-600" />, bgColor: 'bg-rose-50' },
-  { key: 'reorderPdf', path: '/tools/reorder-pdf', icon: <ArrowUpDown className="h-6 w-6 text-violet-600" />, bgColor: 'bg-violet-50' },
-  { key: 'extractPages', path: '/tools/extract-pages', icon: <FileOutput className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
-  { key: 'chatPdf', path: '/tools/chat-pdf', icon: <MessageSquare className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
-  { key: 'summarizePdf', path: '/tools/summarize-pdf', icon: <FileText className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
-  { key: 'translatePdf', path: '/tools/translate-pdf', icon: <Languages className="h-6 w-6 text-purple-600" />, bgColor: 'bg-purple-50' },
-  { key: 'tableExtractor', path: '/tools/extract-tables', icon: <Table className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
-];
+function manifestToToolInfo(tools: readonly ToolEntry[]): ToolInfo[] {
+  return tools.map((t) => ({
+    key: t.i18nKey,
+    path: `/tools/${t.slug}`,
+    icon: renderToolIcon(t),
+    bgColor: t.bgColor,
+  }));
+}
 
-const otherTools: ToolInfo[] = [
-  { key: 'imageConvert', path: '/tools/image-converter', icon: <ImageIcon className="h-6 w-6 text-purple-600" />, bgColor: 'bg-purple-50' },
-  { key: 'imageResize', path: '/tools/image-resize', icon: <Scaling className="h-6 w-6 text-teal-600" />, bgColor: 'bg-teal-50' },
-  { key: 'compressImage', path: '/tools/compress-image', icon: <Minimize2 className="h-6 w-6 text-orange-600" />, bgColor: 'bg-orange-50' },
-  { key: 'ocr', path: '/tools/ocr', icon: <ScanText className="h-6 w-6 text-amber-600" />, bgColor: 'bg-amber-50' },
-  { key: 'removeBg', path: '/tools/remove-background', icon: <Eraser className="h-6 w-6 text-fuchsia-600" />, bgColor: 'bg-fuchsia-50' },
-  { key: 'imageToSvg', path: '/tools/image-to-svg', icon: <ImageIcon className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
-  { key: 'videoToGif', path: '/tools/video-to-gif', icon: <Film className="h-6 w-6 text-emerald-600" />, bgColor: 'bg-emerald-50' },
-  { key: 'qrCode', path: '/tools/qr-code', icon: <QrCode className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
-  { key: 'htmlToPdf', path: '/tools/html-to-pdf', icon: <Code className="h-6 w-6 text-sky-600" />, bgColor: 'bg-sky-50' },
-  { key: 'wordCounter', path: '/tools/word-counter', icon: <Hash className="h-6 w-6 text-blue-600" />, bgColor: 'bg-blue-50' },
-  { key: 'textCleaner', path: '/tools/text-cleaner', icon: <Eraser className="h-6 w-6 text-indigo-600" />, bgColor: 'bg-indigo-50' },
-];
+const pdfTools: ToolInfo[] = manifestToToolInfo(getHomepageTools('pdf'));
+const otherTools: ToolInfo[] = manifestToToolInfo(getHomepageTools('other'));
 
 export default function HomePage() {
   const { t } = useTranslation();

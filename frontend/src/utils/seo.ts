@@ -10,6 +10,8 @@ export interface ToolSeoData {
   ratingValue?: number;
   ratingCount?: number;
   features?: string[];
+  /** Optional HowTo steps for inline HowTo within the tool schema */
+  howToSteps?: string[];
 }
 
 export interface LanguageAlternate {
@@ -81,12 +83,23 @@ export function generateToolSchema(tool: ToolSeoData): object {
     operatingSystem: 'Any',
     browserRequirements: 'Requires JavaScript. Works in modern browsers.',
     isAccessibleForFree: true,
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'USD',
-      availability: 'https://schema.org/InStock',
-    },
+    offers: [
+      {
+        '@type': 'Offer',
+        name: 'Free',
+        price: '0',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+      {
+        '@type': 'Offer',
+        name: 'Pro',
+        price: '9.99',
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+        description: 'Pro plan — higher limits, no ads, API access',
+      },
+    ],
     description: tool.description,
     inLanguage: ['en', 'ar', 'fr'],
     provider: {
@@ -94,6 +107,12 @@ export function generateToolSchema(tool: ToolSeoData): object {
       name: DEFAULT_SITE_NAME,
       url: getSiteOrigin(),
     },
+    potentialAction: {
+      '@type': 'UseAction',
+      target: tool.url,
+      name: `Use ${tool.name}`,
+    },
+    screenshot: `${getSiteOrigin()}/social-preview.svg`,
   };
 
   if (tool.features && tool.features.length > 0) {

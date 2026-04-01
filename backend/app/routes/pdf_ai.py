@@ -11,6 +11,10 @@ from app.services.policy_service import (
     resolve_web_actor,
     validate_actor_file,
 )
+from app.services.translation_guardrails import (
+    check_page_admission,
+    TranslationAdmissionError,
+)
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.pdf_ai_tasks import (
@@ -48,7 +52,7 @@ def chat_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="chat-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -104,7 +108,7 @@ def summarize_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="summarize-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -161,7 +165,7 @@ def translate_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="translate-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -174,6 +178,12 @@ def translate_pdf_route():
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
+
+    # ── Page-count admission guard ──
+    try:
+        page_count = check_page_admission(input_path, actor.plan)
+    except TranslationAdmissionError as e:
+        return jsonify({"error": e.message}), e.status_code
 
     task = translate_pdf_task.delay(
         input_path,
@@ -213,7 +223,7 @@ def extract_tables_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="extract-tables")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

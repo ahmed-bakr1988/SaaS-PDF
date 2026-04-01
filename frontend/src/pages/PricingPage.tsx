@@ -18,7 +18,7 @@ interface PlanFeature {
 }
 
 const FEATURES: PlanFeature[] = [
-  { key: 'webRequests', free: '50/month', pro: '500/month' },
+  { key: 'credits', free: '50 credits/30 days', pro: '500 credits/30 days' },
   { key: 'apiAccess', free: false, pro: true },
   { key: 'apiRequests', free: '—', pro: '1,000/month' },
   { key: 'maxFileSize', free: '50 MB', pro: '100 MB' },

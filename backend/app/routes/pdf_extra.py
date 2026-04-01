@@ -41,7 +41,7 @@ def crop_pdf_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="crop-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -89,7 +89,7 @@ def flatten_pdf_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="flatten-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -126,7 +126,7 @@ def repair_pdf_route():
     file = request.files["file"]
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="repair-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -184,7 +184,7 @@ def edit_metadata_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="edit-metadata")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

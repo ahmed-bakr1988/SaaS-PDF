@@ -59,7 +59,7 @@ def video_to_gif_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="video-frames")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

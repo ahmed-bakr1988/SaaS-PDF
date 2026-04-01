@@ -34,6 +34,13 @@ def download_file(task_id: str, filename: str):
             assert_api_task_access(actor, task_id)
         else:
             actor = resolve_web_actor()
+            # Download gate: anonymous users must register before downloading
+            if actor.actor_type == "anonymous":
+                return (
+                    {"error": "signup_required",
+                     "message": "Create a free account to download your file."},
+                    401,
+                )
             assert_web_task_access(actor, task_id)
     except PolicyError as exc:
         abort(exc.status_code, exc.message)

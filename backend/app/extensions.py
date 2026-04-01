@@ -70,7 +70,7 @@ def init_celery(app):
         "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_tools"},
         "app.tasks.qrcode_tasks.*": {"queue": "default"},
         "app.tasks.html_to_pdf_tasks.*": {"queue": "convert"},
-        "app.tasks.pdf_ai_tasks.*": {"queue": "default"},
+        "app.tasks.pdf_ai_tasks.*": {"queue": "ai_heavy"},
         "app.tasks.pdf_convert_tasks.*": {"queue": "convert"},
         "app.tasks.pdf_extra_tasks.*": {"queue": "pdf_tools"},
         "app.tasks.image_extra_tasks.*": {"queue": "image"},

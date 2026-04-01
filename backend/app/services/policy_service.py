@@ -12,16 +12,29 @@ from app.services.account_service import (
     normalize_plan,
     record_usage_event,
 )
+from app.services.credit_config import (
+    get_tool_credit_cost,
+    get_credits_for_plan,
+    get_all_tool_costs,
+    GUEST_DEMO_BUDGET,
+    GUEST_DEMO_TTL_HOURS,
+    PRO_API_CREDITS_PER_WINDOW,
+)
+from app.services.credit_service import (
+    deduct_credits,
+    get_credit_summary,
+    get_rolling_balance,
+)
+from app.services.guest_budget_service import (
+    assert_guest_budget_available,
+    record_guest_usage,
+)
 from app.utils.auth import get_current_user_id, logout_user_session
 from app.utils.auth import has_session_task_access, remember_task_access
 from app.utils.file_validator import validate_file
 
 FREE_PLAN = "free"
 PRO_PLAN = "pro"
-
-FREE_WEB_MONTHLY_LIMIT = 50
-PRO_WEB_MONTHLY_LIMIT = 500
-PRO_API_MONTHLY_LIMIT = 1000
 
 FREE_HISTORY_LIMIT = 25
 PRO_HISTORY_LIMIT = 250
@@ -56,15 +69,15 @@ def get_history_limit(plan: str) -> int:
 
 
 def get_web_quota_limit(plan: str, actor_type: str) -> int | None:
-    """Return the monthly accepted-task cap for one web actor."""
+    """Return the credit allocation for one web actor's window."""
     if actor_type == "anonymous":
         return None
-    return PRO_WEB_MONTHLY_LIMIT if normalize_plan(plan) == PRO_PLAN else FREE_WEB_MONTHLY_LIMIT
+    return get_credits_for_plan(normalize_plan(plan))
 
 
 def get_api_quota_limit(plan: str) -> int | None:
-    """Return the monthly accepted-task cap for one API actor."""
-    return PRO_API_MONTHLY_LIMIT if normalize_plan(plan) == PRO_PLAN else None
+    """Return the credit allocation for one API actor's window."""
+    return PRO_API_CREDITS_PER_WINDOW if normalize_plan(plan) == PRO_PLAN else None
 
 
 def ads_enabled(plan: str, actor_type: str) -> bool:
@@ -97,27 +110,19 @@ def get_effective_file_size_limits_mb(plan: str) -> dict[str, int]:
 def get_usage_summary_for_user(user_id: int, plan: str) -> dict:
     """Return usage/quota summary for one authenticated user."""
     normalized_plan = normalize_plan(plan)
-    current_period = get_current_period_month()
-    web_used = count_usage_events(
-        user_id, "web", event_type="accepted", period_month=current_period
-    )
-    api_used = count_usage_events(
-        user_id, "api", event_type="accepted", period_month=current_period
-    )
+    credit_info = get_credit_summary(user_id, normalized_plan)
 
     return {
         "plan": normalized_plan,
-        "period_month": current_period,
         "ads_enabled": ads_enabled(normalized_plan, "session"),
         "history_limit": get_history_limit(normalized_plan),
         "file_limits_mb": get_effective_file_size_limits_mb(normalized_plan),
+        "credits": credit_info,
+        "tool_costs": get_all_tool_costs(),
+        # Legacy fields for backward compatibility
         "web_quota": {
-            "used": web_used,
-            "limit": get_web_quota_limit(normalized_plan, "session"),
-        },
-        "api_quota": {
-            "used": api_used,
-            "limit": get_api_quota_limit(normalized_plan),
+            "used": credit_info["credits_used"],
+            "limit": credit_info["credits_allocated"],
         },
     }
 
@@ -173,21 +178,38 @@ def validate_actor_file(file_storage, allowed_types: list[str], actor: ActorCont
     )
 
 
-def assert_quota_available(actor: ActorContext):
-    """Ensure an actor still has accepted-task quota for the current month."""
+def assert_quota_available(actor: ActorContext, tool: str | None = None):
+    """Ensure an actor still has credits for the requested tool.
+
+    For registered users: checks rolling credit window balance.
+    For anonymous users: checks guest demo budget.
+    """
     if actor.user_id is None:
+        # Guest demo budget enforcement
+        try:
+            assert_guest_budget_available()
+        except ValueError:
+            raise PolicyError(
+                "You have used all your free demo tries. "
+                "Create a free account to continue.",
+                429,
+            )
         return
 
     if actor.source == "web":
-        limit = get_web_quota_limit(actor.plan, actor.actor_type)
-        if limit is None:
-            return
-        used = count_usage_events(actor.user_id, "web", event_type="accepted")
-        if used >= limit:
+        # Credit-based check
+        cost = get_tool_credit_cost(tool) if tool else 1
+        balance = get_rolling_balance(actor.user_id, actor.plan)
+        if balance < cost:
             if normalize_plan(actor.plan) == PRO_PLAN:
-                raise PolicyError("Your monthly Pro web quota has been reached.", 429)
+                raise PolicyError(
+                    f"Your Pro credit balance is exhausted ({balance} remaining, "
+                    f"{cost} required). Credits reset at the end of your 30-day window.",
+                    429,
+                )
             raise PolicyError(
-                "Your monthly free plan limit has been reached. Upgrade to Pro for higher limits.",
+                f"Your free credit balance is exhausted ({balance} remaining, "
+                f"{cost} required). Upgrade to Pro for more credits.",
                 429,
             )
         return
@@ -202,9 +224,28 @@ def assert_quota_available(actor: ActorContext):
 
 
 def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str):
-    """Record one accepted usage event after task dispatch succeeds."""
+    """Record one accepted usage event and deduct credits after task dispatch."""
     if actor.source == "web":
         remember_task_access(celery_task_id)
+
+    cost = get_tool_credit_cost(tool)
+
+    # Deduct credits from the rolling window (registered users only)
+    if actor.user_id is not None and actor.source == "web":
+        try:
+            deduct_credits(actor.user_id, actor.plan, tool)
+        except ValueError:
+            # Balance check should have caught this in assert_quota_available.
+            # Log but don't block — the usage event is the source of truth.
+            import logging
+            logging.getLogger(__name__).warning(
+                "Credit deduction failed for user %d tool %s (insufficient balance at record time)",
+                actor.user_id,
+                tool,
+            )
+    elif actor.user_id is None and actor.source == "web":
+        # Record guest demo usage
+        record_guest_usage()
 
     record_usage_event(
         user_id=actor.user_id,
@@ -213,6 +254,7 @@ def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str):
         task_id=celery_task_id,
         event_type="accepted",
         api_key_id=actor.api_key_id,
+        cost_points=cost,
     )
 
 

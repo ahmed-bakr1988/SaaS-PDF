@@ -6,15 +6,24 @@ from app.extensions import limiter
 from app.services.account_service import (
     create_api_key,
     get_user_by_id,
+    has_task_access,
     list_api_keys,
+    record_usage_event,
     revoke_api_key,
 )
 from app.services.policy_service import get_usage_summary_for_user
+from app.services.credit_config import (
+    get_all_tool_costs,
+    get_credits_for_plan,
+    get_tool_credit_cost,
+    CREDIT_WINDOW_DAYS,
+)
+from app.services.credit_service import deduct_credits, get_credit_summary
 from app.services.stripe_service import (
     is_stripe_configured,
     get_stripe_price_id,
 )
-from app.utils.auth import get_current_user_id
+from app.utils.auth import get_current_user_id, has_session_task_access
 import stripe
 import logging
 
@@ -36,6 +45,19 @@ def get_usage_route():
         return jsonify({"error": "User not found."}), 404
 
     return jsonify(get_usage_summary_for_user(user_id, user["plan"])), 200
+
+
+@account_bp.route("/credit-info", methods=["GET"])
+@limiter.limit("60/hour")
+def get_credit_info_route():
+    """Return public credit/pricing info (no auth required)."""
+    return jsonify({
+        "plans": {
+            "free": {"credits": get_credits_for_plan("free"), "window_days": CREDIT_WINDOW_DAYS},
+            "pro": {"credits": get_credits_for_plan("pro"), "window_days": CREDIT_WINDOW_DAYS},
+        },
+        "tool_costs": get_all_tool_costs(),
+    }), 200
 
 
 @account_bp.route("/subscription", methods=["GET"])
@@ -159,3 +181,62 @@ def revoke_api_key_route(key_id: int):
         return jsonify({"error": "API key not found or already revoked."}), 404
 
     return jsonify({"message": "API key revoked."}), 200
+
+
+@account_bp.route("/claim-task", methods=["POST"])
+@limiter.limit("60/hour")
+def claim_task_route():
+    """Adopt an anonymous task into the authenticated user's history.
+
+    Called after a guest signs up or logs in to record the previously
+    processed task in their account and deduct credits.
+    """
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify({"error": "Authentication required."}), 401
+
+    data = request.get_json(silent=True) or {}
+    task_id = str(data.get("task_id", "")).strip()
+    tool = str(data.get("tool", "")).strip()
+
+    if not task_id or not tool:
+        return jsonify({"error": "task_id and tool are required."}), 400
+
+    # Verify this task belongs to the caller's session
+    if not has_session_task_access(task_id):
+        return jsonify({"error": "Task not found in your session."}), 403
+
+    # Skip if already claimed (idempotent)
+    if has_task_access(user_id, "web", task_id):
+        summary = get_credit_summary(user_id, "free")
+        return jsonify({"claimed": True, "credits": summary}), 200
+
+    user = get_user_by_id(user_id)
+    if user is None:
+        return jsonify({"error": "User not found."}), 404
+
+    plan = user.get("plan", "free")
+    cost = get_tool_credit_cost(tool)
+
+    # Deduct credits
+    try:
+        deduct_credits(user_id, plan, tool)
+    except ValueError:
+        return jsonify({
+            "error": "Insufficient credits to claim this file.",
+            "credits_required": cost,
+        }), 429
+
+    # Record usage event so the task appears in history
+    record_usage_event(
+        user_id=user_id,
+        source="web",
+        tool=tool,
+        task_id=task_id,
+        event_type="accepted",
+        api_key_id=None,
+        cost_points=cost,
+    )
+
+    summary = get_credit_summary(user_id, plan)
+    return jsonify({"claimed": True, "credits": summary}), 200

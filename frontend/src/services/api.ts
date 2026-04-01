@@ -480,6 +480,17 @@ export async function logoutUser(): Promise<void> {
 }
 
 /**
+ * Claim an anonymous task into the authenticated user's history.
+ */
+export async function claimTask(taskId: string, tool: string): Promise<{ claimed: boolean }> {
+  const response = await api.post<{ claimed: boolean }>('/account/claim-task', {
+    task_id: taskId,
+    tool,
+  });
+  return response.data;
+}
+
+/**
  * Return the current authenticated user, if any.
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {
@@ -965,9 +976,18 @@ export async function updateAdminUserRole(userId: number, role: string): Promise
 
 // --- Account / Usage / API Keys ---
 
+export interface CreditInfo {
+  credits_allocated: number;
+  credits_used: number;
+  credits_remaining: number;
+  window_start: string | null;
+  window_end: string | null;
+  plan: string;
+}
+
 export interface UsageSummary {
   plan: string;
-  period_month: string;
+  period_month?: string;
   ads_enabled: boolean;
   history_limit: number;
   file_limits_mb: {
@@ -977,8 +997,10 @@ export interface UsageSummary {
     video: number;
     homepageSmartUpload: number;
   };
+  credits: CreditInfo;
+  tool_costs: Record<string, number>;
   web_quota: { used: number; limit: number | null };
-  api_quota: { used: number; limit: number | null };
+  api_quota?: { used: number; limit: number | null };
 }
 
 export interface ApiKey {

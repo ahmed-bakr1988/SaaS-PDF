@@ -15,6 +15,10 @@ from app.services.pdf_ai_service import (
     PdfAiError,
 )
 from app.services.task_tracking_service import finalize_task_tracking
+from app.services.translation_guardrails import (
+    get_cached_translation,
+    store_cached_translation,
+)
 from app.utils.sanitizer import cleanup_task_files
 
 logger = logging.getLogger(__name__)
@@ -214,9 +218,24 @@ def translate_pdf_task(
             meta={"step": "Translating document with provider fallback..."},
         )
 
-        data = translate_pdf(
-            input_path, target_language, source_language=source_language
+        # ── Cache lookup — skip AI call if identical translation exists ──
+        cached = get_cached_translation(
+            input_path, target_language, source_language or "auto"
         )
+        if cached is not None:
+            data = cached
+            data["provider"] = f"{data.get('provider', 'unknown')} (cached)"
+        else:
+            data = translate_pdf(
+                input_path, target_language, source_language=source_language
+            )
+            # Store successful result for future cache hits
+            store_cached_translation(
+                input_path,
+                target_language,
+                source_language or "auto",
+                data,
+            )
 
         result = {
             "status": "completed",

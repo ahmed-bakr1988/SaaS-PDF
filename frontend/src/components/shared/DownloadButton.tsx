@@ -1,12 +1,15 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
-import { Download, RotateCcw, Clock } from 'lucide-react';
+import { Download, RotateCcw, Clock, Lock } from 'lucide-react';
 import type { TaskResult } from '@/services/api';
 import { formatFileSize } from '@/utils/textTools';
 import { trackEvent } from '@/services/analytics';
 import { dispatchCurrentToolRatingPrompt } from '@/utils/ratingPrompt';
 import SharePanel from '@/components/shared/SharePanel';
 import SuggestedTools from '@/components/seo/SuggestedTools';
+import SignUpToDownloadModal from '@/components/shared/SignUpToDownloadModal';
+import { useAuthStore } from '@/stores/authStore';
 
 interface DownloadButtonProps {
   /** Task result containing download URL */
@@ -18,9 +21,20 @@ interface DownloadButtonProps {
 export default function DownloadButton({ result, onStartOver }: DownloadButtonProps) {
   const { t } = useTranslation();
   const location = useLocation();
+  const user = useAuthStore((s) => s.user);
+  const [showGateModal, setShowGateModal] = useState(false);
   const currentToolSlug = location.pathname.startsWith('/tools/')
     ? location.pathname.replace('/tools/', '')
     : null;
+
+  // Extract the download task ID from the download URL path
+  // URL format: /api/download/<task_id>/<filename>
+  const downloadTaskId = (() => {
+    if (!result.download_url) return undefined;
+    const parts = result.download_url.split('/');
+    const idx = parts.indexOf('download');
+    return idx >= 0 && parts.length > idx + 1 ? parts[idx + 1] : undefined;
+  })();
 
   const handleDownloadClick = () => {
     trackEvent('download_clicked', { filename: result.filename || 'unknown' });
@@ -72,17 +86,35 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
       )}
 
       {/* Download button */}
-      <a
-        href={result.download_url}
-        download={result.filename}
-        onClick={handleDownloadClick}
-        className="btn-success w-full"
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Download className="h-5 w-5" />
-        {t('common.download')} — {result.filename}
-      </a>
+      {user ? (
+        <a
+          href={result.download_url}
+          download={result.filename}
+          onClick={handleDownloadClick}
+          className="btn-success w-full"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Download className="h-5 w-5" />
+          {t('common.download')} — {result.filename}
+        </a>
+      ) : (
+        <button
+          onClick={() => setShowGateModal(true)}
+          className="btn-primary w-full"
+        >
+          <Lock className="h-5 w-5" />
+          {t('downloadGate.downloadCta')}
+        </button>
+      )}
+
+      {showGateModal && (
+        <SignUpToDownloadModal
+          onClose={() => setShowGateModal(false)}
+          taskId={downloadTaskId}
+          toolSlug={currentToolSlug ?? undefined}
+        />
+      )}
 
       <div className="mt-3 flex justify-center">
         <SharePanel

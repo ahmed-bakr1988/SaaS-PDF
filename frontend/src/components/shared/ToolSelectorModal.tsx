@@ -86,7 +86,7 @@ export default function ToolSelectorModal({
       aria-modal="true"
       aria-labelledby="tool-selector-title"
     >
-      <div className="modal-content w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div className="modal-content flex w-full max-w-lg max-h-[90vh] flex-col rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         {/* Header */}
         <div className="mb-5 flex items-start justify-between">
           <div>
@@ -123,26 +123,28 @@ export default function ToolSelectorModal({
         </div>
 
         {/* Tools Grid */}
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {tools.map((tool) => {
-            const Icon = tool.icon;
-            return (
-              <button
-                key={tool.key}
-                onClick={() => handleToolSelect(tool)}
-                className="group flex flex-col items-center gap-2 rounded-xl p-4 ring-1 ring-slate-200 transition-all hover:ring-primary-300 hover:shadow-md dark:ring-slate-700 dark:hover:ring-primary-600"
-              >
-                <div
-                  className={`flex h-10 w-10 items-center justify-center rounded-xl ${tool.bgColor}`}
+        <div className="max-h-[50vh] overflow-y-auto overscroll-contain">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            {tools.map((tool) => {
+              const Icon = tool.icon;
+              return (
+                <button
+                  key={tool.key}
+                  onClick={() => handleToolSelect(tool)}
+                  className="group flex flex-col items-center gap-2 rounded-xl p-4 ring-1 ring-slate-200 transition-all hover:ring-primary-300 hover:shadow-md dark:ring-slate-700 dark:hover:ring-primary-600"
                 >
-                  <Icon className={`h-5 w-5 ${tool.iconColor}`} />
-                </div>
-                <span className="text-center text-xs font-medium text-slate-700 group-hover:text-primary-600 dark:text-slate-300 dark:group-hover:text-primary-400">
-                  {t(`tools.${tool.key}.shortDesc`)}
-                </span>
-              </button>
-            );
-          })}
+                  <div
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${tool.bgColor}`}
+                  >
+                    <Icon className={`h-5 w-5 ${tool.iconColor}`} />
+                  </div>
+                  <span className="text-center text-xs font-medium text-slate-700 group-hover:text-primary-600 dark:text-slate-300 dark:group-hover:text-primary-400">
+                    {t(`tools.${tool.key}.shortDesc`)}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>

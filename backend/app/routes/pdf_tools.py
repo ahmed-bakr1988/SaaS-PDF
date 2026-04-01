@@ -56,7 +56,7 @@ def merge_pdfs_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="merge-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -123,7 +123,7 @@ def split_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="split-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -183,7 +183,7 @@ def rotate_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="rotate-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -246,7 +246,7 @@ def add_page_numbers_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="page-numbers")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -304,7 +304,7 @@ def pdf_to_images_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pdf-to-images")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -353,7 +353,7 @@ def images_to_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="images-to-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -424,7 +424,7 @@ def watermark_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="watermark-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -480,7 +480,7 @@ def protect_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="protect-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -532,7 +532,7 @@ def unlock_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="unlock-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -579,7 +579,7 @@ def remove_watermark_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="remove-watermark")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -638,7 +638,7 @@ def reorder_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="reorder-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -690,7 +690,7 @@ def extract_pages_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="extract-pages")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

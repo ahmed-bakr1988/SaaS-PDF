@@ -38,7 +38,7 @@ def compress_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="compress-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

@@ -33,7 +33,7 @@ def pdf_to_word_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pdf-to-word")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -75,7 +75,7 @@ def word_to_pdf_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="word-to-pdf")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

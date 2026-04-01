@@ -54,7 +54,7 @@ def crop_image_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="image-crop")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -120,7 +120,7 @@ def rotate_flip_image_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="image-rotate-flip")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 

@@ -39,7 +39,7 @@ def extract_flowchart_route():
 
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pdf-flowchart")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -75,7 +75,7 @@ def extract_sample_flowchart_route():
     """
     actor = resolve_web_actor()
     try:
-        assert_quota_available(actor)
+        assert_quota_available(actor, tool="pdf-flowchart-sample")
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
