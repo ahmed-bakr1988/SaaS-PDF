@@ -50,6 +50,9 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     cssMinify: true,
+    target: 'es2020',
+    chunkSizeWarningLimit: 600,
+    minify: 'esbuild',
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -57,12 +60,12 @@ export default defineConfig({
             return undefined;
           }
 
-          if (
-            id.includes('react-dom') ||
-            id.includes('react-router-dom') ||
-            id.includes('/react/')
-          ) {
+          if (id.includes('react-dom') || id.includes('/react/')) {
             return 'vendor';
+          }
+
+          if (id.includes('react-router-dom')) {
+            return 'router';
           }
 
           if (id.includes('i18next') || id.includes('react-i18next')) {
@@ -71,10 +74,6 @@ export default defineConfig({
 
           if (id.includes('react-helmet-async')) {
             return 'helmet';
-          }
-
-          if (id.includes('lucide-react')) {
-            return 'icons';
           }
 
           if (id.includes('/axios/')) {
