@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
+import { ensureLanguageResources } from '@/i18n';
 interface LangOption {
   code: string;
   label: string;
@@ -58,8 +59,9 @@ export default function Header() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const switchLang = (code: string) => {
-    i18n.changeLanguage(code);
+  const switchLang = async (code: string) => {
+    const resolved = await ensureLanguageResources(code);
+    void i18n.changeLanguage(resolved);
     setLangOpen(false);
   };
 
@@ -140,7 +142,7 @@ export default function Header() {
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
-                    onClick={() => switchLang(lang.code)}
+                    onClick={() => void switchLang(lang.code)}
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                       lang.code === i18n.language
                         ? 'bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400'

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
+import { ensureLanguageResources } from '@/i18n';
 import { getProgrammaticToolPage, getSeoCollectionPage } from '@/config/seoPages';
 import NotFoundPage from '@/pages/NotFoundPage';
 import SeoCollectionPage from '@/pages/SeoCollectionPage';
@@ -17,9 +18,12 @@ export default function SeoRoutePage() {
   const resolvedLocale = locale === 'ar' ? 'ar' : 'en';
 
   useEffect(() => {
-    if (i18n.language !== resolvedLocale) {
-      void i18n.changeLanguage(resolvedLocale);
-    }
+    if (i18n.language === resolvedLocale) return;
+
+    void (async () => {
+      const resolved = await ensureLanguageResources(resolvedLocale);
+      await i18n.changeLanguage(resolved);
+    })();
   }, [i18n, resolvedLocale]);
 
   if (!slug) {

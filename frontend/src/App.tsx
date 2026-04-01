@@ -10,6 +10,8 @@ import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
 
+let clarityInitialized = false;
+
 // Pages
 const HomePage = lazy(() => import('@/pages/HomePage'));
 const AboutPage = lazy(() => import('@/pages/AboutPage'));
@@ -99,10 +101,38 @@ export default function App() {
 
   // Microsoft Clarity: Run only in production and browser
   useEffect(() => {
-    if (import.meta.env.PROD && typeof window !== 'undefined') {
-      // ضع هنا رقم مشروع Clarity الخاص بك بدلاً من 'YOUR_CLARITY_PROJECT_ID'
-      Clarity.init(import.meta.env.VITE_CLARITY_PROJECT_ID);
-    }
+    if (!import.meta.env.PROD || typeof window === 'undefined') return;
+
+    const projectId = (import.meta.env.VITE_CLARITY_PROJECT_ID || '').trim();
+    if (!projectId) return;
+
+    const tryInitClarity = () => {
+      if (clarityInitialized) return;
+      try {
+        const rawConsent = localStorage.getItem('cookie_consent');
+        const parsed = rawConsent ? JSON.parse(rawConsent) : null;
+        const hasConsent = parsed?.state === 'accepted';
+        if (hasConsent) {
+          Clarity.init(projectId);
+          clarityInitialized = true;
+        }
+      } catch {
+        // Ignore malformed consent payloads.
+      }
+    };
+
+    tryInitClarity();
+
+    const onConsent = (event: Event) => {
+      const customEvent = event as CustomEvent<{ accepted: boolean }>;
+      if (customEvent.detail?.accepted && !clarityInitialized) {
+        Clarity.init(projectId);
+        clarityInitialized = true;
+      }
+    };
+
+    window.addEventListener('cookie-consent', onConsent as EventListener);
+    return () => window.removeEventListener('cookie-consent', onConsent as EventListener);
   }, []);
 
   useEffect(() => {
