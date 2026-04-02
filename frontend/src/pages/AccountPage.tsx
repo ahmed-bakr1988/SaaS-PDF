@@ -12,6 +12,7 @@ import {
   FolderClock,
   KeyRound,
   LogOut,
+  PartyPopper,
   ShieldCheck,
   Sparkles,
   Trash2,
@@ -94,6 +95,21 @@ export default function AccountPage() {
   const login = useAuthStore((state) => state.login);
   const register = useAuthStore((state) => state.register);
   const logout = useAuthStore((state) => state.logout);
+  const isNewAccount = useAuthStore((state) => state.isNewAccount);
+  const clearNewAccount = useAuthStore((state) => state.clearNewAccount);
+  const credits = useAuthStore((state) => state.credits);
+
+  // Welcome celebration for new registrations
+  useEffect(() => {
+    if (isNewAccount && user) {
+      toast(t('account.welcomeTitle'), {
+        description: t('account.welcomeMessage'),
+        icon: <PartyPopper className="h-5 w-5 text-amber-500" />,
+        duration: 6000,
+      });
+      clearNewAccount();
+    }
+  }, [isNewAccount, user, t, clearNewAccount]);
 
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');

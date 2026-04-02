@@ -29,6 +29,7 @@ from app.services.guest_budget_service import (
     assert_guest_budget_available,
     record_guest_usage,
 )
+from app.services.quote_service import CreditQuote, fulfill_quote
 from app.utils.auth import get_current_user_id, logout_user_session
 from app.utils.auth import has_session_task_access, remember_task_access
 from app.utils.file_validator import validate_file
@@ -223,29 +224,48 @@ def assert_quota_available(actor: ActorContext, tool: str | None = None):
         raise PolicyError("Your monthly API quota has been reached.", 429)
 
 
-def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str):
-    """Record one accepted usage event and deduct credits after task dispatch."""
+def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str, quote: CreditQuote | None = None):
+    """Record one accepted usage event and deduct credits after task dispatch.
+
+    When *quote* is provided the quote engine handles deduction (supports
+    dynamic pricing and welcome bonus).  Without a quote, falls back to the
+    legacy fixed-cost deduction path.
+    """
     if actor.source == "web":
         remember_task_access(celery_task_id)
 
-    cost = get_tool_credit_cost(tool)
+    charged = 0
 
     # Deduct credits from the rolling window (registered users only)
     if actor.user_id is not None and actor.source == "web":
-        try:
-            deduct_credits(actor.user_id, actor.plan, tool)
-        except ValueError:
-            # Balance check should have caught this in assert_quota_available.
-            # Log but don't block — the usage event is the source of truth.
-            import logging
-            logging.getLogger(__name__).warning(
-                "Credit deduction failed for user %d tool %s (insufficient balance at record time)",
-                actor.user_id,
-                tool,
-            )
+        if quote is not None:
+            try:
+                charged = fulfill_quote(quote, actor.user_id, actor.plan)
+            except ValueError:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Quote fulfillment failed for user %d tool %s",
+                    actor.user_id,
+                    tool,
+                )
+                charged = quote.charged_credits
+        else:
+            cost = get_tool_credit_cost(tool)
+            try:
+                deduct_credits(actor.user_id, actor.plan, tool)
+                charged = cost
+            except ValueError:
+                import logging
+                logging.getLogger(__name__).warning(
+                    "Credit deduction failed for user %d tool %s (insufficient balance at record time)",
+                    actor.user_id,
+                    tool,
+                )
+                charged = cost
     elif actor.user_id is None and actor.source == "web":
         # Record guest demo usage
         record_guest_usage()
+        charged = get_tool_credit_cost(tool)
 
     record_usage_event(
         user_id=actor.user_id,
@@ -254,7 +274,8 @@ def record_accepted_usage(actor: ActorContext, tool: str, celery_task_id: str):
         task_id=celery_task_id,
         event_type="accepted",
         api_key_id=actor.api_key_id,
-        cost_points=cost,
+        cost_points=charged,
+        quoted_credits=quote.quoted_credits if quote else None,
     )
 
 

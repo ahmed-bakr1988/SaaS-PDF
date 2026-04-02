@@ -28,6 +28,7 @@
     "lightMode": "Mode clair",
     "contact": "Contact",
     "pricing": "Tarifs",
+    "pricingTransparency": "Comment fonctionne la tarification",
     "blog": "Blog",
     "developers": "Développeurs",
     "send": "Envoyer",
@@ -299,9 +300,9 @@
     },
     "pricing": {
       "metaTitle": "Tarifs — Dociva",
-      "metaDescription": "Comparez les plans gratuit et pro de Dociva. Accédez à plus de 30 outils gratuitement ou passez au pro pour un traitement illimité.",
+      "metaDescription": "Comparez les plans Gratuit et Pro, comprenez comment fonctionnent les crédits Dociva et pourquoi certaines charges de travail coûtent plus que des tâches légères.",
       "title": "Plans & Tarifs",
-      "subtitle": "Commencez gratuitement et passez au pro quand vous en avez besoin.",
+      "subtitle": "Commencez gratuitement, suivez vos crédits clairement et passez au Pro seulement quand vous avez besoin de plus de capacité.",
       "free": "Gratuit",
       "pro": "Pro",
       "freePrice": "0€",
@@ -339,6 +340,15 @@
         "emailSupport": "Support par e-mail"
       },
       "faqTitle": "Questions fréquentes",
+      "faq1q": "Le plan gratuit est-il vraiment gratuit ?",
+      "faq1a": "Oui. Les comptes gratuits reçoivent 50 crédits tous les 30 jours et tous les outils essentiels restent disponibles sans carte bancaire.",
+      "faq2q": "Puis-je annuler le plan Pro à tout moment ?",
+      "faq2a": "Oui. Annulez quand vous voulez et votre compte repassera au plan Gratuit à la fin de la période de facturation en cours.",
+      "faq3q": "Quels moyens de paiement acceptez-vous ?",
+      "faq3a": "Nous acceptons les principales cartes bancaires via Stripe. Les paiements sont traités de manière sécurisée sans exposer vos données bancaires à Dociva.",
+      "transparencyTitle": "Voyez exactement comment les crédits sont comptés",
+      "transparencyBody": "Lisez l'explication complète de la tarification fixe vs dynamique, des devis avant exécution et de notre logique basée sur la charge de travail plutôt que sur un simple compteur de transactions.",
+      "transparencyAction": "Comment fonctionne la tarification",
       "faq": [
         {
           "q": "Le plan gratuit est-il vraiment gratuit ?",
@@ -354,13 +364,52 @@
         }
       ],
       "trustTitle": "Conçu pour les équipes qui ont besoin de vitesse et de prévisibilité",
-      "trustSubtitle": "La même plateforme prend en charge les usages rapides dans le navigateur, les workflows récurrents liés au compte et les pipelines documentaires via API.",
+      "trustSubtitle": "La même plateforme prend en charge les tâches rapides dans le navigateur, l'usage récurrent lié au compte et un modèle de crédits pensé pour refléter la charge réelle de traitement.",
       "trustFastTitle": "Traitement rapide",
       "trustFastDesc": "Les tâches asynchrones et les workers optimisés permettent aux traitements lourds d'avancer sans bloquer l'interface.",
       "trustPrivateTitle": "Privé par défaut",
       "trustPrivateDesc": "Les fichiers sont validés, traités de manière sécurisée puis supprimés automatiquement après la fenêtre de rétention.",
       "trustApiTitle": "Prêt pour l'intégration",
       "trustApiDesc": "Les espaces Pro peuvent générer des clés API et connecter les mêmes outils à des automatisations internes ou à des parcours clients."
+    },
+    "pricingTransparency": {
+      "metaTitle": "Transparence tarifaire",
+      "metaDescription": "Comprenez comment fonctionnent les crédits Dociva, ce qui reste à coût fixe, ce qui peut varier selon la charge de travail et pourquoi les crédits ne sont pas liés à un nombre fixe de requêtes fournisseur.",
+      "badge": "Transparence tarifaire",
+      "title": "Comment fonctionne la tarification par crédits chez Dociva",
+      "subtitle": "Nous voulons que votre solde reflète l'effort réel de traitement, et non un simple compteur arbitraire de transactions. Cette page explique ce qui est fixe, ce qui peut varier et ce que vous voyez avant d'exécuter une tâche.",
+      "creditsTitle": "Les crédits sont votre solde d'usage",
+      "creditsBody": "Les comptes Gratuit et Pro reçoivent une allocation de crédits pour chaque fenêtre de 30 jours. Votre solde ne baisse que lorsqu'une tâche est acceptée.",
+      "quoteTitle": "Vous voyez le prix avant les tâches lourdes",
+      "quoteBody": "Pour les outils lourds et IA pris en charge, Dociva peut afficher un devis avant l'exécution afin que vous décidiez en connaissance de cause.",
+      "fairnessTitle": "Toutes les tâches ne devraient pas coûter pareil",
+      "fairnessBody": "Fusionner un PDF et traduire un long document ne consomment pas les mêmes ressources. La tarification en crédits reflète cette différence.",
+      "howTitle": "Comment les coûts sont calculés",
+      "howBody": "Les outils légers et moyens gardent en général un coût fixe. Les outils lourds et IA peuvent utiliser un devis dynamique basé sur la taille du fichier ou la charge de traitement attendue avant la mise en file.",
+      "fixedTitle": "Outils à coût fixe",
+      "fixedBody": "Les tâches comme les petites modifications PDF ou les conversions simples gardent un coût prévisible et bas afin que les usages courants restent faciles à budgéter.",
+      "dynamicTitle": "Outils à coût variable",
+      "dynamicBody": "Les tâches gourmandes en ressources comme l'OCR, la compression ou certains workflows documentaires assistés par IA peuvent coûter plus lorsque le fichier ou la charge de traitement augmente.",
+      "noteTitle": "Ce que nous voulons dire clairement",
+      "noteBody": "Les crédits du site sont un solde produit pour l'usage de Dociva. Ce n'est pas un compteur direct de tokens facturé par nos fournisseurs d'infrastructure.",
+      "noOneToOneBody": "Il n'existe pas de règle fixe du type \"1 crédit = X requêtes OpenRouter\". Certains traitements font un seul appel fournisseur, d'autres plusieurs, et certains workflows tarifés comme IA n'utilisent même pas OpenRouter.",
+      "examplesTitle": "Trois exemples simples",
+      "exampleLightTitle": "Faible coût, fixe",
+      "exampleLightBody": "Un outil léger comme la fusion ou la rotation de PDF reste proche du prix minimum car la charge de traitement est faible et prévisible.",
+      "exampleHeavyTitle": "Traitement plus lourd",
+      "exampleHeavyBody": "L'OCR, la compression ou la suppression d'arrière-plan peuvent coûter plus cher car la taille du fichier et le temps de calcul augmentent la charge réelle.",
+      "exampleAiTitle": "Workflows assistés par IA",
+      "exampleAiBody": "Le chat, le résumé ou la traduction partent d'une base plus élevée car ils impliquent du traitement linguistique et, parfois, plusieurs appels à des fournisseurs externes.",
+      "futureTitle": "Pourquoi cela va dans le sens du pay-as-you-use",
+      "futureBody": "Aujourd'hui, le produit repose encore sur les plans Gratuit et Pro, mais la philosophie tarifaire vise déjà un usage plus juste: les tâches simples doivent consommer moins de solde que les tâches coûteuses. C'est la base d'une future flexibilité de recharge.",
+      "faq1q": "Connaîtrai-je toujours le coût à l'avance ?",
+      "faq1a": "Pour les outils lourds et IA pris en charge, Dociva peut afficher un devis avant dispatch. Les outils plus simples gardent un coût fixe.",
+      "faq2q": "Que se passe-t-il si mon solde est trop faible ?",
+      "faq2a": "La tâche est rejetée avant le début du traitement, afin que vous puissiez vérifier votre solde ou passer à un plan supérieur sans dépenser de crédits à l'aveugle.",
+      "faq3q": "Pourquoi ne pas tout facturer comme une seule transaction ?",
+      "faq3a": "Un compteur plat de transactions est plus simple à expliquer, mais moins juste. Une tarification liée à la charge de travail aide à garder les outils simples abordables sans sous-tarifer les traitements coûteux.",
+      "pricingCta": "Comparer Gratuit et Pro",
+      "toolsCta": "Explorer les outils"
     },
     "developers": {
       "metaDescription": "Explorez le portail développeur Dociva, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
@@ -1020,7 +1069,9 @@
     "originalFile": "Fichier source",
     "outputFile": "Fichier de sortie",
     "statusCompleted": "Terminé",
-    "statusFailed": "Échec"
+    "statusFailed": "Échec",
+    "welcomeTitle": "🎉 Bienvenue sur Dociva !",
+    "welcomeMessage": "Vous avez 50 crédits gratuits et votre première transaction est offerte. Commencez à traiter vos fichiers !"
   },
   "result": {
     "conversionComplete": "Conversion terminée !",
@@ -1502,5 +1553,12 @@
         {"q": "Quelle est la différence avec un code QR ?", "a": "Les codes-barres sont linéaires (1D) avec moins de capacité de données. Les codes QR sont bidimensionnels (2D) et stockent plus d'informations."}
       ]
     }
+  },
+  "costEstimate": {
+    "cost": "Coût",
+    "credits": "crédits",
+    "firstFree": "Premier gratuit !",
+    "remaining": "Restant",
+    "insufficient": "Crédits insuffisants"
   }
 }

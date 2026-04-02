@@ -7,6 +7,7 @@ from app.services.policy_service import (
     resolve_web_actor,
     FREE_PLAN,
 )
+from app.services.credit_config import get_dynamic_tools_info
 
 config_bp = Blueprint("config", __name__)
 
@@ -24,6 +25,7 @@ def get_config():
     payload: dict = {
         "file_limits_mb": file_limits_mb,
         "max_upload_mb": max(file_limits_mb.values()),
+        "dynamic_tools": get_dynamic_tools_info(),
     }
 
     if actor.user_id is not None:

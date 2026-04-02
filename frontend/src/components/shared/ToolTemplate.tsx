@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { LucideIcon, AlertCircle, CheckCircle, Clock } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
+import CostEstimatePanel from '@/components/shared/CostEstimatePanel';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import AdSlot from '@/components/layout/AdSlot';
@@ -156,6 +157,8 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
                   {}
                 ) || {}}
               />
+
+              <CostEstimatePanel toolSlug={config.slug} file={file} />
 
               {children && (
                 <div className="rounded-xl bg-slate-50 p-6 dark:bg-slate-800">{children(templateProps)}</div>

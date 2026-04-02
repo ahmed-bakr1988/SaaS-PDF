@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
-import { Check, X, Zap, Crown, Loader2 } from 'lucide-react';
+import { ArrowRight, Check, Coins, Crown, Loader2, Scale, X, Zap } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
 import { getApiClient } from '@/services/api';
@@ -88,6 +88,32 @@ export default function PricingPage() {
           <p className="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-400">
             {t('pages.pricing.subtitle', 'Start free with all tools. Upgrade when you need more power.')}
           </p>
+
+          <div className="mx-auto mt-6 max-w-3xl rounded-2xl border border-primary-200 bg-primary-50/80 p-5 text-start shadow-sm dark:border-primary-900/40 dark:bg-primary-900/20">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex gap-3">
+                <div className="mt-0.5 rounded-2xl bg-white p-2 text-primary-600 shadow-sm dark:bg-slate-900 dark:text-primary-300">
+                  <Scale className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-semibold text-slate-900 dark:text-white">
+                    {t('pages.pricing.transparencyTitle')}
+                  </h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-600 dark:text-slate-300">
+                    {t('pages.pricing.transparencyBody')}
+                  </p>
+                </div>
+              </div>
+              <Link
+                to="/pricing-transparency"
+                className="inline-flex items-center gap-2 self-start rounded-xl bg-white px-4 py-2 text-sm font-semibold text-primary-700 transition-colors hover:bg-primary-100 dark:bg-slate-900 dark:text-primary-300 dark:hover:bg-slate-800"
+              >
+                <Coins className="h-4 w-4" />
+                {t('pages.pricing.transparencyAction')}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
         </div>
 
         <div className="deferred-section mb-12">

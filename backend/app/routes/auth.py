@@ -13,6 +13,7 @@ from app.services.account_service import (
     verify_and_consume_reset_token,
     update_user_password,
 )
+from app.services.credit_service import get_credit_summary
 from app.services.email_service import send_password_reset_email
 from app.utils.auth import (
     get_current_user_id,
@@ -62,7 +63,13 @@ def register_route():
         return jsonify({"error": str(exc)}), 409
 
     login_user_session(user["id"])
-    return jsonify({"message": "Account created successfully.", "user": user}), 201
+    credits = get_credit_summary(user["id"], user.get("plan", "free"))
+    return jsonify({
+        "message": "Account created successfully.",
+        "user": user,
+        "credits": credits,
+        "is_new_account": True,
+    }), 201
 
 
 @auth_bp.route("/login", methods=["POST"])
@@ -79,7 +86,12 @@ def login_route():
         return jsonify({"error": "Invalid email or password."}), 401
 
     login_user_session(user["id"])
-    return jsonify({"message": "Signed in successfully.", "user": user}), 200
+    credits = get_credit_summary(user["id"], user.get("plan", "free"))
+    return jsonify({
+        "message": "Signed in successfully.",
+        "user": user,
+        "credits": credits,
+    }), 200
 
 
 @auth_bp.route("/logout", methods=["POST"])
@@ -103,7 +115,8 @@ def me_route():
         logout_user_session()
         return jsonify({"authenticated": False, "user": None}), 200
 
-    return jsonify({"authenticated": True, "user": user}), 200
+    credits = get_credit_summary(user_id, user.get("plan", "free"))
+    return jsonify({"authenticated": True, "user": user, "credits": credits}), 200
 
 
 @auth_bp.route("/csrf", methods=["GET"])

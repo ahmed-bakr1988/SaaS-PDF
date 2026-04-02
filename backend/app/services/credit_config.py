@@ -4,12 +4,19 @@ Every tool has a credit cost. Lighter tools cost 1 credit, heavier
 server-side conversions cost 2, CPU/ML-intensive tools cost 3,
 and AI-powered tools cost 5+.
 
+Heavy and AI tools use dynamic pricing based on file/request size.
+Light and medium tools keep a fixed cost per invocation.
+
 This module is the single source of truth for all credit-related
-constants consumed by policy_service, credit_service, and the
-frontend config endpoint.
+constants consumed by policy_service, credit_service, quote_service,
+and the frontend config endpoint.
 """
 
+from __future__ import annotations
+
+import math
 import os
+from dataclasses import dataclass
 
 # ── Credit allocations per rolling 30-day window ────────────────
 FREE_CREDITS_PER_WINDOW = int(os.getenv("FREE_CREDITS_PER_WINDOW", "50"))
@@ -28,6 +35,98 @@ TIER_LIGHT = 1       # Fast, in-memory or trivial server ops
 TIER_MEDIUM = 2      # Server-side conversion (LibreOffice, Ghostscript, etc.)
 TIER_HEAVY = 3       # CPU/ML-intensive (OCR, background removal, compression)
 TIER_AI = 5          # AI-powered tools (LLM API calls)
+
+# ── Dynamic pricing model ──────────────────────────────────────
+# Tools marked as DYNAMIC_PRICING_TIERS use size-based cost instead of
+# fixed tier cost.  The formula is:
+#   cost = base + ceil(file_size_kb / step_kb) * per_step
+# capped at max_credits.  AI tools also add an estimated-tokens surcharge.
+
+DYNAMIC_PRICING_TIERS: set[str] = {"heavy", "ai"}
+
+
+@dataclass(frozen=True)
+class DynamicPricingRule:
+    """Size-based pricing rule for one tool family."""
+
+    base: int           # minimum credits charged
+    step_kb: int        # every `step_kb` KB adds `per_step` credits
+    per_step: int       # credits added per step
+    max_credits: int    # hard cap on credits per invocation
+
+    # AI-specific: extra credits per estimated 1 000 input tokens
+    token_step: int = 0          # 0 means no token surcharge
+    per_token_step: int = 0
+
+
+# Default rules per tier — individual tools can override via
+# TOOL_DYNAMIC_OVERRIDES below.
+HEAVY_DEFAULT_RULE = DynamicPricingRule(
+    base=3, step_kb=500, per_step=1, max_credits=10,
+)
+AI_DEFAULT_RULE = DynamicPricingRule(
+    base=5, step_kb=200, per_step=1, max_credits=20,
+    token_step=1000, per_token_step=1,
+)
+
+# Per-tool overrides (tool slug → rule).
+TOOL_DYNAMIC_OVERRIDES: dict[str, DynamicPricingRule] = {
+    # Translation is heavier than chat/summarize
+    "translate-pdf": DynamicPricingRule(
+        base=6, step_kb=150, per_step=1, max_credits=25,
+        token_step=1000, per_token_step=1,
+    ),
+}
+
+
+def _tier_label(cost: int) -> str:
+    """Return the tier family name for a fixed cost value."""
+    if cost >= TIER_AI:
+        return "ai"
+    if cost >= TIER_HEAVY:
+        return "heavy"
+    if cost >= TIER_MEDIUM:
+        return "medium"
+    return "light"
+
+
+def _get_dynamic_rule(tool: str, tier: str) -> DynamicPricingRule | None:
+    """Return the dynamic pricing rule for *tool*, or None if fixed."""
+    if tier not in DYNAMIC_PRICING_TIERS:
+        return None
+    if tool in TOOL_DYNAMIC_OVERRIDES:
+        return TOOL_DYNAMIC_OVERRIDES[tool]
+    return AI_DEFAULT_RULE if tier == "ai" else HEAVY_DEFAULT_RULE
+
+
+def is_dynamic_tool(tool: str) -> bool:
+    """Return True if *tool* uses size-based dynamic pricing."""
+    base = TOOL_CREDIT_COSTS.get(tool, DEFAULT_CREDIT_COST)
+    return _tier_label(base) in DYNAMIC_PRICING_TIERS
+
+
+def calculate_dynamic_cost(
+    tool: str,
+    file_size_kb: float = 0,
+    estimated_tokens: int = 0,
+) -> int:
+    """Calculate the credit cost for a dynamic tool given size metrics.
+
+    For fixed-price tools this returns the static tier cost unchanged.
+    """
+    base_cost = TOOL_CREDIT_COSTS.get(tool, DEFAULT_CREDIT_COST)
+    tier = _tier_label(base_cost)
+    rule = _get_dynamic_rule(tool, tier)
+    if rule is None:
+        return base_cost
+
+    size_surcharge = math.ceil(max(0, file_size_kb) / rule.step_kb) * rule.per_step
+    token_surcharge = 0
+    if rule.token_step and estimated_tokens > 0:
+        token_surcharge = math.ceil(estimated_tokens / rule.token_step) * rule.per_token_step
+
+    total = rule.base + size_surcharge + token_surcharge
+    return min(total, rule.max_credits)
 
 # ── Per-tool credit costs ───────────────────────────────────────
 # Keys match the `tool` parameter passed to record_usage_event / routes.
@@ -108,7 +207,11 @@ DEFAULT_CREDIT_COST = TIER_LIGHT
 
 
 def get_tool_credit_cost(tool: str) -> int:
-    """Return the credit cost for a given tool slug."""
+    """Return the *fixed* credit cost for a given tool slug.
+
+    For dynamic tools this is the base/minimum cost.
+    Use :func:`calculate_dynamic_cost` when file size is known.
+    """
     return TOOL_CREDIT_COSTS.get(tool, DEFAULT_CREDIT_COST)
 
 
@@ -120,3 +223,29 @@ def get_credits_for_plan(plan: str) -> int:
 def get_all_tool_costs() -> dict[str, int]:
     """Return the full cost registry — used by the config API endpoint."""
     return dict(TOOL_CREDIT_COSTS)
+
+
+def get_dynamic_tools_info() -> dict[str, dict]:
+    """Return metadata about tools that use dynamic pricing.
+
+    Used by the config/credit-info endpoint so the frontend can display
+    "price varies by file size" for these tools.
+    """
+    result: dict[str, dict] = {}
+    seen: set[str] = set()
+    for slug, cost in TOOL_CREDIT_COSTS.items():
+        tier = _tier_label(cost)
+        rule = _get_dynamic_rule(slug, tier)
+        if rule is None:
+            continue
+        if slug in seen:
+            continue
+        seen.add(slug)
+        result[slug] = {
+            "base": rule.base,
+            "step_kb": rule.step_kb,
+            "per_step": rule.per_step,
+            "max_credits": rule.max_credits,
+            "has_token_surcharge": rule.token_step > 0,
+        }
+    return result

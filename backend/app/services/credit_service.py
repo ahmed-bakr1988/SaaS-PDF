@@ -219,19 +219,26 @@ def deduct_credits(user_id: int, plan: str, tool: str) -> int:
     Raises ValueError if insufficient credits.
     """
     cost = get_tool_credit_cost(tool)
+    return deduct_credits_quoted(user_id, plan, cost)
 
+
+def deduct_credits_quoted(user_id: int, plan: str, cost: int) -> int:
+    """Deduct an explicit credit amount from the user's window.
+
+    Used by the quote engine to deduct a pre-calculated (possibly dynamic)
+    cost rather than looking up the fixed tier cost.
+    Raises ValueError if insufficient credits.
+    """
     with db_connection() as conn:
-        # Ensure window is current
         window = _get_window(conn, user_id)
         if window is None or _is_window_expired(window.get("window_end_at", "")):
-            # get_or_create handles reset
             pass
         window = get_or_create_credit_window(user_id, plan)
 
         balance = window["credits_allocated"] - window["credits_used"]
         if balance < cost:
             raise ValueError(
-                f"Insufficient credits: {balance} remaining, {cost} required for {tool}."
+                f"Insufficient credits: {balance} remaining, {cost} required."
             )
 
         sql = (

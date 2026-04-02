@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useTranslation } from 'react-i18next';
-import { UserPlus, LogIn, X, Loader2 } from 'lucide-react';
+import { UserPlus, LogIn, X, Loader2, PartyPopper } from 'lucide-react';
+import { toast } from 'sonner';
 import { useAuthStore } from '@/stores/authStore';
 import { claimTask } from '@/services/api';
 
@@ -19,6 +20,8 @@ export default function SignUpToDownloadModal({
 }: SignUpToDownloadModalProps) {
   const { t } = useTranslation();
   const { login, register } = useAuthStore();
+  const isNewAccount = useAuthStore((state) => state.isNewAccount);
+  const clearNewAccount = useAuthStore((state) => state.clearNewAccount);
 
   const [mode, setMode] = useState<'register' | 'login'>('register');
   const [email, setEmail] = useState('');
@@ -51,6 +54,16 @@ export default function SignUpToDownloadModal({
         } catch {
           // Non-blocking — file is still downloadable via session
         }
+      }
+
+      // Welcome celebration for new sign-ups
+      if (mode === 'register' && isNewAccount) {
+        toast(t('account.welcomeTitle'), {
+          description: t('account.welcomeMessage'),
+          icon: <PartyPopper className="h-5 w-5 text-amber-500" />,
+          duration: 6000,
+        });
+        clearNewAccount();
       }
 
       onClose();

@@ -1,4 +1,6 @@
 """Image compression routes."""
+import os
+
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
@@ -10,6 +12,7 @@ from app.services.policy_service import (
     resolve_web_actor,
     validate_actor_file,
 )
+from app.services.quote_service import create_quote, QuoteError
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.compress_image_tasks import compress_image_task
@@ -57,6 +60,12 @@ def compress_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
+    file_size_kb = os.path.getsize(input_path) / 1024
+    try:
+        quote = create_quote(actor.user_id, actor.plan, "compress-image", file_size_kb=file_size_kb)
+    except QuoteError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task = compress_image_task.delay(
         input_path,
         task_id,
@@ -64,9 +73,10 @@ def compress_image_route():
         quality,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "compress-image", task.id)
+    record_accepted_usage(actor, "compress-image", task.id, quote=quote)
 
     return jsonify({
         "task_id": task.id,
         "message": "Image compression started. Poll /api/tasks/{task_id}/status for progress.",
+        "quote": quote.to_dict(),
     }), 202

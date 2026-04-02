@@ -117,6 +117,12 @@ export default function Footer() {
                 {t('common.pricing')}
               </Link>
               <Link
+                to="/pricing-transparency"
+                className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
+              >
+                {t('common.pricingTransparency')}
+              </Link>
+              <Link
                 to="/blog"
                 className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
               >

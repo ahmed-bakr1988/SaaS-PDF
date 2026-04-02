@@ -28,6 +28,7 @@
     "lightMode": "Light Mode",
     "contact": "Contact",
     "pricing": "Pricing",
+    "pricingTransparency": "How Pricing Works",
     "blog": "Blog",
     "developers": "Developers",
     "send": "Send",
@@ -299,9 +300,9 @@
     },
     "pricing": {
       "metaTitle": "Pricing — Dociva",
-      "metaDescription": "Compare free and pro plans for Dociva. Access 30+ tools for free, or upgrade for unlimited processing.",
+      "metaDescription": "Compare Free and Pro plans, understand how Dociva credits work, and see why heavier workloads can cost more than lightweight tasks.",
       "title": "Plans & Pricing",
-      "subtitle": "Start free and upgrade when you need more.",
+      "subtitle": "Start free, track credits clearly, and upgrade only when you need more processing capacity.",
       "free": "Free",
       "pro": "Pro",
       "freePrice": "$0",
@@ -339,6 +340,15 @@
         "emailSupport": "Email support"
       },
       "faqTitle": "Frequently Asked Questions",
+      "faq1q": "Is the Free plan really free?",
+      "faq1a": "Yes. Free accounts receive 50 credits every 30 days, and all core tools remain available without a credit card.",
+      "faq2q": "Can I cancel the Pro plan anytime?",
+      "faq2a": "Yes. Cancel anytime and your account returns to the Free plan at the end of the current billing period.",
+      "faq3q": "What payment methods do you accept?",
+      "faq3a": "We accept major credit and debit cards through Stripe. Payments are processed securely without exposing your card data to Dociva.",
+      "transparencyTitle": "See exactly how credits are counted",
+      "transparencyBody": "Read the full explanation of fixed vs dynamic pricing, pre-run quotes, and why we price by workload instead of a rigid transaction count.",
+      "transparencyAction": "How pricing works",
       "faq": [
         {
           "q": "Is the free plan really free?",
@@ -354,13 +364,52 @@
         }
       ],
       "trustTitle": "Built for teams that need speed and predictability",
-      "trustSubtitle": "The same platform powers quick browser workflows, recurring account usage, and API-driven document pipelines.",
+      "trustSubtitle": "The same platform supports quick browser tasks, recurring account usage, and a credit model designed to reflect actual processing workload.",
       "trustFastTitle": "Fast processing",
       "trustFastDesc": "Async task handling and optimized workers keep heavy jobs moving without blocking the interface.",
       "trustPrivateTitle": "Private by default",
       "trustPrivateDesc": "Uploads are validated, processed securely, and cleaned up automatically after the retention window.",
       "trustApiTitle": "Ready for integration",
       "trustApiDesc": "Pro workspaces can generate API keys and connect the same tools to internal automations and client flows."
+    },
+    "pricingTransparency": {
+      "metaTitle": "Pricing Transparency",
+      "metaDescription": "Understand how Dociva credits work, what stays fixed, what can vary by workload, and why credits are not tied to a fixed number of provider requests.",
+      "badge": "Pricing Transparency",
+      "title": "How credit pricing works at Dociva",
+      "subtitle": "We want your balance to reflect real processing effort, not an arbitrary transaction counter. This page explains what is fixed, what can vary, and what you see before you run a task.",
+      "creditsTitle": "Credits are your usage balance",
+      "creditsBody": "Free and Pro accounts receive a credit allocation for each 30-day window. Your balance decreases only when a task is accepted.",
+      "quoteTitle": "You see the price before heavy jobs run",
+      "quoteBody": "For supported heavy and AI tools, Dociva can show a quote before execution so you can decide with context.",
+      "fairnessTitle": "Not every task should cost the same",
+      "fairnessBody": "Merging a PDF and translating a long document do not consume the same resources. Credit pricing reflects that difference.",
+      "howTitle": "How costs are calculated",
+      "howBody": "Light and medium tools usually keep a fixed credit cost. Heavy and AI tools can use a dynamic quote based on the file size or processing workload expected before the task is queued.",
+      "fixedTitle": "Fixed-cost tools",
+      "fixedBody": "Tasks like simple PDF edits or small conversions keep a predictable, low cost so common workflows stay easy to budget.",
+      "dynamicTitle": "Dynamic-cost tools",
+      "dynamicBody": "Resource-heavy tasks such as OCR, compression, or AI-assisted document workflows may cost more when the file or workload is larger.",
+      "noteTitle": "What we want to be explicit about",
+      "noteBody": "Your site credits are a product balance for Dociva usage. They are not a direct token meter from our infrastructure providers.",
+      "noOneToOneBody": "There is no fixed rule such as \"1 credit = X OpenRouter requests.\" Some jobs make one provider call, some make several, and some AI-priced workflows do not rely on OpenRouter at all.",
+      "examplesTitle": "Three simple examples",
+      "exampleLightTitle": "Low-cost, fixed",
+      "exampleLightBody": "A lightweight tool such as merging or rotating a PDF stays near the minimum price because the processing burden is low and predictable.",
+      "exampleHeavyTitle": "Heavier processing",
+      "exampleHeavyBody": "OCR, compression, or background removal may cost more because file size and computation time increase the real workload.",
+      "exampleAiTitle": "AI-assisted workflows",
+      "exampleAiBody": "Chat, summarization, or translation start from a higher base because they involve language processing and, in some cases, multiple provider calls.",
+      "futureTitle": "Why this supports pay-as-you-use thinking",
+      "futureBody": "Today the product still uses Free and Pro plans, but the pricing philosophy already aims at fairer usage: easier tasks should consume less balance than expensive ones. That is the foundation for future recharge flexibility.",
+      "faq1q": "Will I always know the cost in advance?",
+      "faq1a": "For supported heavy and AI tools, Dociva can show a pre-run quote before dispatch. Simpler tools keep a fixed credit cost.",
+      "faq2q": "What happens when my balance is too low?",
+      "faq2a": "The task is rejected before processing starts, so you can review your balance or upgrade without spending credits blindly.",
+      "faq3q": "Why not price everything as one transaction?",
+      "faq3a": "A flat transaction count is easier to explain but less fair. Workload-aware pricing helps keep simple tools affordable without underpricing expensive jobs.",
+      "pricingCta": "Compare Free and Pro",
+      "toolsCta": "Explore tools"
     },
     "developers": {
       "metaDescription": "Explore the Dociva developer portal, async API flow, and production-ready endpoints for document automation.",
@@ -1020,7 +1069,9 @@
     "originalFile": "Original file",
     "outputFile": "Output file",
     "statusCompleted": "Completed",
-    "statusFailed": "Failed"
+    "statusFailed": "Failed",
+    "welcomeTitle": "🎉 Welcome to Dociva!",
+    "welcomeMessage": "You have 50 free credits and your first transaction is on us. Start processing files now!"
   },
   "result": {
     "conversionComplete": "Conversion Complete!",
@@ -1532,5 +1583,12 @@
         {"q": "What is the difference from a QR code?", "a": "Barcodes are linear (1D) with less data capacity. QR codes are 2D and store more information."}
       ]
     }
+  },
+  "costEstimate": {
+    "cost": "Cost",
+    "credits": "credits",
+    "firstFree": "First free!",
+    "remaining": "Remaining",
+    "insufficient": "Insufficient credits"
   }
 }

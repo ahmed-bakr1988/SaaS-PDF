@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound } from 'lucide-react';
+import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound, Coins } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { ensureLanguageResources } from '@/i18n';
 interface LangOption {
@@ -42,6 +42,7 @@ export default function Header() {
   const { t, i18n } = useTranslation();
   const { isDark, toggle: toggleDark } = useDarkMode();
   const user = useAuthStore((state) => state.user);
+  const credits = useAuthStore((state) => state.credits);
   const [langOpen, setLangOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const langRef = useRef<HTMLDivElement>(null);
@@ -110,6 +111,12 @@ export default function Header() {
           >
             <UserRound className="h-4 w-4" />
             <span className="truncate">{user?.email || t('common.account')}</span>
+            {user && credits && (
+              <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                <Coins className="h-3 w-3" />
+                {credits.credits_remaining}
+              </span>
+            )}
           </Link>
 
           {/* Dark Mode Toggle */}
@@ -193,9 +200,15 @@ export default function Header() {
           <Link
             to="/account"
             onClick={() => setMobileOpen(false)}
-            className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="flex items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
           >
-            {user?.email || t('common.account')}
+            <span>{user?.email || t('common.account')}</span>
+            {user && credits && (
+              <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
+                <Coins className="h-3 w-3" />
+                {credits.credits_remaining}
+              </span>
+            )}
           </Link>
           <Link
             to="/developers"

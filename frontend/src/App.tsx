@@ -24,6 +24,7 @@ const AccountPage = lazy(() => import('@/pages/AccountPage'));
 const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 const PricingPage = lazy(() => import('@/pages/PricingPage'));
+const PricingTransparencyPage = lazy(() => import('@/pages/PricingTransparencyPage'));
 const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
 const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
@@ -115,6 +116,7 @@ export default function App() {
             <Route path="/terms" element={<TermsPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/pricing-transparency" element={<PricingTransparencyPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/developers" element={<DevelopersPage />} />

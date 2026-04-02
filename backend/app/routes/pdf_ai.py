@@ -1,5 +1,7 @@
 """PDF AI tool routes — Chat, Summarize, Translate, Table Extract."""
 
+import os
+
 from flask import Blueprint, request, jsonify
 
 from app.extensions import limiter
@@ -11,6 +13,7 @@ from app.services.policy_service import (
     resolve_web_actor,
     validate_actor_file,
 )
+from app.services.quote_service import create_quote, QuoteError
 from app.services.translation_guardrails import (
     check_page_admission,
     TranslationAdmissionError,
@@ -66,6 +69,13 @@ def chat_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
+    file_size_kb = os.path.getsize(input_path) / 1024
+
+    try:
+        quote = create_quote(actor.user_id, actor.plan, "chat-pdf", file_size_kb=file_size_kb)
+    except QuoteError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task = chat_with_pdf_task.delay(
         input_path,
         task_id,
@@ -73,12 +83,13 @@ def chat_pdf_route():
         question,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "chat-pdf", task.id)
+    record_accepted_usage(actor, "chat-pdf", task.id, quote=quote)
 
     return jsonify(
         {
             "task_id": task.id,
             "message": "Processing your question. Poll /api/tasks/{task_id}/status for progress.",
+            "quote": quote.to_dict(),
         }
     ), 202
 
@@ -122,6 +133,13 @@ def summarize_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
+    file_size_kb = os.path.getsize(input_path) / 1024
+
+    try:
+        quote = create_quote(actor.user_id, actor.plan, "summarize-pdf", file_size_kb=file_size_kb)
+    except QuoteError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task = summarize_pdf_task.delay(
         input_path,
         task_id,
@@ -129,12 +147,13 @@ def summarize_pdf_route():
         length,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "summarize-pdf", task.id)
+    record_accepted_usage(actor, "summarize-pdf", task.id, quote=quote)
 
     return jsonify(
         {
             "task_id": task.id,
             "message": "Summarizing document. Poll /api/tasks/{task_id}/status for progress.",
+            "quote": quote.to_dict(),
         }
     ), 202
 
@@ -185,6 +204,13 @@ def translate_pdf_route():
     except TranslationAdmissionError as e:
         return jsonify({"error": e.message}), e.status_code
 
+    file_size_kb = os.path.getsize(input_path) / 1024
+
+    try:
+        quote = create_quote(actor.user_id, actor.plan, "translate-pdf", file_size_kb=file_size_kb)
+    except QuoteError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task = translate_pdf_task.delay(
         input_path,
         task_id,
@@ -193,12 +219,13 @@ def translate_pdf_route():
         source_language,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "translate-pdf", task.id)
+    record_accepted_usage(actor, "translate-pdf", task.id, quote=quote)
 
     return jsonify(
         {
             "task_id": task.id,
             "message": "Translating document. Poll /api/tasks/{task_id}/status for progress.",
+            "quote": quote.to_dict(),
         }
     ), 202
 
@@ -237,17 +264,25 @@ def extract_tables_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
+    file_size_kb = os.path.getsize(input_path) / 1024
+
+    try:
+        quote = create_quote(actor.user_id, actor.plan, "extract-tables", file_size_kb=file_size_kb)
+    except QuoteError as e:
+        return jsonify({"error": e.message}), e.status_code
+
     task = extract_tables_task.delay(
         input_path,
         task_id,
         original_filename,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "extract-tables", task.id)
+    record_accepted_usage(actor, "extract-tables", task.id, quote=quote)
 
     return jsonify(
         {
             "task_id": task.id,
             "message": "Extracting tables. Poll /api/tasks/{task_id}/status for progress.",
+            "quote": quote.to_dict(),
         }
     ), 202

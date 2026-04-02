@@ -15,10 +15,17 @@ from app.services.policy_service import get_usage_summary_for_user
 from app.services.credit_config import (
     get_all_tool_costs,
     get_credits_for_plan,
+    get_dynamic_tools_info,
     get_tool_credit_cost,
     CREDIT_WINDOW_DAYS,
 )
 from app.services.credit_service import deduct_credits, get_credit_summary
+from app.services.quote_service import (
+    create_quote,
+    estimate_quote,
+    fulfill_quote,
+    QuoteError,
+)
 from app.services.stripe_service import (
     is_stripe_configured,
     get_stripe_price_id,
@@ -57,6 +64,7 @@ def get_credit_info_route():
             "pro": {"credits": get_credits_for_plan("pro"), "window_days": CREDIT_WINDOW_DAYS},
         },
         "tool_costs": get_all_tool_costs(),
+        "dynamic_tools": get_dynamic_tools_info(),
     }), 200
 
 
@@ -190,6 +198,7 @@ def claim_task_route():
 
     Called after a guest signs up or logs in to record the previously
     processed task in their account and deduct credits.
+    Uses the quote engine, so welcome bonus is applied automatically.
     """
     user_id = get_current_user_id()
     if user_id is None:
@@ -216,15 +225,15 @@ def claim_task_route():
         return jsonify({"error": "User not found."}), 404
 
     plan = user.get("plan", "free")
-    cost = get_tool_credit_cost(tool)
 
-    # Deduct credits
+    # Use the quote engine (supports welcome bonus)
     try:
-        deduct_credits(user_id, plan, tool)
-    except ValueError:
+        quote = create_quote(user_id, plan, tool)
+        fulfill_quote(quote, user_id, plan)
+    except (QuoteError, ValueError) as exc:
         return jsonify({
-            "error": "Insufficient credits to claim this file.",
-            "credits_required": cost,
+            "error": str(exc),
+            "credits_required": get_tool_credit_cost(tool),
         }), 429
 
     # Record usage event so the task appears in history
@@ -235,8 +244,38 @@ def claim_task_route():
         task_id=task_id,
         event_type="accepted",
         api_key_id=None,
-        cost_points=cost,
+        cost_points=quote.charged_credits,
+        quoted_credits=quote.quoted_credits,
     )
 
     summary = get_credit_summary(user_id, plan)
-    return jsonify({"claimed": True, "credits": summary}), 200
+    return jsonify({
+        "claimed": True,
+        "credits": summary,
+        "welcome_bonus_applied": quote.welcome_bonus_applied,
+    }), 200
+
+
+@account_bp.route("/estimate", methods=["POST"])
+@limiter.limit("120/hour")
+def estimate_cost_route():
+    """Return a non-binding credit cost estimate for a tool invocation.
+
+    Body: { "tool": "chat-pdf", "file_size_kb": 1024, "estimated_tokens": 5000 }
+    All fields except ``tool`` are optional.
+    """
+    user_id = get_current_user_id()
+
+    data = request.get_json(silent=True) or {}
+    tool = str(data.get("tool", "")).strip()
+    if not tool:
+        return jsonify({"error": "tool is required."}), 400
+
+    file_size_kb = float(data.get("file_size_kb", 0))
+    estimated_tokens = int(data.get("estimated_tokens", 0))
+
+    user = get_user_by_id(user_id) if user_id else None
+    plan = user.get("plan", "free") if user else "free"
+
+    result = estimate_quote(user_id, plan, tool, file_size_kb, estimated_tokens)
+    return jsonify(result), 200

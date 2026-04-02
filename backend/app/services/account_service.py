@@ -77,6 +77,7 @@ def _serialize_user(row: dict | None) -> dict | None:
         "role": _resolve_row_role(row),
         "is_allowlisted_admin": is_allowlisted_admin_email(row.get("email")),
         "created_at": row.get("created_at"),
+        "welcome_bonus_available": int(row.get("welcome_bonus_used", 0)) == 0,
     }
 
 
@@ -252,6 +253,18 @@ def _init_postgres_tables(conn):
             "ALTER TABLE usage_events ADD COLUMN cost_points INTEGER NOT NULL DEFAULT 1"
         )
 
+    # Add quoted_credits column to usage_events if missing
+    if not _column_exists(conn, "usage_events", "quoted_credits"):
+        cursor.execute(
+            "ALTER TABLE usage_events ADD COLUMN quoted_credits INTEGER"
+        )
+
+    # Add welcome_bonus_used flag to users if missing
+    if not _column_exists(conn, "users", "welcome_bonus_used"):
+        cursor.execute(
+            "ALTER TABLE users ADD COLUMN welcome_bonus_used INTEGER NOT NULL DEFAULT 0"
+        )
+
 
 def _init_sqlite_tables(conn):
     conn.executescript(
@@ -366,6 +379,10 @@ def _init_sqlite_tables(conn):
         conn.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
     if not _column_exists(conn, "usage_events", "cost_points"):
         conn.execute("ALTER TABLE usage_events ADD COLUMN cost_points INTEGER NOT NULL DEFAULT 1")
+    if not _column_exists(conn, "usage_events", "quoted_credits"):
+        conn.execute("ALTER TABLE usage_events ADD COLUMN quoted_credits INTEGER")
+    if not _column_exists(conn, "users", "welcome_bonus_used"):
+        conn.execute("ALTER TABLE users ADD COLUMN welcome_bonus_used INTEGER NOT NULL DEFAULT 0")
 
 
 def create_user(email: str, password: str) -> dict:
@@ -398,9 +415,9 @@ def create_user(email: str, password: str) -> dict:
                 user_id = cursor.lastrowid
 
             row_sql = (
-                "SELECT id, email, plan, role, created_at FROM users WHERE id = %s"
+                "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = %s"
                 if is_postgres()
-                else "SELECT id, email, plan, role, created_at FROM users WHERE id = ?"
+                else "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = ?"
             )
             cursor2 = execute_query(conn, row_sql, (user_id,))
             row = cursor2.fetchone()
@@ -435,9 +452,9 @@ def authenticate_user(email: str, password: str) -> dict | None:
 def get_user_by_id(user_id: int) -> dict | None:
     with db_connection() as conn:
         sql = (
-            "SELECT id, email, plan, role, created_at FROM users WHERE id = %s"
+            "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = %s"
             if is_postgres()
-            else "SELECT id, email, plan, role, created_at FROM users WHERE id = ?"
+            else "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = ?"
         )
         cursor = execute_query(conn, sql, (user_id,))
         row = cursor.fetchone()
@@ -485,9 +502,9 @@ def set_user_role(user_id: int, role: str) -> dict | None:
         execute_query(conn, sql, (normalized_role, _utc_now(), user_id))
 
         sql2 = (
-            "SELECT id, email, plan, role, created_at FROM users WHERE id = %s"
+            "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = %s"
             if is_postgres()
-            else "SELECT id, email, plan, role, created_at FROM users WHERE id = ?"
+            else "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = ?"
         )
         cursor = execute_query(conn, sql2, (user_id,))
         row = cursor.fetchone()
@@ -518,9 +535,9 @@ def update_user_plan(user_id: int, plan: str) -> dict | None:
         execute_query(conn, sql, (normalized_plan, _utc_now(), user_id))
 
         sql2 = (
-            "SELECT id, email, plan, role, created_at FROM users WHERE id = %s"
+            "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = %s"
             if is_postgres()
-            else "SELECT id, email, plan, role, created_at FROM users WHERE id = ?"
+            else "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE id = ?"
         )
         cursor = execute_query(conn, sql2, (user_id,))
         row = cursor.fetchone()
@@ -884,6 +901,7 @@ def record_usage_event(
     event_type: str,
     api_key_id: int | None = None,
     cost_points: int = 1,
+    quoted_credits: int | None = None,
 ):
     if user_id is None:
         return
@@ -893,17 +911,17 @@ def record_usage_event(
             """
             INSERT INTO usage_events (
                 user_id, api_key_id, source, tool, task_id,
-                event_type, created_at, period_month, cost_points
+                event_type, created_at, period_month, cost_points, quoted_credits
             )
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
             if is_postgres()
             else """
             INSERT INTO usage_events (
                 user_id, api_key_id, source, tool, task_id,
-                event_type, created_at, period_month, cost_points
+                event_type, created_at, period_month, cost_points, quoted_credits
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """
         )
         execute_query(
@@ -919,6 +937,7 @@ def record_usage_event(
                 _utc_now(),
                 get_current_period_month(),
                 cost_points,
+                quoted_credits,
             ),
         )
 
@@ -982,9 +1001,9 @@ def get_user_by_email(email: str) -> dict | None:
     email = _normalize_email(email)
     with db_connection() as conn:
         sql = (
-            "SELECT id, email, plan, role, created_at FROM users WHERE email = %s"
+            "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE email = %s"
             if is_postgres()
-            else "SELECT id, email, plan, role, created_at FROM users WHERE email = ?"
+            else "SELECT id, email, plan, role, created_at, welcome_bonus_used FROM users WHERE email = ?"
         )
         cursor = execute_query(conn, sql, (email,))
         row = row_to_dict(cursor.fetchone())
@@ -1087,3 +1106,32 @@ def log_file_event(
             else "INSERT INTO file_events (event_type, file_path, detail, created_at) VALUES (?, ?, ?, ?)"
         )
         execute_query(conn, sql, (event_type, file_path, detail, _utc_now()))
+
+
+# ── Welcome-bonus helpers ───────────────────────────────────────
+
+def is_welcome_bonus_available(user_id: int) -> bool:
+    """Return True if the user has never used their welcome bonus."""
+    with db_connection() as conn:
+        sql = (
+            "SELECT welcome_bonus_used FROM users WHERE id = %s"
+            if is_postgres()
+            else "SELECT welcome_bonus_used FROM users WHERE id = ?"
+        )
+        cursor = execute_query(conn, sql, (user_id,))
+        row = row_to_dict(cursor.fetchone())
+    if row is None:
+        return False
+    return int(row.get("welcome_bonus_used", 0)) == 0
+
+
+def consume_welcome_bonus(user_id: int) -> bool:
+    """Mark the welcome bonus as used. Returns True if it was actually consumed."""
+    with db_connection() as conn:
+        sql = (
+            "UPDATE users SET welcome_bonus_used = 1, updated_at = %s WHERE id = %s AND welcome_bonus_used = 0"
+            if is_postgres()
+            else "UPDATE users SET welcome_bonus_used = 1, updated_at = ? WHERE id = ? AND welcome_bonus_used = 0"
+        )
+        cursor = execute_query(conn, sql, (_utc_now(), user_id))
+    return cursor.rowcount > 0

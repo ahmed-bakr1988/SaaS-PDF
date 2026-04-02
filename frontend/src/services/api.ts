@@ -280,17 +280,54 @@ export interface AuthUser {
   plan: string;
   role: 'user' | 'admin' | string;
   is_allowlisted_admin?: boolean;
+  welcome_bonus_available?: boolean;
   created_at: string;
+}
+
+export interface CreditSummary {
+  credits_allocated: number;
+  credits_used: number;
+  credits_remaining: number;
+  window_start_at: string | null;
+  window_end_at: string | null;
+  plan: string;
+  window_days: number;
+}
+
+export interface CreditQuote {
+  tool: string;
+  base_cost: number;
+  quoted_credits: number;
+  charged_credits: number;
+  welcome_bonus_applied: boolean;
+  is_dynamic: boolean;
+  file_size_kb: number | null;
+  estimated_tokens: number | null;
+  balance_before: number;
+  balance_after: number;
+}
+
+export interface CostEstimate {
+  tool: string;
+  quoted_credits: number;
+  is_dynamic: boolean;
+  balance_before: number;
+  balance_after: number;
+  welcome_bonus_applied: boolean;
+  affordable: boolean;
 }
 
 interface AuthResponse {
   message: string;
   user: AuthUser;
+  credits?: CreditSummary;
+  is_new_account?: boolean;
 }
 
 interface AuthSessionResponse {
   authenticated: boolean;
   user: AuthUser | null;
+  credits?: CreditSummary;
 }
 
 interface HistoryResponse {
@@ -454,21 +491,21 @@ export async function startTask(endpoint: string): Promise<TaskResponse> {
 }
 
 /**
- * Create a new account and return the authenticated user.
+ * Create a new account and return the auth response.
  */
-export async function registerUser(email: string, password: string): Promise<AuthUser> {
+export async function registerUser(email: string, password: string): Promise<AuthResponse> {
   const response = await api.post<AuthResponse>('/auth/register', { email, password });
   await ensureCsrfToken(true);
-  return response.data.user;
+  return response.data;
 }
 
 /**
- * Sign in and return the authenticated user.
+ * Sign in and return the auth response.
  */
-export async function loginUser(email: string, password: string): Promise<AuthUser> {
+export async function loginUser(email: string, password: string): Promise<AuthResponse> {
   const response = await api.post<AuthResponse>('/auth/login', { email, password });
   await ensureCsrfToken(true);
-  return response.data.user;
+  return response.data;
 }
 
 /**
@@ -493,9 +530,9 @@ export async function claimTask(taskId: string, tool: string): Promise<{ claimed
 /**
  * Return the current authenticated user, if any.
  */
-export async function getCurrentUser(): Promise<AuthUser | null> {
+export async function getCurrentUser(): Promise<AuthSessionResponse> {
   const response = await api.get<AuthSessionResponse>('/auth/me');
-  return response.data.user;
+  return response.data;
 }
 
 /**
@@ -1042,6 +1079,30 @@ export async function createApiKey(name: string): Promise<ApiKey> {
  */
 export async function revokeApiKey(keyId: number): Promise<void> {
   await api.delete(`/account/api-keys/${keyId}`);
+}
+
+/**
+ * Get a cost estimate before executing a tool.
+ */
+export async function estimateCost(
+  tool: string,
+  fileSizeKb?: number,
+  estimatedTokens?: number
+): Promise<CostEstimate> {
+  const response = await api.post<CostEstimate>('/account/estimate', {
+    tool,
+    file_size_kb: fileSizeKb,
+    estimated_tokens: estimatedTokens,
+  });
+  return response.data;
+}
+
+/**
+ * Get credit info including dynamic tools.
+ */
+export async function getCreditInfo(): Promise<CreditInfo & { dynamic_tools?: Record<string, unknown> }> {
+  const response = await api.get<CreditInfo & { dynamic_tools?: Record<string, unknown> }>('/account/credit-info');
+  return response.data;
 }
 
 export default api;
