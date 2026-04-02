@@ -123,12 +123,20 @@ export default function HomePage() {
       />
 
       {/* Hero Section */}
-      <section className="py-12 sm:py-20 bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-950 px-4 mb-10 rounded-b-[3rem]">
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-slate-50 via-white to-white dark:from-slate-900 dark:via-slate-950 dark:to-slate-950 px-4 mb-10 rounded-b-[3rem]">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl dark:text-white mb-6">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-primary-50 border border-primary-100 px-4 py-1.5 mb-6 dark:bg-primary-900/30 dark:border-primary-800">
+            <span className="h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
+            <span className="text-xs font-semibold text-primary-700 dark:text-primary-300 uppercase tracking-wide">
+              {t('home.heroBadge', 'Free Online PDF Tools')}
+            </span>
+          </div>
+
+          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl dark:text-white mb-6 leading-[1.1]">
             {t('home.hero')}
           </h1>
-          <p className="mx-auto max-w-2xl text-lg text-slate-600 dark:text-slate-400 mb-10 leading-relaxed">
+          <p className="mx-auto max-w-2xl text-lg text-slate-500 dark:text-slate-400 mb-10 leading-relaxed">
             {t('home.heroSub')}
           </p>
 

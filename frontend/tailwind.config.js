@@ -38,6 +38,17 @@ export default {
         sans: ['Inter', 'Tajawal', 'system-ui', 'sans-serif'],
         arabic: ['Tajawal', 'Inter', 'sans-serif'],
       },
+      borderRadius: {
+        '3xl': '1.5rem',
+        '4xl': '2rem',
+      },
+      boxShadow: {
+        'glow': '0 0 20px -4px rgba(59, 130, 246, 0.4)',
+        'glow-lg': '0 0 40px -8px rgba(59, 130, 246, 0.5)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
     },
   },
   plugins: [],
