@@ -20,7 +20,7 @@ services:
     environment:
       - POSTGRES_DB=dociva
       - POSTGRES_USER=dociva
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-your-secure-password-here}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-dev-only-password-12345}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
