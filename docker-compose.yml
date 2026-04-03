@@ -114,6 +114,13 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+    # The backend Dockerfile defines a HEALTHCHECK against /api/health.
+    # Beat doesn't expose HTTP, so override to avoid a perpetual unhealthy status.
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 30s
+      timeout: 5s
+      retries: 1
     restart: unless-stopped
 
   # --- React Frontend (Vite Dev) ---
