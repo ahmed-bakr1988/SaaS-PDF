@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound, Coins } from 'lucide-react';
+import { FileText, Moon, Sun, Menu, X, ChevronDown, UserRound, Coins, ArrowRight } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { ensureLanguageResources } from '@/i18n';
 interface LangOption {
@@ -67,49 +67,54 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur-lg dark:border-slate-700 dark:bg-slate-900/80">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl dark:border-slate-700/60 dark:bg-slate-900/85">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary-600 dark:text-primary-400">
-          <FileText className="h-7 w-7" />
-          <span>{t('common.appName')}</span>
+        <Link to="/" className="flex items-center gap-2.5 group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 shadow-sm shadow-primary-200 group-hover:bg-primary-700 transition-colors dark:shadow-primary-900/40">
+            <FileText className="h-5 w-5 text-white" />
+          </div>
+          <span className="text-lg font-extrabold tracking-tight text-slate-900 dark:text-white">
+            {t('common.appName')}
+          </span>
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden items-center gap-6 md:flex">
+        <nav className="hidden items-center gap-1 md:flex">
           <Link
             to="/"
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           >
             {t('common.home')}
           </Link>
           <Link
-            to="/about"
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
+            to="/pricing"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           >
-            {t('common.about')}
-          </Link>
-          <Link
-            to="/account"
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
-          >
-            {t('common.account')}
+            {t('common.pricing')}
           </Link>
           <Link
             to="/developers"
-            className="text-sm font-medium text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
           >
             {t('common.developers')}
+          </Link>
+          <Link
+            to="/about"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white"
+          >
+            {t('common.about')}
           </Link>
         </nav>
 
         {/* Actions */}
         <div className="flex items-center gap-2">
+          {/* Account / credits pill */}
           <Link
             to="/account"
-            className="hidden max-w-[220px] items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 md:flex dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+            className="hidden max-w-[200px] items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 md:flex dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
           >
-            <UserRound className="h-4 w-4" />
+            <UserRound className="h-4 w-4 flex-shrink-0" />
             <span className="truncate">{user?.email || t('common.account')}</span>
             {user && credits && (
               <span className="flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-semibold text-primary-700 dark:bg-primary-900/30 dark:text-primary-300">
@@ -118,6 +123,17 @@ export default function Header() {
               </span>
             )}
           </Link>
+
+          {/* CTA — Start Free */}
+          {!user && (
+            <Link
+              to="/account"
+              className="hidden md:inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-primary-200 transition-all hover:bg-primary-700 hover:shadow-md hover:-translate-y-px active:translate-y-0 dark:shadow-primary-900/40"
+            >
+              {t('home.startFree', 'Start Free')}
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
 
           {/* Dark Mode Toggle */}
           <button
@@ -191,6 +207,13 @@ export default function Header() {
             {t('common.home')}
           </Link>
           <Link
+            to="/pricing"
+            onClick={() => setMobileOpen(false)}
+            className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
+          >
+            {t('common.pricing')}
+          </Link>
+          <Link
             to="/about"
             onClick={() => setMobileOpen(false)}
             className="block rounded-lg px-3 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:text-slate-300 dark:hover:bg-slate-800"
@@ -217,6 +240,16 @@ export default function Header() {
           >
             {t('common.developers')}
           </Link>
+          {!user && (
+            <Link
+              to="/account"
+              onClick={() => setMobileOpen(false)}
+              className="mt-2 flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 py-3 text-sm font-semibold text-white hover:bg-primary-700"
+            >
+              {t('home.startFree', 'Start Free')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          )}
         </nav>
       )}
     </header>
