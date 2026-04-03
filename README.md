@@ -79,6 +79,16 @@ docker-compose up --build
 - `VITE_ADSENSE_SLOT_BOTTOM_BANNER`
 - `DATABASE_PATH`
 
+## 🔎 IndexNow
+
+- Verification file is published at `frontend/public/718dc0aa7c7d4d3ebe71e3f97dacef9c.txt` and copied into the production build.
+- Dry-run the payload locally with `cd frontend && npm run indexnow:dry-run`.
+- Submit the current sitemap URLs manually with `cd frontend && npm run indexnow:submit`.
+- Production deploys call `scripts/deploy.sh`, which runs the same submission step after the health check when `INDEXNOW_AUTO_SUBMIT` is not disabled.
+- Successful submissions persist a local state snapshot so later deploys only notify changed or removed URLs instead of re-sending the full sitemap every time.
+- `INDEXNOW_STRICT=true` now fails the deployment when the IndexNow request fails.
+- Optional env overrides: `INDEXNOW_KEY`, `INDEXNOW_ENDPOINT`, `INDEXNOW_AUTO_SUBMIT`, `INDEXNOW_STRICT`, and `INDEXNOW_FULL_SUBMIT`.
+
 ## 📁 Project Structure
 
 ```
