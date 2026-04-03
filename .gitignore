@@ -16,6 +16,7 @@ docs/
 node_modules/
 frontend/dist/
 frontend/build/
+frontend/.indexnow/
 .npm
 *.tsbuildinfo
 

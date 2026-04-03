@@ -38,6 +38,51 @@ export default {
         sans: ['Inter', 'Tajawal', 'system-ui', 'sans-serif'],
         arabic: ['Tajawal', 'Inter', 'sans-serif'],
       },
+      borderRadius: {
+        '3xl': '1.5rem',
+        '4xl': '2rem',
+      },
+      boxShadow: {
+        'glow': '0 0 20px -4px rgba(59, 130, 246, 0.4)',
+        'glow-lg': '0 0 40px -8px rgba(59, 130, 246, 0.5)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      animation: {
+        'float': 'float 3s ease-in-out infinite',
+        'shimmer': 'shimmer 2.5s linear infinite',
+        'fade-up': 'fadeUp 0.5s ease-out forwards',
+        'fade-in': 'fadeIn 0.4s ease-out forwards',
+        'scale-in': 'scaleIn 0.3s ease-out forwards',
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        shimmer: {
+          '0%': { backgroundPosition: '-200% center' },
+          '100%': { backgroundPosition: '200% center' },
+        },
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(24px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.92)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      },
     },
   },
   plugins: [],

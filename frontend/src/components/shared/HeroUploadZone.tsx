@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Upload, Sparkles, PenLine } from 'lucide-react';
+import { UploadCloud, PenLine, ChevronRight, FileCheck } from 'lucide-react';
 import ToolSelectorModal from '@/components/shared/ToolSelectorModal';
 import { useFileStore } from '@/stores/fileStore';
 import { getToolsForFile, detectFileCategory, getCategoryLabel } from '@/utils/fileRouting';
@@ -23,6 +23,15 @@ const ACCEPTED_TYPES = {
   'application/msword': ['.doc'],
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx'],
 };
+
+const FORMAT_BADGES = [
+  { label: 'PDF', color: 'bg-red-50 text-red-700 ring-red-100 dark:bg-red-900/20 dark:text-red-400 dark:ring-red-800/40' },
+  { label: 'Word', color: 'bg-blue-50 text-blue-700 ring-blue-100 dark:bg-blue-900/20 dark:text-blue-400 dark:ring-blue-800/40' },
+  { label: 'JPG', color: 'bg-amber-50 text-amber-700 ring-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800/40' },
+  { label: 'PNG', color: 'bg-green-50 text-green-700 ring-green-100 dark:bg-green-900/20 dark:text-green-400 dark:ring-green-800/40' },
+  { label: 'WebP', color: 'bg-violet-50 text-violet-700 ring-violet-100 dark:bg-violet-900/20 dark:text-violet-400 dark:ring-violet-800/40' },
+  { label: 'MP4', color: 'bg-slate-100 text-slate-600 ring-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:ring-slate-600' },
+];
 
 export default function HeroUploadZone() {
   const { t } = useTranslation();
@@ -81,37 +90,49 @@ export default function HeroUploadZone() {
     setMatchedTools([]);
   }, []);
 
+  const iconGlowClass = isDragActive
+    ? 'bg-primary-300/50 scale-125'
+    : 'bg-primary-100/0 group-hover:bg-primary-200/40 group-hover:scale-110';
+  const iconContainerClass = isDragActive
+    ? 'bg-primary-100 shadow-primary-200 dark:bg-primary-900/50'
+    : 'bg-primary-50 shadow-sm dark:bg-slate-700/80';
+  const uploadIconClass = isDragActive
+    ? 'text-primary-600 dark:text-primary-400'
+    : 'text-primary-400 group-hover:text-primary-600 dark:text-primary-500 dark:group-hover:text-primary-400';
+
   return (
     <>
       <div className="mx-auto mt-8 max-w-2xl">
         <div
           {...getRootProps()}
-          className={`hero-upload-zone ${isDragActive ? 'drag-active' : ''}`}
+          className={`hero-upload-zone group ${isDragActive ? 'drag-active' : ''}`}
         >
           <input {...getInputProps()} />
 
-          {/* Icon */}
-          <div
-            className={`mb-4 flex h-16 w-16 items-center justify-center rounded-2xl transition-colors ${
-              isDragActive
-                ? 'bg-primary-100 dark:bg-primary-900/30'
-                : 'bg-primary-50 dark:bg-primary-900/20'
-            }`}
-          >
-            <Upload
-              className={`h-8 w-8 transition-colors ${
-                isDragActive
-                  ? 'text-primary-600 dark:text-primary-400'
-                  : 'text-primary-500 dark:text-primary-400'
-              }`}
-            />
+          {/* Cloud icon with animated ring */}
+          <div className="relative mb-6">
+            {/* Outer glow ring */}
+            <div className={`absolute inset-0 rounded-3xl blur-xl transition-all duration-500 ${iconGlowClass}`} />
+            <div className={`relative flex h-20 w-20 items-center justify-center rounded-2xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-lg ${iconContainerClass}`}>
+              <UploadCloud className={`h-10 w-10 transition-colors duration-300 ${uploadIconClass}`} />
+            </div>
           </div>
 
-          {/* CTA Text */}
-          <div className="mb-6 flex gap-3 justify-center z-10 relative">
+          {/* Heading */}
+          <h3 className="mb-2 text-xl font-bold text-slate-800 dark:text-slate-100">
+            {isDragActive
+              ? t('home.dropFileHere', 'Drop your file here…')
+              : t('home.dragDropTitle', 'Drag & drop your file here')}
+          </h3>
+          <p className="mb-7 text-sm text-slate-500 dark:text-slate-400">
+            {t('common.dragDrop', 'or click the button to browse from your device')}
+          </p>
+
+          {/* CTA Buttons */}
+          <div className="relative z-10 mb-6 flex flex-wrap items-center justify-center gap-3">
             <button
               type="button"
-              className="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-7 py-3 text-sm font-semibold text-white shadow-md shadow-primary-200 transition-all duration-200 hover:bg-primary-700 hover:shadow-lg hover:-translate-y-px active:translate-y-0 dark:shadow-primary-900/40"
               onClick={(e) => {
                 e.stopPropagation();
                 const input = document.createElement('input');
@@ -125,57 +146,64 @@ export default function HeroUploadZone() {
                 input.click();
               }}
             >
+              <FileCheck className="h-4 w-4" />
               {t('home.uploadCta', 'Choose File')}
             </button>
             <button
-               onClick={(e) => {
-                 e.stopPropagation();
-                 const input = document.createElement('input');
-                 input.type = 'file';
-                 input.accept = '.pdf';
-                 input.onchange = (ev) => {
-                   const fileInput = ev.target as HTMLInputElement;
-                   const f = fileInput.files?.[0];
-                   if (f) {
-                     setStoreFile(f);
-                     navigate('/tools/pdf-editor');
-                   }
-                 };
-                 input.click();
-               }}
-               className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl shadow-md transition-colors flex items-center gap-2"
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.pdf';
+                input.onchange = (ev) => {
+                  const fileInput = ev.target as HTMLInputElement;
+                  const f = fileInput.files?.[0];
+                  if (f) {
+                    setStoreFile(f);
+                    navigate('/tools/pdf-editor');
+                  }
+                };
+                input.click();
+              }}
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:border-slate-300 hover:bg-slate-50 hover:shadow-md hover:-translate-y-px active:translate-y-0 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700"
             >
-              <PenLine className="h-5 w-5" />
+              <PenLine className="h-4 w-4" />
               {t('home.editNow')}
             </button>
           </div>
 
-          <p className="mb-3 text-sm text-slate-500 dark:text-slate-400">
-            {t('common.dragDrop', 'or drop files here')}
-          </p>
+          {/* Divider */}
+          <div className="mb-5 flex items-center gap-3 w-full max-w-xs">
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+            <span className="text-xs text-slate-400 dark:text-slate-500 font-medium">
+              {t('home.supportedFormats', 'Supported formats')}
+            </span>
+            <div className="flex-1 h-px bg-slate-200 dark:bg-slate-700" />
+          </div>
 
-          {/* Supported formats */}
+          {/* Coloured format badges */}
           <div className="flex flex-wrap items-center justify-center gap-2">
-            {['PDF', 'Word', 'JPG', 'PNG', 'WebP', 'MP4'].map((format) => (
+            {FORMAT_BADGES.map(({ label, color }) => (
               <span
-                key={format}
-                className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 dark:bg-slate-700 dark:text-slate-300"
+                key={label}
+                className={`rounded-lg px-3 py-1 text-xs font-semibold ring-1 ${color}`}
               >
-                {format}
+                {label}
               </span>
             ))}
           </div>
 
-          {/* File size hint */}
-          <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
-            <Sparkles className="h-3.5 w-3.5" />
+          {/* Size hint */}
+          <p className="mt-4 flex items-center justify-center gap-1.5 text-xs text-slate-400 dark:text-slate-500">
+            <ChevronRight className="h-3 w-3" />
             {t('home.uploadSubtitle')}
           </p>
         </div>
 
         {/* Error */}
         {error && (
-          <div className="mt-3 rounded-xl bg-red-50 p-3 ring-1 ring-red-200 dark:bg-red-900/20 dark:ring-red-800">
+          <div className="mt-3 rounded-2xl bg-red-50 p-3 ring-1 ring-red-200 dark:bg-red-900/20 dark:ring-red-800">
             <p className="text-center text-sm text-red-700 dark:text-red-400">{error}</p>
           </div>
         )}

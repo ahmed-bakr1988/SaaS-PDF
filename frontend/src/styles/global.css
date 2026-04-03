@@ -114,17 +114,84 @@
   animation: fadeSlideIn 0.15s ease-out;
 }
 
-/* Hero upload zone — larger variant for the homepage */
+/* ──────────────────────────────────────────────────────────────────────────
+   Hero Upload Zone — premium glassmorphism card for the homepage
+   ────────────────────────────────────────────────────────────────────────── */
 .hero-upload-zone {
-  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-gradient-to-b from-slate-50 to-white p-10 text-center transition-all duration-200 cursor-pointer sm:p-12 dark:border-slate-600 dark:from-slate-800/60 dark:to-slate-800/30;
+  @apply relative flex flex-col items-center justify-center rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-10 text-center transition-all duration-300 ease-in-out cursor-pointer sm:p-14 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/60 dark:backdrop-blur-sm;
+  background-image: radial-gradient(ellipse at top, rgba(219, 234, 254, 0.3) 0%, transparent 70%);
+}
+
+.dark .hero-upload-zone {
+  background-image: radial-gradient(ellipse at top, rgba(30, 58, 138, 0.15) 0%, transparent 70%);
+}
+
+.hero-upload-zone::before {
+  content: '';
+  @apply absolute inset-0 rounded-3xl transition-opacity duration-300 opacity-0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.06) 0%, rgba(168, 85, 247, 0.04) 100%);
+}
+
+.hero-upload-zone:hover::before {
+  @apply opacity-100;
 }
 
 .hero-upload-zone:hover {
-  @apply border-primary-400 bg-gradient-to-b from-primary-50 to-white shadow-lg dark:border-primary-500 dark:from-primary-900/20 dark:to-slate-800/30;
+  @apply border-primary-300 shadow-lg shadow-primary-100/50 -translate-y-1 dark:border-primary-600/60 dark:shadow-primary-900/30;
 }
 
 .hero-upload-zone.drag-active {
-  @apply border-primary-500 bg-gradient-to-b from-primary-100 to-primary-50 ring-2 ring-primary-300 shadow-xl dark:border-primary-400 dark:from-primary-900/30 dark:to-primary-900/10 dark:ring-primary-600;
+  @apply border-primary-500 shadow-2xl shadow-primary-200/60 scale-[1.02] dark:border-primary-400 dark:shadow-primary-900/40;
+  background-image: radial-gradient(ellipse at top, rgba(191, 219, 254, 0.5) 0%, rgba(219, 234, 254, 0.2) 100%);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Glassmorphism card utility
+   ────────────────────────────────────────────────────────────────────────── */
+.glass-card {
+  @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm dark:bg-slate-800/60 dark:border-slate-700/50;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Gradient hero mesh background
+   ────────────────────────────────────────────────────────────────────────── */
+.hero-gradient-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(59, 130, 246, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(168, 85, 247, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.dark .hero-gradient-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -20%, rgba(30, 58, 138, 0.3) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 20%, rgba(88, 28, 135, 0.15) 0%, transparent 60%),
+    linear-gradient(180deg, #0f172a 0%, #0f172a 100%);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Shimmer loading effect
+   ────────────────────────────────────────────────────────────────────────── */
+@keyframes shimmer-sweep {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-text {
+  background: linear-gradient(90deg, #1e40af 30%, #7c3aed 50%, #1e40af 70%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer-sweep 4s linear infinite;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   How it Works — connector line between steps
+   ────────────────────────────────────────────────────────────────────────── */
+.step-connector {
+  @apply absolute top-8 left-[calc(50%+2.5rem)] hidden h-px w-[calc(100%-5rem)] sm:block;
+  background: linear-gradient(90deg, rgba(59, 130, 246, 0.4) 0%, rgba(59, 130, 246, 0.1) 100%);
 }
 
 /* Modal animations */
