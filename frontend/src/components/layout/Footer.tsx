@@ -36,6 +36,13 @@ const FOOTER_TOOLS = {
     { slug: 'free-pdf-tools-online', label: 'Free PDF Tools Online', isLanding: true },
     { slug: 'convert-files-online', label: 'Convert Files Online', isLanding: true },
   ],
+  Comparisons: [
+    { slug: 'compress-pdf-vs-ilovepdf', label: 'Dociva vs iLovePDF', isComparison: true },
+    { slug: 'merge-pdf-vs-smallpdf', label: 'Dociva vs Smallpdf', isComparison: true },
+    { slug: 'pdf-to-word-vs-adobe-acrobat', label: 'Dociva vs Adobe Acrobat', isComparison: true },
+    { slug: 'compress-image-vs-tinypng', label: 'Dociva vs TinyPNG', isComparison: true },
+    { slug: 'ocr-vs-adobe-scan', label: 'Dociva vs Adobe Scan', isComparison: true },
+  ],
 };
 
 export default function Footer() {
@@ -55,7 +62,7 @@ export default function Footer() {
                 {tools.map((tool) => (
                   <li key={tool.slug}>
                     <Link
-                      to={(tool as { slug: string; isLanding?: boolean }).isLanding ? `/${tool.slug}` : `/tools/${tool.slug}`}
+                      to={(tool as { slug: string; isLanding?: boolean; isComparison?: boolean }).isComparison ? `/compare/${tool.slug}` : (tool as { slug: string; isLanding?: boolean }).isLanding ? `/${tool.slug}` : `/tools/${tool.slug}`}
                       className="text-sm text-slate-500 transition-colors hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400"
                     >
                       {tool.label}

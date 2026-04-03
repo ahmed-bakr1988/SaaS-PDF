@@ -27,6 +27,7 @@ const STATIC_PAGE_ROUTES = [
   '/tools',
   '/internal/admin',
   '/pricing-transparency',
+  '/compare/:slug',
 ] as const;
 
 const SEO_PAGE_ROUTES = getAllSeoLandingPaths();

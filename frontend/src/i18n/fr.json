@@ -411,6 +411,134 @@
       "pricingCta": "Comparer Gratuit et Pro",
       "toolsCta": "Explorer les outils"
     },
+    "comparison": {
+      "badge": "Comparaison",
+      "featureComparison": "Comparaison des fonctionnalités",
+      "feature": "Fonctionnalité",
+      "verdictTitle": "Le verdict",
+      "faqTitle": "Questions fréquentes",
+      "relatedComparisons": "Autres comparaisons",
+      "relatedTools": "Outils associés",
+      "ctaSubtext": "Gratuit, sans inscription — essayez maintenant.",
+      "notFound": "Comparaison introuvable",
+      "browseTools": "Parcourir tous les outils",
+      "features": {
+        "freeUnlimited": "Gratuit et illimité",
+        "noSignup": "Aucune inscription requise",
+        "batchProcessing": "Traitement par lots",
+        "compressionLevels": "Plusieurs niveaux de compression",
+        "autoDelete": "Suppression automatique des fichiers",
+        "noAds": "Pas de publicités ni de popups",
+        "apiAccess": "Accès API",
+        "offlineMode": "Mode bureau hors ligne",
+        "dragReorder": "Réorganisation par glisser-déposer",
+        "preserveFormatting": "Préservation du formatage",
+        "noInstall": "Aucune installation requise",
+        "multiFormat": "Support multi-format",
+        "qualityControl": "Curseur de contrôle qualité",
+        "multiLanguageOcr": "OCR multilingue"
+      },
+      "compressPdfVsIlovepdf": {
+        "title": "Dociva vs iLovePDF — Compression PDF gratuite comparée",
+        "metaDescription": "Comparez Dociva et iLovePDF pour la compression PDF. Fonctionnalités, limites et prix côte à côte.",
+        "heading": "Dociva vs iLovePDF",
+        "subtitle": "Les deux outils compressent les PDF, mais Dociva offre une utilisation gratuite illimitée sans inscription ni publicité.",
+        "advantagesTitle": "Pourquoi choisir Dociva plutôt qu'iLovePDF",
+        "advantages": [
+          "Vraiment illimité — aucun quota quotidien",
+          "Aucun compte requis — commencez immédiatement",
+          "Zéro publicité, zéro popup, interface épurée",
+          "Fichiers supprimés automatiquement après 30 minutes",
+          "Accès API inclus dans le plan Pro"
+        ],
+        "verdict": "Pour les utilisateurs qui ont besoin d'un compresseur PDF fiable et gratuit sans limites quotidiennes ni mur d'inscription, Dociva est le choix évident.",
+        "faqs": [
+          { "q": "Dociva est-il vraiment gratuit pour la compression PDF ?", "a": "Oui. Le compresseur PDF de Dociva est gratuit sans limites quotidiennes ni compte requis." },
+          { "q": "iLovePDF limite-t-il les utilisateurs gratuits ?", "a": "Oui. Le niveau gratuit d'iLovePDF a des limites quotidiennes et affiche des publicités." },
+          { "q": "Quel outil compresse le plus ?", "a": "Les deux offrent des taux de compression comparables. Dociva propose trois niveaux pour équilibrer qualité et taille." }
+        ]
+      },
+      "mergePdfVsSmallpdf": {
+        "title": "Dociva vs Smallpdf — Fusion PDF gratuite comparée",
+        "metaDescription": "Comparez Dociva et Smallpdf pour la fusion de PDF. Fonctionnalités, limites et prix côte à côte.",
+        "heading": "Dociva vs Smallpdf",
+        "subtitle": "Les deux plateformes fusionnent les PDF en ligne, mais Dociva offre des fusions illimitées sans inscription.",
+        "advantagesTitle": "Pourquoi choisir Dociva plutôt que Smallpdf",
+        "advantages": [
+          "Fusions PDF illimitées — aucun quota quotidien",
+          "Aucun compte requis pour fusionner",
+          "Interface propre sans publicité",
+          "Réorganisation par glisser-déposer",
+          "Fichiers supprimés après traitement"
+        ],
+        "verdict": "Smallpdf est élégant mais verrouille la plupart des fonctionnalités derrière un paywall après deux tâches gratuites par jour. Dociva offre la même fonctionnalité sans limites.",
+        "faqs": [
+          { "q": "Puis-je fusionner des PDF gratuitement avec Dociva ?", "a": "Oui. L'outil de fusion de Dociva est entièrement gratuit sans limites quotidiennes." },
+          { "q": "Smallpdf limite-t-il les fusions gratuites ?", "a": "Oui. Smallpdf ne permet que deux tâches gratuites par jour." },
+          { "q": "Puis-je réorganiser les pages avant la fusion ?", "a": "Oui. Les deux outils supportent la réorganisation par glisser-déposer." }
+        ]
+      },
+      "pdfToWordVsAdobeAcrobat": {
+        "title": "Dociva vs Adobe Acrobat — Conversion PDF vers Word comparée",
+        "metaDescription": "Comparez Dociva et Adobe Acrobat pour la conversion PDF vers Word. Outil gratuit en ligne vs logiciel premium.",
+        "heading": "Dociva vs Adobe Acrobat",
+        "subtitle": "Adobe Acrobat est la référence du secteur, mais Dociva offre la même conversion PDF vers Word gratuitement, en ligne.",
+        "advantagesTitle": "Pourquoi choisir Dociva plutôt qu'Adobe Acrobat",
+        "advantages": [
+          "100% gratuit — aucun abonnement",
+          "Aucun téléchargement ni installation",
+          "Fonctionne sur tout appareil avec un navigateur",
+          "Aucun identifiant Adobe requis",
+          "Conversion rapide avec formatage préservé"
+        ],
+        "verdict": "Adobe Acrobat offre la suite PDF la plus puissante, mais à un prix élevé. Pour une conversion PDF vers Word directe, Dociva égale la qualité gratuitement.",
+        "faqs": [
+          { "q": "La qualité de conversion de Dociva est-elle aussi bonne qu'Adobe ?", "a": "Pour les documents standard, Dociva préserve le formatage de manière comparable au convertisseur en ligne d'Adobe." },
+          { "q": "Adobe Acrobat nécessite-t-il un abonnement ?", "a": "Oui. Les fonctionnalités complètes nécessitent un abonnement Acrobat Pro." },
+          { "q": "Puis-je convertir de gros PDF ?", "a": "Dociva supporte les fichiers jusqu'à 20 Mo. Adobe Acrobat supporte des fichiers plus volumineux via son application." }
+        ]
+      },
+      "compressImageVsTinypng": {
+        "title": "Dociva vs TinyPNG — Compression d'images gratuite comparée",
+        "metaDescription": "Comparez Dociva et TinyPNG pour la compression d'images. Formats, limites et qualité.",
+        "heading": "Dociva vs TinyPNG",
+        "subtitle": "TinyPNG est un compresseur d'images populaire, mais Dociva supporte plus de formats sans limites de fichiers.",
+        "advantagesTitle": "Pourquoi choisir Dociva plutôt que TinyPNG",
+        "advantages": [
+          "Compressions illimitées — aucun quota quotidien",
+          "Supporte JPEG, PNG, WebP, GIF et plus",
+          "Curseur de qualité pour des résultats précis",
+          "Upload et traitement par lots",
+          "Aucune restriction sur le nombre de fichiers"
+        ],
+        "verdict": "TinyPNG excelle dans l'optimisation PNG/JPEG avec une interface simple, mais limite les utilisateurs gratuits à 20 images par lot. Dociva supprime ces limites.",
+        "faqs": [
+          { "q": "TinyPNG a-t-il des limites ?", "a": "Oui. L'outil gratuit de TinyPNG limite à 20 images par lot et 5 Mo par fichier." },
+          { "q": "Quels formats Dociva supporte-t-il ?", "a": "Dociva compresse JPEG, PNG, WebP, GIF, SVG et d'autres formats." },
+          { "q": "Puis-je contrôler la qualité de compression ?", "a": "Oui. Dociva propose un curseur de qualité pour équilibrer taille et qualité visuelle." }
+        ]
+      },
+      "ocrVsAdobeScan": {
+        "title": "Dociva OCR vs Adobe Scan — Reconnaissance de texte comparée",
+        "metaDescription": "Comparez Dociva OCR et Adobe Scan pour la reconnaissance de texte. Navigateur vs application mobile.",
+        "heading": "Dociva OCR vs Adobe Scan",
+        "subtitle": "Adobe Scan est une application mobile de numérisation, tandis que Dociva OCR fonctionne directement dans votre navigateur.",
+        "advantagesTitle": "Pourquoi choisir Dociva OCR plutôt qu'Adobe Scan",
+        "advantages": [
+          "Fonctionne dans tout navigateur — aucune installation",
+          "Traitement OCR illimité",
+          "Aucun compte Adobe requis",
+          "Traitement par lots de plusieurs fichiers",
+          "Reconnaissance multilingue (anglais, arabe, français)"
+        ],
+        "verdict": "Adobe Scan est une excellente application de numérisation mobile avec support hors ligne. Mais pour l'OCR web avec traitement par lots et sans connexion, Dociva est plus rapide et flexible.",
+        "faqs": [
+          { "q": "Dociva OCR fonctionne-t-il hors ligne ?", "a": "Non. Dociva OCR nécessite une connexion Internet pour traiter les fichiers sur des serveurs sécurisés." },
+          { "q": "Adobe Scan est-il gratuit ?", "a": "Les fonctionnalités de base sont gratuites, mais l'OCR avancé nécessite un abonnement Acrobat." },
+          { "q": "Quelles langues Dociva OCR supporte-t-il ?", "a": "Dociva OCR supporte la reconnaissance en anglais, arabe et français." }
+        ]
+      }
+    },
     "developers": {
       "metaDescription": "Explorez le portail développeur Dociva, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
       "badge": "Portail développeur",

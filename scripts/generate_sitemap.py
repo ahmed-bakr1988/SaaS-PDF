@@ -97,6 +97,15 @@ TOOL_GROUPS = [
     ('Utility Tools', UTILITY_TOOLS),
 ]
 
+# Comparison Pages
+COMPARISON_PAGES = [
+    {'slug': 'compress-pdf-vs-ilovepdf',       'priority': '0.7'},
+    {'slug': 'merge-pdf-vs-smallpdf',          'priority': '0.7'},
+    {'slug': 'pdf-to-word-vs-adobe-acrobat',   'priority': '0.7'},
+    {'slug': 'compress-image-vs-tinypng',      'priority': '0.7'},
+    {'slug': 'ocr-vs-adobe-scan',              'priority': '0.7'},
+]
+
 
 def get_seo_landing_paths() -> tuple[list[str], list[str]]:
     repo_root = Path(__file__).resolve().parents[1]
@@ -178,6 +187,17 @@ def generate_sitemap(domain: str) -> str:
         <priority>0.82</priority>
     </url>''')
 
+    # Comparison pages
+    if COMPARISON_PAGES:
+        urls.append('\n  <!-- Comparison Pages -->')
+        for page in COMPARISON_PAGES:
+            urls.append(f'''  <url>
+    <loc>{domain}/compare/{page["slug"]}</loc>
+    <lastmod>{today}</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>{page["priority"]}</priority>
+  </url>''')
+
     sitemap = f'''<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 {chr(10).join(urls)}
@@ -209,6 +229,7 @@ def main():
         + sum(len(routes) for _, routes in TOOL_GROUPS)
         + len(seo_tool_pages)
         + len(seo_collection_pages)
+        + len(COMPARISON_PAGES)
     )
     print(f"Sitemap generated: {args.output}")
     print(f"Total URLs: {total}")

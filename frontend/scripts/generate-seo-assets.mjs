@@ -151,6 +151,22 @@ const toolEntries = dedupeEntries(
   })),
 ).map((entry) => makeUrlTag(entry));
 
+const comparisonSlugs = [
+  'compress-pdf-vs-ilovepdf',
+  'merge-pdf-vs-smallpdf',
+  'pdf-to-word-vs-adobe-acrobat',
+  'compress-image-vs-tinypng',
+  'ocr-vs-adobe-scan',
+];
+
+const comparisonEntries = dedupeEntries(
+  comparisonSlugs.map((slug) => ({
+    loc: `${siteOrigin}/compare/${slug}`,
+    changefreq: 'monthly',
+    priority: '0.7',
+  })),
+).map((entry) => makeUrlTag(entry));
+
 const seoEntries = dedupeEntries([
   ...seoConfig.toolPageSeeds.flatMap((page) => ([
     { loc: `${siteOrigin}/${page.slug}`, changefreq: 'weekly', priority: '0.88' },
@@ -167,6 +183,7 @@ const sitemapIndex = makeSitemapIndex([
   { loc: `${siteOrigin}/sitemaps/blog.xml` },
   { loc: `${siteOrigin}/sitemaps/tools.xml` },
   { loc: `${siteOrigin}/sitemaps/seo.xml` },
+  { loc: `${siteOrigin}/sitemaps/comparisons.xml` },
 ]);
 
 const robots = [
@@ -192,6 +209,7 @@ await writeFile(path.join(sitemapDir, 'static.xml'), makeSitemapUrlSet(staticEnt
 await writeFile(path.join(sitemapDir, 'blog.xml'), makeSitemapUrlSet(blogEntries), 'utf8');
 await writeFile(path.join(sitemapDir, 'tools.xml'), makeSitemapUrlSet(toolEntries), 'utf8');
 await writeFile(path.join(sitemapDir, 'seo.xml'), makeSitemapUrlSet(seoEntries), 'utf8');
+await writeFile(path.join(sitemapDir, 'comparisons.xml'), makeSitemapUrlSet(comparisonEntries), 'utf8');
 await writeFile(path.join(publicDir, 'robots.txt'), robots, 'utf8');
 
 console.log(`Generated SEO assets for ${siteOrigin}`);

@@ -31,6 +31,7 @@ const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
 const AllToolsPage = lazy(() => import('@/pages/AllToolsPage'));
 const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
 const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
+const ComparisonPage = lazy(() => import('@/pages/ComparisonPage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
 const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
 
@@ -122,6 +123,7 @@ export default function App() {
             <Route path="/developers" element={<DevelopersPage />} />
             <Route path="/tools" element={<AllToolsPage />} />
             <Route path="/internal/admin" element={<InternalAdminPage />} />
+            <Route path="/compare/:slug" element={<ComparisonPage />} />
             <Route path="/ar/:slug" element={<SeoRoutePage />} />
             <Route path="/:slug" element={<SeoRoutePage />} />
 

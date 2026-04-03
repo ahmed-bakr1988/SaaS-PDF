@@ -917,6 +917,31 @@ const POPULAR_TOOL_SLUGS = [
   'video-to-gif',
 ] as const;
 
+/** Workflow chains: tools users are likely to use in sequence */
+const TOOL_WORKFLOWS: Record<string, string[]> = {
+  'compress-pdf': ['merge-pdf', 'split-pdf', 'pdf-to-word'],
+  'merge-pdf': ['compress-pdf', 'split-pdf', 'rotate-pdf'],
+  'split-pdf': ['merge-pdf', 'compress-pdf', 'pdf-to-word'],
+  'pdf-to-word': ['word-to-pdf', 'compress-pdf', 'ocr'],
+  'word-to-pdf': ['compress-pdf', 'merge-pdf', 'pdf-editor'],
+  'pdf-to-excel': ['pdf-to-word', 'ocr', 'compress-pdf'],
+  'pdf-to-pptx': ['pdf-to-word', 'compress-pdf', 'merge-pdf'],
+  'rotate-pdf': ['merge-pdf', 'split-pdf', 'compress-pdf'],
+  'pdf-editor': ['compress-pdf', 'merge-pdf', 'watermark-pdf'],
+  'watermark-pdf': ['compress-pdf', 'pdf-editor', 'merge-pdf'],
+  'protect-pdf': ['watermark-pdf', 'compress-pdf', 'merge-pdf'],
+  'unlock-pdf': ['compress-pdf', 'pdf-to-word', 'merge-pdf'],
+  'ocr': ['pdf-to-word', 'compress-pdf', 'image-converter'],
+  'compress-image': ['image-resize', 'image-converter', 'image-to-pdf'],
+  'image-resize': ['compress-image', 'image-converter', 'image-crop'],
+  'image-converter': ['compress-image', 'image-resize', 'image-to-pdf'],
+  'image-to-pdf': ['compress-pdf', 'merge-pdf', 'compress-image'],
+  'image-crop': ['image-resize', 'compress-image', 'image-converter'],
+  'html-to-pdf': ['compress-pdf', 'merge-pdf', 'pdf-editor'],
+  'qr-code': ['barcode-generator', 'html-to-pdf'],
+  'barcode-generator': ['qr-code', 'html-to-pdf'],
+};
+
 function dedupeExistingToolSlugs(slugs: string[], excludeSlugs: string[] = []): string[] {
   const excluded = new Set(excludeSlugs);
   const seen = new Set<string>();
@@ -952,12 +977,14 @@ export function getInternalLinkToolSlugs(currentSlug: string, limit = 8): string
     return [];
   }
 
+  const workflowSlugs = TOOL_WORKFLOWS[currentSlug] || [];
+
   const sameCategorySlugs = TOOLS_SEO
     .filter((tool) => tool.category === currentTool.category && tool.slug !== currentSlug)
     .map((tool) => tool.slug);
 
   const internalLinks = dedupeExistingToolSlugs(
-    [...currentTool.relatedSlugs, ...sameCategorySlugs, ...POPULAR_TOOL_SLUGS],
+    [...currentTool.relatedSlugs, ...workflowSlugs, ...sameCategorySlugs, ...POPULAR_TOOL_SLUGS],
     [currentSlug]
   );
 
