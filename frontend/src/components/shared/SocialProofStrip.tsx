@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Star } from 'lucide-react';
@@ -12,8 +12,27 @@ interface SocialProofStripProps {
 export default function SocialProofStrip({ className = '' }: SocialProofStripProps) {
   const { t } = useTranslation();
   const [stats, setStats] = useState<PublicStatsSummary | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
     let cancelled = false;
 
     getPublicStats()
@@ -31,11 +50,12 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [isVisible]);
 
   if (!stats) {
     return (
       <section
+        ref={sectionRef}
         aria-hidden="true"
         className={`min-h-[260px] rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}
       >
@@ -97,7 +117,7 @@ export default function SocialProofStrip({ className = '' }: SocialProofStripPro
   ].filter((card): card is { label: string; value: string } => Boolean(card));
 
   return (
-    <section className={`min-h-[260px] rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}>
+    <section ref={sectionRef} className={`min-h-[260px] rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 ${className}`.trim()}>
       <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">

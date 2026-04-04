@@ -88,6 +88,14 @@ export default defineConfig({
             return 'editor';
           }
 
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
+
+          if (id.includes('@microsoft/clarity')) {
+            return 'analytics';
+          }
+
           return undefined;
         },
       },

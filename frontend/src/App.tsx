@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import Clarity from '@microsoft/clarity';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
@@ -46,6 +46,19 @@ function LoadingFallback() {
       <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400" />
     </div>
   );
+}
+
+function IdleLoad({ children }: { children: React.ReactNode }) {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(() => setReady(true));
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(() => setReady(true), 2000);
+    return () => clearTimeout(id);
+  }, []);
+  return ready ? <>{children}</> : null;
 }
 
 export default function App() {
@@ -152,7 +165,9 @@ export default function App() {
 
       <Footer />
       <Suspense fallback={null}>
-        <SiteAssistant />
+        <IdleLoad>
+          <SiteAssistant />
+        </IdleLoad>
         <CookieConsent />
       </Suspense>
       <Toaster

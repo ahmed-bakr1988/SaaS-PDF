@@ -1,13 +1,13 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { UploadCloud, PenLine, ChevronRight, FileCheck } from 'lucide-react';
-import ToolSelectorModal from '@/components/shared/ToolSelectorModal';
 import { useFileStore } from '@/stores/fileStore';
-import { getToolsForFile, detectFileCategory, getCategoryLabel } from '@/utils/fileRouting';
 import type { ToolOption } from '@/utils/fileRouting';
 import { useConfig } from '@/hooks/useConfig';
+
+const ToolSelectorModal = lazy(() => import('@/components/shared/ToolSelectorModal'));
 
 /**
  * The MIME types we accept on the homepage smart upload zone.
@@ -45,12 +45,13 @@ export default function HeroUploadZone() {
   const [error, setError] = useState<string | null>(null);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       setError(null);
 
       if (acceptedFiles.length === 0) return;
 
       const file = acceptedFiles[0];
+      const { getToolsForFile, detectFileCategory, getCategoryLabel } = await import('@/utils/fileRouting');
       const tools = getToolsForFile(file);
 
       if (tools.length === 0) {
@@ -107,7 +108,7 @@ export default function HeroUploadZone() {
           {...getRootProps()}
           className={`hero-upload-zone group ${isDragActive ? 'drag-active' : ''}`}
         >
-          <input {...getInputProps()} />
+          <input {...getInputProps()} aria-label={t('home.dragDropTitle', 'Drag & drop your file here')} />
 
           {/* Cloud icon with animated ring */}
           <div className="relative mb-6">
@@ -210,13 +211,15 @@ export default function HeroUploadZone() {
       </div>
 
       {/* Tool Selector Modal */}
-      <ToolSelectorModal
-        isOpen={modalOpen}
-        onClose={handleCloseModal}
-        file={selectedFile}
-        tools={matchedTools}
-        fileTypeLabel={fileTypeLabel}
-      />
+      <Suspense fallback={null}>
+        <ToolSelectorModal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          file={selectedFile}
+          tools={matchedTools}
+          fileTypeLabel={fileTypeLabel}
+        />
+      </Suspense>
     </>
   );
 }
