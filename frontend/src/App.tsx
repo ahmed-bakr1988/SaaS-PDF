@@ -53,6 +53,10 @@ export default function App() {
   const location = useLocation();
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
+  const isMarketingLayout =
+    location.pathname === '/' ||
+    ['/about', '/contact', '/pricing', '/tools', '/developers', '/pricing-transparency'].includes(location.pathname) ||
+    location.pathname.startsWith('/compare/');
 
   useEffect(() => {
     initAnalytics();
@@ -103,7 +107,7 @@ export default function App() {
     <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
       <Header />
 
-      <main className="container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main className={isMarketingLayout ? 'flex-1' : 'container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8'}>
         <ErrorBoundary>
         <Suspense fallback={<LoadingFallback />}>
           <Routes>

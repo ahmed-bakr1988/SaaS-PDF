@@ -590,6 +590,11 @@ export function getHomepageTools(section: 'pdf' | 'other'): readonly ToolEntry[]
   return TOOL_MANIFEST.filter((t) => t.homepage && t.homepageSection === section);
 }
 
+/** Tools grouped by portfolio category */
+export function getToolsByCategory(category: ToolCategory): readonly ToolEntry[] {
+  return TOOL_MANIFEST.filter((t) => t.category === category);
+}
+
 /** Lookup a single tool by slug */
 export function getToolEntry(slug: string): ToolEntry | undefined {
   return TOOL_MANIFEST.find((t) => t.slug === slug);

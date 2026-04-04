@@ -58,15 +58,15 @@ describe('Tool Manifest ↔ SEO Data sync', () => {
   });
 });
 
-describe('Tool Manifest ↔ HomePage ICON_MAP sync', () => {
-  const homePageSource = readFileSync(
-    resolve(__dirname, '../pages/HomePage.tsx'),
+describe('Tool Manifest ↔ ManifestToolIcon ICON_MAP sync', () => {
+  const iconSource = readFileSync(
+    resolve(__dirname, '../components/shared/ManifestToolIcon.tsx'),
     'utf-8'
   );
 
   // Extract icon names from the ICON_MAP object literal
   // Match from "= {" to "};" to skip the type annotation that also contains braces
-  const iconMapMatch = homePageSource.match(/ICON_MAP[^=]+=\s*\{([\s\S]+?)\};/);
+  const iconMapMatch = iconSource.match(/ICON_MAP[^=]+=\s*\{([\s\S]+?)\}\s*as\s+const/);
   const iconMapKeys = new Set(
     iconMapMatch
       ? iconMapMatch[1]

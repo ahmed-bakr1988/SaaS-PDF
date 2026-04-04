@@ -1,92 +1,91 @@
 import { useDeferredValue } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSearchParams } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import SEOHead from '@/components/seo/SEOHead';
-import { generateOrganization, generateWebSite, getSiteOrigin } from '@/utils/seo';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
-  FileText,
-  FileOutput,
-  Minimize2,
-  ImageIcon,
-  Film,
-  Hash,
-  Eraser,
-  Layers,
-  Scissors,
-  RotateCw,
-  Image,
-  FileImage,
-  Droplets,
-  Lock,
-  Unlock,
-  ListOrdered,
-  PenLine,
-  GitBranch,
-  Scaling,
-  ScanText,
-  Sheet,
-  ArrowUpDown,
-  QrCode,
-  Code,
-  MessageSquare,
-  Languages,
-  Table,
-  Search,
-  X,
-  Crop,
-  FileDown,
-  Wrench,
-  Presentation,
-  Barcode,
-  ShieldCheck,
-  Zap,
-  Globe,
-  UploadCloud,
-  MousePointerClick,
-  Download,
   ArrowRight,
-  Star,
   CheckCircle2,
+  Download,
+  Globe,
+  Layers,
+  Lock,
+  MousePointerClick,
+  Search,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  UploadCloud,
+  X,
+  Zap,
 } from 'lucide-react';
-import ToolCard from '@/components/shared/ToolCard';
-import HeroUploadZone from '@/components/shared/HeroUploadZone';
+import MarketingPageLayout from '@/components/layout/MarketingPageLayout';
 import AdSlot from '@/components/layout/AdSlot';
+import HeroUploadZone from '@/components/shared/HeroUploadZone';
+import ManifestToolIcon from '@/components/shared/ManifestToolIcon';
+import SectionIntro from '@/components/shared/SectionIntro';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
-import { getHomepageTools, type ToolEntry } from '@/config/toolManifest';
-
-// Map icon names from manifest to lucide components
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
-  FileText, FileOutput, Minimize2, ImageIcon, Film, Hash, Eraser, Layers,
-  Scissors, RotateCw, Image, FileImage, Droplets, Lock, Unlock, ListOrdered,
-  PenLine, GitBranch, Scaling, ScanText, Sheet, ArrowUpDown, QrCode, Code,
-  MessageSquare, Languages, Table, Crop, FileDown, Wrench, Presentation, Barcode,
-};
-
-function renderToolIcon(tool: ToolEntry) {
-  const IconComponent = ICON_MAP[tool.iconName];
-  if (!IconComponent) return null;
-  return <IconComponent className={`h-6 w-6 ${tool.iconColor}`} />;
-}
+import ToolCard from '@/components/shared/ToolCard';
+import SEOHead from '@/components/seo/SEOHead';
+import { TOOL_MANIFEST, getHomepageTools, type ToolEntry } from '@/config/toolManifest';
+import { generateOrganization, generateWebSite, getSiteOrigin } from '@/utils/seo';
 
 interface ToolInfo {
   key: string;
   path: string;
   icon: React.ReactNode;
   bgColor: string;
+  iconName: string;
+  iconColor: string;
 }
 
 function manifestToToolInfo(tools: readonly ToolEntry[]): ToolInfo[] {
   return tools.map((t) => ({
     key: t.i18nKey,
     path: `/tools/${t.slug}`,
-    icon: renderToolIcon(t),
+    icon: <ManifestToolIcon iconName={t.iconName} className={`h-6 w-6 ${t.iconColor}`} />,
     bgColor: t.bgColor,
+    iconName: t.iconName,
+    iconColor: t.iconColor,
   }));
 }
 
 const pdfTools: ToolInfo[] = manifestToToolInfo(getHomepageTools('pdf'));
 const otherTools: ToolInfo[] = manifestToToolInfo(getHomepageTools('other'));
+
+const FEATURE_PANELS = [
+  {
+    icon: Layers,
+    bgClassName: 'bg-blue-100 dark:bg-blue-900/30',
+    iconClassName: 'text-blue-600 dark:text-blue-400',
+    titleKey: 'home.feature1Title',
+    titleDefault: 'One complete workspace',
+    descKey: 'home.feature1Desc',
+    descDefault: 'Edit, convert, compress, merge, and split without bouncing between disconnected tools.',
+    perks: ['home.feature1Perk1', 'home.feature1Perk2'],
+    fallbackPerks: ['30+ tools in one place', 'PDF, image, and AI workflows'],
+  },
+  {
+    icon: CheckCircle2,
+    bgClassName: 'bg-emerald-100 dark:bg-emerald-900/30',
+    iconClassName: 'text-emerald-600 dark:text-emerald-400',
+    titleKey: 'home.feature2Title',
+    titleDefault: 'Accuracy you can trust',
+    descKey: 'home.feature2Desc',
+    descDefault: 'Clear outputs, reliable formatting, and fast turnaround for the workflows people use every day.',
+    perks: ['home.feature2Perk1', 'home.feature2Perk2'],
+    fallbackPerks: ['Preserve layouts and readability', 'Built for repeatable file tasks'],
+  },
+  {
+    icon: ShieldCheck,
+    bgClassName: 'bg-violet-100 dark:bg-violet-900/30',
+    iconClassName: 'text-violet-600 dark:text-violet-400',
+    titleKey: 'home.feature3Title',
+    titleDefault: 'Built-in security',
+    descKey: 'home.feature3Desc',
+    descDefault: 'Files are processed securely, automatically cleaned up, and accessible without forcing registration.',
+    perks: ['home.feature3Perk1', 'home.feature3Perk2'],
+    fallbackPerks: ['Auto-delete policies', 'Encrypted transfers'],
+  },
+] as const;
 
 const HOW_IT_WORKS = [
   {
@@ -127,6 +126,25 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
+  const homepageQuickLinks = pdfTools.slice(0, 4);
+  const stats = [
+    {
+      label: t('home.statsToolsLabel', 'Total tools'),
+      value: String(TOOL_MANIFEST.length),
+    },
+    {
+      label: t('home.statsPdfLabel', 'PDF workflows'),
+      value: String(pdfTools.length),
+    },
+    {
+      label: t('home.statsOtherLabel', 'Image, AI & utility'),
+      value: String(otherTools.length),
+    },
+    {
+      label: t('home.statsAccessLabel', 'Access model'),
+      value: t('home.statsAccessValue', 'No signup'),
+    },
+  ];
 
   const matchesTool = (tool: ToolInfo) => {
     if (!deferredQuery) {
@@ -151,7 +169,95 @@ export default function HomePage() {
   };
 
   return (
-    <>
+    <MarketingPageLayout
+      bodyClassName="pb-20"
+      hero={
+        <section className="px-4 pb-10 pt-8 sm:px-6 lg:px-8 lg:pt-10">
+          <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8">
+            <div className="marketing-panel relative overflow-hidden p-8 sm:p-10 lg:p-12">
+              <div className="pointer-events-none absolute -left-10 top-10 h-36 w-36 rounded-full bg-primary-200/60 blur-3xl dark:bg-primary-800/30" />
+              <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 rounded-full bg-sky-200/50 blur-3xl dark:bg-sky-800/20" />
+              <div className="relative">
+                <span className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.22em] text-primary-700 dark:border-primary-800 dark:bg-primary-900/25 dark:text-primary-300">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  {t('home.heroBadge', 'Modern document workflows')}
+                </span>
+
+                <h1 className="mt-6 max-w-3xl text-4xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl lg:leading-[1.02]">
+                  {t('home.hero')}
+                </h1>
+
+                <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+                  {t('home.heroSub')}
+                </p>
+
+                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                  {[
+                    { icon: ShieldCheck, text: t('home.trustSecure', 'Files auto-deleted') },
+                    { icon: Zap, text: t('home.trustFast', 'Results in seconds') },
+                    { icon: Globe, text: t('home.trust30Tools', '30+ free tools') },
+                    { icon: Lock, text: t('home.trustNoSignup', 'No sign-up needed') },
+                  ].map(({ icon: Icon, text }) => (
+                    <div key={text} className="metric-card flex items-center gap-3 py-4">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
+                        <Icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{text}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <Link
+                    to="/tools"
+                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 dark:bg-white dark:text-slate-950 dark:hover:bg-primary-300"
+                  >
+                    {t('home.ctaBrowseTools', 'Browse All Tools')}
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/pricing"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  >
+                    {t('common.pricing')}
+                  </Link>
+                </div>
+
+                <div className="mt-8 rounded-[1.75rem] border border-slate-200/80 bg-white/85 p-5 dark:border-slate-700/70 dark:bg-slate-900/65">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                    {t('home.quickStartLabel', 'Popular starting points')}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {homepageQuickLinks.map((tool) => (
+                      <Link
+                        key={tool.path}
+                        to={tool.path}
+                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:border-primary-600 dark:hover:text-primary-300"
+                      >
+                        <ManifestToolIcon iconName={tool.iconName} className={`h-4 w-4 ${tool.iconColor}`} />
+                        {t(`tools.${tool.key}.title`)}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="marketing-panel p-6 sm:p-8">
+              <SectionIntro
+                eyebrow={t('home.heroUploadEyebrow', 'Upload and start')}
+                title={t('home.heroUploadTitle', 'Choose a file and jump straight into the right tool')}
+                description={t(
+                  'home.heroUploadDescription',
+                  'The smart upload zone keeps the current routing logic and suggests the best workflow automatically.'
+                )}
+              />
+              <HeroUploadZone />
+            </div>
+          </div>
+        </section>
+      }
+    >
       <SEOHead
         title={t('common.appName')}
         description={t('home.heroSub')}
@@ -165,77 +271,31 @@ export default function HomePage() {
         ]}
       />
 
-      {/* ── Hero Section ──────────────────────────────────────────── */}
-      <section className="hero-gradient-bg relative overflow-hidden py-16 sm:py-24 px-4 mb-10 rounded-b-[3rem]">
-        {/* Decorative blobs */}
-        <div className="pointer-events-none absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary-400/10 blur-3xl dark:bg-primary-600/10" />
-        <div className="pointer-events-none absolute top-0 right-0 h-80 w-80 rounded-full bg-accent-400/8 blur-3xl dark:bg-accent-600/8" />
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <AdSlot slot="home-top" format="horizontal" className="mb-8" />
+      </div>
 
-        <div className="relative max-w-4xl mx-auto text-center">
-          {/* Animated badge */}
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 mb-6 dark:border-primary-800 dark:bg-primary-900/30">
-            <span className="h-2 w-2 rounded-full bg-primary-500 animate-pulse" />
-            <span className="text-xs font-semibold uppercase tracking-widest text-primary-700 dark:text-primary-300">
-              {t('home.heroBadge', 'Free Online PDF & File Tools')}
-            </span>
-          </div>
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <SocialProofStrip className="mb-12" />
 
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl dark:text-white mb-6 leading-[1.1]">
-            {t('home.hero')}
-          </h1>
-          <p className="mx-auto max-w-2xl text-lg text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-            {t('home.heroSub')}
-          </p>
-
-          {/* Trust strip */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mb-10">
-            {[
-              { icon: ShieldCheck, text: t('home.trustNoSignup', 'No sign-up needed') },
-              { icon: Zap,         text: t('home.trustFast',     'Results in seconds') },
-              { icon: Lock,        text: t('home.trustSecure',   'Files auto-deleted') },
-              { icon: Globe,       text: t('home.trust30Tools',  '30+ free tools') },
-            ].map(({ icon: Icon, text }) => (
-              <div key={text} className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-                <Icon className="h-4 w-4 text-primary-500 flex-shrink-0" />
-                <span>{text}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* Smart Upload Zone */}
-          <HeroUploadZone />
-        </div>
-      </section>
-
-      {/* ── Ad Slot ───────────────────────────────────────────────── */}
-      <AdSlot slot="home-top" format="horizontal" className="mb-8" />
-
-      {/* ── Social Proof Strip ────────────────────────────────────── */}
-      <SocialProofStrip className="mb-10" />
-
-      {/* ── How It Works ──────────────────────────────────────────── */}
-      <section className="mb-14 px-2">
-        <div className="mb-10 text-center">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
-            {t('home.howItWorksLabel', 'Simple process')}
-          </p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            {t('home.howItWorksTitle', 'Convert & edit in 3 steps')}
-          </h2>
-          <p className="mt-3 text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
-            {t('home.howItWorksSubtitle', 'No account, no installation, no waiting. Just upload, choose a tool, and download.')}
-          </p>
-        </div>
+        <SectionIntro
+          align="center"
+          eyebrow={t('home.howItWorksLabel', 'Simple process')}
+          title={t('home.howItWorksTitle', 'Convert and edit in three simple steps')}
+          description={t(
+            'home.howItWorksSubtitle',
+            'No account, no installation, and no friction. Upload, choose the right workflow, and download.'
+          )}
+          className="mb-10"
+        />
 
         <div className="relative grid gap-6 sm:grid-cols-3">
           {HOW_IT_WORKS.map(({ step, icon: Icon, titleKey, titleDefault, descKey, descDefault, color, glow }, idx) => (
             <div key={step} className="relative">
-              {/* Connector line (between steps, hidden on mobile) */}
               {idx < HOW_IT_WORKS.length - 1 && (
                 <div className="step-connector" />
               )}
-              <div className="flex flex-col items-center text-center rounded-2xl bg-white p-7 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-800/70 dark:ring-slate-700/60">
-                {/* Numbered icon */}
+              <div className="marketing-card flex flex-col items-center text-center p-7">
                 <div className={`relative mb-5 flex h-16 w-16 items-center justify-center rounded-2xl ${color} shadow-lg ${glow} text-white`}>
                   <Icon className="h-8 w-8" />
                   <span className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-white text-xs font-black text-slate-700 shadow-sm ring-1 ring-slate-200 dark:bg-slate-700 dark:text-slate-200 dark:ring-slate-600">
@@ -254,234 +314,214 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── Search & Tools ────────────────────────────────────────── */}
-      <section className="mb-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-              {t('common.search')}
-            </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {t('home.searchToolsPlaceholder')}
-            </p>
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:flex-row lg:max-w-2xl">
-            <label className="relative flex-1">
-              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={query}
-                onChange={(event) => updateQuery(event.target.value)}
-                placeholder={t('home.searchToolsPlaceholder')}
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-4 text-sm text-slate-900 outline-none transition-colors focus:border-primary-400 focus:bg-white dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus:border-primary-500"
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <div className="marketing-panel p-6 sm:p-8 lg:p-10">
+          <div className="grid gap-8 xl:grid-cols-[280px_1fr]">
+            <div>
+              <SectionIntro
+                eyebrow={t('common.search')}
+                title={t('home.toolsDirectoryTitle', 'Find the right tool faster')}
+                description={t(
+                  'home.toolsDirectorySubtitle',
+                  'Search by task, format, or output and jump directly into the workflow you need.'
+                )}
               />
-            </label>
-            {query && (
-              <button
-                type="button"
-                onClick={() => updateQuery('')}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-              >
-                <X className="h-4 w-4" />
-                {t('common.clear')}
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
 
-      {/* ── PDF Tools Grid ────────────────────────────────────────── */}
-      <section className="mb-12">
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200">
-            {t('home.pdfTools')}
-          </h2>
-          <Link to="/tools" className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
-            {t('common.allTools')}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-10">
-          {filteredPdfTools.map((tool) => (
-            <ToolCard
-              key={tool.key}
-              to={tool.path}
-              icon={tool.icon}
-              title={t(`tools.${tool.key}.title`)}
-              description={t(`tools.${tool.key}.shortDesc`)}
-              bgColor={tool.bgColor}
-            />
-          ))}
-        </div>
+              <label className="relative mt-6 block">
+                <Search className="pointer-events-none absolute start-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  value={query}
+                  onChange={(event) => updateQuery(event.target.value)}
+                  placeholder={t('home.searchToolsPlaceholder')}
+                  className="w-full rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 text-sm text-slate-900 outline-none transition-colors focus:border-primary-400 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:focus:border-primary-500"
+                />
+              </label>
 
-        <h2 className="mb-6 text-xl font-bold text-slate-800 dark:text-slate-200">
-          {t('home.otherTools', 'Other Tools')}
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-12">
-          {filteredOtherTools.map((tool) => (
-            <ToolCard
-              key={tool.key}
-              to={tool.path}
-              icon={tool.icon}
-              title={t(`tools.${tool.key}.title`)}
-              description={t(`tools.${tool.key}.shortDesc`)}
-              bgColor={tool.bgColor}
-            />
-          ))}
-        </div>
+              {query ? (
+                <button
+                  type="button"
+                  onClick={() => updateQuery('')}
+                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-slate-200 px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                >
+                  <X className="h-4 w-4" />
+                  {t('common.clear')}
+                </button>
+              ) : null}
 
-        {filteredPdfTools.length + filteredOtherTools.length === 0 && (
-          <div className="mb-12 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-600 dark:bg-slate-800/50">
-            <p className="text-base font-medium text-slate-700 dark:text-slate-200">
-              {t('home.noSearchResults')}
-            </p>
-          </div>
-        )}
-      </section>
-
-      {/* ── Features / Why Choose Us ──────────────────────────────── */}
-      <section className="mb-14 overflow-hidden rounded-3xl bg-slate-50 px-6 py-16 dark:bg-slate-900 sm:px-12">
-        <div className="mb-12 text-center">
-          <p className="mb-2 text-xs font-bold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
-            {t('home.whyChooseLabel', 'Why Dociva')}
-          </p>
-          <h2 className="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            {t('home.featuresTitle', 'A smarter way to work with files')}
-          </h2>
-        </div>
-
-        <div className="grid gap-8 sm:grid-cols-3">
-          {[
-            {
-              icon: Layers,
-              bg: 'bg-blue-100 dark:bg-blue-900/30',
-              color: 'text-blue-600 dark:text-blue-400',
-              titleKey: 'home.feature1Title',
-              titleDefault: 'One complete workspace',
-              descKey: 'home.feature1Desc',
-              descDefault: 'Edit, convert, compress, merge, split — without switching tabs.',
-              perks: [
-                t('home.feature1Perk1', '30+ tools in one place'),
-                t('home.feature1Perk2', 'PDF, image & video support'),
-              ],
-            },
-            {
-              icon: CheckCircle2,
-              bg: 'bg-emerald-100 dark:bg-emerald-900/30',
-              color: 'text-emerald-600 dark:text-emerald-400',
-              titleKey: 'home.feature2Title',
-              titleDefault: 'Accuracy you can trust',
-              descKey: 'home.feature2Desc',
-              descDefault: 'Pixel-perfect, editable output in seconds with zero quality loss.',
-              perks: [
-                t('home.feature2Perk1', 'Preserve fonts & layouts'),
-                t('home.feature2Perk2', 'Batch-tested quality'),
-              ],
-            },
-            {
-              icon: ShieldCheck,
-              bg: 'bg-violet-100 dark:bg-violet-900/30',
-              color: 'text-violet-600 dark:text-violet-400',
-              titleKey: 'home.feature3Title',
-              titleDefault: 'Built-in security',
-              descKey: 'home.feature3Desc',
-              descDefault: 'Files are automatically deleted after processing. No account required.',
-              perks: [
-                t('home.feature3Perk1', 'Auto-deletion after 1 hour'),
-                t('home.feature3Perk2', 'Encrypted transfers'),
-              ],
-            },
-          ].map(({ icon: Icon, bg, color, titleKey, titleDefault, descKey, descDefault, perks }) => (
-            <div key={titleKey} className="flex flex-col rounded-2xl bg-white p-7 shadow-sm ring-1 ring-slate-200/80 dark:bg-slate-800 dark:ring-slate-700">
-              <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${bg}`}>
-                <Icon className={`h-7 w-7 ${color}`} />
-              </div>
-              <h3 className="mb-2 text-lg font-bold text-slate-900 dark:text-slate-100">
-                {t(titleKey, titleDefault)}
-              </h3>
-              <p className="mb-5 text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-                {t(descKey, descDefault)}
-              </p>
-              <ul className="mt-auto space-y-2">
-                {perks.map((perk) => (
-                  <li key={perk} className="flex items-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
-                    <Star className="h-3.5 w-3.5 flex-shrink-0 text-amber-400" />
-                    {perk}
-                  </li>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="metric-card">
+                    <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                      {stat.label}
+                    </p>
+                    <p className="mt-2 text-2xl font-black text-slate-950 dark:text-white">{stat.value}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-          ))}
+
+            <div>
+              <div className="mb-8 flex items-center justify-between">
+                <h2 className="text-xl font-bold text-slate-950 dark:text-white">{t('home.pdfTools')}</h2>
+                <Link to="/tools" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+                  {t('common.allTools')}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {filteredPdfTools.map((tool) => (
+                  <ToolCard
+                    key={tool.key}
+                    to={tool.path}
+                    icon={tool.icon}
+                    title={t(`tools.${tool.key}.title`)}
+                    description={t(`tools.${tool.key}.shortDesc`)}
+                    bgColor={tool.bgColor}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-10">
+                <h2 className="mb-6 text-xl font-bold text-slate-950 dark:text-white">
+                  {t('home.otherTools', 'Other Tools')}
+                </h2>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredOtherTools.map((tool) => (
+                    <ToolCard
+                      key={tool.key}
+                      to={tool.path}
+                      icon={tool.icon}
+                      title={t(`tools.${tool.key}.title`)}
+                      description={t(`tools.${tool.key}.shortDesc`)}
+                      bgColor={tool.bgColor}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {filteredPdfTools.length + filteredOtherTools.length === 0 ? (
+                <div className="mt-8 rounded-[1.75rem] border border-dashed border-slate-300 bg-slate-50 p-8 text-center dark:border-slate-700 dark:bg-slate-800/40">
+                  <p className="text-base font-semibold text-slate-700 dark:text-slate-200">
+                    {t('home.noSearchResults')}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── Developer API Banner ──────────────────────────────────── */}
-      <section className="mb-10 rounded-[2rem] border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-400">
-              {t('common.developers')}
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <SectionIntro
+          align="center"
+          eyebrow={t('home.whyChooseLabel', 'Why Dociva')}
+          title={t('home.featuresTitle', 'A clearer, faster way to work with files')}
+          description={t(
+            'home.featuresSubtitle',
+            'The redesign is built around workflow clarity: one workspace, strong defaults, and fewer decisions before value.'
+          )}
+          className="mb-10"
+        />
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          {FEATURE_PANELS.map((panel) => {
+            const Icon = panel.icon;
+            const perks = panel.perks.map((perkKey, index) => t(perkKey, panel.fallbackPerks[index]));
+
+            return (
+              <div key={panel.titleKey} className="marketing-card flex h-full flex-col p-7">
+                <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${panel.bgClassName}`}>
+                  <Icon className={`h-7 w-7 ${panel.iconClassName}`} />
+                </div>
+                <h3 className="text-lg font-bold text-slate-950 dark:text-white">
+                  {t(panel.titleKey, panel.titleDefault)}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  {t(panel.descKey, panel.descDefault)}
+                </p>
+                <ul className="mt-6 space-y-2">
+                  {perks.map((perk) => (
+                    <li key={perk} className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-200">
+                      <Star className="h-4 w-4 shrink-0 text-amber-400" />
+                      {perk}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="marketing-panel overflow-hidden bg-gradient-to-br from-slate-950 via-primary-900 to-sky-900 px-8 py-10 text-white dark:from-slate-900 dark:via-primary-950 dark:to-slate-900 sm:px-10 lg:px-12">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="max-w-2xl">
+              <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary-200">
+                {t('common.developers')}
+              </p>
+              <h2 className="mt-3 text-3xl font-black tracking-tight text-white">
+                {t('pages.developers.ctaTitle')}
+              </h2>
+              <p className="mt-3 text-base leading-7 text-slate-200">
+                {t('pages.developers.ctaSubtitle')}
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Link
+                to="/developers"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition-colors hover:bg-primary-100"
+              >
+                {t('pages.developers.openDocs')}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/account"
+                className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/15"
+              >
+                {t('pages.developers.getApiKey')}
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="marketing-panel relative overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700 px-8 py-16 text-center text-white">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+
+          <div className="relative mx-auto max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary-200">
+              {t('home.ctaBannerLabel', 'Get started today')}
             </p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-              {t('pages.developers.ctaTitle')}
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-white sm:text-4xl">
+              {t('home.ctaBannerTitle', 'Ready to convert your files?')}
             </h2>
-            <p className="mt-2 text-slate-500 dark:text-slate-400">
-              {t('pages.developers.ctaSubtitle')}
+            <p className="mt-4 text-lg leading-8 text-primary-100">
+              {t('home.ctaBannerSubtitle', 'Join thousands of users who convert, compress, and edit their files every day — completely free.')}
             </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Link
-              to="/developers"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 hover:-translate-y-px"
-            >
-              {t('pages.developers.openDocs')}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/account"
-              className="inline-flex items-center justify-center rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
-            >
-              {t('pages.developers.getApiKey')}
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Bottom CTA Banner ─────────────────────────────────────── */}
-      <section className="relative mb-14 overflow-hidden rounded-[2rem] bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700 px-8 py-16 text-center">
-        {/* Decorative blobs */}
-        <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 -left-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-
-        <div className="relative">
-          <p className="mb-2 text-sm font-bold uppercase tracking-widest text-primary-200">
-            {t('home.ctaBannerLabel', 'Get started today')}
-          </p>
-          <h2 className="mb-4 text-3xl font-extrabold text-white sm:text-4xl">
-            {t('home.ctaBannerTitle', 'Ready to convert your files?')}
-          </h2>
-          <p className="mx-auto mb-10 max-w-xl text-lg text-primary-100">
-            {t('home.ctaBannerSubtitle', 'Join thousands of users who convert, compress, and edit their files every day — completely free.')}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Link
-              to="/tools"
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-8 py-3.5 text-sm font-bold text-primary-700 shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0"
-            >
-              {t('home.ctaBrowseTools', 'Browse All Tools')}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link
-              to="/account"
-              className="inline-flex items-center gap-2 rounded-xl border-2 border-white/30 bg-white/10 px-8 py-3.5 text-sm font-bold text-white backdrop-blur transition-all hover:bg-white/20 hover:-translate-y-0.5"
-            >
-              {t('home.ctaCreateAccount', 'Create Free Account')}
-            </Link>
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+              <Link
+                to="/tools"
+                className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-primary-700 shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+              >
+                {t('home.ctaBrowseTools', 'Browse All Tools')}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link
+                to="/account"
+                className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/10 px-8 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/15"
+              >
+                {t('home.ctaCreateAccount', 'Create Free Account')}
+              </Link>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Ad Slot - Bottom ──────────────────────────────────────── */}
-      <AdSlot slot="home-bottom" className="mt-12" />
-    </>
+        <AdSlot slot="home-bottom" className="mt-12" />
+      </section>
+    </MarketingPageLayout>
   );
 }

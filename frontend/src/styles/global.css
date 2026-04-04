@@ -169,6 +169,40 @@
     linear-gradient(180deg, #0f172a 0%, #0f172a 100%);
 }
 
+.marketing-shell {
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.1), transparent 30%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.08), transparent 26%),
+    linear-gradient(180deg, rgba(248, 250, 252, 0.88) 0%, rgba(255, 255, 255, 0.92) 26%, #ffffff 100%);
+}
+
+.dark .marketing-shell {
+  background:
+    radial-gradient(circle at top left, rgba(37, 99, 235, 0.18), transparent 32%),
+    radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(2, 6, 23, 0.96) 0%, rgba(15, 23, 42, 0.98) 26%, #020617 100%);
+}
+
+.marketing-panel {
+  @apply rounded-[2rem] border border-slate-200/80 bg-white/90 shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/70;
+}
+
+.marketing-card {
+  @apply rounded-[1.75rem] border border-slate-200/80 bg-white/90 p-6 shadow-sm transition-all duration-300 dark:border-slate-700/70 dark:bg-slate-900/75;
+}
+
+.marketing-card:hover {
+  @apply -translate-y-1 shadow-lg shadow-slate-200/70 dark:shadow-slate-950/30;
+}
+
+.metric-card {
+  @apply rounded-3xl border border-slate-200/80 bg-white/85 p-5 shadow-sm backdrop-blur-sm dark:border-slate-700/70 dark:bg-slate-900/70;
+}
+
+.section-kicker {
+  @apply text-xs font-bold uppercase tracking-[0.24em] text-primary-600 dark:text-primary-400;
+}
+
 /* ──────────────────────────────────────────────────────────────────────────
    Shimmer loading effect
    ────────────────────────────────────────────────────────────────────────── */

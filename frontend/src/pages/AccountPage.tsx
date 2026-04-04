@@ -607,7 +607,7 @@ export default function AccountPage() {
             </section>
           )}
 
-          <section className="card rounded-[2rem] p-0">
+          <section id="history" className="card rounded-[2rem] p-0">
             <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
               <div className="flex items-center gap-3">
                 <FolderClock className="h-5 w-5 text-primary-600 dark:text-primary-400" />
