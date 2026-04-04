@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { CheckCircle, XCircle, MinusCircle, ArrowRight, Swords, Trophy, ExternalLink } from 'lucide-react';
+import AdSlot from '@/components/layout/AdSlot';
 import { getComparisonPage, getComparisonPagesByTool, type ComparisonFeature } from '@/config/comparisonData';
 import { getToolSEO } from '@/config/seoData';
 import { getSiteOrigin, buildSocialImageUrl, getOgLocale, generateWebPage, generateFAQ } from '@/utils/seo';
@@ -272,6 +273,8 @@ export default function ComparisonPage() {
             </div>
           </section>
         )}
+
+        <AdSlot slot="bottom-banner" format="horizontal" className="mb-12" />
       </div>
     </>
   );

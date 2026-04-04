@@ -2,6 +2,7 @@ import { useDeferredValue, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Search } from 'lucide-react';
+import AdSlot from '@/components/layout/AdSlot';
 import SEOHead from '@/components/seo/SEOHead';
 import BreadcrumbNav from '@/components/seo/BreadcrumbNav';
 import ManifestToolIcon from '@/components/shared/ManifestToolIcon';
@@ -158,6 +159,8 @@ export default function AllToolsPage() {
             </p>
           </div>
         )}
+
+        <AdSlot slot="bottom-banner" format="horizontal" className="mt-4" />
       </div>
     </>
   );

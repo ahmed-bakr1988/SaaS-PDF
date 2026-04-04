@@ -1,6 +1,7 @@
 import { Calendar, ChevronLeft, Clock } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import AdSlot from '@/components/layout/AdSlot';
 import SEOHead from '@/components/seo/SEOHead';
 import { getToolSEO } from '@/config/seoData';
 import {
@@ -184,6 +185,8 @@ export default function BlogPostPage() {
             </section>
           </aside>
         </div>
+
+        <AdSlot slot="bottom-banner" format="horizontal" className="mt-8" />
       </article>
     </>
   );

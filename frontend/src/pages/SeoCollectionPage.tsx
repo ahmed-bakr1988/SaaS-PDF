@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, FolderKanban, Link2 } from 'lucide-react';
+import AdSlot from '@/components/layout/AdSlot';
 import BreadcrumbNav from '@/components/seo/BreadcrumbNav';
 import SEOHead from '@/components/seo/SEOHead';
 import FAQSection from '@/components/seo/FAQSection';
@@ -241,6 +242,8 @@ export default function SeoCollectionPage({ slug }: SeoCollectionPageProps) {
         </section>
 
         <FAQSection faqs={faqItems} />
+
+        <AdSlot slot="bottom-banner" format="horizontal" className="mt-8" />
       </div>
     </>
   );
