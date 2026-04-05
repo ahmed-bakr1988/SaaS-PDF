@@ -673,7 +673,7 @@
     },
     "compressPdf": {
       "title": "Compress PDF",
-      "description": "Reduce PDF file size while maintaining quality. Choose your compression level.",
+      "description": "Compress PDF files online and reduce file size without sacrificing readability.",
       "shortDesc": "Compress PDF",
       "qualityLow": "Maximum Compression",
       "qualityMedium": "Balanced",
@@ -768,7 +768,7 @@
     },
     "splitPdf": {
       "title": "Split PDF",
-      "description": "Split a PDF into individual pages or extract specific page ranges.",
+      "description": "Split PDF pages online or separate selected page ranges into new files.",
       "shortDesc": "Split PDF",
       "allPages": "All Pages",
       "allPagesDesc": "Extract every page as a separate PDF file",
@@ -1029,7 +1029,7 @@
     },
     "extractPages": {
       "title": "Extract PDF Pages",
-      "description": "Extract specific pages from a PDF into a new document.",
+      "description": "Extract pages from a PDF into a new document with exact page numbers or ranges.",
       "shortDesc": "Extract Pages",
       "pagesLabel": "Pages to Extract",
       "pagesPlaceholder": "e.g. 1,3,5-8",
@@ -1335,15 +1335,17 @@
       ]
     },
     "compressPdf": {
-      "whatItDoes": "Reduce the file size of your PDF documents by up to 90% while keeping them readable and high quality. Choose between three compression levels to balance quality and file size according to your needs.",
-      "howToUse": ["Upload your PDF file to the compressor.", "Select your preferred compression level: Maximum, Balanced, or High Quality.", "Click compress and wait for processing.", "Download your compressed PDF with a significantly smaller file size."],
-      "benefits": ["Reduce file size by up to 90%", "Three compression levels to choose from", "Text remains crisp and searchable", "Ideal for email attachments and uploads", "Free with no registration needed"],
-      "useCases": ["Making large PDFs small enough to email", "Reducing storage space for archived documents", "Speeding up PDF uploads to websites", "Optimizing PDFs for mobile viewing", "Preparing documents for web publishing"],
+      "metaTitleSuffix": "Free Online PDF Compressor to Reduce PDF File Size",
+      "metaDescription": "Compress PDF files online for free. Reduce PDF file size for email, uploads, and sharing while keeping text readable and document quality under control.",
+      "whatItDoes": "Use this online PDF compressor to reduce PDF file size for email, uploads, web sharing, and storage. It optimizes images and document structure while keeping text readable and the layout usable.",
+      "howToUse": ["Upload the PDF you want to compress.", "Choose Maximum Compression, Balanced, or High Quality depending on how small the file needs to be.", "Start compression and wait for the smaller PDF to be generated.", "Download the compressed PDF and share it or upload it anywhere."],
+      "benefits": ["Make large PDFs smaller for email and form uploads", "Choose the right trade-off between small size and visual quality", "Keep text sharp and searchable after compression", "Works directly in the browser with no signup", "Original document is processed securely and deleted automatically"],
+      "useCases": ["Reducing a PDF before sending it as an email attachment", "Meeting upload limits on job portals, CRMs, or government forms", "Shrinking scanned image-heavy PDFs for faster sharing", "Saving cloud storage space for archived reports", "Preparing PDFs for quicker mobile downloads"],
       "faq": [
-        {"q": "How does PDF compression work?", "a": "Our tool optimizes images, removes unnecessary metadata, and compresses internal structures to reduce file size while maintaining visual quality."},
-        {"q": "Will compression affect text quality?", "a": "No. Text remains crisp and searchable. Mainly images within the PDF are optimized to reduce file size."},
-        {"q": "How much can I reduce my PDF size?", "a": "Depending on the content, you can typically reduce file size by 50-90%, especially for PDFs with many images."},
-        {"q": "Is there a file size limit?", "a": "You can compress PDFs up to 20MB in size."}
+        {"q": "How do I compress a PDF online?", "a": "Upload your PDF, choose the compression level you want, start the process, and download the smaller PDF when it is ready."},
+        {"q": "How can I make a PDF smaller for email or uploads?", "a": "Use the balanced or maximum compression setting to reduce PDF file size until it fits common email and upload limits."},
+        {"q": "Will PDF compression reduce quality?", "a": "Compression mainly optimizes images and embedded assets. Text usually stays sharp and searchable, while visual quality depends on the compression level you choose."},
+        {"q": "Does compression change my original PDF?", "a": "No. The tool creates a compressed copy for download and leaves your original file unchanged."}
       ]
     },
     "mergePdf": {
@@ -1359,14 +1361,17 @@
       ]
     },
     "splitPdf": {
-      "whatItDoes": "Divide a PDF document into separate files. You can split every page into an individual file or extract specific page ranges. Perfect for isolating sections from large documents.",
-      "howToUse": ["Upload your PDF document.", "Choose to split all pages or select specific pages/ranges.", "Enter page numbers (e.g. 1,3,5-8) if extracting specific pages.", "Download the resulting PDF files."],
-      "benefits": ["Split into individual pages or custom ranges", "Simple page range syntax (e.g. 1,3,5-8)", "No quality loss", "Free and no signup required", "Works with any PDF document"],
-      "useCases": ["Extracting a specific chapter from an e-book", "Sending only relevant pages to a colleague", "Breaking up a large manual into sections", "Isolating a single page for printing", "Separating a multi-page scanned document"],
+      "metaTitleSuffix": "Free Online PDF Splitter to Split or Separate PDF Pages",
+      "metaDescription": "Split PDF files online for free. Use this PDF splitter to separate PDF pages, cut page ranges, or save selected pages into smaller PDF files without losing quality.",
+      "whatItDoes": "Use this PDF splitter to split PDF pages into separate files or break a long document into smaller sections. You can separate PDF pages one by one or save only the ranges you want.",
+      "howToUse": ["Upload your PDF file.", "Choose whether to split every page or only separate specific pages or ranges.", "Enter page numbers such as 1,3,5-8 when you want custom output.", "Download the new PDF files created from your selected pages."],
+      "benefits": ["Split PDF pages individually or by custom range", "Separate PDF pages without changing the original quality", "Useful for sending only the pages someone needs", "Fast browser-based processing with no signup", "Works for reports, scans, contracts, and other multi-page PDFs"],
+      "useCases": ["Breaking a large PDF into smaller files for clients or teammates", "Separating one chapter or appendix from a long report", "Cutting PDF pages out of a scanned batch document", "Creating smaller PDFs for email or upload limits", "Saving only the pages you need for review or printing"],
       "faq": [
-        {"q": "How do I split a PDF?", "a": "Upload your PDF, specify the pages or ranges you want to extract, and click split. Download the resulting PDF instantly."},
-        {"q": "Can I extract specific pages?", "a": "Yes, you can specify individual pages (e.g. 1, 3, 5) or ranges (e.g. 1-5) to extract."},
-        {"q": "Is splitting a PDF free?", "a": "Yes, our PDF splitter is completely free with no limitations."}
+        {"q": "How do I split a PDF online?", "a": "Upload your PDF, choose whether to split every page or only selected page ranges, then download the new PDF files created from your document."},
+        {"q": "Can I separate PDF pages without splitting the whole file?", "a": "Yes. You can enter exact page numbers or ranges so only the pages you want are saved into new files."},
+        {"q": "Will splitting a PDF reduce quality?", "a": "No. Splitting is a structural change, so the pages keep their original quality and layout."},
+        {"q": "What is the difference between Split PDF and Extract Pages?", "a": "Split PDF is best when you want separate output files or broad page separation. Extract Pages is better when you want selected pages combined into one new PDF."}
       ]
     },
     "rotatePdf": {
@@ -1469,14 +1474,17 @@
       ]
     },
     "extractPages": {
-      "whatItDoes": "Extract specific pages from a PDF and create a new document containing only the pages you selected. Choose individual pages or page ranges using simple syntax. The perfect tool when you only need certain pages from a large document.",
-      "howToUse": ["Upload your PDF document.", "Enter the page numbers or ranges (e.g. 1,3,5-8).", "Click Extract to create a new PDF.", "Download the PDF with only your selected pages."],
-      "benefits": ["Extract individual pages or ranges", "Simple comma-separated syntax", "Original document stays unchanged", "Free and completely secure", "Fast processing"],
-      "useCases": ["Extracting a single chapter from an e-book", "Getting specific pages for a presentation", "Creating a subset document for review", "Pulling pages from a scanned multi-page document", "Isolating an important page to share separately"],
+      "metaTitleSuffix": "Free Online PDF Page Extractor to Extract Pages from PDF",
+      "metaDescription": "Extract pages from PDF online for free. Select exact page numbers or ranges to create a new PDF with only the pages you need.",
+      "whatItDoes": "This PDF page extractor lets you pull specific pages from a PDF and combine them into one new file. It is ideal when you need to extract pages from PDF documents without splitting every page.",
+      "howToUse": ["Upload your PDF document.", "Enter the exact pages or page ranges you want to keep, such as 2,4,7-10.", "Click Extract to create a new PDF containing only those pages.", "Download the extracted-pages PDF and share it or continue editing it."],
+      "benefits": ["Extract only the pages you need into one clean PDF", "Supports exact page numbers and page ranges", "Leaves the original PDF unchanged", "Useful for forms, contracts, chapters, and scanned packets", "Fast secure processing with automatic cleanup"],
+      "useCases": ["Sending a few required pages from a long application packet", "Creating a review copy with only selected chapters", "Saving one invoice, form, or appendix from a larger PDF", "Pulling key pages out of a scanned document bundle", "Preparing a smaller document before merging or signing"],
       "faq": [
-        {"q": "How do I extract pages from a PDF?", "a": "Upload your PDF, enter the pages you want (e.g. 1,3,5-8), and download the new PDF containing only those pages."},
-        {"q": "What is the difference between Split and Extract?", "a": "Split divides every page into separate files, while Extract lets you pick any combination of specific pages into one new document."},
-        {"q": "Can I extract pages in a different order?", "a": "The pages are extracted in the order specified. Use our Reorder tool for more control over page arrangement."}
+        {"q": "How do I extract pages from a PDF?", "a": "Upload your PDF, enter the pages or ranges you want to keep, and download the new PDF containing only those selected pages."},
+        {"q": "Can I extract multiple non-consecutive pages?", "a": "Yes. You can extract pages like 1,3,7 as well as ranges such as 5-10 in the same request."},
+        {"q": "What is the difference between Extract Pages and Split PDF?", "a": "Extract Pages creates one new PDF from the exact pages you choose. Split PDF is better when you want broader page separation or multiple outputs."},
+        {"q": "Will the original PDF stay unchanged?", "a": "Yes. The original file is not edited. The tool creates a separate PDF that contains only the extracted pages."}
       ]
     },
     "pdfEditor": {

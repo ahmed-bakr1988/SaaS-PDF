@@ -39,15 +39,26 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
   const toolTitle = t(`tools.${seo.i18nKey}.title`);
   const toolDesc = t(`tools.${seo.i18nKey}.description`);
+  const localizedTitleSuffix = i18n.exists(`seo.${seo.i18nKey}.metaTitleSuffix`)
+    ? t(`seo.${seo.i18nKey}.metaTitleSuffix`)
+    : seo.titleSuffix;
+  const localizedMetaDescription = i18n.exists(`seo.${seo.i18nKey}.metaDescription`)
+    ? t(`seo.${seo.i18nKey}.metaDescription`)
+    : seo.metaDescription;
+  const localizedFaqData = t(`seo.${seo.i18nKey}.faq`, { returnObjects: true }) as SEOFAQ[];
+  const localizedFaqs = Array.isArray(localizedFaqData) && localizedFaqData.length > 0
+    ? localizedFaqData.map((faq) => ({ question: faq.q, answer: faq.a }))
+    : seo.faqs;
   const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const path = `/tools/${slug}`;
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);
   const currentOgLocale = getOgLocale(i18n.language);
+  const metaTitle = `${toolTitle} — ${localizedTitleSuffix}`;
 
   const toolSchema = generateToolSchema({
     name: toolTitle,
-    description: seo.metaDescription,
+    description: localizedMetaDescription,
     url: canonicalUrl,
     category: seo.category === 'PDF' ? 'UtilitiesApplication' : 'WebApplication',
     ratingValue: ratingData.average,
@@ -60,12 +71,12 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
     { name: toolTitle, url: canonicalUrl },
   ]);
 
-  const faqSchema = seo.faqs.length > 0 ? generateFAQ(seo.faqs) : null;
+  const faqSchema = localizedFaqs.length > 0 ? generateFAQ(localizedFaqs) : null;
   const howToSteps = t(`seo.${seo.i18nKey}.howToUse`, { returnObjects: true }) as string[];
   const howToSchema = Array.isArray(howToSteps) && howToSteps.length > 0
     ? generateHowTo({
         name: toolTitle,
-        description: seo.metaDescription,
+        description: localizedMetaDescription,
         steps: howToSteps,
         url: canonicalUrl,
       })
@@ -74,14 +85,14 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
   return (
     <>
       <Helmet>
-        <title>{toolTitle} — {seo.titleSuffix} | {t('common.appName')}</title>
-        <meta name="description" content={seo.metaDescription} />
+        <title>{metaTitle} | {t('common.appName')}</title>
+        <meta name="description" content={localizedMetaDescription} />
         <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
         <link rel="canonical" href={canonicalUrl} />
 
         {/* Open Graph */}
-        <meta property="og:title" content={`${toolTitle} — ${seo.titleSuffix}`} />
-        <meta property="og:description" content={seo.metaDescription} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={localizedMetaDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
         <meta property="og:image" content={socialImageUrl} />
@@ -90,8 +101,8 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${toolTitle} — ${seo.titleSuffix}`} />
-        <meta name="twitter:description" content={seo.metaDescription} />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={localizedMetaDescription} />
         <meta name="twitter:image" content={socialImageUrl} />
         <meta name="twitter:image:alt" content={`${toolTitle} social preview`} />
 
@@ -208,11 +219,7 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
 
         {/* FAQ Section */}
         {(() => {
-          const faqData = t(`seo.${seo.i18nKey}.faq`, { returnObjects: true }) as SEOFAQ[];
-          const faqs = Array.isArray(faqData)
-            ? faqData.map((f) => ({ question: f.q, answer: f.a }))
-            : [];
-          return <FAQSection faqs={faqs} />;
+          return <FAQSection faqs={localizedFaqs} />;
         })()}
 
         {/* Related Tools */}

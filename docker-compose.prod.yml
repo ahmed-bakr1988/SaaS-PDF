@@ -181,6 +181,26 @@ services:
       - frontend_build:/app/dist
       - indexnow_state:/app/.indexnow
 
+  # --- Gitea (self-hosted Git) ---
+  gitea:
+    image: gitea/gitea:latest
+    restart: always
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      # Expose the correct SSH port to users (host maps 2222 -> container 22)
+      - GITEA__server__SSH_PORT=2222
+      # Optional: set these in .env for correct clone URLs
+      - GITEA__server__DOMAIN=${GITEA_DOMAIN:-}
+      - GITEA__server__ROOT_URL=${GITEA_ROOT_URL:-}
+    volumes:
+      - gitea_data:/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "2222:22"
+
 volumes:
   postgres_data:
   redis_data:
@@ -189,3 +209,4 @@ volumes:
   db_data:
   frontend_build:
   indexnow_state:
+  gitea_data:

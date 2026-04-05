@@ -79,11 +79,11 @@ export const TOOLS_SEO: ToolSEO[] = [
   {
     i18nKey: 'compressPdf',
     slug: 'compress-pdf',
-    titleSuffix: 'Free Online PDF Compressor — Reduce File Size',
-    metaDescription: 'Compress PDF files online for free. Reduce PDF size by up to 90% while maintaining quality. Fast and secure PDF compression.',
+    titleSuffix: 'Free Online PDF Compressor to Reduce PDF File Size',
+    metaDescription: 'Compress PDF files online for free. Reduce PDF file size for email, uploads, and sharing while keeping text readable and document quality under control.',
     category: 'PDF',
     relatedSlugs: ['merge-pdf', 'split-pdf', 'pdf-to-word', 'compress-image'],
-    keywords: 'compress pdf, reduce pdf size, pdf compressor, shrink pdf, make pdf smaller',
+    keywords: 'compress pdf, pdf compressor, reduce pdf file size, compress pdf online, make pdf smaller',
     features: [
       'Reduce PDF file size by up to 90%',
       'Choose your compression level (low, medium, high)',
@@ -92,10 +92,10 @@ export const TOOLS_SEO: ToolSEO[] = [
       'Process files securely on our servers',
     ],
     faqs: [
-      { question: 'How does PDF compression work?', answer: 'Our tool optimizes images, removes unnecessary metadata, and compresses internal structures to reduce file size while maintaining visual quality.' },
-      { question: 'Will compression affect text quality?', answer: 'No. Text remains crisp and searchable. Mainly images within the PDF are optimized to reduce file size.' },
-      { question: 'How much can I reduce my PDF size?', answer: 'Depending on the content, you can typically reduce file size by 50-90%, especially for PDFs with many images.' },
-      { question: 'Is there a file size limit?', answer: 'You can compress PDFs up to 20MB in size.' },
+      { question: 'How do I compress a PDF online?', answer: 'Upload your PDF, choose the compression level you want, start the process, and download the smaller PDF when it is ready.' },
+      { question: 'How can I make a PDF smaller for email or uploads?', answer: 'Use the balanced or maximum compression setting to reduce PDF file size until it fits common email and upload limits.' },
+      { question: 'Will PDF compression reduce quality?', answer: 'Compression mainly optimizes images and embedded assets. Text usually stays sharp and searchable, while visual quality depends on the compression level you choose.' },
+      { question: 'Does compression change my original PDF?', answer: 'No. The tool creates a compressed copy for download and leaves your original file unchanged.' },
     ],
   },
   {
@@ -123,11 +123,11 @@ export const TOOLS_SEO: ToolSEO[] = [
   {
     i18nKey: 'splitPdf',
     slug: 'split-pdf',
-    titleSuffix: 'Free Online PDF Splitter — Extract Pages',
-    metaDescription: 'Split PDF files into individual pages or extract specific page ranges online for free. Fast, secure, and no signup needed.',
+    titleSuffix: 'Free Online PDF Splitter to Split or Separate PDF Pages',
+    metaDescription: 'Split PDF files online for free. Use this PDF splitter to separate PDF pages, cut page ranges, or save selected pages into smaller PDF files without losing quality.',
     category: 'PDF',
     relatedSlugs: ['merge-pdf', 'extract-pages', 'rotate-pdf', 'reorder-pdf'],
-    keywords: 'split pdf, pdf splitter, extract pages from pdf, separate pdf pages, divide pdf',
+    keywords: 'split pdf, pdf splitter, separate pdf pages, split pdf online, pdf cutter, divide pdf',
     features: [
       'Split a PDF into individual pages',
       'Extract specific page ranges',
@@ -136,9 +136,10 @@ export const TOOLS_SEO: ToolSEO[] = [
       'Secure — files deleted after processing',
     ],
     faqs: [
-      { question: 'How do I split a PDF?', answer: 'Upload your PDF, specify the pages or ranges you want to extract, and click split. Download the resulting PDF instantly.' },
-      { question: 'Can I extract specific pages?', answer: 'Yes, you can specify individual pages (e.g., 1, 3, 5) or ranges (e.g., 1-5) to extract.' },
-      { question: 'Is splitting a PDF free?', answer: 'Yes, our PDF splitter is completely free with no limitations.' },
+      { question: 'How do I split a PDF online?', answer: 'Upload your PDF, choose whether to split every page or only selected page ranges, then download the new PDF files created from your document.' },
+      { question: 'Can I separate PDF pages without splitting the whole file?', answer: 'Yes. You can enter exact page numbers or ranges so only the pages you want are saved into new files.' },
+      { question: 'Will splitting a PDF reduce quality?', answer: 'No. Splitting is a structural change, so the pages keep their original quality and layout.' },
+      { question: 'What is the difference between Split PDF and Extract Pages?', answer: 'Split PDF is best when you want separate output files or broad page separation. Extract Pages is better when you want selected pages combined into one new PDF.' },
     ],
   },
   {
@@ -315,11 +316,11 @@ export const TOOLS_SEO: ToolSEO[] = [
   {
     i18nKey: 'extractPages',
     slug: 'extract-pages',
-    titleSuffix: 'Free Online PDF Page Extractor',
-    metaDescription: 'Extract specific pages from a PDF into a new document online for free. Select the exact pages you need.',
+    titleSuffix: 'Free Online PDF Page Extractor to Extract Pages from PDF',
+    metaDescription: 'Extract pages from PDF online for free. Select exact page numbers or ranges to create a new PDF with only the pages you need.',
     category: 'PDF',
     relatedSlugs: ['split-pdf', 'merge-pdf', 'reorder-pdf', 'compress-pdf'],
-    keywords: 'extract pdf pages, pdf page extractor, select pages from pdf, copy pdf pages',
+    keywords: 'extract pages from pdf, pdf page extractor, extract pdf pages, pdf extractor, save selected pages from pdf',
     features: [
       'Extract specific pages from any PDF',
       'Select individual pages or ranges',
@@ -327,8 +328,10 @@ export const TOOLS_SEO: ToolSEO[] = [
       'Free and completely secure',
     ],
     faqs: [
-      { question: 'How do I extract pages from a PDF?', answer: 'Upload your PDF, select the pages you want (e.g., 1, 3, 5-10), and download the new PDF containing only those pages.' },
-      { question: 'What is the difference between Split and Extract?', answer: 'Split divides a PDF at a specific point, while Extract lets you pick any combination of pages.' },
+      { question: 'How do I extract pages from a PDF?', answer: 'Upload your PDF, enter the pages or ranges you want to keep, and download the new PDF containing only those selected pages.' },
+      { question: 'Can I extract multiple non-consecutive pages?', answer: 'Yes. You can extract pages like 1,3,7 as well as ranges such as 5-10 in the same request.' },
+      { question: 'What is the difference between Extract Pages and Split PDF?', answer: 'Extract Pages creates one new PDF from the exact pages you choose. Split PDF is better when you want broader page separation or multiple outputs.' },
+      { question: 'Will the original PDF stay unchanged?', answer: 'Yes. The original file is not edited. The tool creates a separate PDF that contains only the extracted pages.' },
     ],
   },
   {

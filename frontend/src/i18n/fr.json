@@ -673,7 +673,7 @@
     },
     "compressPdf": {
       "title": "Compresser PDF",
-      "description": "Réduisez la taille du fichier PDF tout en maintenant la qualité. Choisissez votre niveau de compression.",
+      "description": "Compressez des fichiers PDF en ligne et réduisez leur taille sans nuire à la lisibilité.",
       "shortDesc": "Compresser PDF",
       "qualityLow": "Compression maximale",
       "qualityMedium": "Équilibré",
@@ -768,7 +768,7 @@
     },
     "splitPdf": {
       "title": "Diviser PDF",
-      "description": "Divisez un PDF en pages individuelles ou extrayez des plages de pages spécifiques.",
+      "description": "Divisez des pages PDF en ligne ou séparez des plages précises dans de nouveaux fichiers.",
       "shortDesc": "Diviser PDF",
       "allPages": "Toutes les pages",
       "allPagesDesc": "Extraire chaque page dans un fichier PDF séparé",
@@ -1029,7 +1029,7 @@
     },
     "extractPages": {
       "title": "Extraire des pages PDF",
-      "description": "Extrayez des pages spécifiques d'un PDF dans un nouveau document.",
+      "description": "Extrayez des pages d'un PDF dans un nouveau document avec des numéros ou plages précis.",
       "shortDesc": "Extraire les pages",
       "pagesLabel": "Pages à extraire",
       "pagesPlaceholder": "ex. 1,3,5-8",
@@ -1335,15 +1335,17 @@
       ]
     },
     "compressPdf": {
-      "whatItDoes": "Réduisez la taille des fichiers PDF jusqu'à 90% tout en maintenant la lisibilité et une haute qualité. Choisissez parmi trois niveaux de compression pour équilibrer qualité et taille de fichier.",
-      "howToUse": ["Téléchargez votre fichier PDF dans l'outil de compression.", "Sélectionnez votre niveau de compression préféré : compression maximale, équilibré ou haute qualité.", "Cliquez sur Compresser et attendez le traitement.", "Téléchargez votre PDF compressé avec une taille considérablement réduite."],
-      "benefits": ["Réduction de taille jusqu'à 90%", "Trois niveaux de compression au choix", "Le texte reste net et consultable", "Parfait pour les pièces jointes d'e-mail", "Gratuit sans inscription"],
-      "useCases": ["Réduire des PDF volumineux pour l'envoi par e-mail", "Réduire l'espace de stockage pour les documents archivés", "Accélérer le téléchargement de PDF sur les sites web", "Optimiser les PDF pour la visualisation mobile", "Préparer des documents pour la publication web"],
+      "metaTitleSuffix": "Compresseur PDF gratuit en ligne pour réduire la taille d'un fichier",
+      "metaDescription": "Compressez des fichiers PDF en ligne gratuitement. Réduisez la taille d'un PDF pour l'e-mail, les formulaires et le partage tout en conservant un texte lisible.",
+      "whatItDoes": "Utilisez ce compresseur PDF en ligne pour réduire la taille d'un PDF avant l'envoi par e-mail, le téléversement ou l'archivage. L'outil optimise les images et la structure du document tout en conservant un texte lisible.",
+      "howToUse": ["Téléchargez le PDF à compresser.", "Choisissez Compression maximale, Équilibré ou Haute qualité selon le niveau de réduction souhaité.", "Lancez la compression et attendez la génération du PDF plus léger.", "Téléchargez le PDF compressé puis partagez-le ou téléversez-le où vous voulez."],
+      "benefits": ["Réduire les PDF volumineux pour l'e-mail et les formulaires en ligne", "Choisir le bon compromis entre taille réduite et qualité visuelle", "Conserver un texte net et consultable après compression", "Fonctionner directement dans le navigateur sans inscription", "Traitement sécurisé avec suppression automatique des fichiers"],
+      "useCases": ["Réduire un PDF avant de l'envoyer en pièce jointe", "Respecter les limites de taille sur les portails et formulaires", "Alléger des PDF numérisés riches en images", "Économiser de l'espace de stockage pour les archives", "Préparer des PDF plus rapides à télécharger sur mobile"],
       "faq": [
-        {"q": "Comment fonctionne la compression PDF ?", "a": "Notre outil optimise les images, supprime les métadonnées inutiles et compresse les structures internes pour réduire la taille du fichier tout en maintenant la qualité visuelle."},
-        {"q": "La compression affectera-t-elle la qualité du texte ?", "a": "Non. Le texte reste net et consultable. Principalement les images sont optimisées pour réduire la taille."},
-        {"q": "De combien puis-je réduire la taille d'un PDF ?", "a": "Selon le contenu, vous pouvez généralement réduire la taille de 50 à 90%, surtout pour les fichiers contenant beaucoup d'images."},
-        {"q": "Y a-t-il une limite de taille de fichier ?", "a": "Vous pouvez compresser des fichiers PDF jusqu'à 20 Mo."}
+        {"q": "Comment compresser un PDF en ligne ?", "a": "Téléchargez votre PDF, choisissez le niveau de compression souhaité, lancez le traitement puis récupérez le fichier plus léger lorsqu'il est prêt."},
+        {"q": "Comment réduire la taille d'un PDF pour l'e-mail ou le téléversement ?", "a": "Utilisez le mode équilibré ou la compression maximale pour faire passer le fichier sous les limites habituelles d'envoi ou de dépôt."},
+        {"q": "La compression PDF réduit-elle la qualité ?", "a": "La compression agit surtout sur les images et les ressources intégrées. Le texte reste généralement net et consultable, tandis que la qualité visuelle dépend du niveau choisi."},
+        {"q": "La compression modifie-t-elle mon PDF original ?", "a": "Non. L'outil crée une copie compressée à télécharger et laisse le fichier d'origine intact."}
       ]
     },
     "mergePdf": {
@@ -1359,14 +1361,17 @@
       ]
     },
     "splitPdf": {
-      "whatItDoes": "Divisez un document PDF en fichiers séparés. Vous pouvez scinder chaque page en fichiers individuels ou extraire des plages de pages spécifiques. Idéal pour isoler des sections de documents volumineux.",
-      "howToUse": ["Téléchargez votre document PDF.", "Choisissez de diviser toutes les pages ou de spécifier des pages/plages particulières.", "Saisissez les numéros de pages (ex. 1,3,5-8) pour une extraction sélective.", "Téléchargez les fichiers PDF résultants."],
-      "benefits": ["Diviser en pages individuelles ou plages personnalisées", "Syntaxe simple pour les plages de pages", "Sans perte de qualité", "Gratuit sans inscription", "Fonctionne avec tout document PDF"],
-      "useCases": ["Extraire un chapitre spécifique d'un e-book", "Envoyer uniquement certaines pages à un collègue", "Diviser un manuel volumineux en sections", "Isoler une seule page pour l'impression", "Séparer un document numérisé de plusieurs pages"],
+      "metaTitleSuffix": "Outil gratuit en ligne pour diviser un PDF et séparer des pages",
+      "metaDescription": "Divisez des fichiers PDF en ligne gratuitement. Séparez des pages PDF, découpez des plages et créez des PDF plus petits sans perte de qualité.",
+      "whatItDoes": "Utilisez cet outil pour diviser des pages PDF en fichiers séparés ou découper un document long en sections plus petites. Vous pouvez séparer les pages une par une ou conserver uniquement les plages nécessaires.",
+      "howToUse": ["Téléchargez votre fichier PDF.", "Choisissez si vous voulez diviser toutes les pages ou seulement séparer certaines pages ou plages.", "Saisissez des numéros comme 1,3,5-8 lorsque vous voulez un résultat personnalisé.", "Téléchargez les nouveaux fichiers PDF créés à partir des pages sélectionnées."],
+      "benefits": ["Diviser des pages PDF individuellement ou par plage personnalisée", "Séparer des pages PDF sans altérer la qualité d'origine", "Envoyer uniquement les pages utiles au lieu du document complet", "Traitement rapide dans le navigateur sans inscription", "Adapté aux rapports, contrats et PDF numérisés"],
+      "useCases": ["Découper un PDF volumineux en fichiers plus petits pour des collègues ou clients", "Séparer un chapitre ou une annexe d'un long rapport", "Isoler des pages utiles d'un document numérisé", "Créer des PDF plus légers pour l'e-mail ou le dépôt", "Conserver uniquement les pages nécessaires pour la relecture ou l'impression"],
       "faq": [
-        {"q": "Comment diviser un fichier PDF ?", "a": "Téléchargez votre PDF, sélectionnez les pages ou plages souhaitées et cliquez sur Diviser. Téléchargez le PDF résultant immédiatement."},
-        {"q": "Puis-je extraire des pages spécifiques ?", "a": "Oui, vous pouvez spécifier des pages individuelles (ex. 1, 3, 5) ou des plages (ex. 1-5) pour l'extraction."},
-        {"q": "La division de PDF est-elle gratuite ?", "a": "Oui, notre outil de division PDF est entièrement gratuit sans restrictions."}
+        {"q": "Comment diviser un PDF en ligne ?", "a": "Téléchargez votre PDF, choisissez si vous voulez diviser toutes les pages ou seulement certaines plages, puis téléchargez les nouveaux fichiers générés."},
+        {"q": "Puis-je séparer des pages PDF sans diviser tout le fichier ?", "a": "Oui. Vous pouvez saisir des numéros de pages ou des plages précises afin d'enregistrer uniquement les pages voulues dans de nouveaux fichiers."},
+        {"q": "La division d'un PDF réduit-elle la qualité ?", "a": "Non. La division modifie uniquement la structure du fichier, donc les pages conservent leur qualité et leur mise en page d'origine."},
+        {"q": "Quelle est la différence entre Diviser PDF et Extraire des pages ?", "a": "Diviser PDF convient mieux lorsque vous voulez plusieurs sorties ou une séparation large des pages. Extraire des pages est préférable lorsque vous voulez réunir des pages choisies dans un seul nouveau PDF."}
       ]
     },
     "rotatePdf": {
@@ -1469,14 +1474,17 @@
       ]
     },
     "extractPages": {
-      "whatItDoes": "Extrayez des pages spécifiques d'un PDF et créez un nouveau document contenant uniquement les pages sélectionnées. Choisissez des pages individuelles ou des plages de pages avec une syntaxe simple.",
-      "howToUse": ["Téléchargez votre document PDF.", "Saisissez les numéros de pages ou plages (ex. 1,3,5-8).", "Cliquez sur Extraire pour créer un nouveau PDF.", "Téléchargez le PDF contenant uniquement les pages choisies."],
-      "benefits": ["Extraction de pages individuelles ou par plages", "Syntaxe simple séparée par des virgules", "Le document original reste inchangé", "Gratuit et totalement sécurisé", "Traitement rapide"],
-      "useCases": ["Extraire un seul chapitre d'un e-book", "Obtenir des pages spécifiques pour une présentation", "Créer un sous-document pour révision", "Extraire des pages d'un document numérisé multi-pages", "Isoler une page importante pour un partage séparé"],
+      "metaTitleSuffix": "Extracteur de pages PDF gratuit en ligne",
+      "metaDescription": "Extrayez des pages d'un PDF en ligne gratuitement. Sélectionnez des numéros ou plages exacts pour créer un nouveau PDF avec uniquement les pages utiles.",
+      "whatItDoes": "Cet extracteur de pages PDF vous permet de récupérer des pages précises d'un PDF et de les réunir dans un nouveau fichier. Il convient parfaitement lorsque vous devez extraire des pages d'un PDF sans séparer chaque page du document.",
+      "howToUse": ["Téléchargez votre document PDF.", "Saisissez les pages ou plages exactes à conserver, par exemple 2,4,7-10.", "Cliquez sur Extraire pour créer un nouveau PDF contenant uniquement ces pages.", "Téléchargez le PDF extrait puis partagez-le ou poursuivez votre traitement."],
+      "benefits": ["Extraire uniquement les pages nécessaires dans un PDF propre", "Prendre en charge les numéros de pages précis et les plages", "Laisser le PDF original inchangé", "Utile pour les formulaires, contrats, chapitres et lots numérisés", "Traitement rapide et sécurisé avec nettoyage automatique"],
+      "useCases": ["Envoyer seulement quelques pages d'un dossier volumineux", "Créer une copie de relecture avec des chapitres sélectionnés", "Conserver une facture, un formulaire ou une annexe d'un PDF plus grand", "Retirer des pages clés d'un document numérisé multi-pages", "Préparer un document plus léger avant fusion ou signature"],
       "faq": [
-        {"q": "Comment extraire des pages d'un PDF ?", "a": "Téléchargez votre PDF, saisissez les pages souhaitées (ex. 1,3,5-8) et téléchargez le nouveau PDF contenant uniquement ces pages."},
-        {"q": "Quelle est la différence entre diviser et extraire ?", "a": "La division sépare chaque page en fichiers distincts, tandis que l'extraction vous permet de choisir n'importe quelle combinaison de pages spécifiques dans un nouveau document unique."},
-        {"q": "Puis-je extraire les pages dans un ordre différent ?", "a": "Les pages sont extraites dans l'ordre spécifié. Utilisez l'outil de réorganisation pour plus de contrôle sur l'ordre des pages."}
+        {"q": "Comment extraire des pages d'un PDF ?", "a": "Téléchargez votre PDF, saisissez les pages ou plages à conserver, puis téléchargez le nouveau PDF contenant uniquement ces pages sélectionnées."},
+        {"q": "Puis-je extraire plusieurs pages non consécutives ?", "a": "Oui. Vous pouvez extraire des pages comme 1,3,7 ainsi que des plages comme 5-10 dans la même demande."},
+        {"q": "Quelle est la différence entre Extraire des pages et Diviser PDF ?", "a": "Extraire des pages crée un seul nouveau PDF à partir des pages choisies avec précision. Diviser PDF est préférable lorsque vous voulez une séparation plus large ou plusieurs fichiers de sortie."},
+        {"q": "Le PDF d'origine reste-t-il inchangé ?", "a": "Oui. Le fichier original n'est pas modifié. L'outil crée un PDF séparé qui contient uniquement les pages extraites."}
       ]
     },
     "pdfEditor": {
