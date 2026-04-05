@@ -1,4 +1,5 @@
 import axios, { type InternalAxiosRequestConfig } from 'axios';
+import i18n from '@/i18n';
 
 const CSRF_COOKIE_NAME = 'csrf_token';
 const CSRF_HEADER_NAME = 'X-CSRF-Token';
@@ -160,21 +161,27 @@ api.interceptors.response.use(
       }
 
       if (error.response.status === 429) {
-        return Promise.reject(new Error('Too many requests. Please wait a moment and try again.'));
+        return Promise.reject(new Error(i18n.t('common.errors.rateLimited')));
       }
 
       const responseData = error.response.data;
+      const errorCode: string | undefined = responseData?.error_code;
+      if (errorCode) {
+        const mapped = resolveErrorCode(errorCode);
+        if (mapped) return Promise.reject(new Error(mapped));
+      }
       const message =
+        responseData?.user_message ||
         responseData?.error ||
         responseData?.message ||
         (typeof responseData === 'string' && responseData.trim()
           ? responseData.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
           : null) ||
-        `Request failed (${error.response.status}).`;
+        i18n.t('common.errors.serverError');
       return Promise.reject(new Error(message));
     }
     if (error.request) {
-      return Promise.reject(new Error('Network error. Please check your connection.'));
+      return Promise.reject(new Error(i18n.t('common.errors.networkError')));
     }
     return Promise.reject(error);
   }
@@ -251,7 +258,57 @@ function isTaskErrorPayload(value: unknown): value is TaskErrorPayload {
   return Boolean(value) && typeof value === 'object';
 }
 
+/**
+ * Maps a backend error_code to a fully translated message via i18n.
+ * Returns null when no specific mapping exists (caller should fall back to user_message or generic).
+ */
+export function resolveErrorCode(errorCode: string): string | null {
+  const map: Record<string, string> = {
+    TASK_FAILURE: i18n.t('common.errors.processingFailed'),
+    CELERY_NOT_REGISTERED: i18n.t('common.errors.taskUnavailable'),
+    OPENROUTER_UNAUTHORIZED: i18n.t('common.errors.aiUnavailable'),
+    OPENROUTER_RATE_LIMIT: i18n.t('common.errors.aiRateLimited'),
+    OPENROUTER_INSUFFICIENT_CREDITS: i18n.t('common.errors.aiRateLimited'),
+    OPENROUTER_SERVER_ERROR: i18n.t('common.errors.serverError'),
+    OPENROUTER_CONNECTION_ERROR: i18n.t('common.errors.networkError'),
+    OPENROUTER_TIMEOUT: i18n.t('common.errors.serverError'),
+    OPENROUTER_MISSING_API_KEY: i18n.t('common.errors.aiUnavailable'),
+    OPENROUTER_EMPTY_RESPONSE: i18n.t('common.errors.aiUnavailable'),
+    OPENROUTER_ERROR_PAYLOAD: i18n.t('common.errors.aiUnavailable'),
+    OPENROUTER_REQUEST_ERROR: i18n.t('common.errors.serverError'),
+    DEEPL_NOT_CONFIGURED: i18n.t('common.errors.translationFailed'),
+    DEEPL_UNSUPPORTED_TARGET_LANGUAGE: i18n.t('common.errors.invalidInput'),
+    DEEPL_TIMEOUT: i18n.t('common.errors.translationFailed'),
+    DEEPL_CONNECTION_ERROR: i18n.t('common.errors.networkError'),
+    DEEPL_REQUEST_ERROR: i18n.t('common.errors.translationFailed'),
+    DEEPL_RATE_LIMIT: i18n.t('common.errors.aiRateLimited'),
+    DEEPL_SERVER_ERROR: i18n.t('common.errors.serverError'),
+    DEEPL_CREDITS_OR_PERMISSIONS: i18n.t('common.errors.translationFailed'),
+    DEEPL_EMPTY_RESPONSE: i18n.t('common.errors.translationFailed'),
+    DEEPL_EMPTY_TEXT: i18n.t('common.errors.pdfTextEmpty'),
+    TRANSLATION_PROVIDER_FAILED: i18n.t('common.errors.translationFailed'),
+    AI_BUDGET_EXCEEDED: i18n.t('common.errors.aiBudgetExceeded'),
+    PDF_ENCRYPTED: i18n.t('common.errors.pdfEncrypted'),
+    PDF_TEXT_EXTRACTION_FAILED: i18n.t('common.errors.processingFailed'),
+    PDF_TEXT_EMPTY: i18n.t('common.errors.pdfTextEmpty'),
+    PDF_AI_INVALID_INPUT: i18n.t('common.errors.invalidInput'),
+    PDF_AI_ERROR: i18n.t('common.errors.processingFailed'),
+    PDF_TABLES_NOT_FOUND: i18n.t('common.errors.pdfNoTables'),
+    PDF_TABLE_EXTRACTION_FAILED: i18n.t('common.errors.processingFailed'),
+    TABULA_NOT_INSTALLED: i18n.t('common.errors.serverError'),
+  };
+  return map[errorCode] ?? null;
+}
+
 export function getTaskErrorMessage(error: unknown, fallback: string): string {
+  if (isTaskErrorPayload(error)) {
+    // Prefer a translated message keyed by error_code
+    if (typeof error.error_code === 'string') {
+      const translated = resolveErrorCode(error.error_code);
+      if (translated) return translated;
+    }
+  }
+
   if (typeof error === 'string' && error.trim()) {
     return error.trim();
   }

@@ -2,47 +2,62 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, FileText, Layers3 } from 'lucide-react';
 
-const FOOTER_TOOLS = {
+interface FooterTool {
+  slug: string;
+  i18nKey: string;
+  isLanding?: boolean;
+  isComparison?: boolean;
+}
+
+const FOOTER_TOOLS: Record<string, FooterTool[]> = {
   PDF: [
-    { slug: 'pdf-to-word', label: 'PDF to Word' },
-    { slug: 'compress-pdf', label: 'Compress PDF' },
-    { slug: 'merge-pdf', label: 'Merge PDF' },
-    { slug: 'split-pdf', label: 'Split PDF' },
-    { slug: 'pdf-to-images', label: 'PDF to Images' },
-    { slug: 'protect-pdf', label: 'Protect PDF' },
-    { slug: 'watermark-pdf', label: 'Watermark PDF' },
-    { slug: 'pdf-editor', label: 'PDF Editor' },
+    { slug: 'pdf-to-word', i18nKey: 'tools.pdfToWord.title' },
+    { slug: 'compress-pdf', i18nKey: 'tools.compressPdf.title' },
+    { slug: 'merge-pdf', i18nKey: 'tools.mergePdf.title' },
+    { slug: 'split-pdf', i18nKey: 'tools.splitPdf.title' },
+    { slug: 'pdf-to-images', i18nKey: 'tools.pdfToImages.title' },
+    { slug: 'protect-pdf', i18nKey: 'tools.protectPdf.title' },
+    { slug: 'watermark-pdf', i18nKey: 'tools.watermarkPdf.title' },
+    { slug: 'pdf-editor', i18nKey: 'tools.pdfEditor.title' },
   ],
   'Image & Convert': [
-    { slug: 'compress-image', label: 'Compress Image' },
-    { slug: 'image-converter', label: 'Image Converter' },
-    { slug: 'image-resize', label: 'Image Resize' },
-    { slug: 'remove-background', label: 'Remove Background' },
-    { slug: 'word-to-pdf', label: 'Word to PDF' },
-    { slug: 'html-to-pdf', label: 'HTML to PDF' },
-    { slug: 'pdf-to-excel', label: 'PDF to Excel' },
+    { slug: 'compress-image', i18nKey: 'tools.compressImage.title' },
+    { slug: 'image-converter', i18nKey: 'tools.imageConvert.title' },
+    { slug: 'image-resize', i18nKey: 'tools.imageResize.title' },
+    { slug: 'remove-background', i18nKey: 'tools.removeBg.title' },
+    { slug: 'word-to-pdf', i18nKey: 'tools.wordToPdf.title' },
+    { slug: 'html-to-pdf', i18nKey: 'tools.htmlToPdf.title' },
+    { slug: 'pdf-to-excel', i18nKey: 'tools.pdfToExcel.title' },
   ],
   'AI & Utility': [
-    { slug: 'chat-pdf', label: 'Chat with PDF' },
-    { slug: 'summarize-pdf', label: 'Summarize PDF' },
-    { slug: 'translate-pdf', label: 'Translate PDF' },
-    { slug: 'ocr', label: 'OCR' },
-    { slug: 'qr-code', label: 'QR Code Generator' },
-    { slug: 'video-to-gif', label: 'Video to GIF' },
-    { slug: 'word-counter', label: 'Word Counter' },
+    { slug: 'chat-pdf', i18nKey: 'tools.chatPdf.title' },
+    { slug: 'summarize-pdf', i18nKey: 'tools.summarizePdf.title' },
+    { slug: 'translate-pdf', i18nKey: 'tools.translatePdf.title' },
+    { slug: 'ocr', i18nKey: 'tools.ocr.title' },
+    { slug: 'qr-code', i18nKey: 'tools.qrCode.title' },
+    { slug: 'video-to-gif', i18nKey: 'tools.videoToGif.title' },
+    { slug: 'word-counter', i18nKey: 'tools.wordCounter.title' },
   ],
   Guides: [
-    { slug: 'best-pdf-tools', label: 'Best PDF Tools', isLanding: true },
-    { slug: 'free-pdf-tools-online', label: 'Free PDF Tools Online', isLanding: true },
-    { slug: 'convert-files-online', label: 'Convert Files Online', isLanding: true },
+    { slug: 'best-pdf-tools', i18nKey: 'footer.guides.bestPdfTools', isLanding: true },
+    { slug: 'free-pdf-tools-online', i18nKey: 'footer.guides.freePdfToolsOnline', isLanding: true },
+    { slug: 'convert-files-online', i18nKey: 'footer.guides.convertFilesOnline', isLanding: true },
   ],
   Comparisons: [
-    { slug: 'compress-pdf-vs-ilovepdf', label: 'Dociva vs iLovePDF', isComparison: true },
-    { slug: 'merge-pdf-vs-smallpdf', label: 'Dociva vs Smallpdf', isComparison: true },
-    { slug: 'pdf-to-word-vs-adobe-acrobat', label: 'Dociva vs Adobe Acrobat', isComparison: true },
-    { slug: 'compress-image-vs-tinypng', label: 'Dociva vs TinyPNG', isComparison: true },
-    { slug: 'ocr-vs-adobe-scan', label: 'Dociva vs Adobe Scan', isComparison: true },
+    { slug: 'compress-pdf-vs-ilovepdf', i18nKey: 'footer.comparisons.compressPdfVsIlovepdf', isComparison: true },
+    { slug: 'merge-pdf-vs-smallpdf', i18nKey: 'footer.comparisons.mergePdfVsSmallpdf', isComparison: true },
+    { slug: 'pdf-to-word-vs-adobe-acrobat', i18nKey: 'footer.comparisons.pdfToWordVsAdobeAcrobat', isComparison: true },
+    { slug: 'compress-image-vs-tinypng', i18nKey: 'footer.comparisons.compressImageVsTinypng', isComparison: true },
+    { slug: 'ocr-vs-adobe-scan', i18nKey: 'footer.comparisons.ocrVsAdobeScan', isComparison: true },
   ],
+};
+
+const CATEGORY_KEYS: Record<string, string> = {
+  'PDF': 'footer.categories.pdf',
+  'Image & Convert': 'footer.categories.imageConvert',
+  'AI & Utility': 'footer.categories.aiUtility',
+  'Guides': 'footer.categories.guides',
+  'Comparisons': 'footer.categories.comparisons',
 };
 
 export default function Footer() {
@@ -63,16 +78,13 @@ export default function Footer() {
                     {t('common.appName')}
                   </p>
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {t('common.siteTagline', 'Online PDF and file workflows')}
+                    {t('common.siteTagline')}
                   </p>
                 </div>
               </div>
 
               <p className="mt-6 max-w-md text-sm leading-7 text-slate-600 dark:text-slate-300">
-                {t(
-                  'common.footerDescription',
-                  'Convert, compress, edit, and automate document work in one browser-based workspace built for speed, clarity, and secure processing.'
-                )}
+                {t('common.footerDescription')}
               </p>
 
               <div className="mt-6 flex flex-wrap gap-3">
@@ -96,16 +108,16 @@ export default function Footer() {
               {Object.entries(FOOTER_TOOLS).map(([category, tools]) => (
                 <div key={category}>
                   <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-slate-500 dark:text-slate-400">
-                    {category}
+                    {t(CATEGORY_KEYS[category] ?? category)}
                   </h3>
                   <ul className="space-y-2.5">
                     {tools.map((tool) => (
                       <li key={tool.slug}>
                         <Link
-                          to={(tool as { slug: string; isLanding?: boolean; isComparison?: boolean }).isComparison ? `/compare/${tool.slug}` : (tool as { slug: string; isLanding?: boolean }).isLanding ? `/${tool.slug}` : `/tools/${tool.slug}`}
+                          to={tool.isComparison ? `/compare/${tool.slug}` : tool.isLanding ? `/${tool.slug}` : `/tools/${tool.slug}`}
                           className="text-sm text-slate-600 transition-colors hover:text-primary-600 dark:text-slate-300 dark:hover:text-primary-400"
                         >
-                          {tool.label}
+                          {t(tool.i18nKey)}
                         </Link>
                       </li>
                     ))}

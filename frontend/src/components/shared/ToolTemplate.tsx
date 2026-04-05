@@ -172,10 +172,10 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
                 {isUploading ? (
                   <>
                     <Clock className="h-5 w-5 animate-spin" />
-                    {t('common.uploading', { defaultValue: 'Uploading...' })}
+                    {t('common.uploading')}
                   </>
                 ) : (
-                  t('common.convert', { defaultValue: 'Convert' })
+                  t('common.convert')
                 )}
               </button>
             </div>
@@ -195,8 +195,8 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
                     <div className="flex items-center gap-3">
                       <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
                       <div>
-                        <h2 className="font-semibold text-green-900 dark:text-green-200">Success!</h2>
-                        <p className="text-sm text-green-700 dark:text-green-300">Your file is ready</p>
+                      <h2 className="font-semibold text-green-900 dark:text-green-200">{t('result.success')}</h2>
+                      <p className="text-sm text-green-700 dark:text-green-300">{t('result.fileReady')}</p>
                       </div>
                     </div>
                   </div>
@@ -208,15 +208,15 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
                   <div className="flex items-center gap-3">
                     <AlertCircle className="h-6 w-6 text-red-600 dark:text-red-400" />
                     <div>
-                      <h2 className="font-semibold text-red-900 dark:text-red-200">Error</h2>
-                      <p className="text-sm text-red-700 dark:text-red-300">{error || 'Processing failed'}</p>
+                      <h2 className="font-semibold text-red-900 dark:text-red-200">{t('common.error')}</h2>
+                      <p className="text-sm text-red-700 dark:text-red-300">{error || t('common.errors.processingFailed')}</p>
                     </div>
                   </div>
                 </div>
               )}
 
               <button onClick={handleReset} className="btn-secondary w-full">
-                Process Another
+                {t('result.processAnother')}
               </button>
             </div>
           )}

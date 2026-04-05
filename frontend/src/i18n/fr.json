@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "appName": "Dociva",
     "tagline": "Outils de fichiers en ligne gratuits",
@@ -35,6 +35,11 @@
     "subject": "Sujet",
     "message": "Message",
     "name": "Nom",
+    "siteTagline": "Workflows PDF et fichiers en ligne",
+    "footerDescription": "Convertissez, compressez, modifiez et automatisez le traitement de documents dans un espace de travail basé sur le navigateur, conçu pour la rapidité, la clarté et le traitement sécurisé.",
+    "uploading": "Téléchargement en cours...",
+    "convert": "Convertir",
+    "sending": "Envoi en cours...",
     "errors": {
       "fileTooLarge": "Fichier trop volumineux. Taille maximale autorisée : {{size}} Mo.",
       "invalidFileType": "Type de fichier non valide. Formats acceptés : {{types}}",
@@ -44,7 +49,19 @@
       "rateLimited": "Trop de requêtes. Veuillez attendre un moment et réessayer.",
       "serverError": "Une erreur serveur s'est produite. Veuillez réessayer plus tard.",
       "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
-      "noFileSelected": "Aucun fichier sélectionné. Veuillez choisir un fichier à télécharger."
+      "noFileSelected": "Aucun fichier sélectionné. Veuillez choisir un fichier à télécharger.",
+      "aiUnavailable": "Les fonctionnalités IA sont temporairement indisponibles. Veuillez réessayer plus tard.",
+      "aiRateLimited": "Le service IA est actuellement occupé. Veuillez réessayer dans un instant.",
+      "aiBudgetExceeded": "Quota de traitement IA dépassé. Veuillez réessayer plus tard.",
+      "pdfEncrypted": "Ce PDF est protégé par un mot de passe. Veuillez d'abord le déverrouiller.",
+      "pdfTextEmpty": "Aucun texte lisible trouvé dans ce PDF.",
+      "pdfNoTables": "Aucun tableau trouvé dans ce PDF.",
+      "taskUnavailable": "Service temporairement indisponible. Veuillez réessayer dans un instant.",
+      "translationFailed": "Le service de traduction a échoué. Veuillez réessayer.",
+      "invalidInput": "Entrée non valide. Veuillez vérifier vos paramètres et réessayer.",
+      "genericTitle": "Une erreur s'est produite",
+      "genericDesc": "Une erreur inattendue s'est produite. Veuillez réessayer.",
+      "tryAgain": "Réessayer"
     }
   },
   "auth": {
@@ -141,7 +158,31 @@
     "feature2Title": "Une précision de confiance",
     "feature2Desc": "Obtenez des fichiers parfaits et modifiables en quelques secondes sans perte de qualité.",
     "feature3Title": "Sécurité intégrée",
-    "feature3Desc": "Accédez aux fichiers en toute sécurité, protégés par un cryptage automatique."
+    "feature3Desc": "Accédez aux fichiers en toute sécurité, protégés par un cryptage automatique.",
+    "startFree": "Commencer gratuitement",
+    "heroBadge": "Workflows de documents modernes",
+    "statsToolsLabel": "Total des outils",
+    "statsPdfLabel": "Workflows PDF",
+    "statsOtherLabel": "Image, IA et utilitaires",
+    "statsAccessLabel": "Modèle d'accès",
+    "statsAccessValue": "Sans inscription",
+    "trustSecure": "Fichiers supprimés automatiquement",
+    "trustFast": "Résultats en quelques secondes",
+    "trust30Tools": "30+ outils gratuits",
+    "trustNoSignup": "Aucune inscription requise",
+    "ctaBrowseTools": "Parcourir tous les outils",
+    "quickStartLabel": "Points de départ populaires",
+    "heroUploadEyebrow": "Déposez et commencez",
+    "heroUploadTitle": "Choisissez un fichier et accédez directement au bon outil",
+    "howItWorksLabel": "Processus simple",
+    "howItWorksTitle": "Convertissez et modifiez en trois étapes simples",
+    "toolsDirectoryTitle": "Trouvez le bon outil plus rapidement",
+    "otherTools": "Autres outils",
+    "whyChooseLabel": "Pourquoi Dociva",
+    "ctaBannerLabel": "Commencez dès aujourd'hui",
+    "ctaBannerTitle": "Prêt à convertir vos fichiers ?",
+    "ctaBannerSubtitle": "Rejoignez des milliers d'utilisateurs qui convertissent, compressent et modifient leurs fichiers chaque jour — complètement gratuit.",
+    "ctaCreateAccount": "Créer un compte gratuit"
   },
   "socialProof": {
     "badge": "Adopté par des équipes actives",
@@ -173,7 +214,11 @@
         "Outils documentaires IA — discuter avec des PDF, résumer, traduire, extraire des tableaux",
         "OCR — extraire du texte d'images et de PDF numérisés en anglais, arabe et français",
         "Outils utilitaires — générateur de QR code, vidéo vers GIF, compteur de mots, nettoyeur de texte"
-      ]
+      ],
+      "heroTitle": "Améliorer la productivité documentaire dans le monde entier",
+      "teamTitle": "Notre équipe",
+      "valuesTitle": "Nos valeurs",
+      "ctaText": "Des questions ? Contactez-nous."
     },
     "contact": {
       "metaDescription": "Contactez l'équipe Dociva. Signalez un bug, demandez une fonctionnalité ou envoyez-nous un message.",
@@ -194,7 +239,12 @@
       "subjectPlaceholder": "Sujet",
       "successMessage": "Votre message a été envoyé ! Nous vous répondrons bientôt.",
       "directEmail": "Ou contactez-nous directement à",
-      "responseTime": "Nous répondons généralement sous 24 à 48 heures."
+      "responseTime": "Nous répondons généralement sous 24 à 48 heures.",
+      "emailLabel": "E-mail :",
+      "phoneLabel": "Téléphone :",
+      "officeLabel": "Bureau :",
+      "connectTitle": "Connectez-vous avec nous",
+      "faqTitle": "FAQ"
     },
     "privacy": {
       "metaDescription": "Politique de confidentialité de Dociva. Découvrez comment nous gérons vos fichiers et données en toute transparence.",
@@ -643,7 +693,9 @@
       "height": "Hauteur (px)",
       "quality": "Qualité",
       "lockAspect": "Verrouiller le rapport d'aspect",
-      "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect."
+      "aspectHint": "Entrez une dimension — l'autre sera calculée automatiquement pour préserver le rapport d'aspect.",
+      "widthPlaceholder": "ex. 800",
+      "heightPlaceholder": "ex. 600"
     },
     "imageToSvg": {
       "title": "Image vers SVG",
@@ -989,7 +1041,8 @@
       "shortDesc": "Générer un code QR",
       "dataLabel": "Texte ou URL",
       "dataPlaceholder": "Entrez du texte, une URL ou des données...",
-      "sizeLabel": "Taille"
+      "sizeLabel": "Taille",
+      "altText": "QR Code généré"
     },
     "htmlToPdf": {
       "title": "HTML vers PDF",
@@ -1124,7 +1177,29 @@
       "dataLabel": "Données du code-barres",
       "dataPlaceholder": "Entrez les données à encoder...",
       "typeLabel": "Type de code-barres",
-      "formatLabel": "Format de sortie"
+      "formatLabel": "Format de sortie",
+      "altText": "Code-barres généré"
+    }
+  },
+  "footer": {
+    "categories": {
+      "pdf": "PDF",
+      "imageConvert": "Image & Conversion",
+      "aiUtility": "IA & Utilitaires",
+      "guides": "Guides",
+      "comparisons": "Comparaisons"
+    },
+    "guides": {
+      "bestPdfTools": "Meilleurs outils PDF",
+      "freePdfToolsOnline": "Outils PDF gratuits en ligne",
+      "convertFilesOnline": "Convertir des fichiers en ligne"
+    },
+    "comparisons": {
+      "compressPdfVsIlovepdf": "Dociva vs iLovePDF",
+      "mergePdfVsSmallpdf": "Dociva vs Smallpdf",
+      "pdfToWordVsAdobeAcrobat": "Dociva vs Adobe Acrobat",
+      "compressImageVsTinypng": "Dociva vs TinyPNG",
+      "ocrVsAdobeScan": "Dociva vs Adobe Scan"
     }
   },
   "account": {
@@ -1208,7 +1283,10 @@
     "newSize": "Nouvelle taille",
     "reduction": "Réduction",
     "downloadReady": "Votre fichier est prêt à être téléchargé.",
-    "linkExpiry": "Le lien de téléchargement expire dans 30 minutes."
+    "linkExpiry": "Le lien de téléchargement expire dans 30 minutes.",
+    "success": "Succès !",
+    "fileReady": "Votre fichier est prêt",
+    "processAnother": "Traiter un autre fichier"
   },
   "downloadGate": {
     "title": "Inscrivez-vous pour télécharger votre fichier",

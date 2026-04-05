@@ -110,7 +110,7 @@ export default function Header() {
                 {t('common.appName')}
               </span>
               <span className="hidden text-xs font-medium text-slate-500 dark:text-slate-400 sm:block">
-                {t('common.siteTagline', 'Online PDF and file workflows')}
+                {t('common.siteTagline')}
               </span>
             </div>
           </Link>
@@ -145,7 +145,7 @@ export default function Header() {
               className="hidden items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-primary-600 lg:inline-flex dark:bg-white dark:text-slate-950 dark:hover:bg-primary-300"
             >
               <Sparkles className="h-4 w-4" />
-              {t('home.startFree', 'Start Free')}
+              {t('home.startFree')}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           ) : null}

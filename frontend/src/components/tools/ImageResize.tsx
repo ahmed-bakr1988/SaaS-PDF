@@ -143,7 +143,7 @@ export default function ImageResize() {
                         type="number"
                         min="1"
                         max="10000"
-                        placeholder="e.g. 800"
+                        placeholder={t('tools.imageResize.widthPlaceholder')}
                         value={width}
                         onChange={(e) => {
                           setWidth(e.target.value);
@@ -160,7 +160,7 @@ export default function ImageResize() {
                         type="number"
                         min="1"
                         max="10000"
-                        placeholder="e.g. 600"
+                        placeholder={t('tools.imageResize.heightPlaceholder')}
                         value={height}
                         onChange={(e) => {
                           setHeight(e.target.value);

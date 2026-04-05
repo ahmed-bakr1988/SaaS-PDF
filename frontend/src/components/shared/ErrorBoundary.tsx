@@ -1,7 +1,8 @@
 import { Component, type ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { withTranslation, type WithTranslation } from 'react-i18next';
 
-interface Props {
+interface Props extends WithTranslation {
   children: ReactNode;
   fallbackMessage?: string;
 }
@@ -10,7 +11,7 @@ interface State {
   hasError: boolean;
 }
 
-export default class ErrorBoundary extends Component<Props, State> {
+class ErrorBoundary extends Component<Props, State> {
   state: State = { hasError: false };
 
   static getDerivedStateFromError(): State {
@@ -22,6 +23,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   };
 
   render() {
+    const { t } = this.props;
     if (this.state.hasError) {
       return (
         <div className="mx-auto max-w-lg py-16 text-center">
@@ -29,16 +31,16 @@ export default class ErrorBoundary extends Component<Props, State> {
             <AlertTriangle className="h-8 w-8 text-red-600 dark:text-red-400" />
           </div>
           <h2 className="mb-2 text-xl font-semibold text-slate-800 dark:text-slate-200">
-            {this.props.fallbackMessage || 'Something went wrong'}
+            {this.props.fallbackMessage || t('common.errors.genericTitle')}
           </h2>
           <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
-            An unexpected error occurred. Please try again.
+            {t('common.errors.genericDesc')}
           </p>
           <button
             onClick={this.handleReset}
             className="rounded-lg bg-primary-600 px-6 py-2 text-sm font-medium text-white hover:bg-primary-700 transition-colors"
           >
-            Try Again
+            {t('common.errors.tryAgain')}
           </button>
         </div>
       );
@@ -46,3 +48,5 @@ export default class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
+
+export default withTranslation()(ErrorBoundary);

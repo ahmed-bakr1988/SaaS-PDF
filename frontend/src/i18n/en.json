@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "appName": "Dociva",
     "tagline": "Free Online File Tools",
@@ -35,6 +35,11 @@
     "subject": "Subject",
     "message": "Message",
     "name": "Name",
+    "siteTagline": "Online PDF and file workflows",
+    "footerDescription": "Convert, compress, edit, and automate document work in one browser-based workspace built for speed, clarity, and secure processing.",
+    "uploading": "Uploading...",
+    "convert": "Convert",
+    "sending": "Sending...",
     "errors": {
       "fileTooLarge": "File is too large. Maximum size is {{size}}MB.",
       "invalidFileType": "Invalid file type. Accepted: {{types}}",
@@ -44,7 +49,19 @@
       "rateLimited": "Too many requests. Please wait a moment and try again.",
       "serverError": "A server error occurred. Please try again later.",
       "networkError": "Network error. Please check your connection and try again.",
-      "noFileSelected": "No file selected. Please choose a file to upload."
+      "noFileSelected": "No file selected. Please choose a file to upload.",
+      "aiUnavailable": "AI features are temporarily unavailable. Please try again later.",
+      "aiRateLimited": "AI service is currently busy. Please try again shortly.",
+      "aiBudgetExceeded": "AI processing quota exceeded. Please try again later.",
+      "pdfEncrypted": "This PDF is password-protected. Please unlock it first.",
+      "pdfTextEmpty": "No readable text found in this PDF.",
+      "pdfNoTables": "No tables found in this PDF.",
+      "taskUnavailable": "Service temporarily unavailable. Please retry in a moment.",
+      "translationFailed": "Translation service failed. Please try again.",
+      "invalidInput": "Invalid input. Please check your settings and try again.",
+      "genericTitle": "Something went wrong",
+      "genericDesc": "An unexpected error occurred. Please try again.",
+      "tryAgain": "Try Again"
     }
   },
   "auth": {
@@ -141,7 +158,31 @@
     "feature2Title": "Accuracy you can trust",
     "feature2Desc": "Get pixel-perfect, editable files in seconds with zero quality loss.",
     "feature3Title": "Built-in security",
-    "feature3Desc": "Access files securely, protected by automatic encryption."
+    "feature3Desc": "Access files securely, protected by automatic encryption.",
+    "startFree": "Start Free",
+    "heroBadge": "Modern document workflows",
+    "statsToolsLabel": "Total tools",
+    "statsPdfLabel": "PDF workflows",
+    "statsOtherLabel": "Image, AI & utility",
+    "statsAccessLabel": "Access model",
+    "statsAccessValue": "No signup",
+    "trustSecure": "Files auto-deleted",
+    "trustFast": "Results in seconds",
+    "trust30Tools": "30+ free tools",
+    "trustNoSignup": "No sign-up needed",
+    "ctaBrowseTools": "Browse All Tools",
+    "quickStartLabel": "Popular starting points",
+    "heroUploadEyebrow": "Upload and start",
+    "heroUploadTitle": "Choose a file and jump straight into the right tool",
+    "howItWorksLabel": "Simple process",
+    "howItWorksTitle": "Convert and edit in three simple steps",
+    "toolsDirectoryTitle": "Find the right tool faster",
+    "otherTools": "Other Tools",
+    "whyChooseLabel": "Why Dociva",
+    "ctaBannerLabel": "Get started today",
+    "ctaBannerTitle": "Ready to convert your files?",
+    "ctaBannerSubtitle": "Join thousands of users who convert, compress, and edit their files every day — completely free.",
+    "ctaCreateAccount": "Create Free Account"
   },
   "socialProof": {
     "badge": "Trusted by active teams",
@@ -173,7 +214,11 @@
         "AI document tools — chat with PDFs, summarize, translate, extract tables",
         "OCR — extract text from images and scanned PDFs in English, Arabic, and French",
         "Utility tools — QR code generator, video to GIF, word counter, text cleaner"
-      ]
+      ],
+      "heroTitle": "Empowering Document Productivity Worldwide",
+      "teamTitle": "Our Team",
+      "valuesTitle": "Our Values",
+      "ctaText": "Have questions? Get in touch."
     },
     "contact": {
       "metaDescription": "Contact the Dociva team. Report bugs, request features, or send us a message.",
@@ -194,7 +239,12 @@
       "subjectPlaceholder": "Subject",
       "successMessage": "Your message has been sent! We'll get back to you soon.",
       "directEmail": "Or email us directly at",
-      "responseTime": "We typically respond within 24–48 hours."
+      "responseTime": "We typically respond within 24–48 hours.",
+      "emailLabel": "Email:",
+      "phoneLabel": "Phone:",
+      "officeLabel": "Office:",
+      "connectTitle": "Connect With Us",
+      "faqTitle": "FAQ"
     },
     "privacy": {
       "metaDescription": "Privacy policy for Dociva. Learn how we handle your files and data with full transparency.",
@@ -643,7 +693,9 @@
       "height": "Height (px)",
       "quality": "Quality",
       "lockAspect": "Lock aspect ratio",
-      "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio."
+      "aspectHint": "Enter one dimension — the other will auto-calculate to preserve aspect ratio.",
+      "widthPlaceholder": "e.g. 800",
+      "heightPlaceholder": "e.g. 600"
     },
     "imageToSvg": {
       "title": "Image to SVG",
@@ -989,7 +1041,8 @@
       "shortDesc": "Generate QR Code",
       "dataLabel": "Text or URL",
       "dataPlaceholder": "Enter text, URL, or any data...",
-      "sizeLabel": "Size"
+      "sizeLabel": "Size",
+      "altText": "Generated QR Code"
     },
     "htmlToPdf": {
       "title": "HTML to PDF",
@@ -1124,7 +1177,29 @@
       "dataLabel": "Barcode Data",
       "dataPlaceholder": "Enter data to encode...",
       "typeLabel": "Barcode Type",
-      "formatLabel": "Output Format"
+      "formatLabel": "Output Format",
+      "altText": "Generated barcode"
+    }
+  },
+  "footer": {
+    "categories": {
+      "pdf": "PDF",
+      "imageConvert": "Image & Convert",
+      "aiUtility": "AI & Utility",
+      "guides": "Guides",
+      "comparisons": "Comparisons"
+    },
+    "guides": {
+      "bestPdfTools": "Best PDF Tools",
+      "freePdfToolsOnline": "Free PDF Tools Online",
+      "convertFilesOnline": "Convert Files Online"
+    },
+    "comparisons": {
+      "compressPdfVsIlovepdf": "Dociva vs iLovePDF",
+      "mergePdfVsSmallpdf": "Dociva vs Smallpdf",
+      "pdfToWordVsAdobeAcrobat": "Dociva vs Adobe Acrobat",
+      "compressImageVsTinypng": "Dociva vs TinyPNG",
+      "ocrVsAdobeScan": "Dociva vs Adobe Scan"
     }
   },
   "account": {
@@ -1208,7 +1283,10 @@
     "newSize": "New Size",
     "reduction": "Reduction",
     "downloadReady": "Your file is ready for download.",
-    "linkExpiry": "Download link expires in 30 minutes."
+    "linkExpiry": "Download link expires in 30 minutes.",
+    "success": "Success!",
+    "fileReady": "Your file is ready",
+    "processAnother": "Process Another"
   },
   "downloadGate": {
     "title": "Sign up to download your file",

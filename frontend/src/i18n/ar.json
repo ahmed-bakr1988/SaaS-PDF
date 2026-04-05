@@ -1,4 +1,4 @@
-﻿{
+{
   "common": {
     "appName": "Dociva",
     "tagline": "أدوات ملفات مجانية على الإنترنت",
@@ -35,6 +35,11 @@
     "subject": "الموضوع",
     "message": "الرسالة",
     "name": "الاسم",
+    "siteTagline": "سير عمل PDF والملفات عبر الإنترنت",
+    "footerDescription": "حوّل، اضغط، عدّل، وأتمت عمل المستندات في مساحة عمل واحدة تعمل في المتصفح، مصممة للسرعة والوضوح والمعالجة الآمنة.",
+    "uploading": "جارٍ الرفع...",
+    "convert": "تحويل",
+    "sending": "جارٍ الإرسال...",
     "errors": {
       "fileTooLarge": "حجم الملف كبير جدًا. الحد الأقصى المسموح {{size}} ميجابايت.",
       "invalidFileType": "نوع الملف غير صالح. الأنواع المقبولة: {{types}}",
@@ -44,7 +49,19 @@
       "rateLimited": "طلبات كثيرة جدًا. يرجى الانتظار لحظة والمحاولة مجددًا.",
       "serverError": "حدث خطأ في الخادم. يرجى المحاولة لاحقًا.",
       "networkError": "خطأ في الشبكة. يرجى التحقق من اتصالك والمحاولة مرة أخرى.",
-      "noFileSelected": "لم يتم اختيار ملف. يرجى اختيار ملف للرفع."
+      "noFileSelected": "لم يتم اختيار ملف. يرجى اختيار ملف للرفع.",
+      "aiUnavailable": "ميزات الذكاء الاصطناعي غير متاحة مؤقتاً. يرجى المحاولة لاحقاً.",
+      "aiRateLimited": "خدمة الذكاء الاصطناعي مشغولة حالياً. يرجى المحاولة بعد قليل.",
+      "aiBudgetExceeded": "تم استنفاد حصة معالجة الذكاء الاصطناعي. يرجى المحاولة لاحقاً.",
+      "pdfEncrypted": "هذا الـ PDF محمي بكلمة مرور. يرجى إلغاء قفله أولاً.",
+      "pdfTextEmpty": "لم يُعثر على نص قابل للقراءة في هذا الـ PDF.",
+      "pdfNoTables": "لم تُعثر على جداول في هذا الـ PDF.",
+      "taskUnavailable": "الخدمة غير متاحة مؤقتاً. يرجى إعادة المحاولة بعد لحظة.",
+      "translationFailed": "فشلت خدمة الترجمة. يرجى المحاولة مرة أخرى.",
+      "invalidInput": "مدخلات غير صالحة. يرجى التحقق من إعداداتك والمحاولة مرة أخرى.",
+      "genericTitle": "حدث خطأ ما",
+      "genericDesc": "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
+      "tryAgain": "حاول مرة أخرى"
     }
   },
   "auth": {
@@ -141,7 +158,31 @@
     "feature2Title": "دقة يمكنك الوثوق بها",
     "feature2Desc": "احصل على ملفات دقيقة وقابلة للتعديل في ثوانٍ بدون فقدان للجودة.",
     "feature3Title": "أمان مدمج",
-    "feature3Desc": "قم بالوصول إلى ملفاتك بأمان، محمية بتشفير تلقائي."
+    "feature3Desc": "قم بالوصول إلى ملفاتك بأمان، محمية بتشفير تلقائي.",
+    "startFree": "ابدأ مجاناً",
+    "heroBadge": "سير عمل مستندات حديثة",
+    "statsToolsLabel": "إجمالي الأدوات",
+    "statsPdfLabel": "سير عمل PDF",
+    "statsOtherLabel": "الصور والذكاء الاصطناعي والأدوات",
+    "statsAccessLabel": "نموذج الوصول",
+    "statsAccessValue": "بدون تسجيل",
+    "trustSecure": "حذف تلقائي للملفات",
+    "trustFast": "نتائج في ثوانٍ",
+    "trust30Tools": "أكثر من 30 أداة مجانية",
+    "trustNoSignup": "لا حاجة للتسجيل",
+    "ctaBrowseTools": "تصفح كل الأدوات",
+    "quickStartLabel": "نقاط انطلاق شائعة",
+    "heroUploadEyebrow": "ارفع وابدأ",
+    "heroUploadTitle": "اختر ملفاً وانطلق مباشرة إلى الأداة المناسبة",
+    "howItWorksLabel": "عملية بسيطة",
+    "howItWorksTitle": "حوّل وعدّل في ثلاث خطوات بسيطة",
+    "toolsDirectoryTitle": "اعثر على الأداة المناسبة بسرعة أكبر",
+    "otherTools": "أدوات أخرى",
+    "whyChooseLabel": "لماذا Dociva",
+    "ctaBannerLabel": "ابدأ اليوم",
+    "ctaBannerTitle": "هل أنت مستعد لتحويل ملفاتك؟",
+    "ctaBannerSubtitle": "انضم إلى آلاف المستخدمين الذين يحوّلون ويضغطون ويعدّلون ملفاتهم يومياً — مجاناً تماماً.",
+    "ctaCreateAccount": "إنشاء حساب مجاني"
   },
   "socialProof": {
     "badge": "موثوق من فرق نشطة",
@@ -173,7 +214,11 @@
         "أدوات المستندات بالذكاء الاصطناعي — التحدث مع PDF، التلخيص، الترجمة، استخراج الجداول",
         "OCR — استخراج النص من الصور وملفات PDF الممسوحة ضوئياً بالعربية والإنجليزية والفرنسية",
         "أدوات مساعدة — مولد QR، تحويل فيديو إلى GIF، عداد الكلمات، منظف النصوص"
-      ]
+      ],
+      "heroTitle": "تمكين إنتاجية المستندات في كل مكان",
+      "teamTitle": "فريقنا",
+      "valuesTitle": "قيمنا",
+      "ctaText": "هل لديك أسئلة؟ تواصل معنا."
     },
     "contact": {
       "metaDescription": "تواصل مع فريق Dociva. أبلغ عن خطأ أو اطلب ميزة جديدة أو أرسل لنا رسالة.",
@@ -194,7 +239,12 @@
       "subjectPlaceholder": "الموضوع",
       "successMessage": "تم إرسال رسالتك! سنرد عليك قريباً.",
       "directEmail": "أو راسلنا مباشرة على",
-      "responseTime": "نرد عادةً خلال 24-48 ساعة."
+      "responseTime": "نرد عادةً خلال 24-48 ساعة.",
+      "emailLabel": "البريد الإلكتروني:",
+      "phoneLabel": "الهاتف:",
+      "officeLabel": "المكتب:",
+      "connectTitle": "تواصل معنا",
+      "faqTitle": "الأسئلة الشائعة"
     },
     "privacy": {
       "metaDescription": "سياسة الخصوصية لـ Dociva. تعرّف على كيفية تعاملنا مع ملفاتك وبياناتك بشفافية كاملة.",
@@ -643,7 +693,9 @@
       "height": "الارتفاع (بكسل)",
       "quality": "الجودة",
       "lockAspect": "قفل نسبة العرض للارتفاع",
-      "aspectHint": "أدخل بُعداً واحداً — سيتم حساب الآخر تلقائياً للحفاظ على نسبة العرض للارتفاع."
+      "aspectHint": "أدخل بُعداً واحداً — سيتم حساب الآخر تلقائياً للحفاظ على نسبة العرض للارتفاع.",
+      "widthPlaceholder": "مثال: 800",
+      "heightPlaceholder": "مثال: 600"
     },
     "imageToSvg": {
       "title": "تحويل الصورة إلى SVG",
@@ -989,7 +1041,8 @@
       "shortDesc": "إنشاء رمز QR",
       "dataLabel": "نص أو رابط",
       "dataPlaceholder": "أدخل نصاً أو رابطاً أو أي بيانات...",
-      "sizeLabel": "الحجم"
+      "sizeLabel": "الحجم",
+      "altText": "رمز QR المُولَّد"
     },
     "htmlToPdf": {
       "title": "HTML إلى PDF",
@@ -1124,7 +1177,29 @@
       "dataLabel": "بيانات الباركود",
       "dataPlaceholder": "أدخل البيانات للترميز...",
       "typeLabel": "نوع الباركود",
-      "formatLabel": "تنسيق الإخراج"
+      "formatLabel": "تنسيق الإخراج",
+      "altText": "باركود مُنشأ"
+    }
+  },
+  "footer": {
+    "categories": {
+      "pdf": "PDF",
+      "imageConvert": "الصور والتحويل",
+      "aiUtility": "الذكاء الاصطناعي والأدوات",
+      "guides": "الأدلة",
+      "comparisons": "المقارنات"
+    },
+    "guides": {
+      "bestPdfTools": "أفضل أدوات PDF",
+      "freePdfToolsOnline": "أدوات PDF مجانية عبر الإنترنت",
+      "convertFilesOnline": "تحويل الملفات عبر الإنترنت"
+    },
+    "comparisons": {
+      "compressPdfVsIlovepdf": "Dociva مقابل iLovePDF",
+      "mergePdfVsSmallpdf": "Dociva مقابل Smallpdf",
+      "pdfToWordVsAdobeAcrobat": "Dociva مقابل Adobe Acrobat",
+      "compressImageVsTinypng": "Dociva مقابل TinyPNG",
+      "ocrVsAdobeScan": "Dociva مقابل Adobe Scan"
     }
   },
   "account": {
@@ -1208,7 +1283,10 @@
     "newSize": "الحجم الجديد",
     "reduction": "نسبة التقليل",
     "downloadReady": "ملفك جاهز للتحميل.",
-    "linkExpiry": "رابط التحميل ينتهي خلال 30 دقيقة."
+    "linkExpiry": "رابط التحميل ينتهي خلال 30 دقيقة.",
+    "success": "تم بنجاح!",
+    "fileReady": "ملفك جاهز",
+    "processAnother": "معالجة ملف آخر"
   },
   "downloadGate": {
     "title": "سجّل لتحميل ملفك",
