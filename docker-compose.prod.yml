@@ -197,8 +197,9 @@ services:
       - gitea_data:/data
       - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
+    expose:
+      - "3000"
     ports:
-      - "3000:3000"
       - "2222:22"
 
 volumes:
