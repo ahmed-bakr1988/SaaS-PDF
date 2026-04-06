@@ -38,7 +38,7 @@ export default function SignPdf() {
       fd.append('file', pdfFile);
       fd.append('signature', sigFile);
       fd.append('page', String(page));
-      const res = await api.post<TaskResponse>('/pdf-tools/sign', fd);
+      const res = await api.post<TaskResponse>('/convert/sign', fd);
       setTaskId(res.data.task_id);
     } catch (err) {
       const msg = err instanceof Error ? err.message : t('common.errors.processingFailed');

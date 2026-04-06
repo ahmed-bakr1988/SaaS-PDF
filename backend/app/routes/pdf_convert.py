@@ -143,7 +143,7 @@ def pptx_to_pdf_route():
 
 
 # ---------------------------------------------------------------------------
-# Sign PDF — POST /api/pdf-tools/sign
+# Sign PDF — POST /api/convert/sign
 # ---------------------------------------------------------------------------
 @pdf_convert_bp.route("/sign", methods=["POST"])
 @limiter.limit("10/minute")
