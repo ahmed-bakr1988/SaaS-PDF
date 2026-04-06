@@ -86,7 +86,7 @@ export default function ToolSelectorModal({
       aria-modal="true"
       aria-labelledby="tool-selector-title"
     >
-      <div className="modal-content flex w-full max-w-lg max-h-[90vh] flex-col rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div className="modal-content flex w-full max-w-lg max-h-[90dvh] flex-col rounded-2xl bg-white p-6 shadow-2xl ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
         {/* Header */}
         <div className="mb-5 flex items-start justify-between">
           <div>

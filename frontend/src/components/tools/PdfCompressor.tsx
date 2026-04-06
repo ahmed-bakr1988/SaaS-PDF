@@ -35,7 +35,7 @@ export default function PdfCompressor() {
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">
               {t('tools.compressPdf.quality', { defaultValue: 'Compression Quality' })}
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
               {qualityOptions.map((opt) => (
                 <button
                   key={opt.value}

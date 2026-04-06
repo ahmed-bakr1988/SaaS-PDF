@@ -195,7 +195,7 @@ export default function SiteAssistant() {
   };
 
   return (
-    <div className="pointer-events-none fixed inset-x-4 bottom-4 z-40 flex justify-end sm:bottom-6 sm:right-6 sm:left-auto">
+    <div className="pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex justify-end sm:bottom-6 sm:right-6 sm:left-auto">
       <div className="pointer-events-auto w-full max-w-sm">
         {open && (
           <div className="mb-3 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 shadow-[0_20px_80px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700/80 dark:bg-slate-950/95">
@@ -225,7 +225,7 @@ export default function SiteAssistant() {
               </p>
             </div>
 
-            <div ref={scrollRef} className="max-h-[26rem] space-y-3 overflow-y-auto px-4 py-4">
+            <div ref={scrollRef} className="max-h-[50dvh] space-y-3 overflow-y-auto overscroll-contain px-4 py-4 sm:max-h-[26rem]">
               {messages.length === 0 && (
                 <div className="rounded-3xl border border-sky-100 bg-sky-50/80 p-4 text-sm text-slate-700 dark:border-sky-900/50 dark:bg-slate-900 dark:text-slate-200">
                   <p className="font-medium text-slate-900 dark:text-slate-100">

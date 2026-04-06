@@ -98,7 +98,7 @@ export default function Header() {
     ].join(' ');
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/78 backdrop-blur-2xl dark:border-slate-700/60 dark:bg-slate-950/78">
+    <header className="sticky-header-safe sticky top-0 z-50 border-b border-slate-200/70 bg-white/78 backdrop-blur-2xl dark:border-slate-700/60 dark:bg-slate-950/78">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-8">
           <Link to="/" className="group flex items-center gap-3">

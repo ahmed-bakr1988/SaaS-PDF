@@ -118,7 +118,7 @@ export default function ImageConverter() {
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Convert to:
                   </label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3">
                     {formats.map((f) => (
                       <button
                         key={f.value}

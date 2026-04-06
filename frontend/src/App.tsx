@@ -34,6 +34,7 @@ const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
 const ComparisonPage = lazy(() => import('@/pages/ComparisonPage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
 const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
+const PwaUpdatePrompt = lazy(() => import('@/components/layout/PwaUpdatePrompt'));
 
 // Tool components — derived from manifest using React.lazy
 const ToolComponents = Object.fromEntries(
@@ -169,6 +170,7 @@ export default function App() {
           <SiteAssistant />
         </IdleLoad>
         <CookieConsent />
+        <PwaUpdatePrompt />
       </Suspense>
       <Toaster
         position={isRTL ? 'top-left' : 'top-right'}

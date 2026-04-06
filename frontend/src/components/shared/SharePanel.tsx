@@ -111,7 +111,7 @@ export default function SharePanel({
       </button>
 
       {open && (
-        <div className="mt-3 w-full max-w-md rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-2xl backdrop-blur dark:border-slate-700 dark:bg-slate-900/95">
+        <div className="mt-3 w-full max-w-[calc(100vw-2rem)] rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-2xl backdrop-blur sm:max-w-md dark:border-slate-700 dark:bg-slate-900/95">
           <div className="rounded-2xl bg-gradient-to-br from-sky-50 via-white to-emerald-50 p-4 dark:from-slate-800 dark:via-slate-900 dark:to-slate-800">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600 dark:text-sky-300">
               {variant === 'result' ? t('share.resultLabel') : t('share.toolLabel')}

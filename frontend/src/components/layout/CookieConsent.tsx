@@ -70,7 +70,7 @@ export default function CookieConsent() {
     <div
       role="dialog"
       aria-label={t('cookie.title', 'Cookie Consent')}
-      className="fixed inset-x-0 bottom-0 z-50 p-4 sm:p-6"
+      className="fixed inset-x-0 bottom-0 z-50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-6 sm:pb-[max(1.5rem,env(safe-area-inset-bottom))]"
     >
       <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl dark:border-slate-700 dark:bg-slate-800 sm:flex sm:items-start sm:gap-4">
         <div className="mb-3 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 sm:mb-0">

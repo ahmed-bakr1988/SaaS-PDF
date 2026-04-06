@@ -1,0 +1,57 @@
+{
+  "name": "Dociva — Free Online File Tools",
+  "short_name": "Dociva",
+  "description": "30+ free tools: merge, split, compress, convert PDFs, images, videos & text. No signup required.",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "scope": "/",
+  "categories": ["productivity", "utilities"],
+  "dir": "auto",
+  "lang": "en",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Compress PDF",
+      "short_name": "Compress",
+      "url": "/compress-pdf",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Merge PDF",
+      "short_name": "Merge",
+      "url": "/merge-pdf",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    },
+    {
+      "name": "Convert to PDF",
+      "short_name": "Convert",
+      "url": "/image-to-pdf",
+      "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+    }
+  ]
+}

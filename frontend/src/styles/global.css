@@ -21,6 +21,7 @@
 
   html {
     scroll-behavior: smooth;
+    overscroll-behavior-y: contain;
   }
 
   body {
@@ -41,15 +42,15 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-500 dark:hover:bg-primary-600;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-primary-500 dark:hover:bg-primary-600;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600 dark:hover:bg-slate-700;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-300 transition-all hover:bg-slate-50 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-slate-800 dark:text-slate-100 dark:ring-slate-600 dark:hover:bg-slate-700;
   }
 
   .btn-success {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-500 dark:hover:bg-emerald-600;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-emerald-700 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed dark:bg-emerald-500 dark:hover:bg-emerald-600;
   }
 
   .card {
@@ -71,7 +72,7 @@
 
 /* Upload zone styles */
 .upload-zone {
-  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-8 text-center transition-colors cursor-pointer dark:border-slate-600 dark:bg-slate-800/50;
+  @apply flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center transition-colors cursor-pointer sm:p-6 lg:p-8 dark:border-slate-600 dark:bg-slate-800/50;
 }
 
 .upload-zone:hover,
@@ -118,7 +119,7 @@
    Hero Upload Zone — premium glassmorphism card for the homepage
    ────────────────────────────────────────────────────────────────────────── */
 .hero-upload-zone {
-  @apply relative flex flex-col items-center justify-center rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-10 text-center transition-all duration-300 ease-in-out cursor-pointer sm:p-14 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/60 dark:backdrop-blur-sm;
+  @apply relative flex flex-col items-center justify-center rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 text-center transition-all duration-300 ease-in-out cursor-pointer sm:p-10 lg:p-14 shadow-sm dark:border-slate-700/60 dark:bg-slate-800/60 dark:backdrop-blur-sm;
   background-image: radial-gradient(ellipse at top, rgba(219, 234, 254, 0.3) 0%, transparent 70%);
 }
 
@@ -260,4 +261,52 @@
 .deferred-section {
   content-visibility: auto;
   contain-intrinsic-size: 1px 2000px;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   Mobile-first enhancements
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* Respect user preference for reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Guard hover-dependent styles for touch devices */
+@media (hover: hover) {
+  .tool-card:hover {
+    --tw-translate-y: -0.25rem;
+  }
+  .hero-upload-zone:hover {
+    --tw-translate-y: -0.25rem;
+  }
+  .marketing-card:hover {
+    --tw-translate-y: -0.25rem;
+  }
+}
+
+/* Remove 300ms tap delay and prevent double-tap zoom on interactive elements */
+a,
+button,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* Safe-area inset support for notched phones */
+.sticky-header-safe {
+  padding-top: env(safe-area-inset-top);
+}
+
+.bottom-safe {
+  padding-bottom: env(safe-area-inset-bottom);
 }

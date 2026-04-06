@@ -95,8 +95,8 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Download className="h-5 w-5" />
-          {t('common.download')} — {result.filename}
+          <Download className="h-5 w-5 shrink-0" />
+          <span className="truncate">{t('common.download')} — {result.filename}</span>
         </a>
       ) : (
         <button

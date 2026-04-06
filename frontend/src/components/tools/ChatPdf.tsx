@@ -95,7 +95,7 @@ export default function ChatPdf() {
                   <textarea
                     value={question} onChange={(e) => setQuestion(e.target.value)}
                     placeholder={t('tools.chatPdf.questionPlaceholder')}
-                    rows={3}
+                    rows={2}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200"
                   />
                 </div>

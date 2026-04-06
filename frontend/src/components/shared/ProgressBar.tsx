@@ -37,7 +37,7 @@ export default function ProgressBar({
   return (
     <div className="space-y-4">
       {/* Main Progress Card */}
-      <div className="rounded-xl bg-slate-50 p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+      <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-200 sm:p-5 dark:bg-slate-800 dark:ring-slate-700">
         <div className="flex items-center gap-3">
           {isActive && (
             <Loader2 className="h-6 w-6 animate-spin text-primary-600 dark:text-primary-400" />

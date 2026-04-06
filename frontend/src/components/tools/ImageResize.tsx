@@ -134,7 +134,7 @@ export default function ImageResize() {
                       {t('tools.imageResize.lockAspect')}
                     </label>
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
                     <div>
                       <label className="mb-1 block text-xs text-slate-500 dark:text-slate-400">
                         {t('tools.imageResize.width')}
