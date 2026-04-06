@@ -80,6 +80,7 @@ def create_app(config_name=None, config_overrides=None):
             "https://pagead2.googlesyndication.com",
             "https://www.googletagmanager.com",
             "https://www.google-analytics.com",
+            "https://www.clarity.ms",
         ],
         "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         "font-src": ["'self'", "https://fonts.gstatic.com"],
@@ -99,6 +100,7 @@ def create_app(config_name=None, config_overrides=None):
             "https://www.google-analytics.com",
             "https://pagead2.googlesyndication.com",
             "https://*.amazonaws.com",
+            "https://*.adtrafficquality.google",
         ],
     }
     talisman.init_app(
