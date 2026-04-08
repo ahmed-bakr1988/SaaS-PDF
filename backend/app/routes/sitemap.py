@@ -52,6 +52,7 @@ TOOL_SLUGS = [
     "image-resize",
     "compress-image",
     "remove-background",
+    "image-to-svg",
     "image-crop",
     "image-rotate-flip",
     "ocr",
@@ -135,7 +136,7 @@ def _url_tag(loc: str, changefreq: str, priority: str) -> str:
     return (
         "  <url>\n"
         f"    <loc>{loc}</loc>\n"
-        "    <lastmod>2026-03-21</lastmod>\n"
+        "    <lastmod>2026-04-08</lastmod>\n"
         f"    <changefreq>{changefreq}</changefreq>\n"
         f"    <priority>{priority}</priority>\n"
         "  </url>"
