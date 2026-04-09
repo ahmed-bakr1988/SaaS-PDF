@@ -72,11 +72,18 @@ def log_ai_usage(
     model: str,
     input_tokens: int = 0,
     output_tokens: int = 0,
+    cost_per_1k_input: float | None = None,
+    cost_per_1k_output: float | None = None,
 ) -> None:
-    """Log an AI API call with token usage."""
-    estimated_cost = (input_tokens / 1000.0) * COST_PER_1K_INPUT_TOKENS + (
-        output_tokens / 1000.0
-    ) * COST_PER_1K_OUTPUT_TOKENS
+    """Log an AI API call with token usage.
+
+    If cost_per_1k_input / cost_per_1k_output are provided they take precedence
+    over the module-level env constants (useful for per-model pricing from
+    the OpenRouter model registry).
+    """
+    in_rate = cost_per_1k_input if cost_per_1k_input is not None else COST_PER_1K_INPUT_TOKENS
+    out_rate = cost_per_1k_output if cost_per_1k_output is not None else COST_PER_1K_OUTPUT_TOKENS
+    estimated_cost = (input_tokens / 1000.0) * in_rate + (output_tokens / 1000.0) * out_rate
 
     with db_connection() as conn:
         sql = (

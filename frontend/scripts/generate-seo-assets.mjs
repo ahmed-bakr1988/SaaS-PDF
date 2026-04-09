@@ -23,7 +23,9 @@ const seoConfigPath = (await (async () => {
 })());
 
 const seoConfig = JSON.parse(await readFile(seoConfigPath, 'utf8'));
-const routeRegistrySource = await readFile(path.join(frontendRoot, 'src', 'config', 'routes.ts'), 'utf8');
+// Tool routes are derived from the unified manifest at build/runtime, so we
+// cannot reliably regex /tools/* routes out of routes.ts anymore.
+const toolManifestSource = await readFile(path.join(frontendRoot, 'src', 'config', 'toolManifest.ts'), 'utf8');
 
 const staticPages = [
   { path: '/', changefreq: 'daily', priority: '1.0' },
@@ -89,6 +91,11 @@ function extractToolSlugs(source) {
   return [...source.matchAll(/'\/tools\/([^']+)'/g)].map((match) => match[1]);
 }
 
+function extractManifestToolSlugs(source) {
+  // `toolManifest.ts` is the single source of truth for tool slugs.
+  return [...source.matchAll(/\bslug:\s*['"]([^'"]+)['"]/g)].map((match) => match[1]);
+}
+
 function extractBlogSlugs(source) {
   return [...source.matchAll(/slug:\s*'([^']+)'/g)].map((match) => match[1]);
 }
@@ -123,7 +130,11 @@ function dedupeEntries(entries) {
 
 const blogSource = await readFile(path.join(frontendRoot, 'src', 'content', 'blogArticles.ts'), 'utf8');
 const blogSlugs = extractBlogSlugs(blogSource);
-const toolSlugs = extractToolSlugs(routeRegistrySource);
+const toolSlugs = extractManifestToolSlugs(toolManifestSource);
+
+if (!toolSlugs.length) {
+  throw new Error('generate-seo-assets: failed to extract tool slugs from src/config/toolManifest.ts');
+}
 
 await mkdir(sitemapDir, { recursive: true });
 

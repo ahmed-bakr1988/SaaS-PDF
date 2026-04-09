@@ -1079,7 +1079,20 @@
       "processingHint": "قد تتم ترجمة المستندات الكبيرة على عدة أجزاء مع retries وfallback بين المزودات. اترك الصفحة مفتوحة حتى يكتمل الطلب.",
       "sourceDetected": "لغة المصدر المكتشفة",
       "translationEngine": "محرك الترجمة",
-      "resultTitle": "الترجمة"
+      "resultTitle": "الترجمة",
+      "estimating": "جارٍ تحليل المستند…",
+      "selectMode": "اختر وضع الترجمة",
+      "modeText": "أساسي",
+      "modeTextDesc": "استخراج نص بالذكاء الاصطناعي وإعادة بناء. سريع ويعمل مع معظم ملفات PDF.",
+      "modeLayout": "تخطيط",
+      "modeLayoutDesc": "يحافظ على الجداول والأعمدة والتنسيق عبر تحويل المستند.",
+      "modeVision": "رؤية",
+      "modeVisionDesc": "أفضل جودة. يتم تحليل كل صفحة بصرياً بالذكاء الاصطناعي.",
+      "creditsLabel": "{{count}} رصيد",
+      "recommended": "موصى به",
+      "proOnly": "Pro",
+      "modeUnavailable": "غير متاح لهذا المستند",
+      "translateWithMode": "ترجمة ({{mode}})"
     },
     "tableExtractor": {
       "title": "استخراج الجداول من PDF",

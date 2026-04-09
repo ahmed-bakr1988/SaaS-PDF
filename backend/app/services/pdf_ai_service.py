@@ -20,6 +20,8 @@ logger = logging.getLogger(__name__)
 DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
 DEFAULT_DEEPL_TIMEOUT_SECONDS = 90
 MAX_TRANSLATION_CHUNK_CHARS = 3500
+
+FONTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "fonts")
 TRANSLATION_RETRY_ATTEMPTS = 3
 TRANSLATION_RETRY_DELAY_SECONDS = 2
 
@@ -76,6 +78,90 @@ def _normalize_language_code(value: str | None, default: str = "") -> str:
 def _language_label(value: str | None) -> str:
     normalized = _normalize_language_code(value)
     return LANGUAGE_LABELS.get(normalized, normalized or "Unknown")
+
+
+def _get_font_for_language(lang: str) -> tuple[str, str]:
+    """Return (font_family_name, absolute_font_file_path) for language code.
+
+    Falls back to NotoSans (Latin) or built-in Helvetica if the file is absent.
+    """
+    if lang in ("ar",):
+        path = os.path.abspath(os.path.join(FONTS_DIR, "NotoSansArabic-Regular.ttf"))
+        if os.path.isfile(path):
+            return "NotoSansArabic", path
+    elif lang in ("zh", "ja", "ko"):
+        path = os.path.abspath(os.path.join(FONTS_DIR, "NotoSansSC-Regular.otf"))
+        if os.path.isfile(path):
+            return "NotoSansSC", path
+    path = os.path.abspath(os.path.join(FONTS_DIR, "NotoSans-Regular.ttf"))
+    if os.path.isfile(path):
+        return "NotoSans", path
+    return "Helvetica", ""
+
+
+def _build_translated_pdf(
+    text: str,
+    target_language: str,
+    output_path: str,
+    original_filename: str,
+) -> None:
+    """Render translated text into a PDF file using fpdf2 with Unicode font support."""
+    try:
+        from fpdf import FPDF
+    except ImportError as exc:
+        raise PdfAiError(
+            "PDF generation library is not installed on this server.",
+            error_code="FPDF2_NOT_INSTALLED",
+            detail=str(exc),
+        )
+
+    is_rtl = target_language in ("ar",)
+    font_name, font_path = _get_font_for_language(target_language)
+
+    if is_rtl:
+        try:
+            import arabic_reshaper
+            from bidi.algorithm import get_display
+
+            reshaped_lines: list[str] = []
+            for line in text.splitlines():
+                if line.strip():
+                    reshaped_lines.append(get_display(arabic_reshaper.reshape(line)))
+                else:
+                    reshaped_lines.append("")
+            text = "\n".join(reshaped_lines)
+        except ImportError:
+            logger.warning(
+                "arabic_reshaper / python-bidi not installed; Arabic RTL may not render correctly."
+            )
+
+    pdf = FPDF(orientation="P", unit="mm", format="A4")
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.add_page()
+
+    if font_path and os.path.isfile(font_path):
+        pdf.add_font(font_name, "", font_path)
+        pdf.set_font(font_name, size=10)
+    else:
+        font_name = "Helvetica"
+        pdf.set_font("Helvetica", size=10)
+
+    base_name = os.path.splitext(original_filename)[0]
+    lang_label = _language_label(target_language)
+    header = f"Translation \u2014 {base_name} ({lang_label})"
+    text_align = "R" if is_rtl else "L"
+    pdf.cell(0, 7, header, align=text_align, new_x="LMARGIN", new_y="NEXT")
+    pdf.ln(2)
+
+    pdf.set_font(font_name, size=11)
+    for line in text.splitlines():
+        stripped = line.strip()
+        if stripped:
+            pdf.multi_cell(0, 7, stripped, align=text_align, new_x="LMARGIN", new_y="NEXT")
+        else:
+            pdf.ln(4)
+
+    pdf.output(output_path)
 
 
 def _get_deepl_settings() -> DeepLSettings:
@@ -205,6 +291,7 @@ def _call_openrouter(
     user_message: str,
     max_tokens: int = 1000,
     tool_name: str = "pdf_ai",
+    model_id: str | None = None,
 ) -> str:
     """Send a request to OpenRouter API and return the reply."""
     # Budget guard
@@ -223,6 +310,7 @@ def _call_openrouter(
         pass
 
     settings = get_openrouter_settings()
+    effective_model = model_id if model_id else settings.model
 
     if not settings.api_key:
         logger.error("OPENROUTER_API_KEY is not set or is a placeholder value.")
@@ -244,7 +332,7 @@ def _call_openrouter(
                 "Content-Type": "application/json",
             },
             json={
-                "model": settings.model,
+                "model": effective_model,
                 "messages": messages,
                 "max_tokens": max_tokens,
                 "temperature": 0.5,
@@ -314,7 +402,7 @@ def _call_openrouter(
             usage = data.get("usage", {})
             log_ai_usage(
                 tool=tool_name,
-                model=settings.model,
+                model=effective_model,
                 input_tokens=usage.get("prompt_tokens", _estimate_tokens(user_message)),
                 output_tokens=usage.get("completion_tokens", _estimate_tokens(reply)),
             )
@@ -528,7 +616,10 @@ def _call_deepl_translate(
 
 
 def _call_openrouter_translate(
-    chunk: str, target_language: str, source_language: str | None = None
+    chunk: str,
+    target_language: str,
+    source_language: str | None = None,
+    model_id: str | None = None,
 ) -> dict:
     source_hint = "auto-detect the source language"
     if source_language and _normalize_language_code(source_language) != "auto":
@@ -545,6 +636,7 @@ def _call_openrouter_translate(
         chunk,
         max_tokens=2200,
         tool_name="pdf_translate_fallback",
+        model_id=model_id,
     )
     return {
         "translation": translation,
@@ -556,7 +648,10 @@ def _call_openrouter_translate(
 
 
 def _translate_document_text(
-    text: str, target_language: str, source_language: str | None = None
+    text: str,
+    target_language: str,
+    source_language: str | None = None,
+    model_id: str | None = None,
 ) -> dict:
     chunks = _split_translation_chunks(text)
     translations: list[str] = []
@@ -572,8 +667,8 @@ def _translate_document_text(
         if deepl_settings.api_key:
             try:
                 chunk_result = _translate_with_retry(
-                    lambda: _call_deepl_translate(
-                        chunk, target_language, source_language
+                    lambda c=chunk: _call_deepl_translate(
+                        c, target_language, source_language
                     ),
                     provider_name="DeepL",
                 )
@@ -586,8 +681,8 @@ def _translate_document_text(
 
         if chunk_result is None:
             chunk_result = _translate_with_retry(
-                lambda: _call_openrouter_translate(
-                    chunk, target_language, source_language
+                lambda c=chunk: _call_openrouter_translate(
+                    c, target_language, source_language, model_id=model_id
                 ),
                 provider_name="OpenRouter",
             )
@@ -736,7 +831,10 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
 # 3. Translate PDF
 # ---------------------------------------------------------------------------
 def translate_pdf(
-    input_path: str, target_language: str, source_language: str | None = None
+    input_path: str,
+    target_language: str,
+    source_language: str | None = None,
+    model_id: str | None = None,
 ) -> dict:
     """
     Translate the text content of a PDF to another language.
@@ -744,6 +842,7 @@ def translate_pdf(
     Args:
         input_path: Path to the PDF file
         target_language: Target language name (e.g. "English", "Arabic", "French")
+        model_id: Optional OpenRouter model ID override for this job
 
     Returns:
         {"translation": "...", "pages_analyzed": int, "target_language": str}
@@ -777,6 +876,7 @@ def translate_pdf(
         text,
         target_language=normalized_target_language,
         source_language=normalized_source_language,
+        model_id=model_id,
     )
 
     page_count = text.count("[Page ")

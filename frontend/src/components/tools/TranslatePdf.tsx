@@ -1,15 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-import { Languages, ShieldCheck, Sparkles } from 'lucide-react';
+import { Languages, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
+import DownloadButton from '@/components/shared/DownloadButton';
+import AiModelSelector from '@/components/shared/AiModelSelector';
+import TranslateModeSelector from '@/components/shared/TranslateModeSelector';
+import type { TranslateMode } from '@/components/shared/TranslateModeSelector';
 import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 import { dispatchRatingPrompt } from '@/utils/ratingPrompt';
+import { estimateTranslatePdf } from '@/services/api';
+import type { TaskResult, TranslateEstimateResponse } from '@/services/api';
 
 const LANGUAGES = [
   { value: 'en', label: 'English' },
@@ -26,22 +32,17 @@ const LANGUAGES = [
   { value: 'it', label: 'Italiano' },
 ];
 
-const getLanguageLabel = (value: string) => {
-  if (!value || value === 'auto') {
-    return null;
-  }
-
-  return LANGUAGES.find((language) => language.value === value)?.label ?? value;
-};
-
 export default function TranslatePdf() {
   const { t } = useTranslation();
-  const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
+  const [phase, setPhase] = useState<'upload' | 'estimate' | 'processing' | 'done'>('upload');
   const [sourceLang, setSourceLang] = useState('auto');
   const [targetLang, setTargetLang] = useState('en');
-  const [translation, setTranslation] = useState('');
-  const [provider, setProvider] = useState('');
-  const [detectedSourceLanguage, setDetectedSourceLanguage] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [selectedMode, setSelectedMode] = useState<TranslateMode>('text');
+  const [estimate, setEstimate] = useState<TranslateEstimateResponse | null>(null);
+  const [estimating, setEstimating] = useState(false);
+  const [estimateError, setEstimateError] = useState<string | null>(null);
+  const [taskResult, setTaskResult] = useState<TaskResult | null>(null);
 
   const {
     file, uploadProgress, isUploading, taskId,
@@ -50,16 +51,19 @@ export default function TranslatePdf() {
     endpoint: '/pdf-ai/translate',
     maxSizeMB: 20,
     acceptedTypes: ['pdf'],
-    extraData: { target_language: targetLang, source_language: sourceLang },
+    extraData: {
+      target_language: targetLang,
+      source_language: sourceLang,
+      model_id: selectedModel,
+      mode: selectedMode,
+    },
   });
 
   const { status, result, error: taskError } = useTaskPolling({
     taskId,
     onComplete: (r) => {
       setPhase('done');
-      setTranslation(r.translation || '');
-      setProvider(r.provider || '');
-      setDetectedSourceLanguage(r.detected_source_language || '');
+      setTaskResult(r);
       dispatchRatingPrompt('translate-pdf');
     },
     onError: () => setPhase('done'),
@@ -71,7 +75,24 @@ export default function TranslatePdf() {
     if (storeFile) { selectFile(storeFile); clearStoreFile(); }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleUpload = async () => {
+  // When a file is selected, run the estimate automatically
+  const handleEstimate = async () => {
+    if (!file) return;
+    setEstimating(true);
+    setEstimateError(null);
+    try {
+      const est = await estimateTranslatePdf(file);
+      setEstimate(est);
+      setSelectedMode(est.analysis.recommendation);
+      setPhase('estimate');
+    } catch (err) {
+      setEstimateError(err instanceof Error ? err.message : 'Failed to analyze PDF.');
+    } finally {
+      setEstimating(false);
+    }
+  };
+
+  const handleTranslate = async () => {
     const id = await startUpload();
     if (id) setPhase('processing');
   };
@@ -81,12 +102,12 @@ export default function TranslatePdf() {
     setPhase('upload');
     setSourceLang('auto');
     setTargetLang('en');
-    setTranslation('');
-    setProvider('');
-    setDetectedSourceLanguage('');
+    setSelectedModel('');
+    setSelectedMode('text');
+    setEstimate(null);
+    setEstimateError(null);
+    setTaskResult(null);
   };
-
-  const resolvedDetectedLanguage = getLanguageLabel(detectedSourceLanguage) || getLanguageLabel(sourceLang);
 
   const schema = generateToolSchema({
     name: t('tools.translatePdf.title'),
@@ -114,16 +135,17 @@ export default function TranslatePdf() {
 
         <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
 
+        {/* ── Phase: Upload ─────────────────────────────────────── */}
         {phase === 'upload' && (
           <div className="space-y-4">
             <FileUploader
               onFileSelect={selectFile} file={file}
               accept={{ 'application/pdf': ['.pdf'] }}
-              maxSizeMB={20} isUploading={isUploading}
-              uploadProgress={uploadProgress} error={uploadError}
+              maxSizeMB={20} isUploading={isUploading || estimating}
+              uploadProgress={uploadProgress} error={uploadError || estimateError}
               onReset={handleReset} acceptLabel="PDF (.pdf)"
             />
-            {file && !isUploading && (
+            {file && !isUploading && !estimating && (
               <>
                 <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
                   <div className="mb-4 flex items-start gap-3 rounded-xl bg-slate-50 p-4 dark:bg-slate-900/60">
@@ -164,15 +186,51 @@ export default function TranslatePdf() {
                       </select>
                     </div>
                   </div>
+
+                  <AiModelSelector value={selectedModel} onChange={setSelectedModel} />
                 </div>
-                <button onClick={handleUpload} className="btn-primary w-full">
+                <button onClick={handleEstimate} className="btn-primary w-full">
                   {t('tools.translatePdf.shortDesc')}
                 </button>
               </>
             )}
+            {estimating && (
+              <div className="flex items-center justify-center gap-2 rounded-xl bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+                <Loader2 className="h-5 w-5 animate-spin text-purple-600 dark:text-purple-400" />
+                <span className="text-sm text-slate-600 dark:text-slate-400">
+                  {t('tools.translatePdf.estimating')}
+                </span>
+              </div>
+            )}
           </div>
         )}
 
+        {/* ── Phase: Estimate / Mode Selection ──────────────────── */}
+        {phase === 'estimate' && estimate && (
+          <div className="space-y-4">
+            <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
+              <TranslateModeSelector
+                estimate={estimate}
+                value={selectedMode}
+                onChange={setSelectedMode}
+              />
+            </div>
+            <button
+              onClick={handleTranslate}
+              disabled={isUploading}
+              className="btn-primary w-full"
+            >
+              {isUploading
+                ? `${uploadProgress}%`
+                : t('tools.translatePdf.translateWithMode', { mode: t(`tools.translatePdf.mode${selectedMode.charAt(0).toUpperCase() + selectedMode.slice(1)}`) })}
+            </button>
+            <button onClick={handleReset} className="btn-secondary w-full">
+              {t('common.startOver')}
+            </button>
+          </div>
+        )}
+
+        {/* ── Phase: Processing ─────────────────────────────────── */}
         {phase === 'processing' && !result && (
           <div className="space-y-4">
             <ProgressBar state={status?.state || 'PENDING'} message={status?.progress} />
@@ -187,39 +245,13 @@ export default function TranslatePdf() {
           </div>
         )}
 
-        {phase === 'done' && translation && (
-          <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  {t('tools.translatePdf.sourceDetected')}
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
-                  {resolvedDetectedLanguage || t('tools.translatePdf.autoDetect')}
-                </p>
-              </div>
-              <div className="rounded-xl bg-white p-4 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                  {t('tools.translatePdf.translationEngine')}
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-900 dark:text-slate-100">
-                  {provider || 'auto'}
-                </p>
-              </div>
-            </div>
-            <div className="rounded-2xl bg-white p-6 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700">
-              <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-300">
-                {t('tools.translatePdf.resultTitle')}
-              </h3>
-              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-slate-600 dark:text-slate-300">
-                {translation}
-              </div>
-            </div>
-            <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
-          </div>
+        {/* ── Phase: Done (success) ─────────────────────────────── */}
+        {phase === 'done' && taskResult?.download_url && (
+          <DownloadButton result={taskResult} onStartOver={handleReset} />
         )}
 
-        {phase === 'done' && taskError && !translation && (
+        {/* ── Phase: Done (error) ───────────────────────────────── */}
+        {phase === 'done' && taskError && !taskResult?.download_url && (
           <div className="space-y-4">
             <div className="rounded-xl bg-red-50 p-4 ring-1 ring-red-200 dark:bg-red-900/20 dark:ring-red-800">
               <p className="text-sm text-red-700 dark:text-red-400">{taskError}</p>

@@ -76,6 +76,16 @@ TOOL_DYNAMIC_OVERRIDES: dict[str, DynamicPricingRule] = {
         base=6, step_kb=150, per_step=1, max_credits=25,
         token_step=1000, per_token_step=1,
     ),
+    # Layout-preserving translation (Pro) — pdf2docx + LibreOffice pipeline
+    "translate-pdf-layout": DynamicPricingRule(
+        base=14, step_kb=150, per_step=2, max_credits=40,
+        token_step=1000, per_token_step=1,
+    ),
+    # Vision-based translation (Pro) — renders pages as images for Vision AI
+    "translate-pdf-vision": DynamicPricingRule(
+        base=8, step_kb=0, per_step=0, max_credits=80,
+        token_step=500, per_token_step=2,
+    ),
 }
 
 
@@ -120,7 +130,11 @@ def calculate_dynamic_cost(
     if rule is None:
         return base_cost
 
-    size_surcharge = math.ceil(max(0, file_size_kb) / rule.step_kb) * rule.per_step
+    size_surcharge = (
+        math.ceil(max(0, file_size_kb) / rule.step_kb) * rule.per_step
+        if rule.step_kb > 0
+        else 0
+    )
     token_surcharge = 0
     if rule.token_step and estimated_tokens > 0:
         token_surcharge = math.ceil(estimated_tokens / rule.token_step) * rule.per_token_step
@@ -184,6 +198,8 @@ TOOL_CREDIT_COSTS: dict[str, int] = {
     "chat-pdf": TIER_AI,
     "summarize-pdf": TIER_AI,
     "translate-pdf": TIER_AI,
+    "translate-pdf-layout": TIER_AI,
+    "translate-pdf-vision": TIER_AI,
     "extract-tables": TIER_AI,
     "pdf-flowchart": TIER_AI,
     # ─── Route-specific aliases ─────────────────────────────────────

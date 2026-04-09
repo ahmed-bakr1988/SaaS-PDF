@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
-import { uploadFile, type TaskResponse } from '@/services/api';
+import { uploadFile, type TaskResponse, type QuoteInfo } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
 
 interface UseFileUploadOptions {
@@ -16,6 +16,7 @@ interface UseFileUploadReturn {
   uploadProgress: number;
   isUploading: boolean;
   taskId: string | null;
+  quote: QuoteInfo | null;
   error: string | null;
   selectFile: (file: File) => void;
   startUpload: () => Promise<string | null>;
@@ -32,6 +33,7 @@ export function useFileUpload({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [taskId, setTaskId] = useState<string | null>(null);
+  const [quote, setQuote] = useState<QuoteInfo | null>(null);
   const [error, setError] = useState<string | null>(null);
   const extraDataRef = useRef(extraData);
   extraDataRef.current = extraData;
@@ -109,6 +111,7 @@ export function useFileUpload({
       );
 
       setTaskId(response.task_id);
+      if (response.quote) setQuote(response.quote);
       setIsUploading(false);
       trackEvent('upload_accepted', { endpoint });
       return response.task_id;
@@ -127,6 +130,7 @@ export function useFileUpload({
     setUploadProgress(0);
     setIsUploading(false);
     setTaskId(null);
+    setQuote(null);
     setError(null);
   }, []);
 
@@ -135,6 +139,7 @@ export function useFileUpload({
     uploadProgress,
     isUploading,
     taskId,
+    quote,
     error,
     selectFile,
     startUpload,

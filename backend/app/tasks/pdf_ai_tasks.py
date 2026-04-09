@@ -13,19 +13,23 @@ from app.services.pdf_ai_service import (
     translate_pdf,
     extract_tables,
     PdfAiError,
+    _build_translated_pdf,
 )
+from app.services.pdf_translate_layout_service import translate_pdf_layout
+from app.services.pdf_translate_vision_service import translate_pdf_vision
+from app.services.storage_service import storage
 from app.services.task_tracking_service import finalize_task_tracking
 from app.services.translation_guardrails import (
     get_cached_translation,
     store_cached_translation,
 )
-from app.utils.sanitizer import cleanup_task_files
+from app.utils.sanitizer import cleanup_task_files, get_output_path
 
 logger = logging.getLogger(__name__)
 
 
 def _cleanup(task_id: str):
-    cleanup_task_files(task_id, keep_outputs=False)
+    cleanup_task_files(task_id, keep_outputs=not storage.use_s3)
 
 
 def _build_pdf_ai_error_payload(task_id: str, error: PdfAiError, tool: str) -> dict:
@@ -207,51 +211,143 @@ def translate_pdf_task(
     original_filename: str,
     target_language: str,
     source_language: str | None = None,
+    model_id: str | None = None,
+    mode: str = "text",
     user_id: int | None = None,
     usage_source: str = "web",
     api_key_id: int | None = None,
 ):
-    """Translate a PDF document to another language."""
-    try:
-        self.update_state(
-            state="PROCESSING",
-            meta={"step": "Translating document with provider fallback..."},
-        )
+    """Translate a PDF document to another language and return a downloadable PDF.
 
-        # ── Cache lookup — skip AI call if identical translation exists ──
-        cached = get_cached_translation(
-            input_path, target_language, source_language or "auto"
-        )
-        if cached is not None:
-            data = cached
-            data["provider"] = f"{data.get('provider', 'unknown')} (cached)"
-        else:
-            data = translate_pdf(
-                input_path, target_language, source_language=source_language
+    Modes:
+      - text  : Existing AI text extraction + fpdf2 rebuild (free & pro).
+      - layout: pdf2docx → translate paragraphs → LibreOffice → PDF (pro only).
+      - vision: pdf2image → Vision AI per page → weasyprint → PDF (pro only).
+    """
+    tool_slug = {
+        "text": "translate-pdf",
+        "layout": "translate-pdf-layout",
+        "vision": "translate-pdf-vision",
+    }.get(mode, "translate-pdf")
+
+    try:
+        output_path = get_output_path(task_id, "pdf")
+        name_without_ext = os.path.splitext(original_filename)[0]
+        download_name = f"{name_without_ext}_translated_{target_language}.pdf"
+
+        # ── Mode: layout (Pro) ──────────────────────────────────────────
+        if mode == "layout":
+            self.update_state(
+                state="PROCESSING",
+                meta={"step": "Layout-preserving translation (pdf2docx → LibreOffice)..."},
             )
-            # Store successful result for future cache hits
-            store_cached_translation(
+            data = translate_pdf_layout(
                 input_path,
                 target_language,
-                source_language or "auto",
-                data,
+                output_path,
+                original_filename,
+                source_lang=source_language,
+                model_id=model_id,
+            )
+            result = {
+                "status": "completed",
+                "download_url": None,  # filled below
+                "filename": download_name,
+                "pages_analyzed": data.get("pages", 0),
+                "target_language": data["target_language"],
+                "source_language": source_language,
+                "provider": data.get("provider", "layout"),
+                "paragraphs_translated": data.get("paragraphs_translated"),
+            }
+
+        # ── Mode: vision (Pro) ──────────────────────────────────────────
+        elif mode == "vision":
+            def _vision_progress(step: str):
+                self.update_state(state="PROCESSING", meta={"step": step})
+
+            self.update_state(
+                state="PROCESSING",
+                meta={"step": "Vision-based translation (per-page OCR + rebuild)..."},
+            )
+            data = translate_pdf_vision(
+                input_path,
+                target_language,
+                output_path,
+                original_filename,
+                source_lang=source_language,
+                model_id=model_id,
+                progress_callback=_vision_progress,
+            )
+            result = {
+                "status": "completed",
+                "download_url": None,  # filled below
+                "filename": download_name,
+                "pages_analyzed": data.get("pages", 0),
+                "target_language": data["target_language"],
+                "source_language": source_language,
+                "provider": data.get("provider", "vision"),
+                "pages_translated": data.get("pages_translated"),
+            }
+
+        # ── Mode: text (default, free + pro) ────────────────────────────
+        else:
+            self.update_state(
+                state="PROCESSING",
+                meta={"step": "Translating document with provider fallback..."},
             )
 
-        result = {
-            "status": "completed",
-            "translation": data["translation"],
-            "pages_analyzed": data["pages_analyzed"],
-            "target_language": data["target_language"],
-            "source_language": data.get("source_language"),
-            "detected_source_language": data.get("detected_source_language"),
-            "provider": data.get("provider"),
-            "chunks_translated": data.get("chunks_translated"),
-        }
+            # Cache lookup — skip AI call if identical translation exists
+            cached = get_cached_translation(
+                input_path, target_language, source_language or "auto"
+            )
+            if cached is not None:
+                data = cached
+                data["provider"] = f"{data.get('provider', 'unknown')} (cached)"
+            else:
+                data = translate_pdf(
+                    input_path,
+                    target_language,
+                    source_language=source_language,
+                    model_id=model_id,
+                )
+                store_cached_translation(
+                    input_path,
+                    target_language,
+                    source_language or "auto",
+                    data,
+                )
 
-        logger.info(f"Task {task_id}: PDF translate completed")
+            # Build translated PDF output
+            self.update_state(state="PROCESSING", meta={"step": "Generating PDF output..."})
+            _build_translated_pdf(
+                data["translation"],
+                target_language,
+                output_path,
+                original_filename,
+            )
+
+            result = {
+                "status": "completed",
+                "download_url": None,  # filled below
+                "filename": download_name,
+                "pages_analyzed": data["pages_analyzed"],
+                "target_language": data["target_language"],
+                "source_language": data.get("source_language"),
+                "detected_source_language": data.get("detected_source_language"),
+                "provider": data.get("provider"),
+                "chunks_translated": data.get("chunks_translated"),
+            }
+
+        # ── Upload to storage and get download URL (all modes) ──────────
+        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
+        download_url = storage.generate_presigned_url(s3_key, original_filename=download_name)
+        result["download_url"] = download_url
+        result["mode"] = mode
+
+        logger.info(f"Task {task_id}: PDF translate completed (mode={mode})")
         finalize_task_tracking(
             user_id=user_id,
-            tool="translate-pdf",
+            tool=tool_slug,
             original_filename=original_filename,
             result=result,
             usage_source=usage_source,
@@ -262,10 +358,10 @@ def translate_pdf_task(
         return result
 
     except PdfAiError as e:
-        result = _build_pdf_ai_error_payload(task_id, e, "translate-pdf")
+        result = _build_pdf_ai_error_payload(task_id, e, tool_slug)
         finalize_task_tracking(
             user_id=user_id,
-            tool="translate-pdf",
+            tool=tool_slug,
             original_filename=original_filename,
             result=result,
             usage_source=usage_source,
@@ -280,7 +376,7 @@ def translate_pdf_task(
         result = {"status": "failed", "error": "An unexpected error occurred."}
         finalize_task_tracking(
             user_id=user_id,
-            tool="translate-pdf",
+            tool=tool_slug,
             original_filename=original_filename,
             result=result,
             usage_source=usage_source,

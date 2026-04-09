@@ -159,6 +159,57 @@ def summarize_pdf_route():
 
 
 # ---------------------------------------------------------------------------
+# Translate PDF — Estimate — POST /api/pdf-ai/translate/estimate
+# ---------------------------------------------------------------------------
+@pdf_ai_bp.route("/translate/estimate", methods=["POST"])
+@limiter.limit("15/minute")
+def translate_estimate_route():
+    """Analyze a PDF and return per-mode cost estimates before translation.
+
+    Accepts: multipart/form-data with:
+        - 'file': PDF file
+    Returns: JSON with analysis + mode costs
+    """
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided."}), 400
+
+    file = request.files["file"]
+
+    actor = resolve_web_actor()
+    try:
+        assert_quota_available(actor, tool="translate-pdf")
+    except PolicyError as e:
+        return jsonify({"error": e.message}), e.status_code
+
+    try:
+        original_filename, ext = validate_actor_file(
+            file, allowed_types=["pdf"], actor=actor
+        )
+    except FileValidationError as e:
+        return jsonify({"error": e.message}), e.code
+
+    task_id, input_path = generate_safe_path(ext, folder_type="upload")
+    file.save(input_path)
+
+    try:
+        from app.services.pdf_translate_estimate_service import estimate_translate_costs
+
+        estimate = estimate_translate_costs(input_path)
+    except Exception as exc:
+        import logging
+        logging.getLogger(__name__).warning("Translate estimate failed: %s", exc)
+        return jsonify({"error": "Failed to analyze PDF."}), 500
+
+    return jsonify({
+        "task_id": task_id,
+        "input_path": input_path,
+        "original_filename": original_filename,
+        "plan": actor.plan,
+        **estimate,
+    })
+
+
+# ---------------------------------------------------------------------------
 # Translate PDF — POST /api/pdf-ai/translate
 # ---------------------------------------------------------------------------
 @pdf_ai_bp.route("/translate", methods=["POST"])
@@ -178,6 +229,11 @@ def translate_pdf_route():
     file = request.files["file"]
     target_language = request.form.get("target_language", "").strip()
     source_language = request.form.get("source_language", "auto").strip()
+    model_id = request.form.get("model_id", "").strip() or None
+    mode = request.form.get("mode", "text").strip()
+
+    if mode not in ("text", "layout", "vision"):
+        return jsonify({"error": "Invalid translation mode."}), 400
 
     if not target_language:
         return jsonify({"error": "No target language specified."}), 400
@@ -206,8 +262,15 @@ def translate_pdf_route():
 
     file_size_kb = os.path.getsize(input_path) / 1024
 
+    # Map mode to correct tool slug for credit pricing
+    tool_slug = {
+        "text": "translate-pdf",
+        "layout": "translate-pdf-layout",
+        "vision": "translate-pdf-vision",
+    }.get(mode, "translate-pdf")
+
     try:
-        quote = create_quote(actor.user_id, actor.plan, "translate-pdf", file_size_kb=file_size_kb)
+        quote = create_quote(actor.user_id, actor.plan, tool_slug, file_size_kb=file_size_kb)
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
@@ -217,9 +280,11 @@ def translate_pdf_route():
         original_filename,
         target_language,
         source_language,
+        model_id,
+        mode,
         **build_task_tracking_kwargs(actor),
     )
-    record_accepted_usage(actor, "translate-pdf", task.id, quote=quote)
+    record_accepted_usage(actor, tool_slug, task.id, quote=quote)
 
     return jsonify(
         {

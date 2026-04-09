@@ -1079,7 +1079,20 @@
       "processingHint": "Large documents may be translated in multiple chunks with retries and provider fallback. Keep this page open until the job completes.",
       "sourceDetected": "Detected source",
       "translationEngine": "Translation engine",
-      "resultTitle": "Translation"
+      "resultTitle": "Translation",
+      "estimating": "Analyzing your document…",
+      "selectMode": "Choose translation mode",
+      "modeText": "Basic",
+      "modeTextDesc": "AI text extraction and rebuild. Fast, works with most PDFs.",
+      "modeLayout": "Layout",
+      "modeLayoutDesc": "Preserves tables, columns and formatting via document conversion.",
+      "modeVision": "Vision",
+      "modeVisionDesc": "Best quality. Each page is analyzed visually by AI for pixel-perfect results.",
+      "creditsLabel": "{{count}} credits",
+      "recommended": "Recommended",
+      "proOnly": "Pro",
+      "modeUnavailable": "Not available for this document",
+      "translateWithMode": "Translate ({{mode}})"
     },
     "tableExtractor": {
       "title": "Extract Tables from PDF",

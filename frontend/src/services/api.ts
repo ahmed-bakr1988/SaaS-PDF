@@ -189,9 +189,21 @@ api.interceptors.response.use(
 
 // --- API Functions ---
 
+export interface QuoteInfo {
+  tool: string;
+  quoted_credits: number;
+  charged_credits: number;
+  welcome_bonus_applied: boolean;
+  is_dynamic: boolean;
+  file_size_kb: number;
+  balance_before: number;
+  balance_after: number;
+}
+
 export interface TaskResponse {
   task_id: string;
   message: string;
+  quote?: QuoteInfo;
 }
 
 export interface TaskErrorPayload {
@@ -374,6 +386,36 @@ export interface CostEstimate {
   affordable: boolean;
 }
 
+// --- Translate Estimate Types ---
+
+export interface TranslateEstimateModeInfo {
+  credits: number;
+  available: boolean;
+  label: string;
+  warning?: string | null;
+}
+
+export interface TranslateEstimateAnalysis {
+  pdf_type: 'text_rich' | 'sparse' | 'scanned';
+  pages: number;
+  file_size_kb: number;
+  words_per_page: number;
+  recommendation: 'text' | 'layout' | 'vision';
+}
+
+export interface TranslateEstimateResponse {
+  task_id: string;
+  input_path: string;
+  original_filename: string;
+  plan: string;
+  analysis: TranslateEstimateAnalysis;
+  modes: {
+    text: TranslateEstimateModeInfo;
+    layout: TranslateEstimateModeInfo;
+    vision: TranslateEstimateModeInfo;
+  };
+}
+
 interface AuthResponse {
   message: string;
   user: AuthUser;
@@ -474,6 +516,30 @@ function normalizeStreamError(status: number, bodyText: string): Error {
   } catch {
     return new Error(bodyText.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim());
   }
+}
+
+/**
+ * Upload a PDF and get per-mode translation cost estimates.
+ */
+export async function estimateTranslatePdf(
+  file: File,
+  onProgress?: (percent: number) => void
+): Promise<TranslateEstimateResponse> {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post<TranslateEstimateResponse>(
+    '/pdf-ai/translate/estimate',
+    formData,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (event) => {
+        if (event.total && onProgress) {
+          onProgress(Math.round((event.loaded / event.total) * 100));
+        }
+      },
+    }
+  );
+  return response.data;
 }
 
 /**
