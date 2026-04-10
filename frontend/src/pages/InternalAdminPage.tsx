@@ -1523,7 +1523,7 @@ export default function InternalAdminPage() {
 
             {systemHealth && (
               <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                {tr(t('currentModelLabel'), {})}:{' '}
+                {t('currentModelLabel')}:{' '}
                 <span className="font-medium text-slate-700 dark:text-slate-200">{systemHealth.ai_model}</span>
               </p>
             )}

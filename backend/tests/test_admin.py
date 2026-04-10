@@ -1,10 +1,23 @@
 """Tests for internal admin dashboard endpoints."""
 
+from dataclasses import dataclass, field
 from unittest.mock import patch
 
 from app.services.account_service import create_user, record_file_history, set_user_role, update_user_plan
 from app.services.contact_service import save_message
 from app.services.rating_service import submit_rating
+
+
+@dataclass
+class FakeModelInfo:
+    id: str
+    name: str
+    is_free: bool
+    context_length: int = 4096
+    description: str = ""
+    prompt_price_per_token: float = 0.0
+    completion_price_per_token: float = 0.0
+    top_provider: dict = field(default_factory=dict)
 
 
 class TestInternalAdminRoutes:
@@ -190,20 +203,8 @@ class TestInternalAdminRoutes:
         client.post("/api/auth/login", json={"email": "ai-admin@example.com", "password": "testpass123"})
 
         fake_models = [
-            type("M", (), {
-                "id": "test/model-free",
-                "name": "Test Free",
-                "is_free": True,
-                "context_length": 4096,
-                "description": "A free model",
-            })(),
-            type("M", (), {
-                "id": "test/model-paid",
-                "name": "Test Paid",
-                "is_free": False,
-                "context_length": 8192,
-                "description": "A paid model",
-            })(),
+            FakeModelInfo(id="test/model-free", name="Test Free", is_free=True, context_length=4096, description="A free model"),
+            FakeModelInfo(id="test/model-paid", name="Test Paid", is_free=False, context_length=8192, description="A paid model"),
         ]
 
         with patch("app.services.openrouter_models_service.get_cached_models", return_value=fake_models):
@@ -236,7 +237,10 @@ class TestInternalAdminRoutes:
             set_user_role(admin_user["id"], "admin")
 
         client.post("/api/auth/login", json={"email": "ai-switch@example.com", "password": "testpass123"})
-        response = client.put("/api/internal/admin/ai-model", json={"model": "test/new-model"})
+
+        fake_models = [FakeModelInfo(id="test/new-model", name="New Model", is_free=True)]
+        with patch("app.services.openrouter_models_service.get_cached_models", return_value=fake_models):
+            response = client.put("/api/internal/admin/ai-model", json={"model": "test/new-model"})
 
         assert response.status_code == 200
         data = response.get_json()

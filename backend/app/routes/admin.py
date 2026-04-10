@@ -588,6 +588,12 @@ def admin_update_ai_model_route():
     if not model_id:
         return jsonify({"error": "A model ID is required."}), 400
 
+    from app.services.openrouter_models_service import get_cached_models
+
+    known_ids = {m.id for m in get_cached_models()}
+    if known_ids and model_id not in known_ids:
+        return jsonify({"error": "Unknown model ID."}), 400
+
     current_app.config["OPENROUTER_MODEL"] = model_id
 
     return jsonify({
