@@ -1,8 +1,23 @@
 """Tests for internal admin dashboard endpoints."""
 
+from dataclasses import dataclass, field
+from unittest.mock import patch
+
 from app.services.account_service import create_user, record_file_history, set_user_role, update_user_plan
 from app.services.contact_service import save_message
 from app.services.rating_service import submit_rating
+
+
+@dataclass
+class FakeModelInfo:
+    id: str
+    name: str
+    is_free: bool
+    context_length: int = 4096
+    description: str = ""
+    prompt_price_per_token: float = 0.0
+    completion_price_per_token: float = 0.0
+    top_provider: dict = field(default_factory=dict)
 
 
 class TestInternalAdminRoutes:
@@ -173,3 +188,63 @@ class TestInternalAdminRoutes:
 
         assert response.status_code == 400
         assert "cannot remove your own admin role" in response.get_json()["error"].lower()
+
+    # ---- AI model switcher endpoints ----
+
+    def test_ai_models_requires_admin(self, client):
+        response = client.get("/api/internal/admin/ai-models")
+        assert response.status_code == 401
+
+    def test_ai_models_returns_list(self, app, client):
+        with app.app_context():
+            admin_user = create_user("ai-admin@example.com", "testpass123")
+            set_user_role(admin_user["id"], "admin")
+
+        client.post("/api/auth/login", json={"email": "ai-admin@example.com", "password": "testpass123"})
+
+        fake_models = [
+            FakeModelInfo(id="test/model-free", name="Test Free", is_free=True, context_length=4096, description="A free model"),
+            FakeModelInfo(id="test/model-paid", name="Test Paid", is_free=False, context_length=8192, description="A paid model"),
+        ]
+
+        with patch("app.services.openrouter_models_service.get_cached_models", return_value=fake_models):
+            response = client.get("/api/internal/admin/ai-models")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert "models" in data
+        assert "current_model" in data
+        assert len(data["models"]) == 2
+        assert data["models"][0]["is_free"] is True
+
+    def test_update_ai_model_requires_admin(self, client):
+        response = client.put("/api/internal/admin/ai-model", json={"model": "test/model"})
+        assert response.status_code == 401
+
+    def test_update_ai_model_rejects_empty(self, app, client):
+        with app.app_context():
+            admin_user = create_user("ai-empty@example.com", "testpass123")
+            set_user_role(admin_user["id"], "admin")
+
+        client.post("/api/auth/login", json={"email": "ai-empty@example.com", "password": "testpass123"})
+        response = client.put("/api/internal/admin/ai-model", json={"model": ""})
+
+        assert response.status_code == 400
+
+    def test_update_ai_model_switches_model(self, app, client):
+        with app.app_context():
+            admin_user = create_user("ai-switch@example.com", "testpass123")
+            set_user_role(admin_user["id"], "admin")
+
+        client.post("/api/auth/login", json={"email": "ai-switch@example.com", "password": "testpass123"})
+
+        fake_models = [FakeModelInfo(id="test/new-model", name="New Model", is_free=True)]
+        with patch("app.services.openrouter_models_service.get_cached_models", return_value=fake_models):
+            response = client.put("/api/internal/admin/ai-model", json={"model": "test/new-model"})
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["model"] == "test/new-model"
+
+        with app.app_context():
+            assert app.config["OPENROUTER_MODEL"] == "test/new-model"

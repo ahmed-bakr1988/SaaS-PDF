@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.extensions import limiter
 from app.services.account_service import (
@@ -541,3 +541,62 @@ def admin_project_events_route():
             "period_days": days,
         }
     ), 200
+
+
+@admin_bp.route("/ai-models", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_ai_models_route():
+    """Return available OpenRouter models for admin model selection."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    from app.services.openrouter_config_service import get_openrouter_settings
+    from app.services.openrouter_models_service import get_cached_models
+
+    settings = get_openrouter_settings()
+    models = get_cached_models()
+
+    payload = [
+        {
+            "id": m.id,
+            "name": m.name,
+            "is_free": m.is_free,
+            "context_length": m.context_length,
+            "description": m.description,
+        }
+        for m in models
+    ]
+    payload.sort(key=lambda x: (not x["is_free"], x["name"].lower()))
+
+    return jsonify({
+        "current_model": settings.model,
+        "models": payload,
+    }), 200
+
+
+@admin_bp.route("/ai-model", methods=["PUT"])
+@limiter.limit("30/hour")
+def admin_update_ai_model_route():
+    """Switch the active OpenRouter model at runtime (no .env edit needed)."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    data = request.get_json(silent=True) or {}
+    model_id = str(data.get("model", "")).strip()
+    if not model_id:
+        return jsonify({"error": "A model ID is required."}), 400
+
+    from app.services.openrouter_models_service import get_cached_models
+
+    known_ids = {m.id for m in get_cached_models()}
+    if known_ids and model_id not in known_ids:
+        return jsonify({"error": "Unknown model ID."}), 400
+
+    current_app.config["OPENROUTER_MODEL"] = model_id
+
+    return jsonify({
+        "message": "Model updated.",
+        "model": model_id,
+    }), 200
