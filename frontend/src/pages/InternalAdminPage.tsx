@@ -51,6 +51,9 @@ import {
   deleteAdminUser,
   updateAdminUserPlan,
   updateAdminUserRole,
+  getAdminAiModels,
+  updateAdminAiModel,
+  type AdminAiModel,
 } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -226,6 +229,18 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     userDeleted: 'User deleted successfully.',
     planUpdated: 'Plan updated successfully.',
     roleUpdated: 'Role updated successfully.',
+    // AI model switcher
+    aiModelSwitcher: 'AI Model Switcher',
+    aiModelSwitcherDesc: 'Switch the active OpenRouter model at runtime without editing .env.',
+    currentModelLabel: 'Current model',
+    selectModel: 'Select model',
+    freeTag: 'free',
+    switchModel: 'Switch model',
+    switchingModel: 'Switching...',
+    modelSwitched: 'Model switched successfully.',
+    modelSwitchError: 'Unable to switch model.',
+    noModelsAvailable: 'No models available. Check OPENROUTER_API_KEY.',
+    contextLengthLabel: 'Context: {length}',
   },
   ar: {
     // Page & header
@@ -395,6 +410,18 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     userDeleted: 'تم حذف المستخدم بنجاح.',
     planUpdated: 'تم تحديث الخطة بنجاح.',
     roleUpdated: 'تم تحديث الدور بنجاح.',
+    // AI model switcher
+    aiModelSwitcher: 'تبديل نموذج الذكاء الاصطناعي',
+    aiModelSwitcherDesc: 'تبديل نموذج OpenRouter النشط مباشرةً بدون تعديل ملف .env.',
+    currentModelLabel: 'النموذج الحالي',
+    selectModel: 'اختر النموذج',
+    freeTag: 'مجاني',
+    switchModel: 'تبديل النموذج',
+    switchingModel: 'جارٍ التبديل...',
+    modelSwitched: 'تم تبديل النموذج بنجاح.',
+    modelSwitchError: 'تعذّر تبديل النموذج.',
+    noModelsAvailable: 'لا توجد نماذج متاحة. تحقق من OPENROUTER_API_KEY.',
+    contextLengthLabel: 'السياق: {length}',
   },
 };
 
@@ -467,6 +494,11 @@ export default function InternalAdminPage() {
   // Events state
   const [projectEvents, setProjectEvents] = useState<ProjectEventsResponse | null>(null);
   const [eventsDays, setEventsDays] = useState(30);
+
+  // AI model switcher state
+  const [aiModels, setAiModels] = useState<AdminAiModel[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState('');
+  const [switchingModel, setSwitchingModel] = useState(false);
 
   // User management state
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -559,12 +591,15 @@ export default function InternalAdminPage() {
           break;
         }
         case 'system': {
-          const [health, pi] = await Promise.all([
+          const [health, pi, aiModelsRes] = await Promise.all([
             getAdminSystemHealth(),
             getAdminPlanInterest(),
+            getAdminAiModels().catch(() => ({ current_model: '', models: [] })),
           ]);
           setSystemHealth(health);
           setPlanInterest(pi);
+          setAiModels(aiModelsRes.models);
+          setSelectedModelId(aiModelsRes.current_model);
           break;
         }
         case 'database': {
@@ -1431,6 +1466,68 @@ export default function InternalAdminPage() {
               </div>
             </article>
           </section>
+        )}
+
+        {/* AI model switcher */}
+        {systemHealth?.ai_configured && (
+          <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
+            <div className="flex items-start gap-3">
+              <Zap className="mt-1 h-5 w-5 text-primary-500" />
+              <div>
+                <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('aiModelSwitcher')}</h2>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">{t('aiModelSwitcherDesc')}</p>
+              </div>
+            </div>
+
+            {aiModels.length > 0 ? (
+              <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end">
+                <div className="flex-1">
+                  <label className="mb-1 block text-sm font-medium text-slate-700 dark:text-slate-300">
+                    {t('selectModel')}
+                  </label>
+                  <select
+                    value={selectedModelId}
+                    onChange={(e) => setSelectedModelId(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  >
+                    {aiModels.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name} {m.is_free ? `· ${t('freeTag')}` : ''} · {tr(t('contextLengthLabel'), { length: m.context_length.toLocaleString() })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  disabled={switchingModel || selectedModelId === systemHealth.ai_model}
+                  onClick={async () => {
+                    setSwitchingModel(true);
+                    try {
+                      await updateAdminAiModel(selectedModelId);
+                      toast.success(t('modelSwitched'));
+                      void loadTab('system');
+                    } catch {
+                      toast.error(t('modelSwitchError'));
+                    } finally {
+                      setSwitchingModel(false);
+                    }
+                  }}
+                  className="rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+                >
+                  {switchingModel ? t('switchingModel') : t('switchModel')}
+                </button>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('noModelsAvailable')}</p>
+            )}
+
+            {systemHealth && (
+              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
+                {tr(t('currentModelLabel'), {})}:{' '}
+                <span className="font-medium text-slate-700 dark:text-slate-200">{systemHealth.ai_model}</span>
+              </p>
+            )}
+          </article>
         )}
 
         {/* Plan interest */}

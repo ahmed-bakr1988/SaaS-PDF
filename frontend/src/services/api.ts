@@ -1093,6 +1093,29 @@ export async function getDatabaseStats(): Promise<DatabaseStats> {
   return response.data;
 }
 
+export interface AdminAiModel {
+  id: string;
+  name: string;
+  is_free: boolean;
+  context_length: number;
+  description: string;
+}
+
+export interface AdminAiModelsResponse {
+  current_model: string;
+  models: AdminAiModel[];
+}
+
+export async function getAdminAiModels(): Promise<AdminAiModelsResponse> {
+  const response = await api.get<AdminAiModelsResponse>('/internal/admin/ai-models');
+  return response.data;
+}
+
+export async function updateAdminAiModel(model: string): Promise<{ message: string; model: string }> {
+  const response = await api.put<{ message: string; model: string }>('/internal/admin/ai-model', { model });
+  return response.data;
+}
+
 export interface ProjectEvent {
   time: string;
   type: string;
