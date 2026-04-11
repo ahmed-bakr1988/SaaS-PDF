@@ -1,7 +1,9 @@
 """Authentication routes backed by Flask sessions."""
+import hmac
 import re
+from urllib.parse import urlencode
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, redirect, request, session
 
 from app.extensions import limiter
 from app.services.account_service import (
@@ -10,15 +12,26 @@ from app.services.account_service import (
     get_user_by_id,
     get_user_by_email,
     create_password_reset_token,
+    resolve_user_for_oauth_login,
     verify_and_consume_reset_token,
     update_user_password,
 )
 from app.services.credit_service import get_credit_summary
 from app.services.email_service import send_password_reset_email
+from app.services.social_auth_service import (
+    SocialAuthError,
+    build_authorization_url,
+    build_pkce_challenge,
+    exchange_code_for_profile,
+    generate_pkce_verifier,
+    generate_social_state,
+    get_social_provider_payload,
+)
 from app.utils.auth import (
     get_current_user_id,
     login_user_session,
     logout_user_session,
+    pop_new_account_flag,
 )
 from app.utils.csrf import get_or_create_csrf_token
 
@@ -27,6 +40,8 @@ auth_bp = Blueprint("auth", __name__)
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 128
+SOCIAL_AUTH_SESSION_KEY = "social_auth_flow"
+SUPPORTED_SOCIAL_PROVIDERS = {"google", "facebook", "x"}
 
 
 def _parse_credentials() -> tuple[str | None, str | None]:
@@ -46,6 +61,35 @@ def _validate_credentials(email: str, password: str) -> str | None:
     if len(password) > MAX_PASSWORD_LENGTH:
         return f"Password must be {MAX_PASSWORD_LENGTH} characters or less."
     return None
+
+
+def _normalize_social_provider(provider: str) -> str:
+    normalized = str(provider).strip().lower()
+    if normalized not in SUPPORTED_SOCIAL_PROVIDERS:
+        raise SocialAuthError("Unsupported social provider.")
+    return normalized
+
+
+def _provider_label(provider: str) -> str:
+    return {
+        "google": "Google",
+        "facebook": "Facebook",
+        "x": "X",
+    }[_normalize_social_provider(provider)]
+
+
+def _frontend_account_redirect(error_message: str | None = None) -> str:
+    base_url = current_app.config["FRONTEND_URL"].rstrip("/")
+    account_url = f"{base_url}/account"
+    if not error_message:
+        return account_url
+    return f"{account_url}?{urlencode({'auth_error': error_message})}"
+
+
+def _social_redirect_uri(provider: str) -> str:
+    public_api_base = current_app.config["BACKEND_PUBLIC_URL"].rstrip("/")
+    normalized_provider = _normalize_social_provider(provider)
+    return f"{public_api_base}/api/auth/social/{normalized_provider}/callback"
 
 
 @auth_bp.route("/register", methods=["POST"])
@@ -116,7 +160,103 @@ def me_route():
         return jsonify({"authenticated": False, "user": None}), 200
 
     credits = get_credit_summary(user_id, user.get("plan", "free"))
-    return jsonify({"authenticated": True, "user": user, "credits": credits}), 200
+    return jsonify({
+        "authenticated": True,
+        "user": user,
+        "credits": credits,
+        "is_new_account": pop_new_account_flag(),
+    }), 200
+
+
+@auth_bp.route("/providers", methods=["GET"])
+@limiter.limit("240/hour")
+def providers_route():
+    """Return social providers and whether each one is currently configured."""
+    return jsonify({"providers": get_social_provider_payload()}), 200
+
+
+@auth_bp.route("/social/<provider>/start", methods=["GET"])
+@limiter.limit("60/hour")
+def social_start_route(provider: str):
+    """Begin a provider OAuth redirect from the account page."""
+    try:
+        normalized_provider = _normalize_social_provider(provider)
+        state = generate_social_state()
+        code_verifier = generate_pkce_verifier() if normalized_provider == "x" else None
+        redirect_uri = _social_redirect_uri(normalized_provider)
+        authorization_url = build_authorization_url(
+            normalized_provider,
+            state=state,
+            redirect_uri=redirect_uri,
+            code_challenge=build_pkce_challenge(code_verifier) if code_verifier else None,
+        )
+    except SocialAuthError as exc:
+        return redirect(_frontend_account_redirect(str(exc)))
+
+    session[SOCIAL_AUTH_SESSION_KEY] = {
+        "provider": normalized_provider,
+        "state": state,
+        "code_verifier": code_verifier,
+    }
+    return redirect(authorization_url)
+
+
+@auth_bp.route("/social/<provider>/callback", methods=["GET"])
+@limiter.limit("120/hour")
+def social_callback_route(provider: str):
+    """Complete a provider OAuth callback and start the app session."""
+    try:
+        normalized_provider = _normalize_social_provider(provider)
+    except SocialAuthError as exc:
+        return redirect(_frontend_account_redirect(str(exc)))
+
+    provider_error = str(
+        request.args.get("error_description")
+        or request.args.get("error")
+        or request.args.get("error_reason")
+        or ""
+    ).strip()
+    if provider_error:
+        return redirect(
+            _frontend_account_redirect(
+                f"{_provider_label(normalized_provider)} sign-in was not completed."
+            )
+        )
+
+    code = str(request.args.get("code", "")).strip()
+    state = str(request.args.get("state", "")).strip()
+    stored_flow = session.pop(SOCIAL_AUTH_SESSION_KEY, None)
+    if not code or not state:
+        return redirect(_frontend_account_redirect("Social sign-in could not be completed."))
+
+    if (
+        not isinstance(stored_flow, dict)
+        or stored_flow.get("provider") != normalized_provider
+        or not hmac.compare_digest(stored_flow.get("state", ""), state)
+    ):
+        return redirect(
+            _frontend_account_redirect("Your social sign-in session expired. Please try again.")
+        )
+
+    try:
+        profile = exchange_code_for_profile(
+            normalized_provider,
+            code=code,
+            redirect_uri=_social_redirect_uri(normalized_provider),
+            code_verifier=stored_flow.get("code_verifier"),
+        )
+        user, is_new_account = resolve_user_for_oauth_login(
+            normalized_provider,
+            profile.provider_user_id,
+            profile.email,
+            profile.email_is_verified,
+            provider_username=profile.username,
+        )
+    except (SocialAuthError, ValueError) as exc:
+        return redirect(_frontend_account_redirect(str(exc)))
+
+    login_user_session(int(user["id"]), mark_new_account=is_new_account)
+    return redirect(_frontend_account_redirect())
 
 
 @auth_bp.route("/csrf", methods=["GET"])

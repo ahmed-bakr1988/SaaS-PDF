@@ -139,6 +139,18 @@ class BaseConfig:
     SMTP_FROM = os.getenv("SMTP_FROM", "noreply@dociva.io")
     SMTP_USE_TLS = os.getenv("SMTP_USE_TLS", "true").lower() == "true"
     FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    BACKEND_PUBLIC_URL = _env_or_default(
+        "BACKEND_PUBLIC_URL", os.getenv("FRONTEND_URL", "http://localhost:5173")
+    )
+
+    # Social auth (OAuth)
+    GOOGLE_OAUTH_CLIENT_ID = os.getenv("GOOGLE_OAUTH_CLIENT_ID", "")
+    GOOGLE_OAUTH_CLIENT_SECRET = os.getenv("GOOGLE_OAUTH_CLIENT_SECRET", "")
+    FACEBOOK_APP_ID = os.getenv("FACEBOOK_APP_ID", "")
+    FACEBOOK_APP_SECRET = os.getenv("FACEBOOK_APP_SECRET", "")
+    FACEBOOK_GRAPH_API_VERSION = os.getenv("FACEBOOK_GRAPH_API_VERSION", "v23.0")
+    X_CLIENT_ID = os.getenv("X_CLIENT_ID", "")
+    X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET", "")
 
     # Stripe
     STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")

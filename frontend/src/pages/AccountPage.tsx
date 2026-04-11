@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   AlertTriangle,
@@ -24,10 +25,12 @@ import {
   getUsage,
   getApiKeys,
   createApiKey,
+  getSocialAuthProviders,
   revokeApiKey,
   type HistoryEntry,
   type UsageSummary,
   type ApiKey,
+  type SocialAuthProviderOption,
 } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
 
@@ -87,8 +90,49 @@ function formatHistoryTool(tool: string, t: (key: string) => string) {
   return translationKey ? t(translationKey) : tool;
 }
 
+const socialProviderFallback: SocialAuthProviderOption[] = [
+  { id: 'google', label: 'Google', available: false, start_url: '/api/auth/social/google/start' },
+  { id: 'facebook', label: 'Facebook', available: false, start_url: '/api/auth/social/facebook/start' },
+  { id: 'x', label: 'X', available: false, start_url: '/api/auth/social/x/start' },
+];
+
+function SocialProviderIcon({ provider }: { provider: string }) {
+  if (provider === 'google') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+        <path fill="#EA4335" d="M12 10.2v3.9h5.4c-.2 1.2-.9 2.2-1.9 2.9l3 2.3c1.7-1.6 2.8-3.9 2.8-6.7 0-.7-.1-1.4-.2-2H12Z" />
+        <path fill="#34A853" d="M12 21c2.6 0 4.8-.9 6.4-2.5l-3-2.3c-.8.6-1.9 1-3.3 1-2.5 0-4.6-1.7-5.4-4l-3.1 2.4C5.3 18.7 8.4 21 12 21Z" />
+        <path fill="#4A90E2" d="M6.6 13.2c-.2-.6-.3-1.2-.3-1.9s.1-1.3.3-1.9L3.5 7C2.9 8.3 2.5 9.7 2.5 11.3s.4 3 1 4.3l3.1-2.4Z" />
+        <path fill="#FBBC05" d="M12 5.3c1.4 0 2.6.5 3.6 1.4l2.7-2.7C16.8 2.6 14.6 1.7 12 1.7 8.4 1.7 5.3 4 3.5 7l3.1 2.4c.8-2.3 2.9-4.1 5.4-4.1Z" />
+      </svg>
+    );
+  }
+
+  if (provider === 'facebook') {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+        <path
+          fill="currentColor"
+          d="M13.4 21v-7h2.4l.4-2.8h-2.8V9.4c0-.8.2-1.4 1.4-1.4h1.5V5.5c-.3 0-1.1-.1-2.1-.1-2.1 0-3.5 1.3-3.5 3.7v2.1H8.4V14h2.3v7h2.7Z"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className="h-4 w-4">
+      <path
+        fill="currentColor"
+        d="M18.3 3h2.9l-6.4 7.3L22.3 21h-5.9l-4.6-6.1L6.4 21H3.5l6.8-7.8L2.3 3h6l4.2 5.6L18.3 3Zm-1 16.2h1.6L7.4 4.7H5.7l11.6 14.5Z"
+      />
+    </svg>
+  );
+}
+
 export default function AccountPage() {
   const { t, i18n } = useTranslation();
+  const location = useLocation();
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const authLoading = useAuthStore((state) => state.isLoading);
   const initialized = useAuthStore((state) => state.initialized);
@@ -111,6 +155,25 @@ export default function AccountPage() {
     }
   }, [isNewAccount, user, t, clearNewAccount]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const authError = params.get('auth_error');
+    if (!authError) {
+      return;
+    }
+
+    setSubmitError(authError);
+    toast.error(authError);
+    params.delete('auth_error');
+    void navigate(
+      {
+        pathname: location.pathname,
+        search: params.toString() ? `?${params.toString()}` : '',
+      },
+      { replace: true }
+    );
+  }, [location.pathname, location.search, navigate]);
+
   const [mode, setMode] = useState<AuthMode>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -119,6 +182,8 @@ export default function AccountPage() {
   const [historyItems, setHistoryItems] = useState<HistoryEntry[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
+  const [socialProviders, setSocialProviders] = useState<SocialAuthProviderOption[]>(socialProviderFallback);
+  const [socialProvidersLoading, setSocialProvidersLoading] = useState(false);
 
   // Usage summary state
   const [usage, setUsage] = useState<UsageSummary | null>(null);
@@ -184,6 +249,37 @@ export default function AccountPage() {
       ],
     };
   }, [apiKeys, historyItems, t, user?.plan]);
+
+  useEffect(() => {
+    if (user) {
+      setSocialProviders(socialProviderFallback);
+      return;
+    }
+
+    let cancelled = false;
+    const loadSocialProviders = async () => {
+      setSocialProvidersLoading(true);
+      try {
+        const providers = await getSocialAuthProviders();
+        if (!cancelled && providers.length > 0) {
+          setSocialProviders(providers);
+        }
+      } catch {
+        if (!cancelled) {
+          setSocialProviders(socialProviderFallback);
+        }
+      } finally {
+        if (!cancelled) {
+          setSocialProvidersLoading(false);
+        }
+      }
+    };
+
+    void loadSocialProviders();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   useEffect(() => {
     if (!user) {
@@ -314,6 +410,8 @@ export default function AccountPage() {
     setCopiedKey(true);
     setTimeout(() => setCopiedKey(false), 2000);
   };
+
+  const hasEnabledSocialProvider = socialProviders.some((provider) => provider.available);
 
   return (
     <>
@@ -778,6 +876,57 @@ export default function AccountPage() {
                 </p>
               </div>
 
+              <div className="space-y-5">
+                <div className="space-y-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                    {t('account.socialTitle')}
+                  </p>
+                  <div className="grid gap-3">
+                    {socialProviders.map((provider) => {
+                      const disabled = authLoading || socialProvidersLoading || !provider.available;
+                      return (
+                        <a
+                          key={provider.id}
+                          href={provider.available ? provider.start_url : undefined}
+                          aria-disabled={disabled}
+                          className={`flex items-center justify-between rounded-[1.1rem] border px-4 py-3 text-sm font-semibold transition ${
+                            disabled
+                              ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-500'
+                              : 'border-slate-200 bg-white text-slate-800 hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100 dark:hover:border-primary-700 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <span className="flex items-center gap-3">
+                            <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
+                              provider.id === 'google'
+                                ? 'bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700'
+                                : provider.id === 'facebook'
+                                  ? 'bg-[#1877F2]/10 text-[#1877F2]'
+                                  : 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                            }`}>
+                              <SocialProviderIcon provider={provider.id} />
+                            </span>
+                            <span>{t('account.socialContinueWith', { provider: provider.label })}</span>
+                          </span>
+                          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
+                            {provider.available ? t('account.socialReady') : t('account.socialDisabled')}
+                          </span>
+                        </a>
+                      );
+                    })}
+                  </div>
+                  {!hasEnabledSocialProvider && !socialProvidersLoading ? (
+                    <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
+                      {t('account.socialConfigHint')}
+                    </p>
+                  ) : null}
+                </div>
+
+                <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                  <span>{t('account.orContinueWithEmail')}</span>
+                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+                </div>
+
               <form onSubmit={handleSubmit} className="space-y-4">
                 <label className="block">
                   <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
@@ -843,6 +992,7 @@ export default function AccountPage() {
                   </p>
                 )}
               </form>
+              </div>
             </div>
           </section>
         </div>

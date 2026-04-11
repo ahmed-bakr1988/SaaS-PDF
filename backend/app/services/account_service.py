@@ -138,6 +138,21 @@ def _init_postgres_tables(conn):
     """)
 
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS oauth_accounts (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            provider TEXT NOT NULL,
+            provider_user_id TEXT NOT NULL,
+            provider_email TEXT,
+            provider_username TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE (provider, provider_user_id)
+        )
+    """)
+
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS file_history (
             id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
@@ -189,6 +204,10 @@ def _init_postgres_tables(conn):
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_api_keys_user_created
         ON api_keys(user_id, created_at DESC)
+    """)
+    cursor.execute("""
+        CREATE INDEX IF NOT EXISTS idx_oauth_accounts_user
+        ON oauth_accounts(user_id, provider)
     """)
     cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_usage_events_user_source_period_event
@@ -279,6 +298,19 @@ def _init_sqlite_tables(conn):
             updated_at TEXT NOT NULL
         );
 
+        CREATE TABLE IF NOT EXISTS oauth_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            provider TEXT NOT NULL,
+            provider_user_id TEXT NOT NULL,
+            provider_email TEXT,
+            provider_username TEXT,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE (provider, provider_user_id)
+        );
+
         CREATE TABLE IF NOT EXISTS file_history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
@@ -323,6 +355,9 @@ def _init_sqlite_tables(conn):
 
         CREATE INDEX IF NOT EXISTS idx_api_keys_user_created
         ON api_keys(user_id, created_at DESC);
+
+        CREATE INDEX IF NOT EXISTS idx_oauth_accounts_user
+        ON oauth_accounts(user_id, provider);
 
         CREATE INDEX IF NOT EXISTS idx_usage_events_user_source_period_event
         ON usage_events(user_id, source, period_month, event_type);
@@ -1008,6 +1043,175 @@ def get_user_by_email(email: str) -> dict | None:
         cursor = execute_query(conn, sql, (email,))
         row = row_to_dict(cursor.fetchone())
     return _serialize_user(row)
+
+
+def get_user_by_oauth_account(provider: str, provider_user_id: str) -> dict | None:
+    provider = provider.strip().lower()
+    provider_user_id = str(provider_user_id).strip()
+    if not provider or not provider_user_id:
+        return None
+
+    with db_connection() as conn:
+        sql = (
+            """
+            SELECT users.id, users.email, users.plan, users.role, users.created_at, users.welcome_bonus_used
+            FROM oauth_accounts
+            INNER JOIN users ON users.id = oauth_accounts.user_id
+            WHERE oauth_accounts.provider = %s AND oauth_accounts.provider_user_id = %s
+        """
+            if is_postgres()
+            else """
+            SELECT users.id, users.email, users.plan, users.role, users.created_at, users.welcome_bonus_used
+            FROM oauth_accounts
+            INNER JOIN users ON users.id = oauth_accounts.user_id
+            WHERE oauth_accounts.provider = ? AND oauth_accounts.provider_user_id = ?
+        """
+        )
+        cursor = execute_query(conn, sql, (provider, provider_user_id))
+        row = row_to_dict(cursor.fetchone())
+
+    return _serialize_user(row)
+
+
+def link_oauth_account(
+    user_id: int,
+    provider: str,
+    provider_user_id: str,
+    provider_email: str | None = None,
+    provider_username: str | None = None,
+) -> None:
+    provider = provider.strip().lower()
+    provider_user_id = str(provider_user_id).strip()
+    normalized_email = _normalize_email(provider_email) if provider_email else None
+    normalized_username = str(provider_username).strip() if provider_username else None
+    now = _utc_now()
+
+    if not provider or not provider_user_id:
+        raise ValueError("A valid social account identifier is required.")
+
+    with db_connection() as conn:
+        lookup_sql = (
+            """
+            SELECT id, user_id, provider_email, provider_username
+            FROM oauth_accounts
+            WHERE provider = %s AND provider_user_id = %s
+        """
+            if is_postgres()
+            else """
+            SELECT id, user_id, provider_email, provider_username
+            FROM oauth_accounts
+            WHERE provider = ? AND provider_user_id = ?
+        """
+        )
+        lookup_cursor = execute_query(conn, lookup_sql, (provider, provider_user_id))
+        existing = row_to_dict(lookup_cursor.fetchone())
+
+        if existing is not None and int(existing["user_id"]) != int(user_id):
+            raise ValueError("This social account is already linked to another user.")
+
+        if existing is None:
+            insert_sql = (
+                """
+                INSERT INTO oauth_accounts (
+                    user_id, provider, provider_user_id, provider_email,
+                    provider_username, created_at, updated_at
+                )
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """
+                if is_postgres()
+                else """
+                INSERT INTO oauth_accounts (
+                    user_id, provider, provider_user_id, provider_email,
+                    provider_username, created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
+            )
+            execute_query(
+                conn,
+                insert_sql,
+                (
+                    user_id,
+                    provider,
+                    provider_user_id,
+                    normalized_email,
+                    normalized_username,
+                    now,
+                    now,
+                ),
+            )
+            return
+
+        update_sql = (
+            """
+            UPDATE oauth_accounts
+            SET provider_email = %s,
+                provider_username = %s,
+                updated_at = %s
+            WHERE id = %s
+        """
+            if is_postgres()
+            else """
+            UPDATE oauth_accounts
+            SET provider_email = ?,
+                provider_username = ?,
+                updated_at = ?
+            WHERE id = ?
+        """
+        )
+        execute_query(
+            conn,
+            update_sql,
+            (
+                normalized_email or existing.get("provider_email"),
+                normalized_username or existing.get("provider_username"),
+                now,
+                existing["id"],
+            ),
+        )
+
+
+def resolve_user_for_oauth_login(
+    provider: str,
+    provider_user_id: str,
+    email: str | None,
+    email_is_verified: bool,
+    provider_username: str | None = None,
+) -> tuple[dict, bool]:
+    provider = provider.strip().lower()
+    provider_user_id = str(provider_user_id).strip()
+    normalized_email = _normalize_email(email) if email else None
+
+    user = get_user_by_oauth_account(provider, provider_user_id)
+    if user is not None:
+        link_oauth_account(
+            int(user["id"]),
+            provider,
+            provider_user_id,
+            provider_email=normalized_email,
+            provider_username=provider_username,
+        )
+        return user, False
+
+    if not normalized_email:
+        raise ValueError("We couldn't get an email address from that social account.")
+
+    if not email_is_verified:
+        raise ValueError("That social account email is not verified.")
+
+    user = get_user_by_email(normalized_email)
+    is_new_account = user is None
+    if user is None:
+        user = create_user(normalized_email, secrets.token_urlsafe(32))
+
+    link_oauth_account(
+        int(user["id"]),
+        provider,
+        provider_user_id,
+        provider_email=normalized_email,
+        provider_username=provider_username,
+    )
+    return user, is_new_account
 
 
 def create_password_reset_token(user_id: int) -> str:

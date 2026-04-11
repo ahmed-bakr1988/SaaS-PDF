@@ -36,12 +36,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({
         user: data.user,
         credits: data.credits ?? null,
+        isNewAccount: !!data.is_new_account,
         isLoading: false,
         initialized: true,
       });
       return data.user;
     } catch {
-      set({ user: null, credits: null, isLoading: false, initialized: true });
+      set({ user: null, credits: null, isNewAccount: false, isLoading: false, initialized: true });
       return null;
     }
   },

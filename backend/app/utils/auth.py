@@ -3,6 +3,7 @@ from flask import session
 
 TASK_ACCESS_SESSION_KEY = "task_access_ids"
 STAGED_UPLOAD_SESSION_KEY = "staged_upload_ids"
+NEW_ACCOUNT_SESSION_KEY = "auth_new_account"
 MAX_TRACKED_TASK_IDS = 200
 MAX_TRACKED_STAGED_UPLOAD_IDS = 50
 
@@ -47,13 +48,15 @@ def has_staged_upload_access(upload_id: str) -> bool:
     return isinstance(tracked, list) and upload_id in tracked
 
 
-def login_user_session(user_id: int):
+def login_user_session(user_id: int, mark_new_account: bool = False):
     """Persist the authenticated user in the Flask session."""
     tracked_task_ids = session.get(TASK_ACCESS_SESSION_KEY, [])
     staged_upload_ids = session.get(STAGED_UPLOAD_SESSION_KEY, [])
     session.clear()
     session.permanent = True
     session["user_id"] = user_id
+    if mark_new_account:
+        session[NEW_ACCOUNT_SESSION_KEY] = True
     if isinstance(tracked_task_ids, list) and tracked_task_ids:
         session[TASK_ACCESS_SESSION_KEY] = tracked_task_ids[-MAX_TRACKED_TASK_IDS:]
     if isinstance(staged_upload_ids, list) and staged_upload_ids:
@@ -63,3 +66,8 @@ def login_user_session(user_id: int):
 def logout_user_session():
     """Clear the active Flask session."""
     session.clear()
+
+
+def pop_new_account_flag() -> bool:
+    """Return whether the active session represents a freshly created account."""
+    return bool(session.pop(NEW_ACCOUNT_SESSION_KEY, False))

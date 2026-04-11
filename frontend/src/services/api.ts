@@ -427,6 +427,18 @@ interface AuthSessionResponse {
   authenticated: boolean;
   user: AuthUser | null;
   credits?: CreditSummary;
+  is_new_account?: boolean;
+}
+
+export interface SocialAuthProviderOption {
+  id: 'google' | 'facebook' | 'x' | string;
+  label: string;
+  available: boolean;
+  start_url: string;
+}
+
+interface SocialAuthProvidersResponse {
+  providers: SocialAuthProviderOption[];
 }
 
 interface HistoryResponse {
@@ -656,6 +668,14 @@ export async function claimTask(taskId: string, tool: string): Promise<{ claimed
 export async function getCurrentUser(): Promise<AuthSessionResponse> {
   const response = await api.get<AuthSessionResponse>('/auth/me');
   return response.data;
+}
+
+/**
+ * Return available social auth providers for the account screen.
+ */
+export async function getSocialAuthProviders(): Promise<SocialAuthProviderOption[]> {
+  const response = await api.get<SocialAuthProvidersResponse>('/auth/providers');
+  return response.data.providers;
 }
 
 /**
