@@ -21,10 +21,14 @@ class _FakeResponse:
 
 
 class TestOpenRouterConfigService:
-    def test_prefers_flask_config_when_app_context_exists(self, app, monkeypatch):
+    def test_prefers_redis_model_when_set(self, app, monkeypatch):
         monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
         monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
         monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: 'redis-model',
+        )
 
         with app.app_context():
             app.config.update({
@@ -35,13 +39,17 @@ class TestOpenRouterConfigService:
             settings = get_openrouter_settings()
 
         assert settings.api_key == 'config-key'
-        assert settings.model == 'config-model'
+        assert settings.model == 'redis-model'
         assert settings.base_url == 'https://config.example/api'
 
     def test_falls_back_to_environment_when_flask_config_is_blank(self, app, monkeypatch):
         monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
         monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
         monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: '',
+        )
 
         with app.app_context():
             app.config.update({
@@ -59,6 +67,10 @@ class TestOpenRouterConfigService:
         monkeypatch.setenv('OPENROUTER_API_KEY', 'env-key')
         monkeypatch.setenv('OPENROUTER_MODEL', 'env-model')
         monkeypatch.setenv('OPENROUTER_BASE_URL', 'https://env.example/api')
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: '',
+        )
 
         settings = get_openrouter_settings()
 
@@ -71,6 +83,10 @@ class TestOpenRouterConfigService:
         monkeypatch.delenv('OPENROUTER_MODEL', raising=False)
         monkeypatch.delenv('OPENROUTER_BASE_URL', raising=False)
         monkeypatch.setattr('app.services.openrouter_config_service._load_dotenv_settings', lambda: {})
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: '',
+        )
 
         with app.app_context():
             app.config.update({
@@ -127,6 +143,10 @@ class TestAiServicesUseSharedConfig:
 
         monkeypatch.setattr('app.services.ai_cost_service.check_ai_budget', lambda: None)
         monkeypatch.setattr('app.services.ai_cost_service.log_ai_usage', lambda **kwargs: captured.setdefault('usage', kwargs))
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: 'config-model',
+        )
 
         def fake_post(url, headers, json, timeout):
             captured['url'] = url
@@ -159,6 +179,10 @@ class TestAiServicesUseSharedConfig:
         captured = {}
 
         monkeypatch.setattr('app.services.site_assistant_service.log_ai_usage', lambda **kwargs: captured.setdefault('usage', kwargs))
+        monkeypatch.setattr(
+            'app.services.openrouter_config_service.get_redis_active_model',
+            lambda: 'assistant-model',
+        )
 
         def fake_post(url, headers, json, timeout):
             captured['url'] = url

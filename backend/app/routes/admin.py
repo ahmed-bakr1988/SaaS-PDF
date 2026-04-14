@@ -551,11 +551,22 @@ def admin_ai_models_route():
     if auth_error:
         return auth_error
 
-    from app.services.openrouter_config_service import get_openrouter_settings
+    from app.services.openrouter_config_service import (
+        get_openrouter_settings,
+        get_redis_active_model,
+    )
     from app.services.openrouter_models_service import get_cached_models
 
     settings = get_openrouter_settings()
     models = get_cached_models()
+
+    redis_model = get_redis_active_model()
+    if redis_model:
+        model_source = "redis"
+    elif settings.model != "nvidia/nemotron-3-super-120b-a12b:free":
+        model_source = "env"
+    else:
+        model_source = "default"
 
     payload = [
         {
@@ -571,6 +582,7 @@ def admin_ai_models_route():
 
     return jsonify({
         "current_model": settings.model,
+        "model_source": model_source,
         "models": payload,
     }), 200
 
@@ -578,7 +590,7 @@ def admin_ai_models_route():
 @admin_bp.route("/ai-model", methods=["PUT"])
 @limiter.limit("30/hour")
 def admin_update_ai_model_route():
-    """Switch the active OpenRouter model at runtime (no .env edit needed)."""
+    """Switch the active OpenRouter model via Redis (visible to all processes)."""
     auth_error = _require_admin_session()
     if auth_error:
         return auth_error
@@ -588,15 +600,44 @@ def admin_update_ai_model_route():
     if not model_id:
         return jsonify({"error": "A model ID is required."}), 400
 
+    from app.services.openrouter_config_service import set_redis_active_model
     from app.services.openrouter_models_service import get_cached_models
 
     known_ids = {m.id for m in get_cached_models()}
     if known_ids and model_id not in known_ids:
         return jsonify({"error": "Unknown model ID."}), 400
 
+    persisted = set_redis_active_model(model_id)
+
+    # Also update in-process config for immediate coherence
     current_app.config["OPENROUTER_MODEL"] = model_id
 
     return jsonify({
         "message": "Model updated.",
         "model": model_id,
+        "persisted": persisted,
+    }), 200
+
+
+@admin_bp.route("/ai-model", methods=["DELETE"])
+@limiter.limit("30/hour")
+def admin_reset_ai_model_route():
+    """Reset the active model to the .env default by removing the Redis override."""
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    from app.services.openrouter_config_service import delete_redis_active_model
+
+    deleted = delete_redis_active_model()
+
+    # Reset in-process config to env default
+    import os
+    env_model = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
+    current_app.config["OPENROUTER_MODEL"] = env_model
+
+    return jsonify({
+        "message": "Model reset to default.",
+        "model": env_model,
+        "deleted": deleted,
     }), 200

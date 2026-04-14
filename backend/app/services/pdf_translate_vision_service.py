@@ -16,6 +16,7 @@ import requests
 from app.services.openrouter_config_service import (
     extract_openrouter_text,
     get_openrouter_settings,
+    get_vision_model,
 )
 from app.services.pdf_ai_service import (
     PdfAiError,
@@ -85,7 +86,7 @@ def _translate_page_with_vision(
 ) -> str:
     """Send a page image to a vision model and get translated HTML back."""
     settings = get_openrouter_settings()
-    effective_model = model_id if model_id else settings.model
+    effective_model = get_vision_model(model_id)
 
     if not settings.api_key:
         raise PdfAiError(

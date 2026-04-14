@@ -393,6 +393,7 @@ export interface TranslateEstimateModeInfo {
   available: boolean;
   label: string;
   warning?: string | null;
+  estimated_usd?: number;
 }
 
 export interface TranslateEstimateAnalysis {
@@ -409,6 +410,7 @@ export interface TranslateEstimateResponse {
   original_filename: string;
   plan: string;
   analysis: TranslateEstimateAnalysis;
+  active_model?: { id: string; name: string; is_free: boolean } | null;
   modes: {
     text: TranslateEstimateModeInfo;
     layout: TranslateEstimateModeInfo;
@@ -1123,6 +1125,7 @@ export interface AdminAiModel {
 
 export interface AdminAiModelsResponse {
   current_model: string;
+  model_source: 'redis' | 'env' | 'default';
   models: AdminAiModel[];
 }
 
@@ -1131,8 +1134,13 @@ export async function getAdminAiModels(): Promise<AdminAiModelsResponse> {
   return response.data;
 }
 
-export async function updateAdminAiModel(model: string): Promise<{ message: string; model: string }> {
-  const response = await api.put<{ message: string; model: string }>('/internal/admin/ai-model', { model });
+export async function updateAdminAiModel(model: string): Promise<{ message: string; model: string; persisted: boolean }> {
+  const response = await api.put<{ message: string; model: string; persisted: boolean }>('/internal/admin/ai-model', { model });
+  return response.data;
+}
+
+export async function resetAdminAiModel(): Promise<{ message: string; model: string; deleted: boolean }> {
+  const response = await api.delete<{ message: string; model: string; deleted: boolean }>('/internal/admin/ai-model');
   return response.data;
 }
 

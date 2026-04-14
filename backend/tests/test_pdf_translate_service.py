@@ -63,7 +63,7 @@ def test_translate_pdf_falls_back_when_premium_provider_fails(monkeypatch):
     monkeypatch.setattr("app.services.pdf_ai_service._call_deepl_translate", fail_deepl)
     monkeypatch.setattr(
         "app.services.pdf_ai_service._call_openrouter_translate",
-        lambda chunk, target_language, source_language=None: {
+        lambda chunk, target_language, source_language=None, model_id=None: {
             "translation": f"fallback::{chunk}",
             "provider": "openrouter",
             "detected_source_language": "en",

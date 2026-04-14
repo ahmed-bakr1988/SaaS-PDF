@@ -80,15 +80,16 @@ def estimate_translate_costs(
     input_path: str,
     analysis: dict | None = None,
 ) -> dict:
-    """Compute per-mode credit estimates.
+    """Compute per-mode credit estimates with model pricing info.
 
     Returns:
         {
             "analysis": { ... },    # from detect_pdf_type
+            "active_model": { "id": str, "name": str, "is_free": bool } | None,
             "modes": {
-                "text":   { "credits": int, "available": True },
-                "layout": { "credits": int, "available": bool },
-                "vision": { "credits": int, "available": bool },
+                "text":   { "credits": int, "available": True, "estimated_usd": float },
+                "layout": { "credits": int, "available": bool, "estimated_usd": float },
+                "vision": { "credits": int, "available": bool, "estimated_usd": float },
             },
         }
     """
@@ -118,18 +119,58 @@ def estimate_translate_costs(
     # Layout mode may not work well for scanned PDFs
     layout_available = analysis["pdf_type"] != "scanned"
 
+    # Fetch active model info for USD cost estimation
+    active_model_info = None
+    estimated_usd_text = 0.0
+    estimated_usd_layout = 0.0
+    estimated_usd_vision = 0.0
+    try:
+        from app.services.openrouter_config_service import get_openrouter_settings
+        from app.services.openrouter_models_service import get_model_info
+
+        settings = get_openrouter_settings()
+        model_info = get_model_info(settings.model)
+        if model_info:
+            active_model_info = {
+                "id": model_info.id,
+                "name": model_info.name,
+                "is_free": model_info.is_free,
+            }
+            # Text/layout modes: input + output tokens
+            tokens_in = estimated_tokens
+            tokens_out = estimated_tokens
+            cost_per_page = (
+                model_info.prompt_price_per_token * tokens_in
+                + model_info.completion_price_per_token * tokens_out
+            ) / max(pages, 1)
+            estimated_usd_text = round(cost_per_page * pages, 6)
+            estimated_usd_layout = round(cost_per_page * pages, 6)
+            # Vision mode: ~4x tokens due to image encoding
+            vision_tokens_in = pages * 3000
+            vision_tokens_out = estimated_tokens
+            estimated_usd_vision = round(
+                model_info.prompt_price_per_token * vision_tokens_in
+                + model_info.completion_price_per_token * vision_tokens_out,
+                6,
+            )
+    except Exception as exc:
+        logger.debug("Could not fetch model pricing for estimate: %s", exc)
+
     return {
         "analysis": analysis,
+        "active_model": active_model_info,
         "modes": {
             "text": {
                 "credits": text_credits,
                 "available": True,
                 "label": "Basic",
+                "estimated_usd": estimated_usd_text,
             },
             "layout": {
                 "credits": layout_credits,
                 "available": layout_available,
                 "label": "Layout-preserving",
+                "estimated_usd": estimated_usd_layout,
                 "warning": (
                     "This PDF appears to be scanned. Layout mode may not work well."
                     if not layout_available
@@ -140,6 +181,7 @@ def estimate_translate_costs(
                 "credits": vision_credits,
                 "available": True,
                 "label": "Vision (best quality)",
+                "estimated_usd": estimated_usd_vision,
             },
         },
     }

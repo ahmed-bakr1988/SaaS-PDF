@@ -246,7 +246,7 @@ def translate_pdf_task(
                 target_language,
                 output_path,
                 original_filename,
-                source_lang=source_language,
+                source_language=source_language,
                 model_id=model_id,
             )
             result = {
@@ -274,9 +274,9 @@ def translate_pdf_task(
                 target_language,
                 output_path,
                 original_filename,
-                source_lang=source_language,
+                source_language=source_language,
                 model_id=model_id,
-                progress_callback=_vision_progress,
+                on_progress=_vision_progress,
             )
             result = {
                 "status": "completed",

@@ -1,0 +1,22 @@
+<svg width="420" height="120" viewBox="0 0 420 120" xmlns="http://www.w3.org/2000/svg">
+  <rect width="420" height="120" fill="white"/>
+  
+  <!-- Icon -->
+  <g transform="translate(20,20)">
+    <rect x="0" y="0" width="80" height="80" rx="14" fill="#1B2A4E"/>
+    <path d="M20 25h40v6H20zM20 38h40v6H20zM20 51h28v6H20z" fill="#00C2A8"/>
+    <path d="M60 0 L80 0 L80 20 Z" fill="#00C2A8"/>
+  </g>
+
+  <!-- Brand Name -->
+  <text x="130" y="60" font-family="Segoe UI, Arial, sans-serif"
+        font-size="42" font-weight="700" fill="#1B2A4E">
+    Dociva
+  </text>
+
+  <!-- Tagline -->
+  <text x="132" y="88" font-family="Segoe UI, Arial, sans-serif"
+        font-size="14" fill="#6B7280">
+    Documents. Simplified.
+  </text>
+</svg>

@@ -463,7 +463,10 @@ def _split_translation_chunks(
 
 
 def _call_openrouter_translate(
-    chunk: str, target_language: str, source_language: str | None = None
+    chunk: str,
+    target_language: str,
+    source_language: str | None = None,
+    model_id: str | None = None,
 ) -> dict:
     """Attempt translation via OpenRouter, fall back to Google Generative AI if configured."""
     source_hint = "auto-detect the source language"
@@ -484,6 +487,7 @@ def _call_openrouter_translate(
             chunk,
             max_tokens=2200,
             tool_name="pdf_translate_fallback",
+            model_id=model_id,
         )
         provider = "openrouter"
     except (RetryableTranslationError, PdfAiError) as open_err:
@@ -612,38 +616,6 @@ def _call_deepl_translate(
         "detected_source_language": str(first.get("detected_source_language", ""))
         .strip()
         .lower(),
-    }
-
-
-def _call_openrouter_translate(
-    chunk: str,
-    target_language: str,
-    source_language: str | None = None,
-    model_id: str | None = None,
-) -> dict:
-    source_hint = "auto-detect the source language"
-    if source_language and _normalize_language_code(source_language) != "auto":
-        source_hint = f"treat {_language_label(source_language)} as the source language"
-
-    system_prompt = (
-        "You are a professional document translator. "
-        f"Translate the provided PDF content into {_language_label(target_language)}. "
-        f"Please {source_hint}. Preserve headings, lists, tables, and page markers. "
-        "Return only the translated text."
-    )
-    translation = _call_openrouter(
-        system_prompt,
-        chunk,
-        max_tokens=2200,
-        tool_name="pdf_translate_fallback",
-        model_id=model_id,
-    )
-    return {
-        "translation": translation,
-        "provider": "openrouter",
-        "detected_source_language": _normalize_language_code(
-            source_language, default=""
-        ),
     }
 
 

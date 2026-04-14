@@ -53,6 +53,7 @@ import {
   updateAdminUserRole,
   getAdminAiModels,
   updateAdminAiModel,
+  resetAdminAiModel,
   type AdminAiModel,
 } from '@/services/api';
 import { useAuthStore } from '@/stores/authStore';
@@ -233,12 +234,20 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     aiModelSwitcher: 'AI Model Switcher',
     aiModelSwitcherDesc: 'Switch the active OpenRouter model at runtime without editing .env.',
     currentModelLabel: 'Current model',
+    modelSourceLabel: 'Source',
+    modelSourceRedis: 'Admin override (persisted)',
+    modelSourceEnv: 'Environment variable',
+    modelSourceDefault: 'Default',
     selectModel: 'Select model',
     freeTag: 'free',
     switchModel: 'Switch model',
     switchingModel: 'Switching...',
     modelSwitched: 'Model switched successfully.',
     modelSwitchError: 'Unable to switch model.',
+    resetToDefault: 'Reset to default',
+    resettingModel: 'Resetting...',
+    modelReset: 'Model reset to default.',
+    modelResetError: 'Unable to reset model.',
     noModelsAvailable: 'No models available. Check OPENROUTER_API_KEY.',
     contextLengthLabel: 'Context: {length}',
   },
@@ -414,12 +423,20 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     aiModelSwitcher: 'تبديل نموذج الذكاء الاصطناعي',
     aiModelSwitcherDesc: 'تبديل نموذج OpenRouter النشط مباشرةً بدون تعديل ملف .env.',
     currentModelLabel: 'النموذج الحالي',
+    modelSourceLabel: 'المصدر',
+    modelSourceRedis: 'تعيين يدوي (محفوظ)',
+    modelSourceEnv: 'متغير البيئة',
+    modelSourceDefault: 'افتراضي',
     selectModel: 'اختر النموذج',
     freeTag: 'مجاني',
     switchModel: 'تبديل النموذج',
     switchingModel: 'جارٍ التبديل...',
     modelSwitched: 'تم تبديل النموذج بنجاح.',
     modelSwitchError: 'تعذّر تبديل النموذج.',
+    resetToDefault: 'إعادة للافتراضي',
+    resettingModel: 'جارٍ الإعادة...',
+    modelReset: 'تمت إعادة النموذج إلى الافتراضي.',
+    modelResetError: 'تعذّر إعادة النموذج.',
     noModelsAvailable: 'لا توجد نماذج متاحة. تحقق من OPENROUTER_API_KEY.',
     contextLengthLabel: 'السياق: {length}',
   },
@@ -499,6 +516,8 @@ export default function InternalAdminPage() {
   const [aiModels, setAiModels] = useState<AdminAiModel[]>([]);
   const [selectedModelId, setSelectedModelId] = useState('');
   const [switchingModel, setSwitchingModel] = useState(false);
+  const [resettingModel, setResettingModel] = useState(false);
+  const [modelSource, setModelSource] = useState<'redis' | 'env' | 'default'>('default');
 
   // User management state
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -594,12 +613,13 @@ export default function InternalAdminPage() {
           const [health, pi, aiModelsRes] = await Promise.all([
             getAdminSystemHealth(),
             getAdminPlanInterest(),
-            getAdminAiModels().catch(() => ({ current_model: '', models: [] })),
+            getAdminAiModels().catch(() => ({ current_model: '', model_source: 'default' as const, models: [] })),
           ]);
           setSystemHealth(health);
           setPlanInterest(pi);
           setAiModels(aiModelsRes.models);
           setSelectedModelId(aiModelsRes.current_model);
+          setModelSource(aiModelsRes.model_source ?? 'default');
           break;
         }
         case 'database': {
@@ -1516,16 +1536,54 @@ export default function InternalAdminPage() {
                 >
                   {switchingModel ? t('switchingModel') : t('switchModel')}
                 </button>
+                {modelSource === 'redis' && (
+                  <button
+                    type="button"
+                    disabled={resettingModel}
+                    onClick={async () => {
+                      setResettingModel(true);
+                      try {
+                        const res = await resetAdminAiModel();
+                        toast.success(t('modelReset'));
+                        setSelectedModelId(res.model);
+                        setModelSource('env');
+                        void loadTab('system');
+                      } catch {
+                        toast.error(t('modelResetError'));
+                      } finally {
+                        setResettingModel(false);
+                      }
+                    }}
+                    className="rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  >
+                    {resettingModel ? t('resettingModel') : t('resetToDefault')}
+                  </button>
+                )}
               </div>
             ) : (
               <p className="mt-4 text-sm text-slate-500 dark:text-slate-400">{t('noModelsAvailable')}</p>
             )}
 
             {systemHealth && (
-              <p className="mt-3 text-xs text-slate-500 dark:text-slate-400">
-                {t('currentModelLabel')}:{' '}
-                <span className="font-medium text-slate-700 dark:text-slate-200">{systemHealth.ai_model}</span>
-              </p>
+              <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                <span>
+                  {t('currentModelLabel')}:{' '}
+                  <span className="font-medium text-slate-700 dark:text-slate-200">{systemHealth.ai_model}</span>
+                </span>
+                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                  modelSource === 'redis'
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                    : modelSource === 'env'
+                      ? 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300'
+                      : 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                }`}>
+                  {t('modelSourceLabel')}: {
+                    modelSource === 'redis' ? t('modelSourceRedis')
+                    : modelSource === 'env' ? t('modelSourceEnv')
+                    : t('modelSourceDefault')
+                  }
+                </span>
+              </div>
             )}
           </article>
         )}
