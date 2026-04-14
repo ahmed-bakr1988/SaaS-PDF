@@ -51,7 +51,10 @@ def download_file(task_id: str, filename: str):
     if not os.path.isfile(file_path):
         abort(404, "File not found or expired.")
 
-    download_name = request.args.get("name", filename)
+    raw_name = request.args.get("name", filename)
+    # Strip characters that could inject HTTP header values or path separators
+    import re as _re
+    download_name = _re.sub(r'[\r\n\x00/\\]', '', raw_name)[:255] or filename
 
     return send_file(
         file_path,
