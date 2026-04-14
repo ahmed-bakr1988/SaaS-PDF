@@ -180,6 +180,10 @@ services:
     volumes:
       - frontend_build:/app/dist
       - indexnow_state:/app/.indexnow
+    # Important: the build output must land in the shared `frontend_build` volume.
+    # Building during `docker build` does not populate the runtime volume (the
+    # volume mount masks image contents). So we run the build at container start.
+    command: ["sh", "-lc", "npm run build"]
 
   # --- Gitea (self-hosted Git) ---
   gitea:
