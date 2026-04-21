@@ -312,7 +312,6 @@ export function resolveErrorCode(errorCode: string): string | null {
     DEEPL_EMPTY_RESPONSE: i18n.t('common.errors.translationFailed'),
     DEEPL_EMPTY_TEXT: i18n.t('common.errors.pdfTextEmpty'),
     TRANSLATION_PROVIDER_FAILED: i18n.t('common.errors.translationFailed'),
-    AI_BUDGET_EXCEEDED: i18n.t('common.errors.aiBudgetExceeded'),
     PDF_ENCRYPTED: i18n.t('common.errors.pdfEncrypted'),
     PDF_TEXT_EXTRACTION_FAILED: i18n.t('common.errors.processingFailed'),
     PDF_TEXT_EMPTY: i18n.t('common.errors.pdfTextEmpty'),
