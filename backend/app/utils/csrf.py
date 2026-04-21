@@ -9,6 +9,7 @@ CSRF_HEADER_NAME = "X-CSRF-Token"
 _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 _EXEMPT_PATHS = {
     "/api/stripe/webhook",
+    "/api/paypal/webhook",
 }
 
 

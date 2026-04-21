@@ -11,12 +11,11 @@ import logging
 import os
 import tempfile
 
-import requests
-
-from app.services.openrouter_config_service import (
-    extract_openrouter_text,
-    get_openrouter_settings,
-    get_vision_model,
+from app.services.gemini_client import (
+    call_gemini_vision,
+    get_gemini_settings,
+    GeminiError,
+    RetryableGeminiError,
 )
 from app.services.pdf_ai_service import (
     PdfAiError,
@@ -84,15 +83,9 @@ def _translate_page_with_vision(
     source_language: str | None = None,
     model_id: str | None = None,
 ) -> str:
-    """Send a page image to a vision model and get translated HTML back."""
-    settings = get_openrouter_settings()
-    effective_model = get_vision_model(model_id)
-
-    if not settings.api_key:
-        raise PdfAiError(
-            "AI features are temporarily unavailable.",
-            error_code="OPENROUTER_MISSING_API_KEY",
-        )
+    """Send a page image to Gemini vision and get translated HTML back."""
+    settings = get_gemini_settings()
+    effective_model = model_id or settings.vision_model
 
     target_label = _language_label(target_language)
     source_hint = ""
@@ -109,120 +102,33 @@ def _translate_page_with_vision(
         "Return ONLY the HTML content, no explanations."
     )
 
+    user_text = f"Translate page {page_number} into {target_label}. Return only HTML."
     img_b64 = _image_to_base64(image_path)
 
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {
-            "role": "user",
-            "content": [
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": f"data:image/png;base64,{img_b64}",
-                    },
-                },
-                {
-                    "type": "text",
-                    "text": f"Translate page {page_number} into {target_label}. Return only HTML.",
-                },
-            ],
-        },
-    ]
-
     try:
-        # Budget guard
-        try:
-            from app.services.ai_cost_service import check_ai_budget
-
-            check_ai_budget()
-        except Exception:
-            pass
-
-        response = requests.post(
-            settings.base_url,
-            headers={
-                "Authorization": f"Bearer {settings.api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": effective_model,
-                "messages": messages,
-                "max_tokens": 4000,
-                "temperature": 0.3,
-            },
-            timeout=VISION_TIMEOUT,
+        reply = call_gemini_vision(
+            system_prompt,
+            user_text,
+            img_b64,
+            mime_type="image/png",
+            max_tokens=4000,
+            temperature=0.3,
+            tool_name="pdf_translate_vision",
+            model=effective_model,
         )
-
-        status_code = getattr(response, "status_code", 200)
-
-        if status_code == 429:
-            raise RetryableTranslationError(
-                "AI service rate limited. Retrying...",
-                error_code="VISION_RATE_LIMIT",
-            )
-        if status_code >= 500:
-            raise RetryableTranslationError(
-                "AI service error. Retrying...",
-                error_code="VISION_SERVER_ERROR",
-            )
-
-        response.raise_for_status()
-        data = response.json()
-
-        if data.get("error"):
-            error_msg = (
-                data["error"].get("message", "")
-                if isinstance(data["error"], dict)
-                else str(data["error"])
-            )
-            raise PdfAiError(
-                "Vision AI returned an error.",
-                error_code="VISION_ERROR_PAYLOAD",
-                detail=error_msg,
-            )
-
-        reply = extract_openrouter_text(data)
-        if not reply:
-            raise PdfAiError(
-                "Vision AI returned an empty response.",
-                error_code="VISION_EMPTY_RESPONSE",
-            )
-
-        # Log usage
-        try:
-            from app.services.ai_cost_service import log_ai_usage
-
-            usage = data.get("usage", {})
-            log_ai_usage(
-                tool="pdf_translate_vision",
-                model=effective_model,
-                input_tokens=usage.get("prompt_tokens", 1000),
-                output_tokens=usage.get("completion_tokens", _estimate_tokens(reply)),
-            )
-        except Exception:
-            pass
-
-        return reply
-
-    except PdfAiError:
-        raise
-    except requests.exceptions.Timeout:
+    except RetryableGeminiError as exc:
         raise RetryableTranslationError(
-            "Vision AI timed out.",
-            error_code="VISION_TIMEOUT",
+            exc.user_message,
+            error_code=exc.error_code,
         )
-    except requests.exceptions.ConnectionError:
-        raise RetryableTranslationError(
-            "Cannot reach Vision AI service.",
-            error_code="VISION_CONNECTION_ERROR",
-        )
-    except requests.exceptions.RequestException as e:
+    except GeminiError as exc:
         raise PdfAiError(
-            "Vision AI request failed.",
-            error_code="VISION_REQUEST_ERROR",
-            detail=str(e),
+            exc.user_message,
+            error_code=exc.error_code,
+            detail=exc.detail,
         )
+
+    return reply
 
 
 def _pages_html_to_pdf(pages_html: list[str], output_path: str) -> None:

@@ -12,6 +12,7 @@ from app.services.ai_cost_service import init_ai_cost_db
 from app.services.site_assistant_service import init_site_assistant_db
 from app.services.contact_service import init_contact_db
 from app.services.stripe_service import init_stripe_db
+from app.services.paypal_service import init_paypal_db
 from app.utils.csrf import (
     CSRFError,
     apply_csrf_cookie,
@@ -135,6 +136,7 @@ def create_app(config_name=None, config_overrides=None):
         init_site_assistant_db()
         init_contact_db()
         init_stripe_db()
+        init_paypal_db()
 
     # Register blueprints
     from app.routes.health import health_bp
@@ -164,6 +166,7 @@ def create_app(config_name=None, config_overrides=None):
     from app.routes.assistant import assistant_bp
     from app.routes.contact import contact_bp
     from app.routes.stripe import stripe_bp
+    from app.routes.paypal import paypal_bp
     from app.routes.stats import stats_bp
     from app.routes.pdf_convert import pdf_convert_bp
     from app.routes.pdf_extra import pdf_extra_bp
@@ -199,6 +202,7 @@ def create_app(config_name=None, config_overrides=None):
     app.register_blueprint(assistant_bp, url_prefix="/api/assistant")
     app.register_blueprint(contact_bp, url_prefix="/api/contact")
     app.register_blueprint(stripe_bp, url_prefix="/api/stripe")
+    app.register_blueprint(paypal_bp, url_prefix="/api/paypal")
     app.register_blueprint(stats_bp, url_prefix="/api/stats")
     app.register_blueprint(pdf_convert_bp, url_prefix="/api/convert")
     app.register_blueprint(pdf_extra_bp, url_prefix="/api/pdf-tools")

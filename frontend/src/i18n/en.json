@@ -395,7 +395,8 @@
       "faq2q": "Can I cancel the Pro plan anytime?",
       "faq2a": "Yes. Cancel anytime and your account returns to the Free plan at the end of the current billing period.",
       "faq3q": "What payment methods do you accept?",
-      "faq3a": "We accept major credit and debit cards through Stripe. Payments are processed securely without exposing your card data to Dociva.",
+      "faq3a": "We accept major credit and debit cards and PayPal. Payments are processed securely — we never see your card details.",
+      "checkoutNotReady": "Payment system is being set up. Please try again later.",
       "transparencyTitle": "See exactly how credits are counted",
       "transparencyBody": "Read the full explanation of fixed vs dynamic pricing, pre-run quotes, and why we price by workload instead of a rigid transaction count.",
       "transparencyAction": "How pricing works",
@@ -410,7 +411,7 @@
         },
         {
           "q": "What payment methods do you accept?",
-          "a": "We accept all major credit/debit cards and PayPal. All payments are securely processed via Stripe."
+          "a": "We accept major credit/debit cards and PayPal. All payments are processed securely — we never store your card details."
         }
       ],
       "trustTitle": "Built for teams that need speed and predictability",
@@ -442,7 +443,7 @@
       "dynamicBody": "Resource-heavy tasks such as OCR, compression, or AI-assisted document workflows may cost more when the file or workload is larger.",
       "noteTitle": "What we want to be explicit about",
       "noteBody": "Your site credits are a product balance for Dociva usage. They are not a direct token meter from our infrastructure providers.",
-      "noOneToOneBody": "There is no fixed rule such as \"1 credit = X OpenRouter requests.\" Some jobs make one provider call, some make several, and some AI-priced workflows do not rely on OpenRouter at all.",
+      "noOneToOneBody": "There is no fixed rule such as \"1 credit = X Gemini requests.\" Some jobs make one provider call, some make several, and some AI-priced workflows do not rely on a single provider at all.",
       "examplesTitle": "Three simple examples",
       "exampleLightTitle": "Low-cost, fixed",
       "exampleLightBody": "A lightweight tool such as merging or rotating a PDF stays near the minimum price because the processing burden is low and predictable.",
@@ -590,6 +591,12 @@
       }
     },
     "developers": {
+      "gate": {
+        "title": "Developer Portal — Paid Plan Required",
+        "description": "API access, developer documentation, and API key management are available on paid plans only. Upgrade to unlock full developer capabilities.",
+        "cta": "Upgrade to Pro",
+        "ctaSignIn": "Sign in to your account"
+      },
       "metaDescription": "Explore the Dociva developer portal, async API flow, and production-ready endpoints for document automation.",
       "badge": "Developer Portal",
       "title": "Build document workflows on top of the Dociva API",

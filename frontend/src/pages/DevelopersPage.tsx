@@ -3,7 +3,8 @@ import SocialProofStrip from '@/components/shared/SocialProofStrip';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Code2, KeyRound, Rocket, Workflow } from 'lucide-react';
+import { Code2, KeyRound, Lock, Rocket, Workflow } from 'lucide-react';
+import { useAuthStore } from '@/stores/authStore';
 
 const QUICKSTART_STEPS = ['createKey', 'sendFile', 'pollStatus'] as const;
 
@@ -25,11 +26,73 @@ const ENDPOINT_GROUPS = [
 export default function DevelopersPage() {
   const { t } = useTranslation();
   const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
+  const user = useAuthStore((s) => s.user);
+  const initialized = useAuthStore((s) => s.initialized);
+  const isLoading = useAuthStore((s) => s.isLoading);
+
+  const isPaidPlan = user !== null && user.plan !== 'free';
+
   const curlUpload = `curl -X POST ${origin}/api/v1/convert/pdf-to-word \\
   -H "X-API-Key: spdf_your_api_key" \\
   -F "file=@./sample.pdf"`;
   const curlPoll = `curl ${origin}/api/tasks/<task_id>/status \\
   -H "X-API-Key: spdf_your_api_key"`;
+
+  // Show spinner while auth is resolving to avoid flash of gate on paid users
+  if (!initialized || isLoading) {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+      </div>
+    );
+  }
+
+  // Gate: only paid plans may access the Developer Portal
+  if (!isPaidPlan) {
+    return (
+      <>
+        <SEOHead
+          title={t('pages.developers.title')}
+          description={t('pages.developers.metaDescription')}
+          path="/developers"
+          jsonLd={generateWebPage({
+            name: t('pages.developers.title'),
+            description: t('pages.developers.metaDescription'),
+            url: `${origin}/developers`,
+          })}
+        />
+        <div className="flex min-h-[70vh] items-center justify-center px-4">
+          <div className="w-full max-w-md rounded-[2rem] border border-slate-200 bg-white p-10 text-center shadow-lg dark:border-slate-700 dark:bg-slate-900">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+              <Lock className="h-8 w-8 text-slate-500 dark:text-slate-400" />
+            </div>
+            <h1 className="mb-3 text-2xl font-bold text-slate-900 dark:text-white">
+              {t('pages.developers.gate.title')}
+            </h1>
+            <p className="mb-8 text-sm leading-7 text-slate-600 dark:text-slate-400">
+              {t('pages.developers.gate.description')}
+            </p>
+            <div className="flex flex-col gap-3">
+              <Link
+                to="/pricing"
+                className="block w-full rounded-xl bg-primary-600 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+              >
+                {t('pages.developers.gate.cta')}
+              </Link>
+              {!user && (
+                <Link
+                  to="/account"
+                  className="block w-full rounded-xl border border-slate-200 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {t('pages.developers.gate.ctaSignIn')}
+                </Link>
+              )}
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>

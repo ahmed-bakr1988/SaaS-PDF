@@ -395,7 +395,8 @@
       "faq2q": "Puis-je annuler le plan Pro à tout moment ?",
       "faq2a": "Oui. Annulez quand vous voulez et votre compte repassera au plan Gratuit à la fin de la période de facturation en cours.",
       "faq3q": "Quels moyens de paiement acceptez-vous ?",
-      "faq3a": "Nous acceptons les principales cartes bancaires via Stripe. Les paiements sont traités de manière sécurisée sans exposer vos données bancaires à Dociva.",
+      "faq3a": "Nous acceptons les principales cartes bancaires et PayPal. Les paiements sont traités de manière sécurisée — nous ne conservons jamais vos données bancaires.",
+      "checkoutNotReady": "Le système de paiement est en cours de configuration. Veuillez réessayer plus tard.",
       "transparencyTitle": "Voyez exactement comment les crédits sont comptés",
       "transparencyBody": "Lisez l'explication complète de la tarification fixe vs dynamique, des devis avant exécution et de notre logique basée sur la charge de travail plutôt que sur un simple compteur de transactions.",
       "transparencyAction": "Comment fonctionne la tarification",
@@ -410,7 +411,7 @@
         },
         {
           "q": "Quels moyens de paiement acceptez-vous ?",
-          "a": "Nous acceptons toutes les cartes de crédit/débit principales et PayPal. Tous les paiements sont traités de manière sécurisée via Stripe."
+          "a": "Nous acceptons les principales cartes de crédit/débit et PayPal. Les paiements sont sécurisés — nous ne conservons jamais vos données bancaires."
         }
       ],
       "trustTitle": "Conçu pour les équipes qui ont besoin de vitesse et de prévisibilité",
@@ -442,7 +443,7 @@
       "dynamicBody": "Les tâches gourmandes en ressources comme l'OCR, la compression ou certains workflows documentaires assistés par IA peuvent coûter plus lorsque le fichier ou la charge de traitement augmente.",
       "noteTitle": "Ce que nous voulons dire clairement",
       "noteBody": "Les crédits du site sont un solde produit pour l'usage de Dociva. Ce n'est pas un compteur direct de tokens facturé par nos fournisseurs d'infrastructure.",
-      "noOneToOneBody": "Il n'existe pas de règle fixe du type \"1 crédit = X requêtes OpenRouter\". Certains traitements font un seul appel fournisseur, d'autres plusieurs, et certains workflows tarifés comme IA n'utilisent même pas OpenRouter.",
+      "noOneToOneBody": "Il n'existe pas de règle fixe du type \"1 crédit = X requêtes Gemini\". Certains traitements font un seul appel fournisseur, d'autres plusieurs, et certains workflows tarifés comme IA n'utilisent pas un seul fournisseur.",
       "examplesTitle": "Trois exemples simples",
       "exampleLightTitle": "Faible coût, fixe",
       "exampleLightBody": "Un outil léger comme la fusion ou la rotation de PDF reste proche du prix minimum car la charge de traitement est faible et prévisible.",
@@ -590,6 +591,12 @@
       }
     },
     "developers": {
+      "gate": {
+        "title": "Portail développeur — Forfait payant requis",
+        "description": "L'accès API, la documentation développeur et la gestion des clés API sont réservés aux forfaits payants. Passez à Pro pour débloquer toutes les fonctionnalités développeur.",
+        "cta": "Passer à Pro",
+        "ctaSignIn": "Se connecter à votre compte"
+      },
       "metaDescription": "Explorez le portail développeur Dociva, le flux API asynchrone et les endpoints prêts pour l'automatisation documentaire.",
       "badge": "Portail développeur",
       "title": "Construisez des workflows documentaires sur l'API Dociva",

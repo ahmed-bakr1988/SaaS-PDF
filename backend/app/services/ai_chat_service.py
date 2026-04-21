@@ -1,13 +1,12 @@
-"""AI Chat Service — OpenRouter integration for flowchart improvement."""
-import json
+"""AI Chat Service — Gemini integration for flowchart improvement."""
 import logging
-import requests
 
-from app.services.openrouter_config_service import (
-    extract_openrouter_text,
-    get_openrouter_settings,
+from app.services.gemini_client import (
+    call_gemini_text,
+    call_openrouter_fallback,
+    get_gemini_settings,
+    GeminiError,
 )
-from app.services import google_ai_service
 
 logger = logging.getLogger(__name__)
 
@@ -32,38 +31,6 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
     Returns:
         {"reply": "...", "updated_flow": {...} | None}
     """
-    settings = get_openrouter_settings()
-
-    try:
-        g_settings = google_ai_service.get_google_settings()
-    except Exception:
-        g_settings = None
-
-    # If OpenRouter is not configured, try Google as a fallback.
-    if not settings.api_key:
-        if g_settings and g_settings.api_key:
-            context = ""
-            if flow_data:
-                steps_summary = []
-                for s in flow_data.get("steps", []):
-                    steps_summary.append(
-                        f"- [{s.get('type', 'process')}] {s.get('title', '')}"
-                    )
-                context = (
-                    f"\nCurrent flowchart: {flow_data.get('title', 'Untitled')}\n"
-                    f"Steps:\n" + "\n".join(steps_summary)
-                )
-            try:
-                reply = google_ai_service.call_google_text(
-                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
-                )
-                return {"reply": reply, "updated_flow": None}
-            except Exception as e:
-                logger.exception("Google AI fallback failed: %s", e)
-                return {"reply": _fallback_response(message, flow_data), "updated_flow": None}
-
-        return {"reply": _fallback_response(message, flow_data), "updated_flow": None}
-
     # Build context
     context = ""
     if flow_data:
@@ -77,75 +44,32 @@ def chat_about_flowchart(message: str, flow_data: dict | None = None) -> dict:
             f"Steps:\n" + "\n".join(steps_summary)
         )
 
-    messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": f"{message}{context}"},
-    ]
+    user_text = f"{message}{context}"
 
     try:
-        response = requests.post(
-            settings.base_url,
-            headers={
-                "Authorization": f"Bearer {settings.api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": settings.model,
-                "messages": messages,
-                "max_tokens": 500,
-                "temperature": 0.7,
-            },
-            timeout=30,
+        reply = call_gemini_text(
+            SYSTEM_PROMPT,
+            user_text,
+            max_tokens=500,
+            temperature=0.7,
+            tool_name="flowchart_chat",
         )
-        response.raise_for_status()
-        data = response.json()
-
-        reply = extract_openrouter_text(data)
-
-        if not reply:
-            reply = "I couldn't generate a response. Please try again."
-
-        # Log usage
+        return {"reply": reply, "updated_flow": None}
+    except GeminiError as gemini_err:
+        # Try OpenRouter as fallback
         try:
-            from app.services.ai_cost_service import log_ai_usage
-            usage = data.get("usage", {})
-            log_ai_usage(
-                tool="flowchart_chat",
-                model=settings.model,
-                input_tokens=usage.get("prompt_tokens", max(1, len(message) // 4)),
-                output_tokens=usage.get("completion_tokens", max(1, len(reply) // 4)),
+            reply = call_openrouter_fallback(
+                SYSTEM_PROMPT,
+                user_text,
+                max_tokens=500,
+                temperature=0.7,
+                tool_name="flowchart_chat",
             )
-        except Exception:
+            return {"reply": reply, "updated_flow": None}
+        except GeminiError:
             pass
 
-        return {"reply": reply, "updated_flow": None}
-
-    except requests.exceptions.Timeout:
-        logger.warning("OpenRouter API timeout")
-        # Try Google fallback on timeout
-        if g_settings and g_settings.api_key:
-            try:
-                reply = google_ai_service.call_google_text(
-                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
-                )
-                return {"reply": reply, "updated_flow": None}
-            except Exception as e:
-                logger.exception("Google fallback failed after OpenRouter timeout: %s", e)
-        return {
-            "reply": "The AI service is taking too long. Please try again.",
-            "updated_flow": None,
-        }
-    except Exception as e:
-        logger.error(f"OpenRouter API error: {e}")
-        # Try Google as a fallback on generic errors
-        if g_settings and g_settings.api_key:
-            try:
-                reply = google_ai_service.call_google_text(
-                    SYSTEM_PROMPT, f"{message}{context}", max_tokens=500, tool_name="flowchart_chat"
-                )
-                return {"reply": reply, "updated_flow": None}
-            except Exception as ge:
-                logger.exception("Google fallback failed: %s", ge)
+        logger.warning("AI chat failed: %s (%s)", gemini_err.user_message, gemini_err.error_code)
         return {
             "reply": _fallback_response(message, flow_data),
             "updated_flow": None,
@@ -182,11 +106,11 @@ def _fallback_response(message: str, flow_data: dict | None) -> str:
 
         return (
             f"Your flowchart '{title}' contains {step_count} steps "
-            f"({decision_count} decisions). To get AI-powered suggestions, "
-            f"please configure OPENROUTER_API_KEY for the application."
+            f"({decision_count} decisions). "
+            f"AI suggestions require a valid GEMINI_API_KEY to be configured."
         )
 
     return (
-        "AI chat requires OPENROUTER_API_KEY to be configured for the application. "
-        "Set it once in the app configuration for full AI functionality."
+        "AI chat requires GEMINI_API_KEY to be configured. "
+        "Set it in the application configuration for full AI functionality."
     )

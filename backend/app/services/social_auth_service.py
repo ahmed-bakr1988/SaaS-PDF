@@ -134,7 +134,9 @@ def build_authorization_url(
                 "response_type": "code",
                 "client_id": current_app.config["X_CLIENT_ID"].strip(),
                 "redirect_uri": redirect_uri,
-                "scope": "users.read",
+                # tweet.read is required alongside users.read for email access.
+                # Enable "Request email from users" in your X Developer App settings.
+                "scope": "tweet.read users.read",
                 "state": state,
                 "code_challenge": code_challenge,
                 "code_challenge_method": "S256",
@@ -364,7 +366,9 @@ def _exchange_x_code(*, code: str, redirect_uri: str, code_verifier: str | None)
         error_context="profile lookup failed",
         headers={"Authorization": f"Bearer {access_token}"},
         params={
-            "user.fields": "confirmed_email,name,profile_image_url,username,verified",
+            # "email" field is only returned when the X app has
+            # "Request email from users" enabled in Developer Portal settings.
+            "user.fields": "email,name,profile_image_url,username,verified",
         },
     )
     profile_data = profile_payload.get("data")
@@ -372,9 +376,13 @@ def _exchange_x_code(*, code: str, redirect_uri: str, code_verifier: str | None)
         raise SocialAuthError("X did not return a valid user profile.")
 
     provider_user_id = str(profile_data.get("id", "")).strip()
-    email = str(profile_data.get("confirmed_email", "")).strip() or None
     if not provider_user_id:
         raise SocialAuthError("X did not return a valid user profile.")
+
+    # X only returns email when the Developer App has email permission enabled.
+    # Without it, new users cannot register via X — they must create an account
+    # with email/password first, then link their X account from the account page.
+    email = str(profile_data.get("email", "")).strip() or None
 
     return SocialProfile(
         provider="x",

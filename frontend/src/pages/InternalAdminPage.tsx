@@ -109,7 +109,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     active: 'Active',
     notConfigured: 'Not configured',
     modelLabel: 'Model: {model}',
-    checkKey: 'Check OPENROUTER_API_KEY',
+    checkKey: 'Check GEMINI_API_KEY',
     // Overview sections
     topTools: 'Top tools',
     totalRunsSuffix: 'total runs',
@@ -232,7 +232,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     roleUpdated: 'Role updated successfully.',
     // AI model switcher
     aiModelSwitcher: 'AI Model Switcher',
-    aiModelSwitcherDesc: 'Switch the active OpenRouter model at runtime without editing .env.',
+    aiModelSwitcherDesc: 'Switch the active Gemini model at runtime without editing .env.',
     currentModelLabel: 'Current model',
     modelSourceLabel: 'Source',
     modelSourceRedis: 'Admin override (persisted)',
@@ -248,7 +248,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     resettingModel: 'Resetting...',
     modelReset: 'Model reset to default.',
     modelResetError: 'Unable to reset model.',
-    noModelsAvailable: 'No models available. Check OPENROUTER_API_KEY.',
+    noModelsAvailable: 'No models available. Check GEMINI_API_KEY.',
     contextLengthLabel: 'Context: {length}',
   },
   ar: {
@@ -421,7 +421,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     roleUpdated: 'تم تحديث الدور بنجاح.',
     // AI model switcher
     aiModelSwitcher: 'تبديل نموذج الذكاء الاصطناعي',
-    aiModelSwitcherDesc: 'تبديل نموذج OpenRouter النشط مباشرةً بدون تعديل ملف .env.',
+    aiModelSwitcherDesc: 'تبديل نموذج Gemini النشط مباشرةً بدون تعديل ملف .env.',
     currentModelLabel: 'النموذج الحالي',
     modelSourceLabel: 'المصدر',
     modelSourceRedis: 'تعيين يدوي (محفوظ)',
@@ -437,7 +437,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     resettingModel: 'جارٍ الإعادة...',
     modelReset: 'تمت إعادة النموذج إلى الافتراضي.',
     modelResetError: 'تعذّر إعادة النموذج.',
-    noModelsAvailable: 'لا توجد نماذج متاحة. تحقق من OPENROUTER_API_KEY.',
+    noModelsAvailable: 'لا توجد نماذج متاحة. تحقق من GEMINI_API_KEY.',
     contextLengthLabel: 'السياق: {length}',
   },
 };

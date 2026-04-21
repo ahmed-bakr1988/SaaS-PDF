@@ -278,6 +278,19 @@ export function resolveErrorCode(errorCode: string): string | null {
   const map: Record<string, string> = {
     TASK_FAILURE: i18n.t('common.errors.processingFailed'),
     CELERY_NOT_REGISTERED: i18n.t('common.errors.taskUnavailable'),
+    // Gemini AI error codes (new)
+    AI_UNAUTHORIZED: i18n.t('common.errors.aiUnavailable'),
+    AI_RATE_LIMIT: i18n.t('common.errors.aiRateLimited'),
+    AI_SERVER_ERROR: i18n.t('common.errors.serverError'),
+    AI_CONNECTION_ERROR: i18n.t('common.errors.networkError'),
+    AI_TIMEOUT: i18n.t('common.errors.serverError'),
+    AI_MISSING_API_KEY: i18n.t('common.errors.aiUnavailable'),
+    AI_EMPTY_RESPONSE: i18n.t('common.errors.aiUnavailable'),
+    AI_ERROR_PAYLOAD: i18n.t('common.errors.aiUnavailable'),
+    AI_REQUEST_ERROR: i18n.t('common.errors.serverError'),
+    AI_BAD_REQUEST: i18n.t('common.errors.invalidInput'),
+    AI_BUDGET_EXCEEDED: i18n.t('common.errors.aiBudgetExceeded'),
+    // Legacy OpenRouter codes kept for backward-compat during transition
     OPENROUTER_UNAUTHORIZED: i18n.t('common.errors.aiUnavailable'),
     OPENROUTER_RATE_LIMIT: i18n.t('common.errors.aiRateLimited'),
     OPENROUTER_INSUFFICIENT_CREDITS: i18n.t('common.errors.aiRateLimited'),

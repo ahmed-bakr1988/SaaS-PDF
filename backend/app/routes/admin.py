@@ -546,24 +546,24 @@ def admin_project_events_route():
 @admin_bp.route("/ai-models", methods=["GET"])
 @limiter.limit("60/hour")
 def admin_ai_models_route():
-    """Return available OpenRouter models for admin model selection."""
+    """Return available AI models for admin model selection."""
     auth_error = _require_admin_session()
     if auth_error:
         return auth_error
 
-    from app.services.openrouter_config_service import (
-        get_openrouter_settings,
-        get_redis_active_model,
+    from app.services.gemini_client import (
+        get_gemini_settings,
+        _get_redis_active_model,
     )
     from app.services.openrouter_models_service import get_cached_models
 
-    settings = get_openrouter_settings()
+    settings = get_gemini_settings()
     models = get_cached_models()
 
-    redis_model = get_redis_active_model()
+    redis_model = _get_redis_active_model()
     if redis_model:
         model_source = "redis"
-    elif settings.model != "nvidia/nemotron-3-super-120b-a12b:free":
+    elif settings.text_model != "gemini-2.0-flash":
         model_source = "env"
     else:
         model_source = "default"
@@ -581,7 +581,7 @@ def admin_ai_models_route():
     payload.sort(key=lambda x: (not x["is_free"], x["name"].lower()))
 
     return jsonify({
-        "current_model": settings.model,
+        "current_model": settings.text_model,
         "model_source": model_source,
         "models": payload,
     }), 200
@@ -590,7 +590,7 @@ def admin_ai_models_route():
 @admin_bp.route("/ai-model", methods=["PUT"])
 @limiter.limit("30/hour")
 def admin_update_ai_model_route():
-    """Switch the active OpenRouter model via Redis (visible to all processes)."""
+    """Switch the active AI model via Redis (visible to all processes)."""
     auth_error = _require_admin_session()
     if auth_error:
         return auth_error
@@ -600,7 +600,7 @@ def admin_update_ai_model_route():
     if not model_id:
         return jsonify({"error": "A model ID is required."}), 400
 
-    from app.services.openrouter_config_service import set_redis_active_model
+    from app.services.gemini_client import set_redis_active_model
     from app.services.openrouter_models_service import get_cached_models
 
     known_ids = {m.id for m in get_cached_models()}
@@ -610,7 +610,7 @@ def admin_update_ai_model_route():
     persisted = set_redis_active_model(model_id)
 
     # Also update in-process config for immediate coherence
-    current_app.config["OPENROUTER_MODEL"] = model_id
+    current_app.config["GEMINI_TEXT_MODEL"] = model_id
 
     return jsonify({
         "message": "Model updated.",
@@ -622,22 +622,71 @@ def admin_update_ai_model_route():
 @admin_bp.route("/ai-model", methods=["DELETE"])
 @limiter.limit("30/hour")
 def admin_reset_ai_model_route():
-    """Reset the active model to the .env default by removing the Redis override."""
+    """Reset the active model to the env default by removing the Redis override."""
     auth_error = _require_admin_session()
     if auth_error:
         return auth_error
 
-    from app.services.openrouter_config_service import delete_redis_active_model
+    from app.services.gemini_client import delete_redis_active_model
 
     deleted = delete_redis_active_model()
 
     # Reset in-process config to env default
     import os
-    env_model = os.getenv("OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free")
-    current_app.config["OPENROUTER_MODEL"] = env_model
+    env_model = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.0-flash")
+    current_app.config["GEMINI_TEXT_MODEL"] = env_model
 
     return jsonify({
         "message": "Model reset to default.",
         "model": env_model,
         "deleted": deleted,
     }), 200
+
+
+@admin_bp.route("/oauth-status", methods=["GET"])
+@limiter.limit("60/hour")
+def admin_oauth_status_route():
+    """Return OAuth provider configuration status and the required callback URLs.
+
+    Use this to verify that each provider's console is configured with the
+    correct callback URI before enabling social sign-in in production.
+    """
+    auth_error = _require_admin_session()
+    if auth_error:
+        return auth_error
+
+    from app.services.social_auth_service import SOCIAL_PROVIDERS, provider_is_configured
+
+    backend_url = current_app.config.get("BACKEND_PUBLIC_URL", "").rstrip("/")
+
+    # Console setup URLs so the admin can jump directly to the right page
+    console_urls = {
+        "google": "https://console.cloud.google.com/apis/credentials",
+        "facebook": "https://developers.facebook.com/apps/",
+        "x": "https://developer.x.com/en/portal/projects-and-apps",
+    }
+
+    providers = []
+    for provider in SOCIAL_PROVIDERS:
+        configured = provider_is_configured(provider)
+        callback_url = f"{backend_url}/api/auth/social/{provider}/callback"
+        providers.append(
+            {
+                "id": provider,
+                "configured": configured,
+                "callback_url": callback_url,
+                "console_url": console_urls.get(provider, ""),
+            }
+        )
+
+    all_configured = all(p["configured"] for p in providers)
+    any_configured = any(p["configured"] for p in providers)
+
+    return jsonify(
+        {
+            "backend_public_url": backend_url,
+            "providers": providers,
+            "all_configured": all_configured,
+            "any_configured": any_configured,
+        }
+    ), 200

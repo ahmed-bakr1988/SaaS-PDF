@@ -115,7 +115,13 @@ class BaseConfig:
     RATELIMIT_STORAGE_URI = os.getenv("REDIS_URL", "redis://redis:6379/0")
     RATELIMIT_DEFAULT = "100/hour"
 
-    # OpenRouter AI
+    # Gemini AI (primary provider — Google AI Studio)
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
+    GEMINI_TEXT_MODEL = os.getenv("GEMINI_TEXT_MODEL", "gemini-2.0-flash")
+    GEMINI_TRANSLATE_MODEL = os.getenv("GEMINI_TRANSLATE_MODEL", "gemini-2.0-flash")
+    GEMINI_VISION_MODEL = os.getenv("GEMINI_VISION_MODEL", "gemini-2.0-flash")
+
+    # OpenRouter AI (temporary fallback — kept until Gemini is stable in prod)
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
     OPENROUTER_MODEL = os.getenv(
         "OPENROUTER_MODEL", "nvidia/nemotron-3-super-120b-a12b:free"
@@ -152,11 +158,21 @@ class BaseConfig:
     X_CLIENT_ID = os.getenv("X_CLIENT_ID", "")
     X_CLIENT_SECRET = os.getenv("X_CLIENT_SECRET", "")
 
-    # Stripe
+    # Stripe (legacy — kept for existing subscribers during PayPal transition)
     STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
     STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET", "")
     STRIPE_PRICE_ID_PRO_MONTHLY = os.getenv("STRIPE_PRICE_ID_PRO_MONTHLY", "")
     STRIPE_PRICE_ID_PRO_YEARLY = os.getenv("STRIPE_PRICE_ID_PRO_YEARLY", "")
+
+    # PayPal Subscriptions (primary payment provider)
+    # PAYPAL_ENVIRONMENT: "sandbox" for testing, "live" for production
+    PAYPAL_ENVIRONMENT = os.getenv("PAYPAL_ENVIRONMENT", "sandbox")
+    PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID", "")
+    PAYPAL_CLIENT_SECRET = os.getenv("PAYPAL_CLIENT_SECRET", "")
+    # Webhook ID is found in PayPal Developer Dashboard → Webhooks
+    PAYPAL_WEBHOOK_ID = os.getenv("PAYPAL_WEBHOOK_ID", "")
+    PAYPAL_PLAN_ID_PRO_MONTHLY = os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
+    PAYPAL_PLAN_ID_PRO_YEARLY = os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
 
     # Sentry
     SENTRY_DSN = os.getenv("SENTRY_DSN", "")

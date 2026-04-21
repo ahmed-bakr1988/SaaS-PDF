@@ -63,10 +63,10 @@ export default function PricingPage() {
     }
     setLoading(true);
     try {
-      const { data } = await api.post(`${API_BASE}/stripe/create-checkout-session`, { billing });
+      const { data } = await api.post(`${API_BASE}/paypal/create-subscription`, { billing });
       if (data.url) window.location.href = data.url;
     } catch {
-      alert(t('pages.pricing.stripeNotReady', 'Payment system is being set up. Please try again later.'));
+      alert(t('pages.pricing.checkoutNotReady', 'Payment system is being set up. Please try again later.'));
     } finally {
       setLoading(false);
     }
@@ -339,7 +339,7 @@ export default function PricingPage() {
                 {t('pages.pricing.faq3q', 'What payment methods do you accept?')}
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
-                {t('pages.pricing.faq3a', 'We accept all major credit/debit cards via Stripe. Your payment information is securely processed — we never see your card details.')}
+                {t('pages.pricing.faq3a', 'We accept major credit and debit cards and PayPal. Payments are processed securely — we never see your card details.')}
               </p>
             </div>
           </div>

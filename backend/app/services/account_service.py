@@ -1194,6 +1194,13 @@ def resolve_user_for_oauth_login(
         return user, False
 
     if not normalized_email:
+        if provider == "x":
+            raise ValueError(
+                "X did not share your email address. "
+                "Please sign up with email and password first, then link your X account "
+                "from the account page. Alternatively, enable email sharing in your X "
+                "privacy settings and try again."
+            )
         raise ValueError("We couldn't get an email address from that social account.")
 
     if not email_is_verified:

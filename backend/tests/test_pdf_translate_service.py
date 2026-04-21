@@ -39,7 +39,7 @@ def test_translate_pdf_prefers_premium_provider(monkeypatch):
 
 
 def test_translate_pdf_falls_back_when_premium_provider_fails(monkeypatch):
-    """Should fall back to OpenRouter if the premium provider fails."""
+    """Should fall back to Gemini if the premium provider fails."""
     monkeypatch.setattr(
         "app.services.pdf_ai_service._extract_text_from_pdf",
         lambda _path: "[Page 1]\nHello world",
@@ -65,14 +65,14 @@ def test_translate_pdf_falls_back_when_premium_provider_fails(monkeypatch):
         "app.services.pdf_ai_service._call_openrouter_translate",
         lambda chunk, target_language, source_language=None, model_id=None: {
             "translation": f"fallback::{chunk}",
-            "provider": "openrouter",
+            "provider": "gemini",
             "detected_source_language": "en",
         },
     )
 
     result = translate_pdf("/tmp/demo.pdf", "de", source_language="auto")
 
-    assert result["provider"] == "openrouter"
+    assert result["provider"] == "gemini"
     assert result["detected_source_language"] == "en"
     assert result["translation"].startswith("fallback::")
 

@@ -48,17 +48,15 @@ class TestSiteAssistantService:
 
     def test_stream_chat_persists_streamed_reply(self, app, monkeypatch):
         class FakeStreamResponse:
+            status_code = 200
+
             def raise_for_status(self):
                 return None
 
             def iter_lines(self, decode_unicode=True):
                 yield 'data: ' + json.dumps({
-                    'choices': [{'delta': {'content': 'Use Merge '}}],
+                    'candidates': [{'content': {'parts': [{'text': 'Use Merge PDF for this.'}]}}],
                 })
-                yield 'data: ' + json.dumps({
-                    'choices': [{'delta': {'content': 'PDF for this.'}}],
-                })
-                yield 'data: [DONE]'
 
             def close(self):
                 return None
@@ -69,12 +67,12 @@ class TestSiteAssistantService:
                 lambda: None,
             )
             monkeypatch.setattr(
-                'app.services.site_assistant_service.requests.post',
+                'app.services.gemini_client.requests.post',
                 lambda *args, **kwargs: FakeStreamResponse(),
             )
             app.config.update({
-                'OPENROUTER_API_KEY': 'config-key',
-                'OPENROUTER_MODEL': 'config-model',
+                'GEMINI_API_KEY': 'config-key',
+                'GEMINI_TEXT_MODEL': 'gemini-test-model',
             })
 
             events = list(stream_site_assistant_chat(
@@ -90,7 +88,6 @@ class TestSiteAssistantService:
 
             assert events[0]['event'] == 'session'
             assert events[1]['event'] == 'chunk'
-            assert events[2]['event'] == 'chunk'
             assert events[-1]['event'] == 'done'
             assert events[-1]['data']['reply'] == 'Use Merge PDF for this.'
 
@@ -102,4 +99,4 @@ class TestSiteAssistantService:
 
             assert [row['role'] for row in messages] == ['user', 'assistant']
             assert messages[1]['content'] == 'Use Merge PDF for this.'
-            assert 'config-model' in messages[1]['metadata_json']
+            assert 'gemini-test-model' in messages[1]['metadata_json']

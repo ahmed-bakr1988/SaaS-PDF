@@ -247,4 +247,4 @@ class TestInternalAdminRoutes:
         assert data["model"] == "test/new-model"
 
         with app.app_context():
-            assert app.config["OPENROUTER_MODEL"] == "test/new-model"
+            assert app.config["GEMINI_TEXT_MODEL"] == "test/new-model"

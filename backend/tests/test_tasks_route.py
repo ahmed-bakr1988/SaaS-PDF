@@ -128,7 +128,7 @@ class TestTaskStatus:
         mock_result.state = 'SUCCESS'
         mock_result.result = {
             'status': 'failed',
-            'error_code': 'OPENROUTER_RATE_LIMIT',
+            'error_code': 'AI_RATE_LIMIT',
             'user_message': 'AI service is experiencing high demand.',
         }
 
@@ -141,7 +141,7 @@ class TestTaskStatus:
         assert response.status_code == 200
         data = response.get_json()
         assert data['state'] == 'SUCCESS'
-        assert data['error']['error_code'] == 'OPENROUTER_RATE_LIMIT'
+        assert data['error']['error_code'] == 'AI_RATE_LIMIT'
         assert data['error']['task_id'] == 'ai-failed-id'
 
     def test_unknown_task_without_access_returns_404(self, client):

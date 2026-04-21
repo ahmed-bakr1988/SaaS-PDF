@@ -131,7 +131,7 @@ describe('useTaskPolling', () => {
       task_id: 'task-4b',
       state: 'SUCCESS',
       error: {
-        error_code: 'OPENROUTER_MISSING_API_KEY',
+        error_code: 'AI_MISSING_API_KEY',
         user_message: 'AI features are temporarily unavailable. Our team has been notified.',
         task_id: 'task-4b',
       },

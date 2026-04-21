@@ -1,4 +1,4 @@
-"""AI model registry route — exposes available OpenRouter models to the frontend."""
+"""AI model registry route — exposes available Gemini models to the frontend."""
 
 from flask import Blueprint, jsonify
 
@@ -10,16 +10,16 @@ ai_models_bp = Blueprint("ai_models", __name__)
 @ai_models_bp.route("", methods=["GET"])
 @limiter.limit("30/minute")
 def list_ai_models():
-    """Return cached list of available OpenRouter models.
+    """Return list of available Gemini AI models.
 
     Response:
         {
             "models": [
                 {
-                    "id": "openai/gpt-4o-mini",
-                    "name": "GPT-4o mini",
-                    "is_free": false,
-                    "estimated_credits_per_page": 8,
+                    "id": "gemini-2.0-flash",
+                    "name": "Gemini 2.0 Flash",
+                    "is_free": true,
+                    "estimated_credits_per_page": 6,
                     "description": "..."
                 },
                 ...

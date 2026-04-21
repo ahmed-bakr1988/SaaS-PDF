@@ -9,11 +9,13 @@ from dataclasses import dataclass
 
 import requests
 
-from app.services.openrouter_config_service import (
-    extract_openrouter_text,
-    get_openrouter_settings,
+from app.services.gemini_client import (
+    call_gemini_text,
+    call_openrouter_fallback,
+    get_gemini_settings,
+    GeminiError,
+    RetryableGeminiError,
 )
-from app.services import google_ai_service
 
 logger = logging.getLogger(__name__)
 
@@ -293,143 +295,43 @@ def _call_openrouter(
     tool_name: str = "pdf_ai",
     model_id: str | None = None,
 ) -> str:
-    """Send a request to OpenRouter API and return the reply."""
-    # Budget guard
+    """Send a request to Gemini (primary) with OpenRouter fallback.
+
+    Kept as ``_call_openrouter`` to avoid renaming all call-sites at once;
+    callers will be updated incrementally.
+    """
     try:
-        from app.services.ai_cost_service import check_ai_budget, AiBudgetExceededError
-
-        check_ai_budget()
-    except ImportError:
-        pass
-    except Exception as error:
-        if error.__class__.__name__ == "AiBudgetExceededError":
-            raise PdfAiError(
-                "Monthly AI processing budget has been reached. Please try again next month.",
-                error_code="AI_BUDGET_EXCEEDED",
-            )
-        pass
-
-    settings = get_openrouter_settings()
-    effective_model = model_id if model_id else settings.model
-
-    if not settings.api_key:
-        logger.error("OPENROUTER_API_KEY is not set or is a placeholder value.")
-        raise PdfAiError(
-            "AI features are temporarily unavailable. Our team has been notified.",
-            error_code="OPENROUTER_MISSING_API_KEY",
+        return call_gemini_text(
+            system_prompt,
+            user_message,
+            max_tokens=max_tokens,
+            tool_name=tool_name,
+            model=model_id,
         )
-
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": user_message},
-    ]
-
-    try:
-        response = requests.post(
-            settings.base_url,
-            headers={
-                "Authorization": f"Bearer {settings.api_key}",
-                "Content-Type": "application/json",
-            },
-            json={
-                "model": effective_model,
-                "messages": messages,
-                "max_tokens": max_tokens,
-                "temperature": 0.5,
-            },
-            timeout=60,
-        )
-
-        status_code = getattr(response, "status_code", 200)
-
-        if status_code == 401:
-            logger.error("OpenRouter API key is invalid or expired (401).")
-            raise PdfAiError(
-                "AI features are temporarily unavailable due to a configuration issue. Our team has been notified.",
-                error_code="OPENROUTER_UNAUTHORIZED",
-            )
-
-        if status_code == 402:
-            logger.error("OpenRouter account has insufficient credits (402).")
-            raise PdfAiError(
-                "AI processing credits have been exhausted. Please try again later.",
-                error_code="OPENROUTER_INSUFFICIENT_CREDITS",
-            )
-
-        if status_code == 429:
-            logger.warning("OpenRouter rate limit reached (429).")
-            raise RetryableTranslationError(
-                "AI service is experiencing high demand. Please wait a moment and try again.",
-                error_code="OPENROUTER_RATE_LIMIT",
-            )
-
-        if status_code >= 500:
-            logger.error("OpenRouter server error (%s).", status_code)
-            raise RetryableTranslationError(
-                "AI service provider is experiencing issues. Please try again shortly.",
-                error_code="OPENROUTER_SERVER_ERROR",
-            )
-
-        response.raise_for_status()
-        data = response.json()
-
-        # Handle model-level errors returned inside a 200 response
-        if data.get("error"):
-            error_msg = (
-                data["error"].get("message", "")
-                if isinstance(data["error"], dict)
-                else str(data["error"])
-            )
-            logger.error("OpenRouter returned an error payload: %s", error_msg)
-            raise PdfAiError(
-                "AI service encountered an issue. Please try again.",
-                error_code="OPENROUTER_ERROR_PAYLOAD",
-                detail=error_msg,
-            )
-
-        reply = extract_openrouter_text(data)
-
-        if not reply:
-            raise PdfAiError(
-                "AI returned an empty response. Please try again.",
-                error_code="OPENROUTER_EMPTY_RESPONSE",
-            )
-
-        # Log usage
+    except GeminiError as gemini_err:
+        # Try OpenRouter as a fallback if the key is configured
         try:
-            from app.services.ai_cost_service import log_ai_usage
-
-            usage = data.get("usage", {})
-            log_ai_usage(
-                tool=tool_name,
-                model=effective_model,
-                input_tokens=usage.get("prompt_tokens", _estimate_tokens(user_message)),
-                output_tokens=usage.get("completion_tokens", _estimate_tokens(reply)),
+            return call_openrouter_fallback(
+                system_prompt,
+                user_message,
+                max_tokens=max_tokens,
+                tool_name=tool_name,
+                model=model_id,
             )
-        except Exception:
-            pass  # Don't fail the request if logging fails
+        except GeminiError:
+            pass
 
-        return reply
-
-    except PdfAiError:
-        raise
-    except requests.exceptions.Timeout:
-        raise RetryableTranslationError(
-            "AI service timed out. Please try again.",
-            error_code="OPENROUTER_TIMEOUT",
-        )
-    except requests.exceptions.ConnectionError:
-        logger.error("Cannot connect to OpenRouter API at %s", settings.base_url)
-        raise RetryableTranslationError(
-            "AI service is unreachable. Please try again shortly.",
-            error_code="OPENROUTER_CONNECTION_ERROR",
-        )
-    except requests.exceptions.RequestException as e:
-        logger.error("OpenRouter API error: %s", e)
+        # Convert GeminiError to PdfAiError to preserve the existing contract
+        if isinstance(gemini_err, RetryableGeminiError):
+            raise RetryableTranslationError(
+                gemini_err.user_message,
+                error_code=gemini_err.error_code,
+                detail=gemini_err.detail,
+            )
         raise PdfAiError(
-            "AI service is temporarily unavailable.",
-            error_code="OPENROUTER_REQUEST_ERROR",
-            detail=str(e),
+            gemini_err.user_message,
+            error_code=gemini_err.error_code,
+            detail=gemini_err.detail,
         )
 
 
@@ -468,7 +370,7 @@ def _call_openrouter_translate(
     source_language: str | None = None,
     model_id: str | None = None,
 ) -> dict:
-    """Attempt translation via OpenRouter, fall back to Google Generative AI if configured."""
+    """Translate a chunk using Gemini (with OpenRouter fallback built into _call_openrouter)."""
     source_hint = "auto-detect the source language"
     if source_language and _normalize_language_code(source_language) != "auto":
         source_hint = f"treat {_language_label(source_language)} as the source language"
@@ -480,38 +382,20 @@ def _call_openrouter_translate(
         "Return only the translated text."
     )
 
-    # Try OpenRouter first
-    try:
-        translation = _call_openrouter(
-            system_prompt,
-            chunk,
-            max_tokens=2200,
-            tool_name="pdf_translate_fallback",
-            model_id=model_id,
-        )
-        provider = "openrouter"
-    except (RetryableTranslationError, PdfAiError) as open_err:
-        # If Google is configured, try as a fallback
-        try:
-            g_settings = google_ai_service.get_google_settings()
-        except Exception:
-            g_settings = None
+    settings = get_gemini_settings()
+    effective_model = model_id or settings.translate_model
 
-        if g_settings and g_settings.api_key:
-            try:
-                translation = google_ai_service.call_google_text(
-                    system_prompt, chunk, max_tokens=2200, tool_name="pdf_translate_fallback"
-                )
-                provider = "google"
-            except Exception as google_err:
-                logger.exception("Google fallback for translation failed: %s", google_err)
-                raise open_err
-        else:
-            raise open_err
+    translation = _call_openrouter(
+        system_prompt,
+        chunk,
+        max_tokens=2200,
+        tool_name="pdf_translate_fallback",
+        model_id=effective_model,
+    )
 
     return {
         "translation": translation,
-        "provider": provider,
+        "provider": "gemini",
         "detected_source_language": _normalize_language_code(
             source_language, default=""
         ),
@@ -656,7 +540,7 @@ def _translate_document_text(
                 lambda c=chunk: _call_openrouter_translate(
                     c, target_language, source_language, model_id=model_id
                 ),
-                provider_name="OpenRouter",
+                provider_name="Gemini",
             )
 
         translations.append(str(chunk_result["translation"]).strip())
@@ -713,26 +597,9 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
     )
 
     user_msg = f"Document content:\n{truncated}\n\nQuestion: {question}"
-    try:
-        reply = _call_openrouter(
-            system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
-        )
-    except (RetryableTranslationError, PdfAiError) as open_err:
-        try:
-            g_settings = google_ai_service.get_google_settings()
-        except Exception:
-            g_settings = None
-
-        if g_settings and g_settings.api_key:
-            try:
-                reply = google_ai_service.call_google_text(
-                    system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
-                )
-            except Exception as google_err:
-                logger.exception("Google fallback for pdf chat failed: %s", google_err)
-                raise open_err
-        else:
-            raise open_err
+    reply = _call_openrouter(
+        system_prompt, user_msg, max_tokens=800, tool_name="pdf_chat"
+    )
 
     page_count = text.count("[Page ")
     return {"reply": reply, "pages_analyzed": page_count}
@@ -774,26 +641,9 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     )
 
     user_msg = f"{length_instruction}\n\nDocument content:\n{truncated}"
-    try:
-        summary = _call_openrouter(
-            system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
-        )
-    except (RetryableTranslationError, PdfAiError) as open_err:
-        try:
-            g_settings = google_ai_service.get_google_settings()
-        except Exception:
-            g_settings = None
-
-        if g_settings and g_settings.api_key:
-            try:
-                summary = google_ai_service.call_google_text(
-                    system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
-                )
-            except Exception as google_err:
-                logger.exception("Google fallback for pdf summarize failed: %s", google_err)
-                raise open_err
-        else:
-            raise open_err
+    summary = _call_openrouter(
+        system_prompt, user_msg, max_tokens=1000, tool_name="pdf_summarize"
+    )
 
     page_count = text.count("[Page ")
     return {"summary": summary, "pages_analyzed": page_count}

@@ -8,11 +8,11 @@ import logging
 import uuid
 from datetime import datetime, timezone
 
-import requests
-
-from app.services.openrouter_config_service import (
-    extract_openrouter_text,
-    get_openrouter_settings,
+from app.services.gemini_client import (
+    call_gemini_text,
+    get_gemini_settings,
+    stream_gemini_text,
+    GeminiError,
 )
 from app.services.ai_cost_service import (
     AiBudgetExceededError,
@@ -411,16 +411,16 @@ def stream_site_assistant_chat(
 
         try:
             check_ai_budget()
-            settings = get_openrouter_settings()
+            settings = get_gemini_settings()
             if not settings.api_key:
                 logger.error(
-                    "OPENROUTER_API_KEY is not set — assistant AI unavailable."
+                    "GEMINI_API_KEY is not set — assistant AI unavailable."
                 )
                 raise RuntimeError(
                     "AI assistant is temporarily unavailable. Please try again later."
                 )
 
-            response_model = settings.model
+            response_model = settings.text_model
             messages = _build_ai_messages(
                 message=normalized_message,
                 tool_slug=normalized_tool_slug,
@@ -429,7 +429,7 @@ def stream_site_assistant_chat(
                 history=normalized_history,
             )
 
-            for chunk in _stream_ai_reply(messages=messages, settings=settings):
+            for chunk in _stream_ai_reply(messages=messages):
                 if not chunk:
                     continue
                 reply += chunk
@@ -440,7 +440,7 @@ def stream_site_assistant_chat(
 
             log_ai_usage(
                 tool="site_assistant",
-                model=settings.model,
+                model=settings.text_model,
                 input_tokens=max(1, len(normalized_message) // 4),
                 output_tokens=max(1, len(reply) // 4),
             )
@@ -643,14 +643,6 @@ def _request_ai_reply(
     locale: str,
     history: list[dict[str, str]],
 ) -> str:
-    settings = get_openrouter_settings()
-
-    if not settings.api_key:
-        logger.error("OPENROUTER_API_KEY is not set — assistant AI unavailable.")
-        raise RuntimeError(
-            "AI assistant is temporarily unavailable. Please try again later."
-        )
-
     messages = _build_ai_messages(
         message=message,
         tool_slug=tool_slug,
@@ -659,33 +651,33 @@ def _request_ai_reply(
         history=history,
     )
 
-    response = requests.post(
-        settings.base_url,
-        headers={
-            "Authorization": f"Bearer {settings.api_key}",
-            "Content-Type": "application/json",
-        },
-        json={
-            "model": settings.model,
-            "messages": messages,
-            "max_tokens": 400,
-            "temperature": 0.3,
-        },
-        timeout=30,
+    # Extract system messages and user message from the messages list
+    system_parts = [m["content"] for m in messages if m["role"] == "system"]
+    system_prompt = "\n\n".join(system_parts)
+    user_content = next(
+        (m["content"] for m in reversed(messages) if m["role"] == "user"), message
     )
-    response.raise_for_status()
-    data = response.json()
 
-    reply = extract_openrouter_text(data)
+    try:
+        reply = call_gemini_text(
+            system_prompt,
+            user_content,
+            max_tokens=400,
+            temperature=0.3,
+            tool_name="site_assistant",
+        )
+    except GeminiError as exc:
+        raise RuntimeError(str(exc)) from exc
+
     if not reply:
         raise RuntimeError("Assistant returned an empty reply.")
 
-    usage = data.get("usage", {})
+    settings = get_gemini_settings()
     log_ai_usage(
         tool="site_assistant",
-        model=settings.model,
-        input_tokens=usage.get("prompt_tokens", max(1, len(message) // 4)),
-        output_tokens=usage.get("completion_tokens", max(1, len(reply) // 4)),
+        model=settings.text_model,
+        input_tokens=max(1, len(message) // 4),
+        output_tokens=max(1, len(reply) // 4),
     )
 
     return reply
@@ -721,54 +713,13 @@ def _build_ai_messages(
     return messages
 
 
-def _stream_ai_reply(messages: list[dict[str, str]], settings):
-    response = requests.post(
-        settings.base_url,
-        headers={
-            "Authorization": f"Bearer {settings.api_key}",
-            "Content-Type": "application/json",
-            "Accept": "text/event-stream",
-        },
-        json={
-            "model": settings.model,
-            "messages": messages,
-            "max_tokens": 400,
-            "temperature": 0.3,
-            "stream": True,
-        },
-        timeout=60,
-        stream=True,
+def _stream_ai_reply(messages: list[dict[str, str]]):
+    """Yield content chunks from Gemini streaming API."""
+    yield from stream_gemini_text(
+        messages,
+        max_tokens=400,
+        temperature=0.3,
     )
-    response.raise_for_status()
-
-    try:
-        for raw_line in response.iter_lines(decode_unicode=True):
-            if not raw_line:
-                continue
-
-            line = raw_line.strip()
-            if not line.startswith("data:"):
-                continue
-
-            payload = line[5:].strip()
-            if not payload or payload == "[DONE]":
-                continue
-
-            try:
-                data = json.loads(payload)
-            except json.JSONDecodeError:
-                continue
-
-            choices = data.get("choices") or []
-            if not choices:
-                continue
-
-            delta = choices[0].get("delta") or {}
-            content = delta.get("content")
-            if isinstance(content, str) and content:
-                yield content
-    finally:
-        response.close()
 
 
 def _fallback_reply(message: str, tool_slug: str) -> str:
@@ -798,5 +749,5 @@ def _fallback_reply(message: str, tool_slug: str) -> str:
 
 
 def _response_model_name() -> str:
-    settings = get_openrouter_settings()
-    return settings.model if settings.api_key else "fallback"
+    settings = get_gemini_settings()
+    return settings.text_model if settings.api_key else "fallback"

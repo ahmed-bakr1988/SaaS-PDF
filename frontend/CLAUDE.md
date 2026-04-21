@@ -159,7 +159,7 @@ frontend/src/components/
 **All components are React functional components with default exports.**
 
 #### Tool Component Standard Template
-
+mn bv6[]
 Every tool page follows this exact pattern:
 
 ```tsx

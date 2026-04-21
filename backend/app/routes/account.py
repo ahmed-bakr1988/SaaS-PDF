@@ -30,6 +30,11 @@ from app.services.stripe_service import (
     is_stripe_configured,
     get_stripe_price_id,
 )
+from app.services.paypal_service import (
+    is_paypal_configured,
+    get_paypal_plan_id,
+    get_subscription as get_paypal_subscription,
+)
 from app.utils.auth import get_current_user_id, has_session_task_access
 import stripe
 import logging
@@ -71,7 +76,15 @@ def get_credit_info_route():
 @account_bp.route("/subscription", methods=["GET"])
 @limiter.limit("60/hour")
 def get_subscription_status():
-    """Return subscription status for the authenticated user."""
+    """Return subscription status for the authenticated user.
+
+    Response shape is provider-agnostic:
+        plan               current plan name
+        payment_provider   "paypal" | "stripe" | null
+        checkout_enabled   true when a checkout flow is available
+        subscription       provider-specific subscription details (or null)
+        pricing            available billing cycle options
+    """
     user_id = get_current_user_id()
     if user_id is None:
         return jsonify({"error": "Authentication required."}), 401
@@ -80,55 +93,82 @@ def get_subscription_status():
     if user is None:
         return jsonify({"error": "User not found."}), 404
 
-    # If Stripe is not configured, return basic info
-    if not is_stripe_configured():
-        return jsonify(
-            {
-                "plan": user["plan"],
-                "stripe_configured": False,
-                "subscription": None,
-            }
-        ), 200
+    paypal_ok = is_paypal_configured()
+    stripe_ok = is_stripe_configured()
 
-    # Retrieve subscription info from Stripe if available
+    # Determine which provider this user is currently on
+    billing_provider = user.get("billing_provider")
+    paypal_sub_id = user.get("paypal_subscription_id")
+    stripe_sub_id = user.get("stripe_subscription_id")
+
     subscription_info = None
-    if user.get("stripe_subscription_id"):
+
+    # --- PayPal path ---
+    if billing_provider == "paypal" and paypal_sub_id and paypal_ok:
+        try:
+            sub = get_paypal_subscription(paypal_sub_id)
+            subscription_info = {
+                "id": sub.get("id"),
+                "status": sub.get("status"),
+                "billing_info": sub.get("billing_info", {}),
+                "start_time": sub.get("start_time"),
+            }
+        except Exception as exc:
+            logger.error("Failed to retrieve PayPal subscription %s: %s", paypal_sub_id, exc)
+
+        return jsonify({
+            "plan": user["plan"],
+            "payment_provider": "paypal",
+            "checkout_enabled": paypal_ok,
+            "subscription": subscription_info,
+            "pricing": {
+                "monthly_plan_id": get_paypal_plan_id("monthly"),
+                "yearly_plan_id": get_paypal_plan_id("yearly"),
+            },
+        }), 200
+
+    # --- Stripe path (legacy / existing subscribers) ---
+    if stripe_sub_id and stripe_ok:
         try:
             from app.services.stripe_service import get_stripe_secret_key
-
             stripe.api_key = get_stripe_secret_key()
-
-            subscription = stripe.Subscription.retrieve(user["stripe_subscription_id"])
+            s = stripe.Subscription.retrieve(stripe_sub_id)
             subscription_info = {
-                "id": subscription.id,
-                "status": subscription.status,
-                "current_period_start": subscription.current_period_start,
-                "current_period_end": subscription.current_period_end,
-                "cancel_at_period_end": subscription.cancel_at_period_end,
+                "id": s.id,
+                "status": s.status,
+                "current_period_start": s.current_period_start,
+                "current_period_end": s.current_period_end,
+                "cancel_at_period_end": s.cancel_at_period_end,
                 "items": [
-                    {
-                        "price": item.price.id,
-                        "quantity": item.quantity,
-                    }
-                    for item in subscription.items.data
+                    {"price": item.price.id, "quantity": item.quantity}
+                    for item in s.items.data
                 ],
             }
-        except Exception as e:
-            logger.error(
-                f"Failed to retrieve subscription {user['stripe_subscription_id']}: {e}"
-            )
+        except Exception as exc:
+            logger.error("Failed to retrieve Stripe subscription %s: %s", stripe_sub_id, exc)
 
-    return jsonify(
-        {
+        return jsonify({
             "plan": user["plan"],
-            "stripe_configured": True,
+            "payment_provider": "stripe",
+            "checkout_enabled": stripe_ok,
             "subscription": subscription_info,
             "pricing": {
                 "monthly_price_id": get_stripe_price_id("monthly"),
                 "yearly_price_id": get_stripe_price_id("yearly"),
             },
-        }
-    ), 200
+        }), 200
+
+    # --- No active subscription (free plan or new user) ---
+    return jsonify({
+        "plan": user["plan"],
+        "payment_provider": None,
+        "checkout_enabled": paypal_ok or stripe_ok,
+        "subscription": None,
+        "pricing": {
+            "monthly_plan_id": get_paypal_plan_id("monthly") if paypal_ok else None,
+            "yearly_plan_id": get_paypal_plan_id("yearly") if paypal_ok else None,
+        },
+    }), 200
 
 
 @account_bp.route("/api-keys", methods=["GET"])

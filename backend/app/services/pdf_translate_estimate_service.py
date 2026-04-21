@@ -125,11 +125,11 @@ def estimate_translate_costs(
     estimated_usd_layout = 0.0
     estimated_usd_vision = 0.0
     try:
-        from app.services.openrouter_config_service import get_openrouter_settings
+        from app.services.gemini_client import get_gemini_settings
         from app.services.openrouter_models_service import get_model_info
 
-        settings = get_openrouter_settings()
-        model_info = get_model_info(settings.model)
+        settings = get_gemini_settings()
+        model_info = get_model_info(settings.text_model)
         if model_info:
             active_model_info = {
                 "id": model_info.id,
