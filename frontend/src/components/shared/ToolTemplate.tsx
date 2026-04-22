@@ -7,6 +7,7 @@ import CostEstimatePanel from '@/components/shared/CostEstimatePanel';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import AdSlot from '@/components/layout/AdSlot';
+import ToolRating from '@/components/shared/ToolRating';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
@@ -128,6 +129,8 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
         <link rel="canonical" href={`${window.location.origin}/tools/${config.slug}`} />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
+
+      <ToolRating toolSlug={config.slug} />
 
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8 text-center">
