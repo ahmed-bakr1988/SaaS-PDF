@@ -38,6 +38,7 @@ export const PAGE_ROUTES = [
   ...SEO_PAGE_ROUTES,
   '/:slug',
   '/ar/:slug',
+  '/:locale/tools/:slug',
 ] as const;
 
 // ─── Tool routes (derived from manifest) ─────────────────────────

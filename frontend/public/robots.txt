@@ -12,3 +12,5 @@ Sitemap: https://dociva.io/sitemap.xml
 
 # AI/LLM discoverability
 # See also: /llms.txt
+
+# IndexNow not configured — set VITE_INDEXNOW_KEY env var to activate

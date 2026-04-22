@@ -20,19 +20,22 @@ export interface LanguageAlternate {
   ogLocale: string;
 }
 
+export type SiteLanguage = 'en' | 'ar' | 'fr' | 'es';
+
 const DEFAULT_SOCIAL_IMAGE_PATH = '/social-preview.svg';
 const DEFAULT_SITE_ORIGIN = 'https://dociva.io';
 const DEFAULT_SITE_NAME = 'Dociva';
 
-const LANGUAGE_CONFIG: Record<'en' | 'ar' | 'fr', { hrefLang: string; ogLocale: string }> = {
+const LANGUAGE_CONFIG: Record<SiteLanguage, { hrefLang: string; ogLocale: string }> = {
   en: { hrefLang: 'en', ogLocale: 'en_US' },
   ar: { hrefLang: 'ar', ogLocale: 'ar_SA' },
   fr: { hrefLang: 'fr', ogLocale: 'fr_FR' },
+  es: { hrefLang: 'es', ogLocale: 'es_ES' },
 };
 
-export function normalizeSiteLanguage(language: string): 'en' | 'ar' | 'fr' {
+export function normalizeSiteLanguage(language: string): SiteLanguage {
   const baseLanguage = language.split('-')[0];
-  return baseLanguage === 'ar' || baseLanguage === 'fr' ? baseLanguage : 'en';
+  return baseLanguage === 'ar' || baseLanguage === 'fr' || baseLanguage === 'es' ? baseLanguage : 'en';
 }
 
 export function getOgLocale(language: string): string {
@@ -41,7 +44,7 @@ export function getOgLocale(language: string): string {
 
 export function buildLanguageAlternates(
   origin: string,
-  localizedPaths: Partial<Record<'en' | 'ar' | 'fr', string>>,
+  localizedPaths: Partial<Record<SiteLanguage, string>>,
 ): LanguageAlternate[] {
   return (Object.entries(localizedPaths) as Array<[keyof typeof LANGUAGE_CONFIG, string | undefined]>)
     .filter(([, path]) => Boolean(path))
@@ -101,7 +104,7 @@ export function generateToolSchema(tool: ToolSeoData): object {
       },
     ],
     description: tool.description,
-    inLanguage: ['en', 'ar', 'fr'],
+    inLanguage: ['en', 'ar', 'fr', 'es'],
     provider: {
       '@type': 'Organization',
       name: DEFAULT_SITE_NAME,
@@ -210,7 +213,7 @@ export function generateOrganization(origin: string): object {
       '@type': 'ContactPoint',
       email: 'support@dociva.io',
       contactType: 'customer support',
-      availableLanguage: ['English', 'Arabic', 'French'],
+      availableLanguage: ['English', 'Arabic', 'French', 'Spanish'],
     },
   };
 }
@@ -229,7 +232,7 @@ export function generateWebPage(page: {
     name: page.name,
     description: page.description,
     url: page.url,
-    inLanguage: ['en', 'ar', 'fr'],
+    inLanguage: ['en', 'ar', 'fr', 'es'],
     isPartOf: {
       '@type': 'WebSite',
       '@id': `${getSiteOrigin()}/#website`,
@@ -252,7 +255,7 @@ export function generateWebSite(data: {
     publisher: {
       '@id': `${data.origin}/#organization`,
     },
-    inLanguage: ['en', 'ar', 'fr'],
+    inLanguage: ['en', 'ar', 'fr', 'es'],
     potentialAction: {
       '@type': 'SearchAction',
       target: `${data.origin}/?q={search_term_string}`,

@@ -1,0 +1,64 @@
+{
+  "common": {
+    "home": "Inicio",
+    "siteTagline": "Convierte, organiza y protege tus archivos en segundos"
+  },
+  "tools": {
+    "splitPdf": {
+      "title": "Dividir PDF",
+      "description": "Divide archivos PDF online gratis. Separa páginas concretas o rangos en documentos más pequeños sin perder calidad.",
+      "shortDesc": "Dividir PDF"
+    }
+  },
+  "seo": {
+    "headings": {
+      "whatItDoes": "Que hace esta herramienta",
+      "howToUse": "Como usarla",
+      "whyUse": "Por que usar {{tool}}",
+      "useCases": "Casos de uso"
+    },
+    "splitPdf": {
+      "metaTitleSuffix": "Dividir PDF online gratis y separar paginas PDF",
+      "metaDescription": "Divide archivos PDF online gratis. Usa este divisor de PDF para separar paginas, cortar rangos y descargar archivos mas pequenos sin perder calidad.",
+      "whatItDoes": "Usa esta herramienta para dividir un PDF en archivos separados o partir un documento largo en secciones mas pequenas. Puedes separar paginas una por una o guardar solo los rangos que necesitas.",
+      "howToUse": [
+        "Sube tu archivo PDF.",
+        "Elige si quieres dividir todas las paginas o separar solo paginas o rangos concretos.",
+        "Introduce paginas como 1,3,5-8 cuando quieras una salida personalizada.",
+        "Descarga los nuevos archivos PDF creados a partir de las paginas seleccionadas."
+      ],
+      "benefits": [
+        "Divide paginas PDF individualmente o por rangos personalizados",
+        "Separa paginas PDF sin cambiar la calidad original",
+        "Ideal para enviar solo las paginas que otra persona necesita",
+        "Procesamiento rapido en el navegador sin registro",
+        "Funciona para informes, escaneos, contratos y otros PDF de varias paginas"
+      ],
+      "useCases": [
+        "Dividir un PDF grande en archivos mas pequenos para clientes o companeros",
+        "Separar un capitulo o un anexo de un informe largo",
+        "Cortar paginas de un lote PDF escaneado",
+        "Crear PDF mas pequenos para correo electronico o limites de subida",
+        "Guardar solo las paginas necesarias para revision o impresion"
+      ],
+      "faq": [
+        {
+          "q": "Como dividir un PDF online?",
+          "a": "Sube tu PDF, elige si quieres dividir cada pagina o solo rangos concretos y descarga los nuevos archivos PDF creados a partir de tu documento."
+        },
+        {
+          "q": "Puedo separar paginas PDF sin dividir todo el archivo?",
+          "a": "Si. Puedes introducir numeros de pagina o rangos exactos para guardar solo las paginas que quieres en archivos nuevos."
+        },
+        {
+          "q": "Dividir un PDF reduce la calidad?",
+          "a": "No. Dividir un PDF es un cambio estructural, por lo que las paginas mantienen su calidad y maquetacion originales."
+        },
+        {
+          "q": "Cual es la diferencia entre Dividir PDF y Extraer paginas?",
+          "a": "Dividir PDF es mejor cuando quieres archivos de salida separados o una separacion amplia. Extraer paginas es mejor cuando quieres combinar paginas concretas en un nuevo PDF."
+        }
+      ]
+    }
+  }
+}

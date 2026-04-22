@@ -4,18 +4,22 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './en.json';
 
-type SupportedLanguage = 'en' | 'ar' | 'fr';
+export type SupportedLanguage = 'en' | 'ar' | 'fr' | 'es';
+
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['en', 'ar', 'fr', 'es'];
+export const LOCALIZED_ROUTE_LANGUAGES: SupportedLanguage[] = ['ar', 'fr', 'es'];
 
 const loadedLanguages = new Set<SupportedLanguage>(['en']);
 
 const languageLoaders: Record<Exclude<SupportedLanguage, 'en'>, () => Promise<{ default: Record<string, unknown> }>> = {
   ar: () => import('./ar.json'),
   fr: () => import('./fr.json'),
+  es: () => import('./es.json'),
 };
 
 function normalizeLanguage(language?: string): SupportedLanguage {
   const base = (language || '').split('-')[0];
-  return base === 'ar' || base === 'fr' ? base : 'en';
+  return base === 'ar' || base === 'fr' || base === 'es' ? base : 'en';
 }
 
 function getInitialLanguage(): SupportedLanguage {
@@ -64,7 +68,7 @@ i18n
     },
     lng: initialLanguage,
     fallbackLng: 'en',
-    supportedLngs: ['en', 'ar', 'fr'],
+    supportedLngs: SUPPORTED_LANGUAGES,
     load: 'languageOnly',
     interpolation: {
       escapeValue: false,

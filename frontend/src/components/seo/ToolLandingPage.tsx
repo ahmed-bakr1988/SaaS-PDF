@@ -1,8 +1,11 @@
 import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { CheckCircle } from 'lucide-react';
+import { ensureLanguageResources, type SupportedLanguage } from '@/i18n';
 import { getToolSEO } from '@/config/seoData';
-import { buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
+import { buildLanguageAlternates, buildSocialImageUrl, generateToolSchema, generateBreadcrumbs, generateFAQ, generateHowTo, getOgLocale, getSiteOrigin } from '@/utils/seo';
 import BreadcrumbNav from './BreadcrumbNav';
 import FAQSection from './FAQSection';
 import RelatedTools from './RelatedTools';
@@ -25,14 +28,48 @@ interface ToolLandingPageProps {
   children: React.ReactNode;
 }
 
+const LOCALIZED_TOOL_LANGUAGES: SupportedLanguage[] = ['ar', 'fr'];
+const SPANISH_PILOT_TOOL_SLUGS = new Set(['split-pdf']);
+
+function isLocalizedToolLanguage(value?: string): value is SupportedLanguage {
+  return value === 'ar' || value === 'fr' || value === 'es';
+}
+
+function getToolLanguageAlternates(slug: string) {
+  const alternates: Partial<Record<SupportedLanguage, string>> = {
+    en: `/tools/${slug}`,
+    ar: `/ar/tools/${slug}`,
+    fr: `/fr/tools/${slug}`,
+  };
+
+  if (SPANISH_PILOT_TOOL_SLUGS.has(slug)) {
+    alternates.es = `/es/tools/${slug}`;
+  }
+
+  return alternates;
+}
+
 /**
  * SEO wrapper that adds structured data, FAQ section, related tools,
  * feature bullets, and proper meta tags around any tool component.
  */
 export default function ToolLandingPage({ slug, children }: ToolLandingPageProps) {
   const { t, i18n } = useTranslation();
+  const { locale } = useParams<{ locale?: string }>();
   const seo = getToolSEO(slug);
   const ratingData = useToolRating(slug);
+
+  useEffect(() => {
+    if (!isLocalizedToolLanguage(locale)) {
+      return;
+    }
+
+    void ensureLanguageResources(locale).then((resolved) => {
+      if (i18n.language !== resolved) {
+        void i18n.changeLanguage(resolved);
+      }
+    });
+  }, [i18n, locale]);
 
   // Fallback: just render tool without SEO wrapper
   if (!seo) return <>{children}</>;
@@ -50,11 +87,15 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
     ? localizedFaqData.map((faq) => ({ question: faq.q, answer: faq.a }))
     : seo.faqs;
   const origin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
-  const path = `/tools/${slug}`;
+  const localizedPath = isLocalizedToolLanguage(locale)
+    ? `/${locale}/tools/${slug}`
+    : `/tools/${slug}`;
+  const path = localizedPath;
   const canonicalUrl = `${origin}${path}`;
   const socialImageUrl = buildSocialImageUrl(origin);
   const currentOgLocale = getOgLocale(i18n.language);
   const metaTitle = `${toolTitle} — ${localizedTitleSuffix}`;
+  const languageAlternates = buildLanguageAlternates(origin, getToolLanguageAlternates(slug));
 
   const toolSchema = generateToolSchema({
     name: toolTitle,
@@ -89,6 +130,14 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <meta name="description" content={localizedMetaDescription} />
         <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
         <link rel="canonical" href={canonicalUrl} />
+        {languageAlternates.map((alternate) => (
+          <link key={alternate.hrefLang} rel="alternate" hrefLang={alternate.hrefLang} href={alternate.href} />
+        ))}
+        <link
+          rel="alternate"
+          hrefLang="x-default"
+          href={`${origin}/tools/${slug}`}
+        />
 
         {/* Open Graph */}
         <meta property="og:title" content={metaTitle} />
@@ -98,6 +147,11 @@ export default function ToolLandingPage({ slug, children }: ToolLandingPageProps
         <meta property="og:image" content={socialImageUrl} />
         <meta property="og:image:alt" content={`${toolTitle} social preview`} />
         <meta property="og:locale" content={currentOgLocale} />
+        {languageAlternates
+          .filter((alternate) => alternate.ogLocale !== currentOgLocale)
+          .map((alternate) => (
+            <meta key={alternate.ogLocale} property="og:locale:alternate" content={alternate.ogLocale} />
+          ))}
 
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronDown, Coins, ArrowRight, Layers3, Menu, Moon, Sparkles, Sun, UserRound, X } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
@@ -15,6 +15,7 @@ const languages: LangOption[] = [
   { code: 'en', label: 'English', flag: '🇺🇸' },
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
+  { code: 'es', label: 'Español', flag: '🇪🇸' },
 ];
 
 const NAV_LINKS = [
@@ -51,6 +52,7 @@ export default function Header() {
   const { t, i18n } = useTranslation();
   const { isDark, toggle: toggleDark } = useDarkMode();
   const location = useLocation();
+  const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const credits = useAuthStore((state) => state.credits);
   const [langOpen, setLangOpen] = useState(false);
@@ -77,6 +79,17 @@ export default function Header() {
 
   const switchLang = async (code: string) => {
     const resolved = await ensureLanguageResources(code);
+    const toolRouteMatch = location.pathname.match(/^\/(?:(ar|fr|es)\/)?tools\/([^/]+)\/?$/);
+
+    if (toolRouteMatch) {
+      const toolSlug = toolRouteMatch[2];
+      const nextPath = resolved === 'en' ? `/tools/${toolSlug}` : `/${resolved}/tools/${toolSlug}`;
+
+      if (nextPath !== location.pathname) {
+        navigate(nextPath);
+      }
+    }
+
     void i18n.changeLanguage(resolved);
     setLangOpen(false);
   };

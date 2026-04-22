@@ -1,7 +1,8 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import Clarity from '@microsoft/clarity';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useLocation, useParams } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ErrorBoundary from '@/components/shared/ErrorBoundary';
@@ -10,6 +11,7 @@ import { useDirection } from '@/hooks/useDirection';
 import { initAnalytics, trackPageView } from '@/services/analytics';
 import { useAuthStore } from '@/stores/authStore';
 import { TOOL_MANIFEST } from '@/config/toolManifest';
+import { ensureLanguageResources } from '@/i18n';
 
 let clarityInitialized = false;
 
@@ -41,6 +43,22 @@ const ToolComponents = Object.fromEntries(
   TOOL_MANIFEST.map((tool) => [tool.slug, lazy(tool.component)])
 ) as Record<string, React.LazyExoticComponent<React.ComponentType>>;
 
+function LocalizedToolRoute() {
+  const { locale, slug } = useParams<{ locale?: string; slug?: string }>();
+
+  if (!locale || !slug || !['ar', 'fr', 'es'].includes(locale)) {
+    return <NotFoundPage />;
+  }
+
+  const tool = TOOL_MANIFEST.find((entry) => entry.slug === slug);
+  if (!tool) {
+    return <NotFoundPage />;
+  }
+
+  const Component = ToolComponents[tool.slug];
+  return <ToolLandingPage slug={tool.slug}><Component /></ToolLandingPage>;
+}
+
 function LoadingFallback() {
   return (
     <div className="flex min-h-[40vh] items-center justify-center">
@@ -65,6 +83,7 @@ function IdleLoad({ children }: { children: React.ReactNode }) {
 export default function App() {
   useDirection();
   const location = useLocation();
+  const { i18n } = useTranslation();
   const refreshUser = useAuthStore((state) => state.refreshUser);
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const isMarketingLayout =
@@ -117,6 +136,19 @@ export default function App() {
     trackPageView(`${location.pathname}${location.search}`);
   }, [location.pathname, location.search]);
 
+  useEffect(() => {
+    const routeLocale = location.pathname.match(/^\/(ar|fr|es)(?:\/|$)/)?.[1];
+    if (!routeLocale || i18n.language === routeLocale) {
+      return;
+    }
+
+    void ensureLanguageResources(routeLocale).then((resolved) => {
+      if (i18n.language !== resolved) {
+        void i18n.changeLanguage(resolved);
+      }
+    });
+  }, [i18n, location.pathname]);
+
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
       <Header />
@@ -143,6 +175,7 @@ export default function App() {
             <Route path="/internal/admin" element={<InternalAdminPage />} />
             <Route path="/compare/:slug" element={<ComparisonPage />} />
             <Route path="/ar/:slug" element={<SeoRoutePage />} />
+            <Route path="/:locale/tools/:slug" element={<LocalizedToolRoute />} />
             <Route path="/:slug" element={<SeoRoutePage />} />
 
             {/* Tool Routes — driven by the unified manifest */}

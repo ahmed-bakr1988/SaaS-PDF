@@ -221,7 +221,7 @@
       "ctaText": "Have questions? Get in touch."
     },
     "contact": {
-      "metaDescription": "Contact the Dociva team. Report bugs, request features, or send us a message.",
+      "metaDescription": "Contact the Dociva team with questions, bug reports, or feature requests. We typically respond within 24–48 hours and welcome all feedback about our free file tools.",
       "title": "Contact Us",
       "subtitle": "Have a question, found a bug, or want to request a feature? We'd love to hear from you.",
       "formTitle": "Send Us a Message",
@@ -247,7 +247,7 @@
       "faqTitle": "FAQ"
     },
     "privacy": {
-      "metaDescription": "Privacy policy for Dociva. Learn how we handle your files and data with full transparency.",
+      "metaDescription": "Dociva privacy policy — learn how we handle your uploaded files, what data we collect, and how all processed files are automatically deleted after each session.",
       "title": "Privacy Policy",
       "lastUpdated": "Last updated: {{date}}",
       "dataCollectionTitle": "1. Data Collection",
@@ -277,7 +277,7 @@
       "contactText": "Questions about this policy? Contact us at"
     },
     "terms": {
-      "metaDescription": "Terms of service for Dociva. Understand the rules and guidelines for using our free online tools.",
+      "metaDescription": "Dociva terms of service — understand the acceptable use rules, file handling policies, and guidelines for using our free online PDF, image, and document tools.",
       "title": "Terms of Service",
       "lastUpdated": "Last updated: {{date}}",
       "acceptanceTitle": "1. Acceptance of Terms",
@@ -308,7 +308,7 @@
       "contactText": "Questions about these terms? Contact us at"
     },
     "toolsHub": {
-      "metaTitle": "All Tools",
+      "metaTitle": "All Dociva Tools — Free PDF, Image & File Converter Tools",
       "metaDescription": "Browse every Dociva tool in one place. Explore PDF, image, AI, conversion, and utility workflows from a single search-friendly directory.",
       "title": "All Dociva Tools",
       "description": "Use this directory to explore every Dociva workflow by category and jump directly to the tool you need.",
@@ -424,7 +424,7 @@
       "trustApiDesc": "Pro workspaces can generate API keys and connect the same tools to internal automations and client flows."
     },
     "pricingTransparency": {
-      "metaTitle": "Pricing Transparency",
+      "metaTitle": "Dociva Pricing Transparency — How Credits & Costs Work",
       "metaDescription": "Understand how Dociva credits work, what stays fixed, what can vary by workload, and why credits are not tied to a fixed number of provider requests.",
       "badge": "Pricing Transparency",
       "title": "How credit pricing works at Dociva",
@@ -491,7 +491,7 @@
       },
       "compressPdfVsIlovepdf": {
         "title": "Dociva vs iLovePDF — Free PDF Compression Compared",
-        "metaDescription": "Compare Dociva and iLovePDF for PDF compression. See features, limits, and pricing side by side.",
+        "metaDescription": "Compare Dociva and iLovePDF for compressing PDFs online. See feature differences, daily limits, pricing, and which free PDF compressor works without caps or sign-up.",
         "heading": "Dociva vs iLovePDF",
         "subtitle": "Both tools compress PDFs, but Dociva offers unlimited free use with no signup and no ads. See how they compare feature by feature.",
         "advantagesTitle": "Why choose Dociva over iLovePDF",
@@ -511,7 +511,7 @@
       },
       "mergePdfVsSmallpdf": {
         "title": "Dociva vs Smallpdf — Free PDF Merge Compared",
-        "metaDescription": "Compare Dociva and Smallpdf for merging PDFs. See features, limits, and pricing side by side.",
+        "metaDescription": "Compare Dociva and Smallpdf for merging PDFs online. See feature differences, daily limits, and which free PDF merger offers unlimited use without requiring a signup.",
         "heading": "Dociva vs Smallpdf",
         "subtitle": "Both platforms merge PDFs online, but Dociva offers unlimited merges with no signup. See the differences.",
         "advantagesTitle": "Why choose Dociva over Smallpdf",
@@ -531,7 +531,7 @@
       },
       "pdfToWordVsAdobeAcrobat": {
         "title": "Dociva vs Adobe Acrobat — Free PDF to Word Compared",
-        "metaDescription": "Compare Dociva and Adobe Acrobat for PDF to Word conversion. Free online tool vs premium desktop software.",
+        "metaDescription": "Compare Dociva and Adobe Acrobat for PDF to Word conversion. Free browser-based converter vs premium desktop software — see features, cost, and quality side by side.",
         "heading": "Dociva vs Adobe Acrobat",
         "subtitle": "Adobe Acrobat is the industry standard, but Dociva delivers the same PDF-to-Word conversion for free, online, with no install.",
         "advantagesTitle": "Why choose Dociva over Adobe Acrobat",
@@ -551,7 +551,7 @@
       },
       "compressImageVsTinypng": {
         "title": "Dociva vs TinyPNG — Free Image Compression Compared",
-        "metaDescription": "Compare Dociva and TinyPNG for image compression. See format support, limits, and quality differences.",
+        "metaDescription": "Compare Dociva and TinyPNG for compressing images online. See format support, file count limits, quality control options, and which tool best fits your workflow.",
         "heading": "Dociva vs TinyPNG",
         "subtitle": "TinyPNG is a popular image compressor, but Dociva supports more formats and has no file count limits. Compare them here.",
         "advantagesTitle": "Why choose Dociva over TinyPNG",
@@ -632,7 +632,7 @@
     },
     "blog": {
       "metaTitle": "Blog — Tips, Tutorials & Updates",
-      "metaDescription": "Learn how to compress, convert, edit, and manage PDF files with our expert guides and tutorials.",
+      "metaDescription": "Dociva blog — practical step-by-step guides on compressing, converting, splitting, merging, and editing PDF and image files using our free online tools.",
       "title": "Blog",
       "subtitle": "Tips, tutorials, and product updates to help you work smarter.",
       "searchPlaceholder": "Search articles by topic, tool, or workflow",
@@ -1223,7 +1223,7 @@
     }
   },
   "account": {
-    "metaTitle": "Account",
+    "metaTitle": "My Dociva Account — File History & Tool Workspace",
     "heroTitle": "Save your file activity in one secure workspace",
     "heroSubtitle": "Create a free account to keep recent downloads, return to finished tasks, and build a usable history for your document workflow.",
     "benefitsTitle": "Why create an account",
@@ -1336,6 +1336,8 @@
       "whyUse": "Why Use Our {{tool}}?"
     },
     "pdfToWord": {
+      "metaTitleSuffix": "Free Online PDF to Word Converter — Convert PDF to Editable DOCX",
+      "metaDescription": "Convert PDF to Word online for free. Get an editable DOCX file with the original formatting, fonts, and layout preserved. No signup required — works in any browser.",
       "whatItDoes": "Our PDF to Word converter transforms your PDF documents into fully editable Microsoft Word files (DOCX). The converter preserves the original layout, fonts, images, and formatting so you can edit the content immediately without starting from scratch.",
       "howToUse": ["Upload your PDF file using the drag-and-drop area or file browser.", "Wait for the automatic conversion to complete.", "Preview the result and click Download to get your Word file.", "Open the DOCX file in Microsoft Word, Google Docs, or any compatible editor."],
       "benefits": ["100% free with no registration required", "Preserves original formatting, fonts, and images", "Fast cloud-based conversion — no software to install", "Works on any device with a modern browser", "Files auto-deleted after 30 minutes for privacy"],
@@ -1349,6 +1351,8 @@
       ]
     },
     "wordToPdf": {
+      "metaTitleSuffix": "Free Online Word to PDF Converter — Convert DOCX to PDF",
+      "metaDescription": "Convert Word documents to PDF online for free. Upload a DOC or DOCX and download a perfectly formatted, print-ready PDF in seconds. No software installation required.",
       "whatItDoes": "Convert your Microsoft Word documents (DOC and DOCX) into universally compatible PDF files. The converter maintains all formatting, fonts, images, tables, and headers so your document looks exactly the same as a PDF.",
       "howToUse": ["Upload your Word file (.doc or .docx) using the upload area.", "The conversion starts automatically.", "Download your high-quality PDF file once processing completes.", "Share or print the PDF knowing it looks identical on every device."],
       "benefits": ["Supports both DOC and DOCX formats", "Perfect formatting preservation", "No Microsoft Office installation needed", "Free with unlimited conversions", "Secure processing with auto-deletion"],
@@ -1375,6 +1379,8 @@
       ]
     },
     "mergePdf": {
+      "metaTitleSuffix": "Free Online PDF Merger to Combine and Join PDF Files",
+      "metaDescription": "Merge PDF files online for free. Combine multiple PDFs into one document with drag-and-drop ordering. Lossless quality, no sign-up needed, and unlimited merges.",
       "whatItDoes": "Combine two or more PDF files into a single document. Drag and drop to arrange the files in your desired order before merging. The tool preserves the quality and formatting of all original documents.",
       "howToUse": ["Upload two or more PDF files.", "Drag and drop files to reorder them.", "Click Merge to combine all files into one PDF.", "Download your merged document."],
       "benefits": ["Merge unlimited PDF files at once", "Drag-and-drop reordering", "Lossless merging — no quality loss", "No file count limits", "Fast and secure processing"],

@@ -9,6 +9,7 @@ const publicDir = path.join(frontendRoot, 'public');
 const sitemapDir = path.join(publicDir, 'sitemaps');
 const siteOrigin = String(process.env.VITE_SITE_DOMAIN || 'https://dociva.io').trim().replace(/\/$/, '');
 const today = new Date().toISOString().slice(0, 10);
+const indexNowKey = process.env.VITE_INDEXNOW_KEY || '';
 
 // Prefer a generated SEO file if present (created by merge-keywords.mjs). This is opt-in and safe.
 const generatedSeoPath = path.join(frontendRoot, 'src', 'seo', 'seoData.generated.json');
@@ -155,11 +156,31 @@ const blogEntries = dedupeEntries(
 ).map((entry) => makeUrlTag(entry));
 
 const toolEntries = dedupeEntries(
-  toolSlugs.map((slug) => ({
-    loc: `${siteOrigin}/tools/${slug}`,
-    changefreq: 'weekly',
-    priority: toolRoutePriorities.get(slug) || '0.6',
-  })),
+  [
+    ...toolSlugs.map((slug) => ({
+      loc: `${siteOrigin}/tools/${slug}`,
+      changefreq: 'weekly',
+      priority: toolRoutePriorities.get(slug) || '0.6',
+    })),
+    ...toolSlugs.flatMap((slug) => ([
+      {
+        loc: `${siteOrigin}/ar/tools/${slug}`,
+        changefreq: 'weekly',
+        priority: toolRoutePriorities.get(slug) || '0.6',
+      },
+      {
+        loc: `${siteOrigin}/fr/tools/${slug}`,
+        changefreq: 'weekly',
+        priority: toolRoutePriorities.get(slug) || '0.6',
+      },
+    ])),
+    // Spanish — priority tool cluster (expanding as Search Console data confirms traction)
+    ...['split-pdf', 'merge-pdf', 'compress-pdf', 'pdf-to-word', 'word-to-pdf'].map((slug) => ({
+      loc: `${siteOrigin}/es/tools/${slug}`,
+      changefreq: 'weekly',
+      priority: toolRoutePriorities.get(slug) || '0.7',
+    })),
+  ],
 ).map((entry) => makeUrlTag(entry));
 
 const comparisonSlugs = [
@@ -213,7 +234,14 @@ const robots = [
   '# AI/LLM discoverability',
   '# See also: /llms.txt',
   '',
+  ...(indexNowKey ? [`# IndexNow — fast URL submission to Bing/Yandex`, `# Key file: ${siteOrigin}/${indexNowKey}.txt`, ''] : ['# IndexNow not configured — set VITE_INDEXNOW_KEY env var to activate', '']),
 ].join('\n');
+
+// Create IndexNow key file if key is provided
+if (indexNowKey) {
+  await writeFile(path.join(publicDir, `${indexNowKey}.txt`), indexNowKey, 'utf8');
+  console.log(`IndexNow key file created: ${indexNowKey}.txt`);
+}
 
 await writeFile(path.join(publicDir, 'sitemap.xml'), sitemapIndex, 'utf8');
 await writeFile(path.join(sitemapDir, 'static.xml'), makeSitemapUrlSet(staticEntries), 'utf8');
