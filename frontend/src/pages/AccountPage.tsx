@@ -90,10 +90,10 @@ function formatHistoryTool(tool: string, t: (key: string) => string) {
   return translationKey ? t(translationKey) : tool;
 }
 
+// 'x' is temporarily disabled — restore the entry below when X OAuth is ready.
 const socialProviderFallback: SocialAuthProviderOption[] = [
   { id: 'google', label: 'Google', available: false, start_url: '/api/auth/social/google/start' },
   { id: 'facebook', label: 'Facebook', available: false, start_url: '/api/auth/social/facebook/start' },
-  { id: 'x', label: 'X', available: false, start_url: '/api/auth/social/x/start' },
 ];
 
 function SocialProviderIcon({ provider }: { provider: string }) {

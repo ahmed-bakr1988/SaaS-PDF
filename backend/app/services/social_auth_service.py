@@ -14,7 +14,8 @@ from requests.auth import HTTPBasicAuth
 
 
 REQUEST_TIMEOUT_SECONDS = 15
-SOCIAL_PROVIDERS = ("google", "facebook", "x")
+# "x" is temporarily disabled — re-add when X Developer email permission is ready.
+SOCIAL_PROVIDERS = ("google", "facebook")
 
 
 class SocialAuthError(ValueError):
