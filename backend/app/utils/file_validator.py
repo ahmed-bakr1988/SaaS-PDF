@@ -162,6 +162,7 @@ def _infer_extension_from_content(
         b"\x89PNG\r\n\x1a\n": "png",
         b"\xff\xd8\xff": "jpg",
         b"RIFF": "webp",
+        b"PK\x03\x04": "zip",
     }
     for signature, ext in signature_map.items():
         if file_header.startswith(signature) and ext in valid_extensions:

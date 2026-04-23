@@ -10,6 +10,7 @@ from app.services.policy_service import (
     resolve_web_actor,
     validate_actor_file,
 )
+from app.services.html_to_pdf_service import parse_html_to_pdf_render_options
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
 from app.tasks.html_to_pdf_tasks import html_to_pdf_task
@@ -24,7 +25,7 @@ def html_to_pdf_route():
     Convert an HTML file to PDF.
 
     Accepts: multipart/form-data with:
-        - 'file': HTML file
+        - 'file': HTML file or ZIP bundle containing HTML + assets
     Returns: JSON with task_id for polling
     """
     if "file" not in request.files:
@@ -40,10 +41,15 @@ def html_to_pdf_route():
 
     try:
         original_filename, ext = validate_actor_file(
-            file, allowed_types=["html", "htm"], actor=actor
+            file, allowed_types=["html", "htm", "zip"], actor=actor
         )
     except FileValidationError as e:
         return jsonify({"error": e.message}), e.code
+
+    try:
+        render_options = parse_html_to_pdf_render_options(request.form, ext)
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
@@ -52,6 +58,7 @@ def html_to_pdf_route():
         input_path,
         task_id,
         original_filename,
+        render_options=render_options.to_payload(),
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "html-to-pdf", task.id)

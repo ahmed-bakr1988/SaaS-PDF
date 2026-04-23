@@ -1053,8 +1053,25 @@
     },
     "htmlToPdf": {
       "title": "HTML vers PDF",
-      "description": "Convertissez des fichiers HTML en documents PDF avec prise en charge complète du style.",
-      "shortDesc": "HTML → PDF"
+      "description": "Convertissez des fichiers HTML ou des bundles ZIP en PDF avec un vrai moteur navigateur et des options d'impression.",
+      "shortDesc": "HTML → PDF",
+      "uploadLabel": "HTML (.html, .htm) ou bundle ZIP (.zip)",
+      "engineTitle": "Conversion rendue par navigateur",
+      "engineDescription": "Importez un fichier HTML seul ou un bundle ZIP contenant votre HTML, CSS, JavaScript, polices et images. Les bundles ZIP doivent inclure le fichier HTML d'entrée à imprimer.",
+      "pageFormatLabel": "Format de page",
+      "orientationLabel": "Orientation",
+      "orientationPortrait": "Portrait",
+      "orientationLandscape": "Paysage",
+      "entryHtmlLabel": "HTML d'entrée du ZIP",
+      "entryHtmlPlaceholder": "index.html ou pages/home.html",
+      "entryHtmlHint": "Optionnel pour les bundles ZIP. Gardez la valeur par défaut si votre archive démarre sur index.html.",
+      "marginsTitle": "Marges",
+      "marginTopLabel": "Haut",
+      "marginRightLabel": "Droite",
+      "marginBottomLabel": "Bas",
+      "marginLeftLabel": "Gauche",
+      "printBackgroundLabel": "Imprimer les arrière-plans",
+      "printBackgroundHint": "Conserve les dégradés, aplats et arrière-plans d'image dans le PDF exporté."
     },
     "chatPdf": {
       "title": "Discuter avec un PDF",

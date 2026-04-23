@@ -1053,8 +1053,25 @@
     },
     "htmlToPdf": {
       "title": "HTML إلى PDF",
-      "description": "حوّل ملفات HTML إلى مستندات PDF مع دعم كامل للتنسيق.",
-      "shortDesc": "HTML → PDF"
+      "description": "حوّل ملفات HTML المنفردة أو حِزم ZIP إلى PDF عبر محرك متصفح حقيقي مع خيارات طباعة قابلة للتحكم.",
+      "shortDesc": "HTML → PDF",
+      "uploadLabel": "HTML (.html, .htm) أو حزمة ZIP (.zip)",
+      "engineTitle": "تحويل عبر متصفح حقيقي",
+      "engineDescription": "ارفع ملف HTML واحداً أو حزمة ZIP تحتوي على HTML وCSS وJavaScript والخطوط والصور. يجب أن تتضمن حزمة ZIP ملف HTML الذي تريد طباعته كنقطة دخول.",
+      "pageFormatLabel": "مقاس الصفحة",
+      "orientationLabel": "الاتجاه",
+      "orientationPortrait": "طولي",
+      "orientationLandscape": "عرضي",
+      "entryHtmlLabel": "ملف HTML داخل ZIP",
+      "entryHtmlPlaceholder": "index.html أو pages/home.html",
+      "entryHtmlHint": "اختياري لحِزم ZIP. اترك القيمة الافتراضية إذا كانت الحزمة تبدأ من index.html.",
+      "marginsTitle": "الهوامش",
+      "marginTopLabel": "أعلى",
+      "marginRightLabel": "يمين",
+      "marginBottomLabel": "أسفل",
+      "marginLeftLabel": "يسار",
+      "printBackgroundLabel": "طباعة الخلفيات الرسومية",
+      "printBackgroundHint": "يحافظ على التدرجات اللونية والملء وخلفيات الصور داخل ملف PDF الناتج."
     },
     "chatPdf": {
       "title": "محادثة مع PDF",

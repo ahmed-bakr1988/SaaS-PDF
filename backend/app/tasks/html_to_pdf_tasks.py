@@ -1,11 +1,11 @@
 """Celery tasks for HTML to PDF conversion."""
-import os
 import logging
+import os
 
 from flask import current_app
 
 from app.extensions import celery
-from app.services.html_to_pdf_service import html_to_pdf, html_string_to_pdf, HtmlToPdfError
+from app.services.html_to_pdf_service import HtmlToPdfError, html_to_pdf
 from app.services.storage_service import storage
 from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
@@ -23,6 +23,7 @@ def html_to_pdf_task(
     input_path: str,
     task_id: str,
     original_filename: str,
+    render_options: dict | None = None,
     user_id: int | None = None,
     usage_source: str = "web",
     api_key_id: int | None = None,
@@ -33,9 +34,9 @@ def html_to_pdf_task(
     output_path = os.path.join(output_dir, f"{task_id}.pdf")
 
     try:
-        self.update_state(state="PROCESSING", meta={"step": "Converting HTML to PDF..."})
+        self.update_state(state="PROCESSING", meta={"step": "Preparing HTML source..."})
 
-        stats = html_to_pdf(input_path, output_path)
+        stats = html_to_pdf(input_path, output_path, render_options=render_options)
 
         self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
         s3_key = storage.upload_file(output_path, task_id, folder="outputs")
@@ -49,6 +50,7 @@ def html_to_pdf_task(
             "download_url": download_url,
             "filename": download_name,
             "output_size": stats["output_size"],
+            "renderer": stats.get("renderer"),
         }
 
         logger.info(f"Task {task_id}: HTML to PDF completed")

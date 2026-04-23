@@ -1053,8 +1053,25 @@
     },
     "htmlToPdf": {
       "title": "HTML to PDF",
-      "description": "Convert HTML files to PDF documents with full styling support.",
-      "shortDesc": "HTML → PDF"
+      "description": "Render standalone HTML files or ZIP bundles into PDF with a real browser engine and print controls.",
+      "shortDesc": "HTML → PDF",
+      "uploadLabel": "HTML (.html, .htm) or ZIP bundle (.zip)",
+      "engineTitle": "Browser-rendered conversion",
+      "engineDescription": "Upload a single HTML file or a ZIP bundle containing your HTML, CSS, JavaScript, fonts, and images. ZIP bundles should include the entry HTML file you want to print.",
+      "pageFormatLabel": "Page format",
+      "orientationLabel": "Orientation",
+      "orientationPortrait": "Portrait",
+      "orientationLandscape": "Landscape",
+      "entryHtmlLabel": "ZIP entry HTML",
+      "entryHtmlPlaceholder": "index.html or pages/home.html",
+      "entryHtmlHint": "Optional for ZIP bundles. Leave the default if your archive starts at index.html.",
+      "marginsTitle": "Margins",
+      "marginTopLabel": "Top",
+      "marginRightLabel": "Right",
+      "marginBottomLabel": "Bottom",
+      "marginLeftLabel": "Left",
+      "printBackgroundLabel": "Print background graphics",
+      "printBackgroundHint": "Keep gradients, fills, and image backgrounds in the exported PDF."
     },
     "chatPdf": {
       "title": "Chat with PDF",

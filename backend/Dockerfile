@@ -2,6 +2,7 @@ FROM python:3.12-slim-bookworm
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
 # Install system dependencies for file processing
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -34,6 +35,7 @@ WORKDIR /app
 # Copy requirements first for Docker layer caching
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
+    && python -m playwright install --with-deps chromium \
     && python -c "import PyPDF2; print('PyPDF2 OK')"
 
 # Copy application code
@@ -51,8 +53,3 @@ HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
 
 # Run with Gunicorn (--preload ensures DB tables are created once before forking workers)
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "--preload", "wsgi:app"]
-
-# ... (الإعدادات السابقة)
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-# ... (باقي الإعدادات)

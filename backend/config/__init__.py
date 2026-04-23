@@ -58,6 +58,7 @@ class BaseConfig:
         ],
         "html": ["text/html", "application/xhtml+xml"],
         "htm": ["text/html", "application/xhtml+xml"],
+        "zip": ["application/zip", "application/x-zip-compressed"],
         "png": ["image/png"],
         "jpg": ["image/jpeg"],
         "jpeg": ["image/jpeg"],
@@ -81,6 +82,7 @@ class BaseConfig:
         "docx": 15 * 1024 * 1024,  # 15MB
         "html": 10 * 1024 * 1024,  # 10MB
         "htm": 10 * 1024 * 1024,  # 10MB
+        "zip": 25 * 1024 * 1024,  # 25MB
         "png": 10 * 1024 * 1024,  # 10MB
         "jpg": 10 * 1024 * 1024,  # 10MB
         "jpeg": 10 * 1024 * 1024,  # 10MB
@@ -189,6 +191,31 @@ class BaseConfig:
     FEATURE_OCR = os.getenv("FEATURE_OCR", "true").lower() == "true"
     FEATURE_REMOVEBG = os.getenv("FEATURE_REMOVEBG", "true").lower() == "true"
 
+    # HTML-to-PDF rendering
+    HTML_TO_PDF_RENDERER = os.getenv("HTML_TO_PDF_RENDERER", "auto").strip().lower()
+    HTML_TO_PDF_ENABLE_WEASYPRINT_FALLBACK = (
+        os.getenv("HTML_TO_PDF_ENABLE_WEASYPRINT_FALLBACK", "true").lower()
+        == "true"
+    )
+    HTML_TO_PDF_ALLOW_REMOTE_ASSETS = (
+        os.getenv("HTML_TO_PDF_ALLOW_REMOTE_ASSETS", "false").lower() == "true"
+    )
+    HTML_TO_PDF_BROWSER_TIMEOUT_MS = int(
+        os.getenv("HTML_TO_PDF_BROWSER_TIMEOUT_MS", 45000)
+    )
+    HTML_TO_PDF_BROWSER_DISABLE_SANDBOX = (
+        os.getenv("HTML_TO_PDF_BROWSER_DISABLE_SANDBOX", "true").lower()
+        == "true"
+    )
+    HTML_TO_PDF_ARCHIVE_MAX_ENTRIES = int(
+        os.getenv("HTML_TO_PDF_ARCHIVE_MAX_ENTRIES", 512)
+    )
+    HTML_TO_PDF_ARCHIVE_MAX_UNCOMPRESSED_BYTES = (
+        int(os.getenv("HTML_TO_PDF_ARCHIVE_MAX_UNCOMPRESSED_MB", 100))
+        * 1024
+        * 1024
+    )
+
 
 class DevelopmentConfig(BaseConfig):
     """Development configuration."""
@@ -219,6 +246,8 @@ class TestingConfig(BaseConfig):
     FEATURE_EDITOR = False
     FEATURE_OCR = False
     FEATURE_REMOVEBG = False
+    HTML_TO_PDF_RENDERER = "weasyprint"
+    HTML_TO_PDF_ENABLE_WEASYPRINT_FALLBACK = True
 
     # Disable Redis-backed rate limiting; use in-memory instead
     RATELIMIT_STORAGE_URI = "memory://"
