@@ -1837,5 +1837,29 @@
     "firstFree": "الأولى مجاناً!",
     "remaining": "المتبقي",
     "insufficient": "رصيد غير كافٍ"
+  },
+  "upgrade": {
+    "badge": "PRO",
+    "reason": {
+      "creditsExhausted": "رصيدك على وشك النفاد",
+      "fileTooLarge": "هذا الملف يتجاوز حد خطتك",
+      "featureLocked": "هذه الميزة تتطلب خطة Pro",
+      "general": "أطلق العنان لكامل قوة Dociva"
+    },
+    "creditsInfo": "{{remaining}} رصيد متبقٍ، مطلوب {{required}} لهذا الإجراء.",
+    "benefits": {
+      "moreCredits": "500 رصيد / شهرياً",
+      "noAds": "بدون إعلانات",
+      "priorityProcessing": "معالجة ذات أولوية",
+      "largerFiles": "رفع ملفات أكبر",
+      "longerHistory": "سجل ممتد",
+      "apiAccess": "وصول API"
+    },
+    "monthly": "$9.99/شهرياً",
+    "yearly": "$7.99/شهرياً",
+    "save": "وفّر 20%",
+    "trialNotice": "ابدأ بفترة تجريبية مجانية لمدة 7 أيام — ألغِ في أي وقت!",
+    "cta": "ابدأ الفترة التجريبية المجانية",
+    "comparePlans": "قارن جميع الخطط ←"
   }
 }

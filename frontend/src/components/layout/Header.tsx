@@ -16,6 +16,7 @@ const languages: LangOption[] = [
   { code: 'ar', label: 'العربية', flag: '🇸🇦' },
   { code: 'fr', label: 'Français', flag: '🇫🇷' },
   { code: 'es', label: 'Español', flag: '🇪🇸' },
+  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
 ];
 
 const NAV_LINKS = [

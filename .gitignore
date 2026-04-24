@@ -50,6 +50,11 @@ tmp/
 *.log
 logs/
 
+# Test output files
+test_*.txt
+pytest_*.txt
+pytest_*.log
+
 # Coverage
 htmlcov/
 .coverage

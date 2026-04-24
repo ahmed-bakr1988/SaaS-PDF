@@ -4,10 +4,10 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import en from './en.json';
 
-export type SupportedLanguage = 'en' | 'ar' | 'fr' | 'es';
+export type SupportedLanguage = 'en' | 'ar' | 'fr' | 'es' | 'de';
 
-export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['en', 'ar', 'fr', 'es'];
-export const LOCALIZED_ROUTE_LANGUAGES: SupportedLanguage[] = ['ar', 'fr', 'es'];
+export const SUPPORTED_LANGUAGES: SupportedLanguage[] = ['en', 'ar', 'fr', 'es', 'de'];
+export const LOCALIZED_ROUTE_LANGUAGES: SupportedLanguage[] = ['ar', 'fr', 'es', 'de'];
 
 const loadedLanguages = new Set<SupportedLanguage>(['en']);
 
@@ -15,11 +15,12 @@ const languageLoaders: Record<Exclude<SupportedLanguage, 'en'>, () => Promise<{ 
   ar: () => import('./ar.json'),
   fr: () => import('./fr.json'),
   es: () => import('./es.json'),
+  de: () => import('./de.json'),
 };
 
 function normalizeLanguage(language?: string): SupportedLanguage {
   const base = (language || '').split('-')[0];
-  return base === 'ar' || base === 'fr' || base === 'es' ? base : 'en';
+  return base === 'ar' || base === 'fr' || base === 'es' || base === 'de'  ? base : 'en';
 }
 
 function getInitialLanguage(): SupportedLanguage {

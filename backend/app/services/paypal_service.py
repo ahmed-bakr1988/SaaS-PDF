@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 from datetime import datetime, timezone
 
 import requests
@@ -36,7 +37,7 @@ _ACTIVE_STATUSES = {"ACTIVE", "APPROVED"}
 # ---------------------------------------------------------------------------
 
 def _get_env() -> str:
-    return current_app.config.get("PAYPAL_ENVIRONMENT", "sandbox").lower()
+    return (current_app.config.get("PAYPAL_ENVIRONMENT") or os.getenv("PAYPAL_ENVIRONMENT", "sandbox")).lower()
 
 
 def _get_base_url() -> str:
@@ -44,27 +45,32 @@ def _get_base_url() -> str:
 
 
 def get_paypal_client_id() -> str:
+    val = current_app.config.get("PAYPAL_CLIENT_ID") or os.getenv("PAYPAL_CLIENT_ID", "")
     return normalize_optional_config(
-        current_app.config.get("PAYPAL_CLIENT_ID", ""),
+        val,
         ("replace-with",),
     )
 
 
 def get_paypal_client_secret() -> str:
+    val = current_app.config.get("PAYPAL_CLIENT_SECRET") or os.getenv("PAYPAL_CLIENT_SECRET", "")
     return normalize_optional_config(
-        current_app.config.get("PAYPAL_CLIENT_SECRET", ""),
+        val,
         ("replace-with",),
     )
 
 
 def get_paypal_plan_id(billing: str = "monthly") -> str:
     """Return the configured PayPal plan ID for the requested billing cycle."""
+    monthly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
+    yearly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
+
     monthly = normalize_optional_config(
-        current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY", ""),
+        monthly_val,
         ("replace-with",),
     )
     yearly = normalize_optional_config(
-        current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY", ""),
+        yearly_val,
         ("replace-with",),
     )
     if billing == "yearly" and yearly:
@@ -152,8 +158,28 @@ def create_subscription(
 
     The user must be redirected to this URL to approve the subscription in
     their PayPal account. After approval PayPal redirects to ``return_url``.
+
+    A free trial period is automatically added for first-time subscribers
+    when ``PAYPAL_TRIAL_DAYS`` is set (default: 7).
     """
     token = _get_access_token()
+
+    # Check if user already had a subscription (no trial for returning users)
+    is_first_time = True
+    try:
+        with db_connection() as conn:
+            row = execute_query(
+                conn,
+                "SELECT paypal_subscription_id FROM users WHERE id = ?",
+                (user_id,),
+            )
+            if row and row[0].get("paypal_subscription_id"):
+                is_first_time = False
+    except Exception:
+        pass  # Non-critical — still allow subscription
+
+    trial_days = int(current_app.config.get("PAYPAL_TRIAL_DAYS", "7"))
+
     payload = {
         "plan_id": plan_id,
         "custom_id": str(user_id),
@@ -165,6 +191,26 @@ def create_subscription(
             "user_action": "SUBSCRIBE_NOW",
         },
     }
+
+    # Add free trial for first-time subscribers
+    if is_first_time and trial_days > 0:
+        payload["plan"] = {
+            "billing_cycles": [
+                {
+                    "sequence": 1,
+                    "tenure_type": "TRIAL",
+                    "total_cycles": 1,
+                    "frequency": {
+                        "interval_unit": "DAY",
+                        "interval_count": trial_days,
+                    },
+                    "pricing_scheme": {
+                        "fixed_price": {"value": "0", "currency_code": "USD"},
+                    },
+                },
+            ],
+        }
+
     resp = requests.post(
         f"{_get_base_url()}/v1/billing/subscriptions",
         json=payload,
@@ -220,8 +266,9 @@ def verify_webhook_signature(
     local signature verification because it does not require certificate
     pinning.
     """
+    webhook_val = current_app.config.get("PAYPAL_WEBHOOK_ID") or os.getenv("PAYPAL_WEBHOOK_ID", "")
     webhook_id = normalize_optional_config(
-        current_app.config.get("PAYPAL_WEBHOOK_ID", ""),
+        webhook_val,
         ("replace-with",),
     )
     if not webhook_id:

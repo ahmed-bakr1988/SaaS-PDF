@@ -1853,5 +1853,29 @@
     "firstFree": "First free!",
     "remaining": "Remaining",
     "insufficient": "Insufficient credits"
+  },
+  "upgrade": {
+    "badge": "PRO",
+    "reason": {
+      "creditsExhausted": "Your credits are running low",
+      "fileTooLarge": "This file exceeds your plan limit",
+      "featureLocked": "This feature requires Pro",
+      "general": "Unlock the full power of Dociva"
+    },
+    "creditsInfo": "{{remaining}} credits remaining, {{required}} required for this action.",
+    "benefits": {
+      "moreCredits": "500 credits / month",
+      "noAds": "No advertisements",
+      "priorityProcessing": "Priority processing",
+      "largerFiles": "Larger file uploads",
+      "longerHistory": "Extended history",
+      "apiAccess": "API access"
+    },
+    "monthly": "$9.99/mo",
+    "yearly": "$7.99/mo",
+    "save": "SAVE 20%",
+    "trialNotice": "Start with a 7-day free trial — cancel anytime!",
+    "cta": "Start Free Trial",
+    "comparePlans": "Compare all plans →"
   }
 }
