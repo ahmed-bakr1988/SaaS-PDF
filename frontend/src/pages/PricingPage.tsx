@@ -8,7 +8,6 @@ import { useAuthStore } from '@/stores/authStore';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
 import { getApiClient } from '@/services/api';
 
-const API_BASE = import.meta.env.VITE_API_URL || '';
 const api = getApiClient();
 
 interface PlanFeature {
@@ -47,7 +46,9 @@ export default function PricingPage() {
   async function handleUpgrade(plan: 'pro' | 'enterprise') {
     // Track interest in paid plan
     try {
-      await api.post('/internal/admin/plan-interest/record', { plan, billing });
+      // NOTE: `api` is configured with baseURL '/api' and absolute paths (leading '/')
+      // bypass baseURL in axios, so keep these as relative URLs.
+      await api.post('internal/admin/plan-interest/record', { plan, billing });
     } catch {
       // Non-critical — don't block the flow
     }
@@ -63,10 +64,12 @@ export default function PricingPage() {
     }
     setLoading(true);
     try {
-      const { data } = await api.post(`${API_BASE}/paypal/create-subscription`, { billing });
+      const { data } = await api.post('paypal/create-subscription', { billing });
       if (data.url) window.location.href = data.url;
-    } catch {
-      alert(t('pages.pricing.checkoutNotReady', 'Payment system is being set up. Please try again later.'));
+    } catch (err) {
+      console.error('PayPal create-subscription error:', err);
+      const message = err instanceof Error ? err.message : '';
+      alert(message || t('pages.pricing.checkoutNotReady', 'Payment system is being set up. Please try again later.'));
     } finally {
       setLoading(false);
     }
@@ -198,15 +201,19 @@ export default function PricingPage() {
               {t('pages.pricing.popular', 'MOST POPULAR')}
             </div>
 
-            <div className="mb-6 rounded-xl bg-gradient-to-r from-primary-600 to-primary-500 py-3 text-center">
-              <h2 className="text-lg font-bold text-white">
+            <div className="mb-6 rounded-xl bg-gradient-to-r from-primary-600 via-primary-500 to-violet-500 py-3 text-center">
+              <h2 className="flex items-center justify-center gap-2 text-lg font-bold text-white">
+                <Crown className="h-5 w-5" />
                 {t('pages.pricing.proPlan', 'Pro')}
               </h2>
             </div>
 
-            <div className="mb-6">
+            <div className="mb-2">
               <span className="text-4xl font-extrabold text-slate-900 dark:text-white">${prices.pro}</span>
               <span className="text-slate-500 dark:text-slate-400"> / {t('pages.pricing.month', 'month')}</span>
+            </div>
+            <div className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
+              🎁 {t('pages.pricing.trialBadge', '7-day free trial included')}
             </div>
 
             <ul className="mb-8 flex-1 space-y-3">
@@ -340,6 +347,14 @@ export default function PricingPage() {
               </h3>
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 {t('pages.pricing.faq3a', 'We accept major credit and debit cards and PayPal. Payments are processed securely — we never see your card details.')}
+              </p>
+            </div>
+            <div>
+              <h3 className="mb-2 font-semibold text-slate-900 dark:text-white">
+                {t('pages.pricing.faq4q', 'How does the 7-day free trial work?')}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {t('pages.pricing.faq4a', 'When you subscribe to Pro, you get 7 days completely free. You can cancel at any time during the trial and you won\'t be charged. After the trial, your subscription starts automatically.')}
               </p>
             </div>
           </div>
