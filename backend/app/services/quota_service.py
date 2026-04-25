@@ -18,42 +18,49 @@ class QuotaLimits:
 
     CONVERSIONS_PER_DAY = {
         "free": 5,
+        "micro": 10,  # Limits handled fully in track logic
         "pro": 100,
         "business": float("inf"),
     }
 
     MAX_FILE_SIZE_MB = {
         "free": 10,
+        "micro": 100,
         "pro": 100,
         "business": 500,
     }
 
     STORAGE_LIMIT_MB = {
         "free": 500,
+        "micro": 5000,
         "pro": 5000,
         "business": float("inf"),
     }
 
     API_RATE_LIMIT = {
         "free": 10,
+        "micro": 60,
         "pro": 60,
         "business": float("inf"),
     }
 
     CONCURRENT_JOBS = {
         "free": 1,
+        "micro": 3,
         "pro": 3,
         "business": 10,
     }
 
     BATCH_FILE_LIMIT = {
         "free": 1,
+        "micro": 5,
         "pro": 5,
         "business": 20,
     }
 
     PREMIUM_FEATURES = {
         "free": set(),
+        "micro": {"batch_processing", "priority_queue", "email_delivery", "api_access"},
         "pro": {"batch_processing", "priority_queue", "email_delivery", "api_access"},
         "business": {
             "batch_processing",
@@ -119,6 +126,15 @@ class QuotaService:
                         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
                     )
                 """)
+                cursor.execute("""
+                    CREATE TABLE IF NOT EXISTS micro_plan_usage (
+                        user_id INTEGER PRIMARY KEY,
+                        files_used INTEGER DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
             else:
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS daily_usage (
@@ -161,6 +177,15 @@ class QuotaService:
                         feature TEXT NOT NULL,
                         accessed_at TEXT DEFAULT CURRENT_TIMESTAMP,
                         allowed BOOLEAN DEFAULT 1,
+                        FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
+                    )
+                """)
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS micro_plan_usage (
+                        user_id INTEGER PRIMARY KEY,
+                        files_used INTEGER DEFAULT 0,
+                        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
                     )
                 """)
@@ -259,6 +284,43 @@ class QuotaService:
             )
 
             logger.info(f"Recorded conversion for user {user_id}: {file_size_mb}MB")
+            
+            # Micro Plan Usage Check
+            if plan == "micro":
+                upsert_micro_sql = (
+                    """
+                    INSERT INTO micro_plan_usage (user_id, files_used)
+                    VALUES (%s, 1)
+                    ON CONFLICT(user_id) DO UPDATE SET
+                        files_used = micro_plan_usage.files_used + 1,
+                        updated_at = CURRENT_TIMESTAMP
+                    RETURNING files_used
+                    """
+                    if is_postgres()
+                    else """
+                    INSERT INTO micro_plan_usage (user_id, files_used)
+                    VALUES (?, 1)
+                    ON CONFLICT(user_id) DO UPDATE SET
+                        files_used = micro_plan_usage.files_used + 1,
+                        updated_at = CURRENT_TIMESTAMP
+                    RETURNING files_used
+                    """
+                )
+                micro_cursor = execute_query(conn, upsert_micro_sql, (user_id,))
+                micro_usage_row = micro_cursor.fetchone()
+                micro_files_used = micro_usage_row["files_used"] if micro_usage_row else 1
+                
+                if micro_files_used >= 10:
+                    logger.info(f"User {user_id} reached 10 files on micro plan. Downgrading to free and cancelling subscription.")
+                    from app.services.paypal_service import cancel_paypal_subscription
+                    # Upgrade to free immediately
+                    QuotaService.downgrade_plan(user_id, "free")
+                    # Attempt to cancel PayPal subscription
+                    try:
+                        cancel_paypal_subscription(user_id)
+                    except Exception as e:
+                        logger.error(f"Failed to cancel paypal subscription for user {user_id}: {e}")
+
             return True
 
     @staticmethod
@@ -382,6 +444,16 @@ class QuotaService:
                 else "UPDATE users SET plan = ?, updated_at = ? WHERE id = ?"
             )
             execute_query(conn, sql, (new_plan, _utc_now(), user_id))
+            
+            # Reset micro usage if upgrading to micro
+            if new_plan == "micro":
+                reset_micro_sql = (
+                    "INSERT INTO micro_plan_usage (user_id, files_used) VALUES (%s, 0) ON CONFLICT(user_id) DO UPDATE SET files_used = 0, updated_at = CURRENT_TIMESTAMP"
+                    if is_postgres()
+                    else "INSERT INTO micro_plan_usage (user_id, files_used) VALUES (?, 0) ON CONFLICT(user_id) DO UPDATE SET files_used = 0, updated_at = CURRENT_TIMESTAMP"
+                )
+                execute_query(conn, reset_micro_sql, (user_id,))
+                
             logger.info(f"User {user_id} upgraded to {new_plan}")
             return True
 

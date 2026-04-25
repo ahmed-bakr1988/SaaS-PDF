@@ -27,7 +27,7 @@ from app.utils.database import (
 
 logger = logging.getLogger(__name__)
 
-VALID_PLANS = {"free", "pro"}
+VALID_PLANS = {"free", "micro", "pro"}
 VALID_ROLES = {"user", "admin"}
 
 
@@ -40,7 +40,9 @@ def get_current_period_month() -> str:
 
 
 def normalize_plan(plan: str | None) -> str:
-    return "pro" if plan == "pro" else "free"
+    if plan in ("pro", "micro"):
+        return plan
+    return "free"
 
 
 def normalize_role(role: str | None) -> str:

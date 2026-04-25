@@ -60,12 +60,16 @@ def get_paypal_client_secret() -> str:
     )
 
 
-def get_paypal_plan_id(billing: str = "monthly", trial: bool = False) -> str:
+def get_paypal_plan_id(billing: str = "monthly", trial: bool = False, is_micro: bool = False) -> str:
     """Return the configured PayPal plan ID for the requested billing cycle.
 
     Trial plans are optional dedicated PayPal plan IDs. If a trial plan is not
     configured, the regular plan is returned instead.
     """
+    if is_micro:
+        val = current_app.config.get("PAYPAL_PLAN_ID_MICRO") or os.getenv("PAYPAL_PLAN_ID_MICRO", "")
+        return normalize_optional_config(val, ("replace-with",))
+
     monthly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
     yearly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
     monthly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
@@ -215,7 +219,9 @@ def create_subscription(
     # Prefer dedicated PayPal trial plans over runtime billing-cycle overrides.
     # The override approach is brittle and PayPal rejects our current payload in
     # sandbox with 422 validation errors.
-    if is_first_time and trial_days > 0:
+    is_micro = plan_id == get_paypal_plan_id(is_micro=True)
+    
+    if is_first_time and trial_days > 0 and not is_micro:
         trial_plan_id = get_paypal_plan_id(
             "yearly" if plan_id == get_paypal_plan_id("yearly") else "monthly",
             trial=True,
@@ -258,6 +264,36 @@ def get_subscription(subscription_id: str) -> dict:
     )
     resp.raise_for_status()
     return resp.json()
+
+
+def cancel_paypal_subscription(user_id: int) -> bool:
+    """Cancel a user's active PayPal subscription."""
+    with db_connection() as conn:
+        sql = (
+            "SELECT paypal_subscription_id FROM users WHERE id = %s"
+            if is_postgres()
+            else "SELECT paypal_subscription_id FROM users WHERE id = ?"
+        )
+        cursor = execute_query(conn, sql, (user_id,))
+        row = cursor.fetchone()
+        sub_id = row["paypal_subscription_id"] if row else None
+        
+    if not sub_id:
+        return False
+        
+    token = _get_access_token()
+    resp = requests.post(
+        f"{_get_base_url()}/v1/billing/subscriptions/{sub_id}/cancel",
+        json={"reason": "Automatic cancellation after micro trial limits reached."},
+        headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
+        timeout=10,
+    )
+    if resp.status_code == 204:
+        logger.info(f"Cancelled PayPal subscription {sub_id} for user {user_id}")
+        return True
+    else:
+        logger.warning(f"Failed to cancel PayPal subscription {sub_id} for user {user_id}: {resp.text}")
+        return False
 
 
 # ---------------------------------------------------------------------------
@@ -349,8 +385,8 @@ def _find_user_by_paypal_subscription(subscription_id: str) -> dict | None:
         return row_to_dict(cursor.fetchone())
 
 
-def _activate_user_plan(user_id: int, subscription_id: str) -> None:
-    update_user_plan(user_id, "pro")
+def _activate_user_plan(user_id: int, subscription_id: str, plan_type: str = "pro") -> None:
+    update_user_plan(user_id, plan_type)
     with db_connection() as conn:
         sql = (
             "UPDATE users SET paypal_subscription_id = %s, billing_provider = 'paypal', updated_at = %s WHERE id = %s"
@@ -358,7 +394,7 @@ def _activate_user_plan(user_id: int, subscription_id: str) -> None:
             else "UPDATE users SET paypal_subscription_id = ?, billing_provider = 'paypal', updated_at = ? WHERE id = ?"
         )
         execute_query(conn, sql, (subscription_id, _utc_now(), user_id))
-    logger.info("User %s activated Pro via PayPal subscription %s.", user_id, subscription_id)
+    logger.info("User %s activated %s via PayPal subscription %s.", user_id, plan_type, subscription_id)
 
 
 def _deactivate_user_plan(user_id: int, reason: str) -> None:
@@ -376,26 +412,30 @@ def _deactivate_user_plan(user_id: int, reason: str) -> None:
 def _handle_subscription_activated(resource: dict) -> None:
     subscription_id = resource.get("id")
     custom_id = resource.get("custom_id")  # set to user_id on creation
+    plan_id = resource.get("plan_id")
+    plan_type = "micro" if plan_id and plan_id == get_paypal_plan_id(is_micro=True) else "pro"
 
     if custom_id:
-        _activate_user_plan(int(custom_id), subscription_id)
+        _activate_user_plan(int(custom_id), subscription_id, plan_type=plan_type)
     else:
         # Fallback: look up by existing paypal_subscription_id
         user = _find_user_by_paypal_subscription(subscription_id)
         if user:
-            _activate_user_plan(user["id"], subscription_id)
+            _activate_user_plan(user["id"], subscription_id, plan_type=plan_type)
 
 
 def _handle_subscription_updated(resource: dict) -> None:
     subscription_id = resource.get("id")
     status = resource.get("status", "")
+    plan_id = resource.get("plan_id")
     user = _find_user_by_paypal_subscription(subscription_id)
     if not user:
         return
 
     if status in _ACTIVE_STATUSES:
-        update_user_plan(user["id"], "pro")
-        logger.info("User %s PayPal subscription updated — Pro plan.", user["id"])
+        plan_type = "micro" if plan_id and plan_id == get_paypal_plan_id(is_micro=True) else "pro"
+        update_user_plan(user["id"], plan_type)
+        logger.info("User %s PayPal subscription updated — %s plan.", user["id"], plan_type)
     elif status in ("CANCELLED", "SUSPENDED", "EXPIRED"):
         _deactivate_user_plan(user["id"], f"subscription status: {status}")
 

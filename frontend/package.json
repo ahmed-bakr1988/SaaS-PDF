@@ -42,6 +42,7 @@
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.0",
     "autoprefixer": "^10.4.0",
+    "eslint": "^10.2.1",
     "jsdom": "^28.1.0",
     "msw": "^2.12.10",
     "postcss": "^8.4.0",

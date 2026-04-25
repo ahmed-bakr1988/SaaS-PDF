@@ -41,11 +41,15 @@ def create_subscription_route():
         return jsonify({"error": "Payment system is not configured."}), 503
 
     data = request.get_json(silent=True) or {}
+    plan_type = str(data.get("plan", "")).lower()
     billing = str(data.get("billing", "monthly")).lower()
     if billing not in ("monthly", "yearly"):
         billing = "monthly"
 
-    plan_id = get_paypal_plan_id(billing)
+    if plan_type == "micro":
+        plan_id = get_paypal_plan_id(is_micro=True)
+    else:
+        plan_id = get_paypal_plan_id(billing)
     if not plan_id:
         return jsonify({"error": "Selected billing cycle is not available."}), 503
 
