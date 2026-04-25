@@ -60,10 +60,16 @@ def get_paypal_client_secret() -> str:
     )
 
 
-def get_paypal_plan_id(billing: str = "monthly") -> str:
-    """Return the configured PayPal plan ID for the requested billing cycle."""
+def get_paypal_plan_id(billing: str = "monthly", trial: bool = False) -> str:
+    """Return the configured PayPal plan ID for the requested billing cycle.
+
+    Trial plans are optional dedicated PayPal plan IDs. If a trial plan is not
+    configured, the regular plan is returned instead.
+    """
     monthly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
     yearly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
+    monthly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
+    yearly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL", "")
 
     monthly = normalize_optional_config(
         monthly_val,
@@ -73,8 +79,22 @@ def get_paypal_plan_id(billing: str = "monthly") -> str:
         yearly_val,
         ("replace-with",),
     )
+    monthly_trial = normalize_optional_config(
+        monthly_trial_val,
+        ("replace-with",),
+    )
+    yearly_trial = normalize_optional_config(
+        yearly_trial_val,
+        ("replace-with",),
+    )
+
+    if billing == "yearly" and trial and yearly_trial:
+        return yearly_trial
     if billing == "yearly" and yearly:
         return yearly
+
+    if trial and monthly_trial:
+        return monthly_trial
     return monthly
 
 
@@ -192,24 +212,16 @@ def create_subscription(
         },
     }
 
-    # Add free trial for first-time subscribers
+    # Prefer dedicated PayPal trial plans over runtime billing-cycle overrides.
+    # The override approach is brittle and PayPal rejects our current payload in
+    # sandbox with 422 validation errors.
     if is_first_time and trial_days > 0:
-        payload["plan"] = {
-            "billing_cycles": [
-                {
-                    "sequence": 1,
-                    "tenure_type": "TRIAL",
-                    "total_cycles": 1,
-                    "frequency": {
-                        "interval_unit": "DAY",
-                        "interval_count": trial_days,
-                    },
-                    "pricing_scheme": {
-                        "fixed_price": {"value": "0", "currency_code": "USD"},
-                    },
-                },
-            ],
-        }
+        trial_plan_id = get_paypal_plan_id(
+            "yearly" if plan_id == get_paypal_plan_id("yearly") else "monthly",
+            trial=True,
+        )
+        if trial_plan_id and trial_plan_id != plan_id:
+            payload["plan_id"] = trial_plan_id
 
     resp = requests.post(
         f"{_get_base_url()}/v1/billing/subscriptions",
