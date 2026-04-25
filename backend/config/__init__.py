@@ -177,6 +177,7 @@ class BaseConfig:
     PAYPAL_PLAN_ID_PRO_YEARLY = os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
     PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL = os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
     PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL = os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL", "")
+    PAYPAL_TRIAL_DAYS = int(os.getenv("PAYPAL_TRIAL_DAYS", "2"))
 
     # Sentry
     SENTRY_DSN = os.getenv("SENTRY_DSN", "")

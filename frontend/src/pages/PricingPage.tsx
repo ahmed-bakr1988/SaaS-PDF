@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
-import { ArrowRight, Check, Coins, Crown, Loader2, Scale, Shield, Zap } from 'lucide-react';
+import { ArrowRight, Check, Coins, Crown, Loader2, Scale, Shield, Zap, AlertCircle } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
 import { getApiClient } from '@/services/api';
@@ -47,14 +47,31 @@ export default function PricingPage() {
   const showEnterprise = !user || user.plan !== 'enterprise';
   // Simple coins banner for project credits
   const coinsBanner = (
-    <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center justify-between">
+    <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center justify-between dark:border-slate-700 dark:bg-slate-800">
       <div className="flex items-center gap-2">
-        <span className="font-semibold">Coins</span>
-        <span className="font-semibold">500</span>
+        <Coins className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+        <span className="font-semibold text-slate-900 dark:text-white">500 Coins</span>
       </div>
-      <div className="text-sm text-slate-600">
+      <div className="text-sm text-slate-600 dark:text-slate-300">
         {t('pages.pricing.coinsNote', 'Contact Management to request more.')} 
-        <a href="/internal/admin" className="ml-2 text-blue-600 underline">Management</a>
+        <Link to="/contact" className="ml-2 text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+          {t('pages.pricing.contactManagement', 'Management')}
+        </Link>
+      </div>
+    </div>
+  );
+
+  // Post-trial notification banner (shows when user's trial might have expired)
+  const trialExpiryBanner = user && user.plan === 'pro' && (
+    <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-start gap-3 dark:border-amber-900/50 dark:bg-amber-900/20">
+      <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+      <div className="flex-1">
+        <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+          {t('pages.pricing.trialExpiryTitle', 'Your trial is ending')}
+        </h3>
+        <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+          {t('pages.pricing.trialExpiryDesc', 'Upgrade your plan to continue enjoying unlimited access. Your Pro plan gives you 500 credits per month and priority processing.')}
+        </p>
       </div>
     </div>
   );
@@ -176,6 +193,7 @@ export default function PricingPage() {
 
         {/* 3-tier Plan Cards */}
         {coinsBanner}
+        {trialExpiryBanner}
         <div className="mb-16 grid gap-8 md:grid-cols-3">
           {/* Free Plan */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -229,7 +247,7 @@ export default function PricingPage() {
               <span className="text-slate-500 dark:text-slate-400"> / {t('pages.pricing.month', 'month')}</span>
             </div>
             <div className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800 dark:bg-amber-900/30 dark:text-amber-200">
-              🎁 {t('pages.pricing.trialBadge', '7-day free trial included')}
+              🎁 {t('pages.pricing.trialBadge', '2-day free trial included')}
             </div>
 
             <ul className="mb-8 flex-1 space-y-3">
