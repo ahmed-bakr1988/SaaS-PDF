@@ -264,39 +264,42 @@ export default function PricingPage() {
 
           {showEnterprise && (
             <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
-            <div className="mb-6 rounded-xl bg-gradient-to-r from-violet-200 to-violet-100 py-3 text-center dark:from-violet-900/30 dark:to-violet-900/10">
-              <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">
-                {t('pages.pricing.enterprisePlan', 'Enterprise')}
-              </h2>
+              <div className="mb-6 rounded-xl bg-gradient-to-r from-violet-200 to-violet-100 py-3 text-center dark:from-violet-900/30 dark:to-violet-900/10">
+                <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">
+                  {t('pages.pricing.enterprisePlan', 'Enterprise')}
+                </h2>
+              </div>
+
+              <div className="mb-2">
+                <div className="mb-6">
+                  <span className="text-4xl font-extrabold text-slate-900 dark:text-white">${prices.enterprise}</span>
+                  <span className="text-slate-500 dark:text-slate-400"> / {t('pages.pricing.month', 'month')}</span>
+                </div>
+
+                <ul className="mb-8 flex-1 space-y-3">
+                  {FEATURES.filter((f) => f.enterprise !== false).map((f) => (
+                    <li key={f.key} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
+                      <span>
+                        {t(`pages.pricing.features.${f.key}`, f.key)}
+                        {typeof f.enterprise === 'string' && (
+                          <span className="ml-1 text-xs text-violet-600 dark:text-violet-400">({f.enterprise})</span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <button
+                  onClick={() => handleUpgrade('enterprise')}
+                  className="block w-full rounded-xl border border-violet-300 bg-violet-50 py-3 text-center text-sm font-semibold text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-700 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/40"
+                >
+                  {t('pages.pricing.contactSales', 'Contact Sales')}
+                </button>
+              </div>
             </div>
           )}
 
-            <div className="mb-6">
-              <span className="text-4xl font-extrabold text-slate-900 dark:text-white">${prices.enterprise}</span>
-              <span className="text-slate-500 dark:text-slate-400"> / {t('pages.pricing.month', 'month')}</span>
-            </div>
-
-            <ul className="mb-8 flex-1 space-y-3">
-              {FEATURES.filter((f) => f.enterprise !== false).map((f) => (
-                <li key={f.key} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                  <span>
-                    {t(`pages.pricing.features.${f.key}`, f.key)}
-                    {typeof f.enterprise === 'string' && (
-                      <span className="ml-1 text-xs text-violet-600 dark:text-violet-400">({f.enterprise})</span>
-                    )}
-                  </span>
-                </li>
-              ))}
-            </ul>
-
-            <button
-              onClick={() => handleUpgrade('enterprise')}
-              className="block w-full rounded-xl border border-violet-300 bg-violet-50 py-3 text-center text-sm font-semibold text-violet-700 transition-colors hover:bg-violet-100 dark:border-violet-700 dark:bg-violet-900/20 dark:text-violet-300 dark:hover:bg-violet-900/40"
-            >
-              {t('pages.pricing.contactSales', 'Contact Sales')}
-            </button>
-          </div>
         </div>
 
         {/* Trust section */}
