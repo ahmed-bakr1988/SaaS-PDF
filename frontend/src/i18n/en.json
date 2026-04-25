@@ -396,6 +396,8 @@
       "faq2a": "Yes. Cancel anytime and your account returns to the Free plan at the end of the current billing period.",
       "faq3q": "What payment methods do you accept?",
       "faq3a": "We accept major credit and debit cards and PayPal. Payments are processed securely — we never see your card details.",
+      "faq4q": "How does the 2-day free trial work?",
+      "faq4a": "When you subscribe to Pro, you get a 2-day free trial. You can cancel at any time during the trial and you won't be charged. After the trial, your subscription starts automatically.",
       "checkoutNotReady": "Payment system is being set up. Please try again later.",
       "transparencyTitle": "See exactly how credits are counted",
       "transparencyBody": "Read the full explanation of fixed vs dynamic pricing, pre-run quotes, and why we price by workload instead of a rigid transaction count.",
@@ -1886,7 +1888,7 @@
     "monthly": "$9.99/mo",
     "yearly": "$7.99/mo",
     "save": "SAVE 20%",
-    "trialNotice": "Start with a 7-day free trial — cancel anytime!",
+    "trialNotice": "Start with a 2-day free trial — cancel anytime!",
     "cta": "Start Free Trial",
     "comparePlans": "Compare all plans →"
   }
