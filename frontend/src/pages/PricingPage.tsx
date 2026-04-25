@@ -42,6 +42,22 @@ export default function PricingPage() {
   const user = useAuthStore((s) => s.user);
   const [loading, setLoading] = useState(false);
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
+  // Hide already-purchased plans for the current user
+  const showPro = !user || user.plan !== 'pro';
+  const showEnterprise = !user || user.plan !== 'enterprise';
+  // Simple coins banner for project credits
+  const coinsBanner = (
+    <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <span className="font-semibold">Coins</span>
+        <span className="font-semibold">500</span>
+      </div>
+      <div className="text-sm text-slate-600">
+        {t('pages.pricing.coinsNote', 'Contact Management to request more.')} 
+        <a href="/internal/admin" className="ml-2 text-blue-600 underline">Management</a>
+      </div>
+    </div>
+  );
 
   async function handleUpgrade(plan: 'pro' | 'enterprise') {
     // Track interest in paid plan
@@ -159,6 +175,7 @@ export default function PricingPage() {
         </div>
 
         {/* 3-tier Plan Cards */}
+        {coinsBanner}
         <div className="mb-16 grid gap-8 md:grid-cols-3">
           {/* Free Plan */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
@@ -194,9 +211,8 @@ export default function PricingPage() {
               {t('pages.pricing.getStarted', 'Get Started')}
             </Link>
           </div>
-
-          {/* Pro Plan */}
-          <div className="relative flex flex-col rounded-2xl border-2 border-primary-500 bg-white p-8 shadow-lg dark:bg-slate-800">
+          {showPro && (
+            <div className="relative flex flex-col rounded-2xl border-2 border-primary-500 bg-white p-8 shadow-lg dark:bg-slate-800">
             <div className="absolute -top-3 right-6 rounded-full bg-slate-800 px-4 py-1 text-xs font-bold text-white dark:bg-white dark:text-slate-900">
               {t('pages.pricing.popular', 'MOST POPULAR')}
             </div>
@@ -243,15 +259,17 @@ export default function PricingPage() {
                 t('pages.pricing.startFreeTrial', 'Start Your Free Trial')
               )}
             </button>
-          </div>
+            </div>
+          )}
 
-          {/* Enterprise Plan */}
-          <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+          {showEnterprise && (
+            <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="mb-6 rounded-xl bg-gradient-to-r from-violet-200 to-violet-100 py-3 text-center dark:from-violet-900/30 dark:to-violet-900/10">
               <h2 className="text-lg font-bold text-violet-700 dark:text-violet-300">
                 {t('pages.pricing.enterprisePlan', 'Enterprise')}
               </h2>
             </div>
+          )}
 
             <div className="mb-6">
               <span className="text-4xl font-extrabold text-slate-900 dark:text-white">${prices.enterprise}</span>
