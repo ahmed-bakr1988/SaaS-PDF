@@ -1384,6 +1384,18 @@ def v1_crop_pdf_route():
         return jsonify({"error": "Margin values must be numbers."}), 400
 
     pages = request.form.get("pages", "all")
+    crop_x_pct = request.form.get("crop_x_pct")
+    crop_y_pct = request.form.get("crop_y_pct")
+    crop_width_pct = request.form.get("crop_width_pct")
+    crop_height_pct = request.form.get("crop_height_pct")
+
+    try:
+        crop_x_pct = float(crop_x_pct) if crop_x_pct is not None else None
+        crop_y_pct = float(crop_y_pct) if crop_y_pct is not None else None
+        crop_width_pct = float(crop_width_pct) if crop_width_pct is not None else None
+        crop_height_pct = float(crop_height_pct) if crop_height_pct is not None else None
+    except (ValueError, TypeError):
+        return jsonify({"error": "Crop box values must be numbers."}), 400
 
     try:
         original_filename, ext = validate_actor_file(
@@ -1403,6 +1415,10 @@ def v1_crop_pdf_route():
         margin_top,
         margin_bottom,
         pages,
+        crop_x_pct,
+        crop_y_pct,
+        crop_width_pct,
+        crop_height_pct,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "crop-pdf", task.id)

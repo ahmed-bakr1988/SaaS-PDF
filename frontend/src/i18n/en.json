@@ -1176,7 +1176,15 @@
       "top": "Top",
       "bottom": "Bottom",
       "left": "Left",
-      "right": "Right"
+      "right": "Right",
+      "visualInstruction": "Drag the frame to keep the part you want, then choose whether to apply it to the current page or all pages.",
+      "resetCrop": "Reset crop",
+      "pagesLabel": "Pages",
+      "allPages": "All pages",
+      "currentPage": "Current page",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "invalidSelection": "Please draw a valid crop area first."
     },
     "flattenPdf": {
       "title": "Flatten PDF",

@@ -49,14 +49,26 @@ def _finalize_task(
 def crop_pdf_task(
     self, input_path, task_id, original_filename,
     margin_left=0, margin_right=0, margin_top=0, margin_bottom=0, pages="all",
+    crop_x_pct=None, crop_y_pct=None, crop_width_pct=None, crop_height_pct=None,
     user_id=None, usage_source="web", api_key_id=None,
 ):
     output_dir = _get_output_dir(task_id)
     output_path = os.path.join(output_dir, f"{task_id}_cropped.pdf")
     try:
         self.update_state(state="PROCESSING", meta={"step": "Cropping PDF..."})
-        stats = crop_pdf(input_path, output_path, margin_left, margin_right,
-                         margin_top, margin_bottom, pages)
+        stats = crop_pdf(
+            input_path,
+            output_path,
+            margin_left,
+            margin_right,
+            margin_top,
+            margin_bottom,
+            pages,
+            crop_x_pct,
+            crop_y_pct,
+            crop_width_pct,
+            crop_height_pct,
+        )
 
         self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
         s3_key = storage.upload_file(output_path, task_id, folder="outputs")

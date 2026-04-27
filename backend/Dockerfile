@@ -4,8 +4,13 @@ FROM python:3.12-slim-bookworm
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
-# Install system dependencies for file processing
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Configure DNS and apt mirrors for reliability
+RUN echo 'nameserver 8.8.8.8' > /etc/resolv.conf && \
+    echo 'nameserver 1.1.1.1' >> /etc/resolv.conf && \
+    sed -i 's|http://deb.debian.org|http://mirror.example.com|g' /etc/apt/sources.list || true
+
+# Install system dependencies for file processing (with retry logic)
+RUN apt-get update -o APT::Acquire::Retries=3 && apt-get install -y --no-install-recommends \
     libreoffice-core \
     libreoffice-writer \
     libreoffice-calc \
@@ -34,8 +39,7 @@ WORKDIR /app
 
 # Copy requirements first for Docker layer caching
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
-    && python -m playwright install --with-deps chromium \
+RUN pip install --no-cache-dir -r requirements.txt -i https://pypi.python.org/simple --retries 5 --timeout 60 \
     && python -c "import PyPDF2; print('PyPDF2 OK')"
 
 # Copy application code

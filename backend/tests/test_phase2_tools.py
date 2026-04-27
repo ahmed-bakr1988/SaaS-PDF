@@ -192,7 +192,7 @@ class TestCropPdf:
         _, mock_delay = _mock_route(monkeypatch, 'pdf_extra', 'crop_pdf_task')
         resp = client.post('/api/pdf-tools/crop', data={
             'file': (io.BytesIO(_make_pdf()), 'test.pdf'),
-            'left': '10', 'right': '10', 'top': '20', 'bottom': '20',
+            'margin_left': '10', 'margin_right': '10', 'margin_top': '20', 'margin_bottom': '20',
         }, content_type='multipart/form-data')
         assert resp.status_code == 202
         assert resp.get_json()['task_id'] == 'mock-task-id'

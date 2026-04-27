@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
 import { generateWebPage, getSiteOrigin } from '@/utils/seo';
-import { ArrowRight, Check, Coins, Crown, Loader2, Scale, Shield, Zap, AlertCircle } from 'lucide-react';
+import { ArrowRight, Check, Coins, Crown, Loader2, Scale, Shield, Zap } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import SocialProofStrip from '@/components/shared/SocialProofStrip';
 import { getApiClient } from '@/services/api';
@@ -61,22 +61,7 @@ export default function PricingPage() {
     </div>
   );
 
-  // Post-trial notification banner (shows when user's trial might have expired)
-  const trialExpiryBanner = user && user.plan === 'pro' && (
-    <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50 p-4 flex items-start gap-3 dark:border-amber-900/50 dark:bg-amber-900/20">
-      <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
-      <div className="flex-1">
-        <h3 className="font-semibold text-amber-900 dark:text-amber-100">
-          {t('pages.pricing.trialExpiryTitle', 'Your trial is ending')}
-        </h3>
-        <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
-          {t('pages.pricing.trialExpiryDesc', 'Upgrade your plan to continue enjoying unlimited access. Your Pro plan gives you 500 credits per month and priority processing.')}
-        </p>
-      </div>
-    </div>
-  );
-
-  async function handleUpgrade(plan: 'micro' | 'pro' | 'enterprise') {
+  async function handleUpgrade(plan: 'pro' | 'enterprise') {
     // Track interest in paid plan
     try {
       // NOTE: `api` is configured with baseURL '/api' and absolute paths (leading '/')
@@ -97,7 +82,7 @@ export default function PricingPage() {
     }
     setLoading(true);
     try {
-      const { data } = await api.post('paypal/create-subscription', { billing, plan });
+      const { data } = await api.post('paypal/create-subscription', { billing });
       if (data.url) window.location.href = data.url;
     } catch (err) {
       console.error('PayPal create-subscription error:', err);
@@ -193,8 +178,7 @@ export default function PricingPage() {
 
         {/* 3-tier Plan Cards */}
         {coinsBanner}
-        {trialExpiryBanner}
-        <div className="mb-16 grid gap-8 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mb-16 grid gap-8 md:grid-cols-3">
           {/* Free Plan */}
           <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-800">
             <div className="mb-6 rounded-xl bg-gradient-to-r from-primary-100 to-primary-50 py-3 text-center dark:from-primary-900/30 dark:to-primary-900/10">
@@ -229,54 +213,6 @@ export default function PricingPage() {
               {t('pages.pricing.getStarted', 'Get Started')}
             </Link>
           </div>
-
-          {/* Micro Trial Plan */}
-          {(showPro || user?.plan === 'free') && (
-            <div className="relative flex flex-col rounded-2xl border border-blue-200 bg-white p-8 shadow-sm dark:border-blue-700/50 dark:bg-slate-800">
-              <div className="mb-6 rounded-xl bg-gradient-to-r from-blue-100 to-blue-50 py-3 text-center dark:from-blue-900/30 dark:to-blue-900/10">
-                <h2 className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                  {t('pages.pricing.microPlan', 'Micro Trial')}
-                </h2>
-              </div>
-
-              <div className="mb-2">
-                <span className="text-4xl font-extrabold text-slate-900 dark:text-white">$0.99</span>
-                <span className="text-slate-500 dark:text-slate-400"> / {t('pages.pricing.oneTime', 'one time')}</span>
-              </div>
-              <div className="mb-6 inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-800 dark:bg-blue-900/30 dark:text-blue-200">
-                🚀 {t('pages.pricing.microLimit', 'Limit: 10 files total')}
-              </div>
-
-              <ul className="mb-8 flex-1 space-y-3">
-                <li className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                  <span>{t('pages.pricing.allPremiumTools', 'All Premium Tools Included')}</span>
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                  <span>{t('pages.pricing.maxFileSizeMicro', '100 MB Max File Size')}</span>
-                </li>
-                <li className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
-                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                  <span>{t('pages.pricing.noAds', 'Ad-free Experience')}</span>
-                </li>
-              </ul>
-
-              <button
-                onClick={() => handleUpgrade('micro')}
-                disabled={loading || user?.plan === 'micro'}
-                className="block w-full rounded-xl bg-blue-600 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {loading ? (
-                  <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-                ) : user?.plan === 'micro' ? (
-                  t('pages.pricing.currentPlan', 'Current Plan')
-                ) : (
-                  t('pages.pricing.buyMicro', 'Start Micro Trial')
-                )}
-              </button>
-            </div>
-          )}
           {showPro && (
             <div className="relative flex flex-col rounded-2xl border-2 border-primary-500 bg-white p-8 shadow-lg dark:bg-slate-800">
             <div className="absolute -top-3 right-6 rounded-full bg-slate-800 px-4 py-1 text-xs font-bold text-white dark:bg-white dark:text-slate-900">

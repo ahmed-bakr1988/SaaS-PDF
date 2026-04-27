@@ -22,6 +22,10 @@ def crop_pdf(
     margin_top: float = 0,
     margin_bottom: float = 0,
     pages: str = "all",
+    crop_x_pct: float | None = None,
+    crop_y_pct: float | None = None,
+    crop_width_pct: float | None = None,
+    crop_height_pct: float | None = None,
 ) -> dict:
     """Crop margins from PDF pages.
 
@@ -30,6 +34,7 @@ def crop_pdf(
         output_path: Path for the cropped output
         margin_left/right/top/bottom: Points to crop from each side
         pages: "all" or comma-separated page numbers (1-based)
+        crop_*_pct: Optional normalized crop box percentages per page
 
     Returns:
         dict with total_pages and output_size
@@ -48,18 +53,37 @@ def crop_pdf(
             raise PDFExtraError("PDF has no pages.")
 
         target_indices = _parse_pages(pages, total_pages)
+        use_normalized_crop = all(
+            value is not None
+            for value in (crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct)
+        )
 
         for i, page in enumerate(reader.pages):
             if i in target_indices:
                 box = page.mediabox
-                box.lower_left = (
-                    float(box.lower_left[0]) + margin_left,
-                    float(box.lower_left[1]) + margin_bottom,
-                )
-                box.upper_right = (
-                    float(box.upper_right[0]) - margin_right,
-                    float(box.upper_right[1]) - margin_top,
-                )
+                left = float(box.left)
+                bottom = float(box.bottom)
+                right = float(box.right)
+                top = float(box.top)
+                page_width = right - left
+                page_height = top - bottom
+
+                if use_normalized_crop:
+                    crop_left = left + (page_width * float(crop_x_pct) / 100.0)
+                    crop_right = crop_left + (page_width * float(crop_width_pct) / 100.0)
+                    crop_top = top - (page_height * float(crop_y_pct) / 100.0)
+                    crop_bottom = crop_top - (page_height * float(crop_height_pct) / 100.0)
+                else:
+                    crop_left = left + margin_left
+                    crop_right = right - margin_right
+                    crop_top = top - margin_top
+                    crop_bottom = bottom + margin_bottom
+
+                if crop_left >= crop_right or crop_bottom >= crop_top:
+                    raise PDFExtraError("Invalid crop area for one or more selected pages.")
+
+                box.lower_left = (crop_left, crop_bottom)
+                box.upper_right = (crop_right, crop_top)
                 page.mediabox = box
                 page.cropbox = box
             writer.add_page(page)
