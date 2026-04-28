@@ -7,15 +7,12 @@ from app.services.pdf_ai_service import PdfAiError, _extract_text_from_pdf
 def test_extract_text_from_pdf_rejects_password_protected_documents(monkeypatch):
     """Password-protected PDFs should surface a specific actionable error."""
 
-    class FakeReader:
-        def __init__(self, input_path):
-            self.is_encrypted = True
-            self.pages = []
+    from app.services.pdf_runtime import PdfPasswordProtectedError
 
-        def decrypt(self, password):
-            return 0
+    def fake_extract_text_pages(input_path, max_pages=50):
+        raise PdfPasswordProtectedError("This PDF is password-protected.")
 
-    monkeypatch.setattr("PyPDF2.PdfReader", FakeReader)
+    monkeypatch.setattr("app.services.pdf_ai_service.extract_text_pages", fake_extract_text_pages)
 
     with pytest.raises(PdfAiError) as exc:
         _extract_text_from_pdf("/tmp/protected.pdf")

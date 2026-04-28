@@ -1,12 +1,10 @@
 """Tests for OCR service and PDF editor service — unit tests with mocking."""
-import os
 import sys
-import tempfile
 
 import pytest
 from unittest.mock import patch, MagicMock
 
-from app.services.ocr_service import ocr_image, OCRError, SUPPORTED_LANGUAGES
+from app.services.ocr_service import ocr_image, ocr_pdf, OCRError, SUPPORTED_LANGUAGES
 
 
 class TestOcrServiceConstants:
@@ -64,3 +62,23 @@ class TestPdfEditorService:
         from app.services.pdf_editor_service import apply_pdf_edits, PDFEditorError
         with pytest.raises(PDFEditorError, match="No edits"):
             apply_pdf_edits("/fake.pdf", "/out.pdf", [])
+
+
+class TestOcrPdf:
+    def test_ocr_pdf_uses_render_runtime_and_writes_output(self, tmp_path):
+        """PDF OCR should use the shared renderer path and persist extracted text."""
+        mock_pytesseract = MagicMock()
+        mock_pytesseract.image_to_string.side_effect = ["Page one", "Page two"]
+        mock_pytesseract.pytesseract.tesseract_cmd = ""
+
+        fake_images = [MagicMock(mode="RGB"), MagicMock(mode="RGB")]
+        output_path = tmp_path / "ocr.txt"
+
+        with patch.dict(sys.modules, {"pytesseract": mock_pytesseract}):
+            with patch("app.services.ocr_service.render_pdf_pages", return_value=fake_images):
+                result = ocr_pdf("/fake/input.pdf", str(output_path), lang="eng")
+
+        assert result["page_count"] == 2
+        assert "Page one" in result["text"]
+        assert "Page two" in result["text"]
+        assert output_path.exists()

@@ -11,6 +11,8 @@ from typing import Optional
 
 from flask import current_app
 
+from app.services.pdf_runtime import PdfPasswordProtectedError, count_pdf_pages as runtime_count_pdf_pages
+
 logger = logging.getLogger(__name__)
 
 # ── Page-count admission tiers ──────────────────────────────────────
@@ -41,10 +43,10 @@ def get_page_limit(plan: str) -> int:
 def count_pdf_pages(file_path: str) -> int:
     """Return the number of pages in a PDF file."""
     try:
-        from PyPDF2 import PdfReader
-
-        reader = PdfReader(file_path)
-        return len(reader.pages)
+        return runtime_count_pdf_pages(file_path)
+    except PdfPasswordProtectedError:
+        logger.warning("Password-protected PDF encountered during admission count: %s", file_path)
+        return 0
     except Exception as e:
         logger.warning("Failed to count PDF pages for admission: %s", e)
         # If we can't count pages, allow the job through but log it

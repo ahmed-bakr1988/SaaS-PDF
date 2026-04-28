@@ -4,6 +4,8 @@ import re
 import json
 import logging
 
+from app.services.pdf_runtime import PdfPasswordProtectedError, extract_text_pages
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,21 +51,15 @@ def extract_text_from_pdf(input_path: str) -> list[dict]:
         List of dicts: [{"page": 1, "text": "..."}, ...]
     """
     try:
-        from PyPDF2 import PdfReader
-
         if not os.path.exists(input_path):
             raise FlowchartError(f"File not found: {input_path}")
 
-        reader = PdfReader(input_path)
-        pages = []
-        for i, page in enumerate(reader.pages, start=1):
-            text = page.extract_text() or ""
-            pages.append({"page": i, "text": text.strip()})
-
-        return pages
+        return extract_text_pages(input_path)
 
     except FlowchartError:
         raise
+    except PdfPasswordProtectedError:
+        raise FlowchartError("This PDF is password-protected. Please unlock it first.")
     except Exception as e:
         raise FlowchartError(f"Failed to extract text from PDF: {str(e)}")
 

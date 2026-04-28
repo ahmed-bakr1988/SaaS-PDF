@@ -19,6 +19,8 @@ from app.services.gemini_client import (
 
 logger = logging.getLogger(__name__)
 
+from app.services.pdf_runtime import PdfPasswordProtectedError, extract_text_pages
+
 DEFAULT_DEEPL_API_URL = "https://api-free.deepl.com/v2/translate"
 DEFAULT_DEEPL_TIMEOUT_SECONDS = 90
 MAX_TRANSLATION_CHUNK_CHARS = 3500
@@ -239,21 +241,11 @@ def _estimate_tokens(text: str) -> int:
 def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
     """Extract text content from a PDF file."""
     try:
-        from PyPDF2 import PdfReader
-
-        reader = PdfReader(input_path)
-        if reader.is_encrypted and reader.decrypt("") == 0:
-            raise PdfAiError(
-                "This PDF is password-protected. Please unlock it first.",
-                error_code="PDF_ENCRYPTED",
-            )
-
-        pages = reader.pages[:max_pages]
+        pages = extract_text_pages(input_path, max_pages=max_pages)
         texts = []
-        for i, page in enumerate(pages):
-            text = page.extract_text() or ""
-            if text.strip():
-                texts.append(f"[Page {i + 1}]\n{text}")
+        for page in pages:
+            if page["text"]:
+                texts.append(f"[Page {page['page']}]\n{page['text']}")
 
         extracted = "\n\n".join(texts)
         if extracted.strip():
@@ -278,6 +270,11 @@ def _extract_text_from_pdf(input_path: str, max_pages: int = 50) -> str:
             logger.warning("OCR fallback for PDF text extraction failed: %s", ocr_error)
 
         return ""
+    except PdfPasswordProtectedError:
+        raise PdfAiError(
+            "This PDF is password-protected. Please unlock it first.",
+            error_code="PDF_ENCRYPTED",
+        )
     except PdfAiError:
         raise
     except Exception as e:

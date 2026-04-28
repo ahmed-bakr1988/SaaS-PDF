@@ -17,7 +17,10 @@ python-magic>=0.4.27,<1.0
 ffmpeg-python>=0.2,<1.0
 
 # PDF Processing
+pypdf>=4.3,<6.0
 PyPDF2>=3.0,<4.0
+PyMuPDF>=1.24,<2.0
+pdfplumber>=0.11,<1.0
 pycryptodome>=3.20,<4.0
 reportlab>=4.0,<5.0
 pdf2image>=1.16,<2.0
@@ -83,4 +86,3 @@ httpx>=0.24.0
 
 # AI Integration
 google-generativeai>=0.1,<1.0
-

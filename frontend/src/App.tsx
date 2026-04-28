@@ -34,6 +34,7 @@ const AllToolsPage = lazy(() => import('@/pages/AllToolsPage'));
 const InternalAdminPage = lazy(() => import('@/pages/InternalAdminPage'));
 const SeoRoutePage = lazy(() => import('@/pages/SeoRoutePage'));
 const ComparisonPage = lazy(() => import('@/pages/ComparisonPage'));
+const ProcessingErrorPage = lazy(() => import('@/pages/ProcessingErrorPage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
 const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
 const PwaUpdatePrompt = lazy(() => import('@/components/layout/PwaUpdatePrompt'));
@@ -193,6 +194,9 @@ export default function App() {
                 />
               );
             })}
+
+            {/* Error Pages */}
+            <Route path="/error/processing" element={<ProcessingErrorPage />} />
 
             {/* 404 */}
             <Route path="*" element={<NotFoundPage />} />

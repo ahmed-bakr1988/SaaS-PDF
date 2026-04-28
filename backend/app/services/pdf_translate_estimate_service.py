@@ -5,6 +5,7 @@ import os
 
 from app.services.credit_config import calculate_dynamic_cost
 from app.services.pdf_ai_service import PdfAiError
+from app.services.pdf_runtime import PdfPasswordProtectedError, count_pdf_pages, extract_text_pages
 
 logger = logging.getLogger(__name__)
 
@@ -14,27 +15,20 @@ SPARSE_THRESHOLD = 60
 
 
 def _get_page_count(input_path: str) -> int:
-    """Return PDF page count via PyPDF2."""
-    from PyPDF2 import PdfReader
-
-    reader = PdfReader(input_path)
-    return len(reader.pages)
+    """Return PDF page count via the shared runtime layer."""
+    return count_pdf_pages(input_path)
 
 
 def _extract_light_text(input_path: str, max_pages: int = 5) -> str:
     """Fast text extraction for classification (no OCR fallback)."""
-    from PyPDF2 import PdfReader
-
-    reader = PdfReader(input_path)
-    if reader.is_encrypted and reader.decrypt("") == 0:
+    try:
+        pages = extract_text_pages(input_path, max_pages=max_pages)
+    except PdfPasswordProtectedError:
         raise PdfAiError(
             "This PDF is password-protected.",
             error_code="PDF_ENCRYPTED",
         )
-    texts = []
-    for page in reader.pages[:max_pages]:
-        texts.append(page.extract_text() or "")
-    return "\n".join(texts)
+    return "\n".join(page["text"] for page in pages)
 
 
 def detect_pdf_type(input_path: str) -> dict:
