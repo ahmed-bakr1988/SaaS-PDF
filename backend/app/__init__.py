@@ -72,22 +72,25 @@ def create_app(config_name=None, config_overrides=None):
 
     limiter.init_app(app)
 
-    # Talisman security headers (relaxed CSP for AdSense)
+    # Talisman security headers (relaxed CSP for AdSense + Clarity + PDF workers)
     csp = {
         "default-src": "'self'",
         "script-src": [
             "'self'",
             "'unsafe-inline'",
+            "blob:",
             "https://pagead2.googlesyndication.com",
             "https://www.googletagmanager.com",
             "https://www.google-analytics.com",
-            "https://www.clarity.ms",
+            "https://*.clarity.ms",
+            "https://unpkg.com",
         ],
         "style-src": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         "font-src": ["'self'", "https://fonts.gstatic.com"],
         "img-src": [
             "'self'",
             "data:",
+            "blob:",
             "https://pagead2.googlesyndication.com",
             "https://tpc.googlesyndication.com",
             "https://www.google-analytics.com",
@@ -100,9 +103,12 @@ def create_app(config_name=None, config_overrides=None):
             "'self'",
             "https://www.google-analytics.com",
             "https://pagead2.googlesyndication.com",
+            "https://plausible.io",
             "https://*.amazonaws.com",
             "https://*.adtrafficquality.google",
+            "https://*.clarity.ms",
         ],
+        "worker-src": ["'self'", "blob:"],
     }
     talisman.init_app(
         app,

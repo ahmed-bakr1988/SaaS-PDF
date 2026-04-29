@@ -841,7 +841,7 @@ export default function PdfEditor() {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600" aria-label={t('tools.pdfEditor.confirm', 'Done')}>
+                <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600" aria-label={t('tools.pdfEditor.confirm', 'Done')}>
                   <Save className="h-4 w-4" />
                   {t('tools.pdfEditor.confirm', 'Done')}
                 </button>
@@ -934,7 +934,7 @@ export default function PdfEditor() {
                             <div className="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-900">
                               <Page pageNumber={pageNumber} width={136} renderTextLayer={false} renderAnnotationLayer={false} />
                             </div>
-                            <span className={`mt-2 inline-flex min-w-8 items-center justify-center rounded-full px-2 py-1 text-xs font-semibold ${isActive ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
+                            <span className={`mt-2 inline-flex min-w-8 items-center justify-center rounded-full px-2 py-1 text-xs font-semibold ${isActive ? 'bg-primary-700 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
                               {pageNumber}
                             </span>
                           </button>
