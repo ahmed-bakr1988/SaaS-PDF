@@ -3,7 +3,10 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      # Bind Redis port to localhost to avoid exposing it to the public network.
+      # For production, prefer removing host port mapping entirely and keeping
+      # the service on the internal Docker network (or use compose prod file).
+      - "127.0.0.1:6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:

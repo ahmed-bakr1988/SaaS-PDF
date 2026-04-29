@@ -12,19 +12,12 @@ function isTaskErrorPayload(value: unknown): value is TaskErrorPayload {
 }
 
 export function getTaskErrorMessage(error: unknown, fallback: string): string {
-  if (isTaskErrorPayload(error)) {
-    // Prefer a translated message keyed by error_code
-    if (typeof error.error_code === 'string') {
-      const translated = resolveErrorCode(error.error_code);
-      if (translated) return translated;
-    }
-  }
-
   if (typeof error === 'string' && error.trim()) {
     return error.trim();
   }
 
   if (isTaskErrorPayload(error)) {
+    // First, prefer backend-provided user_message (more specific than generic translation)
     const candidates = [
       error.user_message,
       error.message,
@@ -36,6 +29,12 @@ export function getTaskErrorMessage(error: unknown, fallback: string): string {
       if (typeof candidate === 'string' && candidate.trim()) {
         return candidate.trim();
       }
+    }
+
+    // Fall back to error_code translation if no user message found
+    if (typeof error.error_code === 'string') {
+      const translated = resolveErrorCode(error.error_code);
+      if (translated) return translated;
     }
   }
 

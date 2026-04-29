@@ -13,7 +13,7 @@ import {
   listInternalAdminUsers,
   markInternalAdminContactRead,
   updateInternalAdminUserPlan,
-  updateInternalAdminUserRole,
+  updateAdminUserRole,
 } from '@/services/api';
 
 vi.mock('@/stores/authStore', () => ({
@@ -29,7 +29,7 @@ vi.mock('@/services/api', () => ({
   listInternalAdminUsers: vi.fn(),
   markInternalAdminContactRead: vi.fn(),
   updateInternalAdminUserPlan: vi.fn(),
-  updateInternalAdminUserRole: vi.fn(),
+  updateAdminUserRole: vi.fn(),
 }));
 
 const authState = {
@@ -69,7 +69,7 @@ describe('InternalAdminPage', () => {
     (getInternalAdminContacts as Mock).mockReset();
     (markInternalAdminContactRead as Mock).mockReset();
     (updateInternalAdminUserPlan as Mock).mockReset();
-    (updateInternalAdminUserRole as Mock).mockReset();
+    (updateAdminUserRole as Mock).mockReset();
 
     (getAdminSystemHealth as Mock).mockResolvedValue({
       ai_configured: true,
@@ -162,7 +162,7 @@ describe('InternalAdminPage', () => {
       total: 0,
       unread: 0,
     });
-    (updateInternalAdminUserRole as Mock).mockResolvedValue({
+    (updateAdminUserRole as Mock).mockResolvedValue({
       id: 2,
       email: 'operator@example.com',
       plan: 'free',
@@ -185,7 +185,7 @@ describe('InternalAdminPage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Admin' }));
 
     await waitFor(() => {
-      expect(updateInternalAdminUserRole).toHaveBeenCalledWith(2, 'admin');
+      expect(updateAdminUserRole).toHaveBeenCalledWith(2, 'admin');
     });
   });
 });
