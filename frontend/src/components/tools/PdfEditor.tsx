@@ -1,32 +1,29 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
-// Replaced lucide-react icons with inline SVG-based icons for a
-// more professional and customizable appearance.
-// import {
-//   ArrowRight,
-//   ChevronLeft,
-//   ChevronRight,
-//   Circle,
-//   Eraser,
-//   FileImage,
-//   Highlighter,
-//   ImagePlus,
-//   Link2,
-//   MessageSquare,
-//   Minus,
-//   MousePointer2,
-//   PenLine,
-//   PenTool,
-//   Pencil,
-//   Redo2,
-//   RotateCcw,
-//   Save,
-//   Square,
-//   Trash2,
-//   Type,
-//   Undo2,
-// } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Circle,
+  Eraser,
+  Highlighter,
+  Image as ImageIcon,
+  Link2,
+  MessageSquare,
+  Minus,
+  MousePointer2,
+  PenLine,
+  PenTool,
+  Pencil,
+  Redo2,
+  Save,
+  Square,
+  Trash2,
+  Type,
+  Undo2,
+} from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import {
   Canvas,
@@ -52,146 +49,6 @@ import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
-
-// Inline SVG Icon set to replace lucide-react icons for a more
-// polished and consistent visual language across the editor.
-const Icon = ({ name, className }: { name: string; className?: string }) => {
-  const common = {
-    width: '1em',
-    height: '1em',
-    viewBox: '0 0 24 24',
-    fill: 'none',
-    stroke: 'currentColor',
-    strokeWidth: 2,
-    strokeLinecap: 'round' as const,
-    strokeLinejoin: 'round' as const,
-  } as any;
-
-  switch (name) {
-    case 'save':
-      return (
-        <svg {...common} className={className}>
-          <path d="M5 7h7l3 3v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a0 0 0 0 0 0z" />
-          <path d="M9 3h6v4H9z" />
-        </svg>
-      );
-    case 'undo':
-      return (
-        <svg {...common} className={className}>
-          <path d="M9 14H5a2 2 0 0 1-2-2V4" />
-          <path d="M9 10L4 15L9 20" />
-        </svg>
-      );
-    case 'redo':
-      return (
-        <svg {...common} className={className}>
-          <path d="M15 14h4a2 2 0 0 0 2-2V4" />
-          <path d="M15 10l5-5l-5-5" />
-        </svg>
-      );
-    case 'trash':
-      return (
-        <svg {...common} className={className}>
-          <path d="M3 6h18" />
-          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
-          <path d="M10 11v6" />
-          <path d="M14 11v6" />
-        </svg>
-      );
-    case 'select':
-      return (
-        <svg {...common} className={className}>
-          <path d="M3 11l6-6l6 6" />
-          <path d="M9 5v14" />
-        </svg>
-      );
-    case 'text':
-      return (
-        <svg {...common} className={className}>
-          <path d="M4 7h16" />
-          <path d="M7 7v10" />
-          <path d="M13 7v10" />
-          <path d="M19 7v10" />
-        </svg>
-      );
-    case 'link':
-      return (
-        <svg {...common} className={className}>
-          <path d="M10 13a5 5 0 0 1-7 0l-1-1a5 5 0 0 1 0-7l2-2" />
-          <path d="M14 11a5 5 0 0 1 7 0l1 1a5 5 0 0 1 0 7l-2 2" />
-        </svg>
-      );
-    case 'image':
-      return (
-        <svg {...common} className={className}>
-          <rect x="3" y="5" width="18" height="14" rx="2" />
-          <path d="M3 9l4-4l4 4l4-4l4 4" />
-          <circle cx="8.5" cy="13.5" r="1.5" />
-        </svg>
-      );
-    case 'line':
-      return (
-        <svg {...common} className={className}>
-          <path d="M5 12h14" />
-        </svg>
-      );
-    case 'arrowLeft':
-      return (
-        <svg {...common} className={className}>
-          <path d="M15 6L9 12l6 6" />
-        </svg>
-      );
-    case 'arrowRight':
-      return (
-        <svg {...common} className={className}>
-          <path d="M9 6l6 6-6 6" />
-        </svg>
-      );
-    case 'square':
-      return (
-        <svg {...common} className={className}>
-          <rect x="4" y="4" width="16" height="16" rx="2" />
-        </svg>
-      );
-    case 'circle':
-      return (
-        <svg {...common} className={className}>
-          <circle cx="12" cy="12" r="7" />
-        </svg>
-      );
-    case 'highlighter':
-      return (
-        <svg {...common} className={className}>
-          <path d="M3 21l6-6l3 3l-6 6H3z" />
-          <path d="M15 9l6-6l0 0" />
-        </svg>
-      );
-    case 'eraser':
-      return (
-        <svg {...common} className={className}>
-          <path d="M3 21l4-4l11-11l4 4L7 21H3z" />
-        </svg>
-      );
-    case 'note':
-      return (
-        <svg {...common} className={className}>
-          <path d="M4 7h10v4H4z" />
-          <path d="M14 7l6 6l-6 6l-4-4l4-4" />
-        </svg>
-      );
-    case 'pencil':
-      return (
-        <svg {...common} className={className}>
-          <path d="M12 20h9" />
-          <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4 12.5-12.5z" />
-        </svg>
-      );
-    default:
-      return (
-        <svg {...common} className={className} />
-      );
-  }
-};
 
 type Phase = 'upload' | 'edit' | 'processing' | 'done';
 type EditorTool = 'select';
@@ -697,7 +554,7 @@ export default function PdfEditor() {
         width: pageSize.width * 0.36,
         fontSize: 22,
         fill: kind === 'note' ? '#92400e' : '#111827',
-        fontFamily: 'Helvetica',
+        fontFamily: isRtl ? '"Noto Kufi Arabic", "Amiri", sans-serif' : 'Helvetica',
         editable: true,
         textAlign: isRtl ? 'right' : 'left',
         backgroundColor: kind === 'note' ? '#fff4b8' : undefined,
@@ -804,7 +661,7 @@ export default function PdfEditor() {
       width: pageSize.width * 0.34,
       fontSize: 20,
       fill: '#2563eb',
-      fontFamily: 'Helvetica',
+      fontFamily: isRtl ? '"Noto Kufi Arabic", "Amiri", sans-serif' : 'Helvetica',
       editable: true,
       textAlign: isRtl ? 'right' : 'left',
       underline: true,
@@ -913,10 +770,7 @@ export default function PdfEditor() {
       operations.push(...collectOperationsFromState(state, pageNumber, thisPageSize));
     }
 
-    if (!operations.length) {
-      toast.error(t('tools.pdfEditor.noEdits', 'Add at least one item before saving the edited PDF.'));
-      return;
-    }
+    // Empty save checking removed to allow saving without edits
 
     setError(null);
     setPhase('processing');
@@ -954,13 +808,14 @@ export default function PdfEditor() {
         <title>{t('tools.pdfEditor.title', 'Edit PDF')} — {t('common.appName')}</title>
         <meta name="description" content={t('tools.pdfEditor.description', 'Open a PDF, add text, images and shapes visually, then save the edited file online.')} />
         <link rel="canonical" href={`${window.location.origin}/tools/pdf-editor`} />
+        <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
         <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
 
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 text-center">
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-rose-100 dark:bg-rose-900/30">
-            <Icon name="pencil" className="h-8 w-8 text-rose-600 dark:text-rose-400" />
+            <Pencil className="h-8 w-8 text-rose-600 dark:text-rose-400" />
           </div>
           <h1 className="section-heading">{t('tools.pdfEditor.title', 'Edit PDF')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">
@@ -986,27 +841,27 @@ export default function PdfEditor() {
           <div className="space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600">
-                  <Icon name="save" className="h-4 w-4" />
+                <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600" aria-label={t('tools.pdfEditor.confirm', 'Done')}>
+                  <Save className="h-4 w-4" />
                   {t('tools.pdfEditor.confirm', 'Done')}
                 </button>
-                <button type="button" onClick={handleReset} className="btn-secondary px-4 py-2">
-                  <Icon name="arrowLeft" className="h-4 w-4" />
+                <button type="button" onClick={handleReset} className="btn-secondary px-4 py-2" aria-label={t('common.startOver')}>
+                  <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
                   {t('common.startOver')}
                 </button>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={undoLast} disabled={!canUndo} className="btn-secondary px-4 py-2 disabled:opacity-50">
-                  <Icon name="undo" className="h-4 w-4" />
+                <button type="button" onClick={undoLast} disabled={!canUndo} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.undo', 'Undo')}>
+                  <Undo2 className="h-4 w-4 rtl:rotate-180" />
                   {t('tools.pdfEditor.undo', 'Undo')}
                 </button>
-                <button type="button" onClick={redoLast} disabled={!canRedo} className="btn-secondary px-4 py-2 disabled:opacity-50">
-                  <Icon name="redo" className="h-4 w-4" />
+                <button type="button" onClick={redoLast} disabled={!canRedo} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.redo', 'Redo')}>
+                  <Redo2 className="h-4 w-4 rtl:rotate-180" />
                   {t('tools.pdfEditor.redo', 'Redo')}
                 </button>
-                <button type="button" onClick={removeSelected} className="btn-secondary px-4 py-2">
-                  <Icon name="trash" className="h-4 w-4" />
+                <button type="button" onClick={removeSelected} className="btn-secondary px-4 py-2" aria-label={t('tools.pdfEditor.deleteSelected', 'Delete selected')}>
+                  <Trash2 className="h-4 w-4" />
                   {t('tools.pdfEditor.deleteSelected', 'Delete selected')}
                 </button>
               </div>
@@ -1015,22 +870,22 @@ export default function PdfEditor() {
             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
               <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
                 <div className="flex flex-wrap items-center gap-2">
-                  <button type="button" onClick={() => setTool('select')} className={`inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-900/40' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700'}`}>
-                    <Icon name="select" className="h-4 w-4" />
-                    {t('tools.pdfEditor.select', 'Select')}
+                  <button type="button" onClick={() => setTool('select')} className={`flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-900/40' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700'}`} aria-label={t('tools.pdfEditor.select', 'Select')}>
+                    <MousePointer2 className="h-5 w-5" />
+                    <span>{t('tools.pdfEditor.select', 'Select')}</span>
                   </button>
-                  <button type="button" onClick={() => addTextbox()} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="text" className="h-4 w-4" />{t('tools.pdfEditor.addText', 'Text')}</button>
-                  <button type="button" onClick={editSelectedText} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="pencil" className="h-4 w-4" />{t('tools.pdfEditor.editText', 'Edit text')}</button>
-                  <button type="button" onClick={() => signatureInputRef.current?.click()} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="pencil" className="h-4 w-4" />{t('tools.pdfEditor.addSignature', 'Signature')}</button>
-                  <button type="button" onClick={() => addLine('line')} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="line" className="h-4 w-4" />{t('tools.pdfEditor.addLine', 'Line')}</button>
-                  <button type="button" onClick={() => addLine('arrow')} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="arrowRight" className="h-4 w-4" />{t('tools.pdfEditor.addArrow', 'Arrow')}</button>
-                  <button type="button" onClick={() => addRect()} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="square" className="h-4 w-4" />{t('tools.pdfEditor.addRect', 'Rectangle')}</button>
-                  <button type="button" onClick={addEllipse} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="circle" className="h-4 w-4" />{t('tools.pdfEditor.addEllipse', 'Ellipse')}</button>
-                  <button type="button" onClick={() => addRect('rgba(250,204,21,0.35)', '#ca8a04')} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="highlighter" className="h-4 w-4" />{t('tools.pdfEditor.highlight', 'Highlight')}</button>
-                  <button type="button" onClick={() => addRect('#ffffff', '#e2e8f0')} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="eraser" className="h-4 w-4" />{t('tools.pdfEditor.whiteout', 'Whiteout')}</button>
-                  <button type="button" onClick={() => addTextbox('note')} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="note" className="h-4 w-4" />{t('tools.pdfEditor.addNote', 'Note')}</button>
-                  <button type="button" onClick={promptAndAddLink} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="link" className="h-4 w-4" />{t('tools.pdfEditor.addLink', 'Link')}</button>
-                  <button type="button" onClick={() => imageInputRef.current?.click()} className="inline-flex min-w-[100px] items-center justify-center gap-2 rounded-xl bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700"><Icon name="image" className="h-4 w-4" />{t('tools.pdfEditor.addImage', 'Image')}</button>
+                  <button type="button" onClick={() => addTextbox()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addText', 'Text')}><Type className="h-5 w-5" /><span>{t('tools.pdfEditor.addText', 'Text')}</span></button>
+                  <button type="button" onClick={editSelectedText} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.editText', 'Edit text')}><PenLine className="h-5 w-5" /><span>{t('tools.pdfEditor.editText', 'Edit text')}</span></button>
+                  <button type="button" onClick={() => signatureInputRef.current?.click()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addSignature', 'Signature')}><PenTool className="h-5 w-5" /><span>{t('tools.pdfEditor.addSignature', 'Signature')}</span></button>
+                  <button type="button" onClick={() => addLine('line')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addLine', 'Line')}><Minus className="h-5 w-5" /><span>{t('tools.pdfEditor.addLine', 'Line')}</span></button>
+                  <button type="button" onClick={() => addLine('arrow')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addArrow', 'Arrow')}><ArrowRight className="h-5 w-5 rtl:rotate-180" /><span>{t('tools.pdfEditor.addArrow', 'Arrow')}</span></button>
+                  <button type="button" onClick={() => addRect()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addRect', 'Rectangle')}><Square className="h-5 w-5" /><span>{t('tools.pdfEditor.addRect', 'Rectangle')}</span></button>
+                  <button type="button" onClick={addEllipse} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addEllipse', 'Ellipse')}><Circle className="h-5 w-5" /><span>{t('tools.pdfEditor.addEllipse', 'Ellipse')}</span></button>
+                  <button type="button" onClick={() => addRect('rgba(250,204,21,0.35)', '#ca8a04')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.highlight', 'Highlight')}><Highlighter className="h-5 w-5" /><span>{t('tools.pdfEditor.highlight', 'Highlight')}</span></button>
+                  <button type="button" onClick={() => addRect('#ffffff', '#e2e8f0')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.whiteout', 'Whiteout')}><Eraser className="h-5 w-5" /><span>{t('tools.pdfEditor.whiteout', 'Whiteout')}</span></button>
+                  <button type="button" onClick={() => addTextbox('note')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addNote', 'Note')}><MessageSquare className="h-5 w-5" /><span>{t('tools.pdfEditor.addNote', 'Note')}</span></button>
+                  <button type="button" onClick={promptAndAddLink} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addLink', 'Link')}><Link2 className="h-5 w-5" /><span>{t('tools.pdfEditor.addLink', 'Link')}</span></button>
+                  <button type="button" onClick={() => imageInputRef.current?.click()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addImage', 'Image')}><ImageIcon className="h-5 w-5" /><span>{t('tools.pdfEditor.addImage', 'Image')}</span></button>
                 </div>
               </div>
 
@@ -1091,16 +946,16 @@ export default function PdfEditor() {
 
                 <section className="space-y-4 bg-[#eef2f8] p-4 dark:bg-slate-900/70">
                   <div className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-                    <button type="button" onClick={() => changePage(currentPage - 1)} disabled={currentPage <= 1} className="btn-secondary px-4 py-2 disabled:opacity-50">
-                      <Icon name="arrowLeft" className="h-4 w-4" />
+                    <button type="button" onClick={() => changePage(currentPage - 1)} disabled={currentPage <= 1} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.previousPage', 'Previous')}>
+                      <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
                       {t('tools.pdfEditor.previousPage', 'Previous')}
                     </button>
                     <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
                       {t('tools.pdfEditor.pageCounter', 'Page {{current}} of {{total}}', { current: currentPage, total: numPages || 1 })}
                     </p>
-                    <button type="button" onClick={() => changePage(currentPage + 1)} disabled={currentPage >= numPages} className="btn-secondary px-4 py-2 disabled:opacity-50">
+                    <button type="button" onClick={() => changePage(currentPage + 1)} disabled={currentPage >= numPages} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.nextPage', 'Next')}>
                       {t('tools.pdfEditor.nextPage', 'Next')}
-                      <Icon name="arrowRight" className="h-4 w-4" />
+                      <ChevronRight className="h-4 w-4 rtl:rotate-180" />
                     </button>
                   </div>
 
