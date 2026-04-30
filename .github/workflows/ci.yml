@@ -40,7 +40,7 @@ jobs:
 
       - name: Lint
         run: npm run lint --if-present
-        env:
+        env: 
           ESLINT_USE_FLAT_CONFIG: false
       - name: Type check
         run: node node_modules/typescript/bin/tsc --noEmit
