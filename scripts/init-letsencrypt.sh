@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-DOMAINS=(dociva.io www.dociva.io)
+DOMAINS=(dociva.io www.dociva.io git.dociva.io)
 DATA_PATH="./certbot"
 EMAIL="admin@dociva.io"          # ← replace with your real email
 RSA_KEY_SIZE=4096
