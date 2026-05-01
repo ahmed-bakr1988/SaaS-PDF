@@ -1,4 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+/**
+ * PdfEditor — full-featured visual PDF annotation editor.
+ *
+ * Uses react-pdf for rendering and Fabric.js for the interactive canvas
+ * overlay.  Edits are serialised as percentage-based coordinates and sent
+ * to the backend where PyMuPDF applies them to the actual PDF.
+ *
+ * Reference UI: PDFAid (https://pdfaid.com) — single toolbar + wide preview.
+ */
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -23,6 +32,8 @@ import {
   Trash2,
   Type,
   Undo2,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import {
@@ -125,15 +136,18 @@ const EMPTY_CANVAS_STATE = JSON.stringify({ objects: [] });
 const DEFAULT_FILL = '#2563eb';
 const DEFAULT_STROKE = '#1e40af';
 
+/** Clamp a numeric value to the 0–100 percentage range with 4-decimal precision. */
 function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, Number(value.toFixed(4))));
 }
 
+/** Serialise the current Fabric.js canvas state (including custom props) to a JSON string. */
 function serializeCanvas(canvas: Canvas | null): string {
   if (!canvas) return EMPTY_CANVAS_STATE;
   return JSON.stringify((canvas as any).toJSON(CUSTOM_PROPS));
 }
 
+/** Safely parse a serialised canvas JSON string, returning an empty state on failure. */
 function parseSerializedState(raw: string | null | undefined): SerializedCanvasState {
   if (!raw) return { objects: [] };
   try {
@@ -143,6 +157,7 @@ function parseSerializedState(raw: string | null | undefined): SerializedCanvasS
   }
 }
 
+/** Convert a Fabric object's absolute position/size into percentage-based coordinates. */
 function objectRectPercent(object: SerializedCanvasObject, pageSize: PageSize) {
   const left = Number(object.left ?? 0);
   const top = Number(object.top ?? 0);
@@ -156,6 +171,7 @@ function objectRectPercent(object: SerializedCanvasObject, pageSize: PageSize) {
   };
 }
 
+/** Walk all objects in a serialised canvas state and convert them to backend edit operations. */
 function collectOperationsFromState(raw: string | null | undefined, page: number, pageSize: PageSize): PdfEditOperation[] {
   const state = parseSerializedState(raw);
   const objects = state.objects ?? [];
@@ -250,6 +266,7 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
   return operations;
 }
 
+/** Apply consistent selection-handle styling (blue handles, white corners) to a Fabric object. */
 function styleEditorObject<T extends FabricObject>(object: T): T {
   object.set({
     borderColor: '#2563eb',
@@ -262,6 +279,10 @@ function styleEditorObject<T extends FabricObject>(object: T): T {
   return object;
 }
 
+/**
+ * Synchronise the Fabric.js canvas wrapper and internal canvases so they
+ * perfectly overlay the react-pdf rendered page.
+ */
 function syncFabricOverlay(canvas: Canvas, size: PageSize) {
   const wrapper = canvas.wrapperEl as HTMLDivElement | undefined;
   if (wrapper) {
@@ -289,6 +310,7 @@ function syncFabricOverlay(canvas: Canvas, size: PageSize) {
   }
 }
 
+/** Create a Fabric Line with a custom arrowhead renderer at the endpoint. */
 function buildArrowLine(pageSize: PageSize) {
   const line = new Line(
     [
@@ -347,6 +369,10 @@ export default function PdfEditor() {
   const [pageSize, setPageSize] = useState<PageSize | null>(null);
   const [tool, setTool] = useState<EditorTool>('select');
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(null);
+  /** Current zoom level as a percentage (50–200). */
+  const [zoomLevel, setZoomLevel] = useState(100);
+  /** Whether the mobile page-thumbnails drawer is visible. */
+  const [showMobilePages, setShowMobilePages] = useState(false);
 
   const previewRef = useRef<HTMLDivElement | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
@@ -408,6 +434,34 @@ export default function PdfEditor() {
     }
   }, [numPages, currentPage]);
 
+  /* ── Keyboard shortcuts (Ctrl+Z, Ctrl+Y, Delete, Ctrl+S) ── */
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (phase !== 'edit') return;
+      const isInput = ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName ?? '');
+      if (isInput) return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        void undoLast();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+        e.preventDefault();
+        void redoLast();
+      } else if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedObject) {
+          e.preventDefault();
+          removeSelected();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        void handleSave();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [phase, selectedObject]);
+
+
   useEffect(() => {
     return () => {
       if (pdfUrl) URL.revokeObjectURL(pdfUrl);
@@ -415,6 +469,7 @@ export default function PdfEditor() {
     };
   }, [pdfUrl]);
 
+  /** Initialise or retrieve per-page undo/redo history stacks. */
   const ensurePageHistory = (pageNumber: number) => {
     if (!pageHistoryRef.current[pageNumber]) {
       const initial = pageStatesRef.current[pageNumber] ?? EMPTY_CANVAS_STATE;
@@ -424,6 +479,7 @@ export default function PdfEditor() {
     return pageHistoryRef.current[pageNumber];
   };
 
+  /** Push a canvas snapshot into the current page's undo stack. */
   const pushSnapshotForPage = (pageNumber: number, snapshot: string) => {
     const history = ensurePageHistory(pageNumber);
     if (history.undo[history.undo.length - 1] === snapshot) {
@@ -436,6 +492,7 @@ export default function PdfEditor() {
     pageStatesRef.current[pageNumber] = snapshot;
   };
 
+  /** Restore a previously saved canvas snapshot (for undo/redo). */
   const restoreSnapshot = async (pageNumber: number, snapshot: string) => {
     const canvas = fabricCanvasRef.current;
     const size = pageSizesRef.current[pageNumber] ?? pageSize;
@@ -500,6 +557,7 @@ export default function PdfEditor() {
     };
   }, [currentPage, pageSize, phase]);
 
+  /** Handle file selection: reset all editor state and create an object URL for the PDF. */
   const handleFileSelect = (nextFile: File | null) => {
     setError(null);
     setTaskId(null);
@@ -531,6 +589,7 @@ export default function PdfEditor() {
     }
   };
 
+  /** Guard helper — returns the Fabric canvas or shows an error toast. */
   const ensureCanvas = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas || !pageSize) {
@@ -540,6 +599,7 @@ export default function PdfEditor() {
     return canvas;
   };
 
+  /** Add a text box (plain text or sticky-note style) to the canvas. */
   const addTextbox = (kind: 'text' | 'note' = 'text') => {
     const canvas = ensureCanvas();
     if (!canvas || !pageSize) return;
@@ -576,6 +636,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Enter inline editing mode on the currently selected text object. */
   const editSelectedText = () => {
     const canvas = ensureCanvas();
     if (!canvas) return;
@@ -592,6 +653,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Add a rectangle shape to the canvas with configurable fill/stroke. */
   const addRect = (fill = 'rgba(37,99,235,0.16)', stroke = DEFAULT_STROKE) => {
     const canvas = ensureCanvas();
     if (!canvas || !pageSize) return;
@@ -611,6 +673,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Add an ellipse shape to the canvas. */
   const addEllipse = () => {
     const canvas = ensureCanvas();
     if (!canvas || !pageSize) return;
@@ -630,6 +693,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Add a line or arrow to the canvas. */
   const addLine = (kind: 'line' | 'arrow' = 'line') => {
     const canvas = ensureCanvas();
     if (!canvas || !pageSize) return;
@@ -647,6 +711,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Prompt the user for a URL and label, then insert a clickable link annotation. */
   const promptAndAddLink = () => {
     const canvas = ensureCanvas();
     if (!canvas || !pageSize) return;
@@ -676,6 +741,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Remove the currently selected Fabric object from the canvas. */
   const removeSelected = () => {
     const canvas = ensureCanvas();
     if (!canvas) return;
@@ -686,6 +752,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Undo the last canvas modification on the current page. */
   const undoLast = async () => {
     const history = ensurePageHistory(currentPage);
     if (history.undo.length <= 1) return;
@@ -695,6 +762,7 @@ export default function PdfEditor() {
     await restoreSnapshot(currentPage, previousSnapshot);
   };
 
+  /** Redo the last undone modification on the current page. */
   const redoLast = async () => {
     const history = ensurePageHistory(currentPage);
     if (!history.redo.length) return;
@@ -703,6 +771,7 @@ export default function PdfEditor() {
     await restoreSnapshot(currentPage, snapshot);
   };
 
+  /** Clear all annotations from the current page. */
   const clearPage = async () => {
     const canvas = ensureCanvas();
     if (!canvas) return;
@@ -711,6 +780,7 @@ export default function PdfEditor() {
     pushSnapshotForPage(currentPage, empty);
   };
 
+  /** Apply a mutation to the currently selected Fabric object and persist the change. */
   const updateSelectedObject = (mutator: (object: FabricObject) => void) => {
     const canvas = ensureCanvas();
     if (!canvas) return;
@@ -723,6 +793,7 @@ export default function PdfEditor() {
     setSelectedObject(active);
   };
 
+  /** Read an image file via FileReader and add it to the canvas as a FabricImage. */
   const addImageFile = async (nextFile: File | null) => {
     if (!nextFile || !pageSize) return;
     const canvas = ensureCanvas();
@@ -750,6 +821,7 @@ export default function PdfEditor() {
     canvas.requestRenderAll();
   };
 
+  /** Switch to a different page, persisting the current page's canvas state. */
   const changePage = (nextPage: number) => {
     if (numPages < 1) return;
     if (nextPage < 1 || nextPage > numPages) return;
@@ -758,6 +830,7 @@ export default function PdfEditor() {
     setSelectedObject(null);
   };
 
+  /** Collect all edits across all pages, serialise them, and submit to the backend. */
   const handleSave = async () => {
     if (!file) return;
     pageStatesRef.current[currentPage] = serializeCanvas(fabricCanvasRef.current);
@@ -791,9 +864,18 @@ export default function PdfEditor() {
     }
   };
 
+  /** Reset the editor back to the upload phase. */
   const handleReset = () => {
     handleFileSelect(null);
   };
+
+  /** Adjust zoom level by a delta, clamped to 50–200%. */
+  const adjustZoom = useCallback((delta: number) => {
+    setZoomLevel((prev) => Math.max(50, Math.min(200, prev + delta)));
+  }, []);
+
+  /** Effective preview width after applying zoom. */
+  const effectivePreviewWidth = Math.round(previewWidth * (zoomLevel / 100));
 
   const selectedFill = String(selectedObject?.get('fill') ?? '#111827');
   const selectedStroke = String(selectedObject?.get('stroke') ?? DEFAULT_STROKE);
@@ -838,86 +920,143 @@ export default function PdfEditor() {
         )}
 
         {phase === 'edit' && pdfUrl && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900">
-              <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-primary-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-600" aria-label={t('tools.pdfEditor.confirm', 'Done')}>
-                  <Save className="h-4 w-4" />
-                  {t('tools.pdfEditor.confirm', 'Done')}
-                </button>
-                <button type="button" onClick={handleReset} className="btn-secondary px-4 py-2" aria-label={t('common.startOver')}>
+          <div className="flex flex-col">
+            {/* ═══ ACTION BAR ═══ */}
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-t-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:px-4 sm:py-2.5">
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={handleReset} className="btn-secondary px-3 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm" title={t('common.startOver')}>
                   <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
-                  {t('common.startOver')}
+                  <span className="hidden sm:inline">{t('common.startOver')}</span>
                 </button>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2">
-                <button type="button" onClick={undoLast} disabled={!canUndo} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.undo', 'Undo')}>
+                <div className="mx-1 hidden h-6 w-px bg-slate-200 dark:bg-slate-700 sm:block" />
+                <button type="button" onClick={undoLast} disabled={!canUndo} className="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40 sm:px-3 sm:py-2 sm:text-sm" title="Ctrl+Z">
                   <Undo2 className="h-4 w-4 rtl:rotate-180" />
-                  {t('tools.pdfEditor.undo', 'Undo')}
+                  <span className="hidden md:inline">{t('tools.pdfEditor.undo', 'Undo')}</span>
                 </button>
-                <button type="button" onClick={redoLast} disabled={!canRedo} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.redo', 'Redo')}>
+                <button type="button" onClick={redoLast} disabled={!canRedo} className="btn-secondary px-2.5 py-1.5 text-xs disabled:opacity-40 sm:px-3 sm:py-2 sm:text-sm" title="Ctrl+Y">
                   <Redo2 className="h-4 w-4 rtl:rotate-180" />
-                  {t('tools.pdfEditor.redo', 'Redo')}
+                  <span className="hidden md:inline">{t('tools.pdfEditor.redo', 'Redo')}</span>
                 </button>
-                <button type="button" onClick={removeSelected} className="btn-secondary px-4 py-2" aria-label={t('tools.pdfEditor.deleteSelected', 'Delete selected')}>
+                <div className="mx-1 hidden h-6 w-px bg-slate-200 dark:bg-slate-700 sm:block" />
+                <button type="button" onClick={removeSelected} className="btn-secondary px-2.5 py-1.5 text-xs sm:px-3 sm:py-2 sm:text-sm" title="Delete">
                   <Trash2 className="h-4 w-4" />
-                  {t('tools.pdfEditor.deleteSelected', 'Delete selected')}
+                  <span className="hidden md:inline">{t('tools.pdfEditor.deleteSelected', 'Delete')}</span>
                 </button>
               </div>
+              <button type="button" onClick={handleSave} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-700 active:scale-[0.97]" title="Ctrl+S">
+                <Save className="h-4 w-4" />
+                {t('tools.pdfEditor.confirm', 'Done')}
+              </button>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
-              <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-                <div className="flex flex-wrap items-center gap-2">
-                  <button type="button" onClick={() => setTool('select')} className={`flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-900/40' : 'bg-white text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700'}`} aria-label={t('tools.pdfEditor.select', 'Select')}>
-                    <MousePointer2 className="h-5 w-5" />
-                    <span>{t('tools.pdfEditor.select', 'Select')}</span>
+            <div className="border border-t-0 border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+              {/* ═══ TOOLBAR — scrollable with grouped tools ═══ */}
+              <div className="overflow-x-auto border-b border-slate-200 px-3 py-2.5 dark:border-slate-700">
+                <div className="flex items-center gap-1 min-w-max">
+                  {/* ── Text tools ── */}
+                  <button type="button" onClick={() => setTool('select')} title={t('tools.pdfEditor.select', 'Select')} className={`flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-300 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-800' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                    <MousePointer2 className="h-5 w-5" /><span>{t('tools.pdfEditor.select', 'Select')}</span>
                   </button>
-                  <button type="button" onClick={() => addTextbox()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addText', 'Text')}><Type className="h-5 w-5" /><span>{t('tools.pdfEditor.addText', 'Text')}</span></button>
-                  <button type="button" onClick={editSelectedText} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.editText', 'Edit text')}><PenLine className="h-5 w-5" /><span>{t('tools.pdfEditor.editText', 'Edit text')}</span></button>
-                  <button type="button" onClick={() => signatureInputRef.current?.click()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addSignature', 'Signature')}><PenTool className="h-5 w-5" /><span>{t('tools.pdfEditor.addSignature', 'Signature')}</span></button>
-                  <button type="button" onClick={() => addLine('line')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addLine', 'Line')}><Minus className="h-5 w-5" /><span>{t('tools.pdfEditor.addLine', 'Line')}</span></button>
-                  <button type="button" onClick={() => addLine('arrow')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addArrow', 'Arrow')}><ArrowRight className="h-5 w-5 rtl:rotate-180" /><span>{t('tools.pdfEditor.addArrow', 'Arrow')}</span></button>
-                  <button type="button" onClick={() => addRect()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addRect', 'Rectangle')}><Square className="h-5 w-5" /><span>{t('tools.pdfEditor.addRect', 'Rectangle')}</span></button>
-                  <button type="button" onClick={addEllipse} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addEllipse', 'Ellipse')}><Circle className="h-5 w-5" /><span>{t('tools.pdfEditor.addEllipse', 'Ellipse')}</span></button>
-                  <button type="button" onClick={() => addRect('rgba(250,204,21,0.35)', '#ca8a04')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.highlight', 'Highlight')}><Highlighter className="h-5 w-5" /><span>{t('tools.pdfEditor.highlight', 'Highlight')}</span></button>
-                  <button type="button" onClick={() => addRect('#ffffff', '#e2e8f0')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.whiteout', 'Whiteout')}><Eraser className="h-5 w-5" /><span>{t('tools.pdfEditor.whiteout', 'Whiteout')}</span></button>
-                  <button type="button" onClick={() => addTextbox('note')} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addNote', 'Note')}><MessageSquare className="h-5 w-5" /><span>{t('tools.pdfEditor.addNote', 'Note')}</span></button>
-                  <button type="button" onClick={promptAndAddLink} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addLink', 'Link')}><Link2 className="h-5 w-5" /><span>{t('tools.pdfEditor.addLink', 'Link')}</span></button>
-                  <button type="button" onClick={() => imageInputRef.current?.click()} className="flex flex-col min-w-[72px] items-center justify-center gap-1 rounded-xl bg-white p-2 text-xs font-medium text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-700 dark:hover:bg-slate-700" aria-label={t('tools.pdfEditor.addImage', 'Image')}><ImageIcon className="h-5 w-5" /><span>{t('tools.pdfEditor.addImage', 'Image')}</span></button>
+                  <button type="button" onClick={() => addTextbox()} title={t('tools.pdfEditor.addText', 'Text')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Type className="h-5 w-5" /><span>{t('tools.pdfEditor.addText', 'Text')}</span>
+                  </button>
+                  <button type="button" onClick={editSelectedText} title={t('tools.pdfEditor.editText', 'Edit text')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <PenLine className="h-5 w-5" /><span>{t('tools.pdfEditor.editText', 'Edit text')}</span>
+                  </button>
+
+                  <div className="mx-1 h-10 w-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* ── Drawing tools ── */}
+                  <button type="button" onClick={() => signatureInputRef.current?.click()} title={t('tools.pdfEditor.addSignature', 'Signature')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <PenTool className="h-5 w-5" /><span>{t('tools.pdfEditor.addSignature', 'Sign')}</span>
+                  </button>
+                  <button type="button" onClick={() => addLine('line')} title={t('tools.pdfEditor.addLine', 'Line')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Minus className="h-5 w-5" /><span>{t('tools.pdfEditor.addLine', 'Line')}</span>
+                  </button>
+                  <button type="button" onClick={() => addLine('arrow')} title={t('tools.pdfEditor.addArrow', 'Arrow')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <ArrowRight className="h-5 w-5 rtl:rotate-180" /><span>{t('tools.pdfEditor.addArrow', 'Arrow')}</span>
+                  </button>
+
+                  <div className="mx-1 h-10 w-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* ── Shape tools ── */}
+                  <button type="button" onClick={() => addRect()} title={t('tools.pdfEditor.addRect', 'Rectangle')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Square className="h-5 w-5" /><span>{t('tools.pdfEditor.addRect', 'Rect')}</span>
+                  </button>
+                  <button type="button" onClick={addEllipse} title={t('tools.pdfEditor.addEllipse', 'Ellipse')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Circle className="h-5 w-5" /><span>{t('tools.pdfEditor.addEllipse', 'Ellipse')}</span>
+                  </button>
+
+                  <div className="mx-1 h-10 w-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* ── Annotation tools ── */}
+                  <button type="button" onClick={() => addRect('rgba(250,204,21,0.35)', '#ca8a04')} title={t('tools.pdfEditor.highlight', 'Highlight')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Highlighter className="h-5 w-5" /><span>{t('tools.pdfEditor.highlight', 'Highlight')}</span>
+                  </button>
+                  <button type="button" onClick={() => addRect('#ffffff', '#e2e8f0')} title={t('tools.pdfEditor.whiteout', 'Whiteout')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Eraser className="h-5 w-5" /><span>{t('tools.pdfEditor.whiteout', 'Whiteout')}</span>
+                  </button>
+
+                  <div className="mx-1 h-10 w-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* ── Insert tools ── */}
+                  <button type="button" onClick={() => addTextbox('note')} title={t('tools.pdfEditor.addNote', 'Note')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <MessageSquare className="h-5 w-5" /><span>{t('tools.pdfEditor.addNote', 'Note')}</span>
+                  </button>
+                  <button type="button" onClick={promptAndAddLink} title={t('tools.pdfEditor.addLink', 'Link')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <Link2 className="h-5 w-5" /><span>{t('tools.pdfEditor.addLink', 'Link')}</span>
+                  </button>
+                  <button type="button" onClick={() => imageInputRef.current?.click()} title={t('tools.pdfEditor.addImage', 'Image')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                    <ImageIcon className="h-5 w-5" /><span>{t('tools.pdfEditor.addImage', 'Image')}</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="border-b border-slate-200 px-4 py-3 dark:border-slate-700">
-                <div className="flex flex-wrap items-center gap-4">
-                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <span>{t('tools.pdfEditor.fillColor', 'Fill color')}</span>
-                    <input type="color" value={selectedFill.startsWith('#') ? selectedFill : '#2563eb'} onChange={(event) => updateSelectedObject((object) => object.set('fill', event.target.value))} className="h-9 w-11 rounded border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900" />
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <span>{t('tools.pdfEditor.strokeColor', 'Stroke color')}</span>
-                    <input type="color" value={selectedStroke.startsWith('#') ? selectedStroke : '#1e40af'} onChange={(event) => updateSelectedObject((object) => object.set('stroke', event.target.value))} className="h-9 w-11 rounded border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900" />
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <span>{t('tools.pdfEditor.strokeWidth', 'Stroke width')}</span>
-                    <input type="range" min={1} max={12} step={1} value={selectedStrokeWidth} onChange={(event) => updateSelectedObject((object) => object.set('strokeWidth', Number(event.target.value)))} className="w-28" />
-                  </label>
-                  <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                    <span>{t('tools.pdfEditor.fontSize', 'Font size')}</span>
-                    <input type="range" min={10} max={48} step={1} value={selectedFontSize} onChange={(event) => updateSelectedObject((object) => object.set('fontSize', Number(event.target.value)))} className="w-28" />
-                  </label>
+              {/* ═══ PROPERTIES BAR — only when an object is selected ═══ */}
+              {selectedObject && (
+              <div className="flex flex-wrap items-center gap-4 border-b border-slate-200 bg-slate-50/80 px-4 py-2 dark:border-slate-700 dark:bg-slate-800/50">
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <span>{t('tools.pdfEditor.fillColor', 'Fill')}</span>
+                  <input type="color" value={selectedFill.startsWith('#') ? selectedFill : '#2563eb'} onChange={(event) => updateSelectedObject((object) => object.set('fill', event.target.value))} className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900" />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <span>{t('tools.pdfEditor.strokeColor', 'Stroke')}</span>
+                  <input type="color" value={selectedStroke.startsWith('#') ? selectedStroke : '#1e40af'} onChange={(event) => updateSelectedObject((object) => object.set('stroke', event.target.value))} className="h-8 w-10 cursor-pointer rounded border border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900" />
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <span>{t('tools.pdfEditor.strokeWidth', 'Width')}</span>
+                  <input type="range" min={1} max={12} step={1} value={selectedStrokeWidth} onChange={(event) => updateSelectedObject((object) => object.set('strokeWidth', Number(event.target.value)))} className="w-20 accent-primary-600" />
+                  <span className="w-5 text-xs text-slate-500">{selectedStrokeWidth}</span>
+                </label>
+                <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <span>{t('tools.pdfEditor.fontSize', 'Font')}</span>
+                  <input type="range" min={10} max={72} step={1} value={selectedFontSize} onChange={(event) => updateSelectedObject((object) => object.set('fontSize', Number(event.target.value)))} className="w-20 accent-primary-600" />
+                  <span className="w-5 text-xs text-slate-500">{selectedFontSize}</span>
+                </label>
+              </div>
+              )}
+
+              {/* ═══ ZOOM CONTROLS ═══ */}
+              <div className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-1.5 dark:border-slate-700 dark:bg-slate-900">
+                <div className="flex items-center gap-1">
+                  <button type="button" onClick={() => adjustZoom(-10)} disabled={zoomLevel <= 50} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800" title="Zoom out"><ZoomOut className="h-4 w-4" /></button>
+                  <span className="min-w-[3rem] text-center text-xs font-medium text-slate-600 dark:text-slate-300">{zoomLevel}%</span>
+                  <button type="button" onClick={() => adjustZoom(10)} disabled={zoomLevel >= 200} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800" title="Zoom in"><ZoomIn className="h-4 w-4" /></button>
                 </div>
+                <button type="button" onClick={() => setShowMobilePages((v) => !v)} className="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100 md:hidden dark:text-slate-400 dark:hover:bg-slate-800" title="Pages">
+                  <Square className="h-4 w-4" />
+                </button>
               </div>
 
               <input ref={imageInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => { void addImageFile(event.target.files?.[0] ?? null); event.currentTarget.value = ''; }} />
               <input ref={signatureInputRef} type="file" accept="image/png,image/jpeg,image/webp" className="hidden" onChange={(event) => { void addImageFile(event.target.files?.[0] ?? null); event.currentTarget.value = ''; }} />
 
-              <div className="grid min-h-[720px] grid-cols-[180px_minmax(0,1fr)]">
-                <aside className="border-e border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-950/30">
+              <div className="grid min-h-[520px] grid-cols-1 md:grid-cols-[180px_minmax(0,1fr)] lg:min-h-[720px]">
+                {/* ═══ SIDEBAR — page thumbnails (hidden on mobile) ═══ */}
+                <aside className="hidden border-e border-slate-200 bg-slate-50 p-3 md:block dark:border-slate-700 dark:bg-slate-950/30">
                   <div className="mb-3 flex items-center justify-between">
                     <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{t('tools.pdfEditor.pagesPanel', 'Pages')}</p>
-                    <button type="button" onClick={clearPage} className="text-xs font-medium text-red-600 hover:underline dark:text-red-400">{t('tools.pdfEditor.clearPage', 'Clear page')}</button>
+                    <button type="button" onClick={clearPage} className="text-xs font-medium text-red-600 hover:underline dark:text-red-400">{t('tools.pdfEditor.clearPage', 'Clear')}</button>
                   </div>
                   <div className="max-h-[640px] space-y-3 overflow-y-auto pe-1">
                     <Document key={`thumbs-${pdfUrl}`} file={pdfUrl}>
@@ -925,18 +1064,11 @@ export default function PdfEditor() {
                         const pageNumber = index + 1;
                         const isActive = currentPage === pageNumber;
                         return (
-                          <button
-                            key={`thumb-${pageNumber}`}
-                            type="button"
-                            onClick={() => changePage(pageNumber)}
-                            className={`block w-full rounded-2xl border p-2 text-center transition ${isActive ? 'border-red-400 bg-white shadow-sm dark:border-red-500 dark:bg-slate-900' : 'border-slate-200 bg-white/70 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:hover:border-slate-600'}`}
-                          >
-                            <div className="overflow-hidden rounded-xl bg-white shadow-sm dark:bg-slate-900">
+                          <button key={`thumb-${pageNumber}`} type="button" onClick={() => changePage(pageNumber)} className={`block w-full rounded-xl border p-1.5 text-center transition ${isActive ? 'border-primary-400 bg-white shadow dark:border-primary-500 dark:bg-slate-900' : 'border-slate-200 bg-white/70 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60'}`}>
+                            <div className="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-slate-900">
                               <Page pageNumber={pageNumber} width={136} renderTextLayer={false} renderAnnotationLayer={false} />
                             </div>
-                            <span className={`mt-2 inline-flex min-w-8 items-center justify-center rounded-full px-2 py-1 text-xs font-semibold ${isActive ? 'bg-primary-700 text-white' : 'bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200'}`}>
-                              {pageNumber}
-                            </span>
+                            <span className={`mt-1.5 inline-flex min-w-6 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold ${isActive ? 'bg-primary-600 text-white' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>{pageNumber}</span>
                           </button>
                         );
                       })}
@@ -944,24 +1076,11 @@ export default function PdfEditor() {
                   </div>
                 </aside>
 
-                <section className="space-y-4 bg-[#eef2f8] p-4 dark:bg-slate-900/70">
-                  <div className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 shadow-sm dark:bg-slate-900">
-                    <button type="button" onClick={() => changePage(currentPage - 1)} disabled={currentPage <= 1} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.previousPage', 'Previous')}>
-                      <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
-                      {t('tools.pdfEditor.previousPage', 'Previous')}
-                    </button>
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-200">
-                      {t('tools.pdfEditor.pageCounter', 'Page {{current}} of {{total}}', { current: currentPage, total: numPages || 1 })}
-                    </p>
-                    <button type="button" onClick={() => changePage(currentPage + 1)} disabled={currentPage >= numPages} className="btn-secondary px-4 py-2 disabled:opacity-50" aria-label={t('tools.pdfEditor.nextPage', 'Next')}>
-                      {t('tools.pdfEditor.nextPage', 'Next')}
-                      <ChevronRight className="h-4 w-4 rtl:rotate-180" />
-                    </button>
-                  </div>
-
-                  <div ref={previewRef} className="rounded-[28px] bg-[#dde4f0] p-5 dark:bg-slate-950/70">
-                    <div className="mx-auto overflow-auto rounded-[24px] bg-transparent p-2">
-                      <div className="relative mx-auto w-fit">
+                {/* ═══ PREVIEW AREA ═══ */}
+                <section className="relative flex flex-col bg-[#f0f4f8] dark:bg-slate-900/70">
+                  <div ref={previewRef} className="flex-1 overflow-auto p-3 sm:p-5">
+                    <div className="mx-auto w-fit">
+                      <div className="relative mx-auto w-fit rounded-lg bg-white shadow-lg dark:bg-slate-800">
                         <Document
                           key={`main-${pdfUrl}`}
                           file={pdfUrl}
@@ -971,16 +1090,13 @@ export default function PdfEditor() {
                           }}
                         >
                           <Page
-                            key={`page-${currentPage}-${previewWidth}`}
+                            key={`page-${currentPage}-${effectivePreviewWidth}`}
                             pageNumber={currentPage}
-                            width={previewWidth}
+                            width={effectivePreviewWidth}
                             onLoadSuccess={(pageProxy) => {
                               const viewport = pageProxy.getViewport({ scale: 1 });
-                              const scale = previewWidth / viewport.width;
-                              const nextPageSize = {
-                                width: previewWidth,
-                                height: viewport.height * scale,
-                              };
+                              const scale = effectivePreviewWidth / viewport.width;
+                              const nextPageSize = { width: effectivePreviewWidth, height: viewport.height * scale };
                               pageSizesRef.current[currentPage] = nextPageSize;
                               setPageSize(nextPageSize);
                             }}
@@ -988,18 +1104,45 @@ export default function PdfEditor() {
                         </Document>
 
                         {pageSize && (
-                          <canvas
-                            ref={canvasElementRef}
-                            width={pageSize.width}
-                            height={pageSize.height}
-                            className="absolute inset-0 z-20 h-full w-full"
-                          />
+                          <canvas ref={canvasElementRef} width={pageSize.width} height={pageSize.height} className="absolute inset-0 z-20 h-full w-full" />
                         )}
                       </div>
                     </div>
                   </div>
+
+                  {/* ── Floating page navigator ── */}
+                  <div className="sticky bottom-0 flex items-center justify-center gap-2 border-t border-slate-200 bg-white/90 px-4 py-2 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-900/90">
+                    <button type="button" onClick={() => changePage(currentPage - 1)} disabled={currentPage <= 1} className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-100 disabled:opacity-40 dark:text-slate-300 dark:hover:bg-slate-800">
+                      <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                    </button>
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
+                      {t('tools.pdfEditor.pageCounter', 'Page {{current}} of {{total}}', { current: currentPage, total: numPages || 1 })}
+                    </span>
+                    <button type="button" onClick={() => changePage(currentPage + 1)} disabled={currentPage >= numPages} className="rounded-lg p-1.5 text-slate-600 transition hover:bg-slate-100 disabled:opacity-40 dark:text-slate-300 dark:hover:bg-slate-800">
+                      <ChevronRight className="h-4 w-4 rtl:rotate-180" />
+                    </button>
+                  </div>
                 </section>
               </div>
+
+              {/* ═══ MOBILE PAGE STRIP ═══ */}
+              {showMobilePages && (
+              <div className="border-t border-slate-200 bg-slate-50 p-3 md:hidden dark:border-slate-700 dark:bg-slate-950/30">
+                <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  <Document key={`mobile-thumbs-${pdfUrl}`} file={pdfUrl}>
+                    {Array.from({ length: numPages || 0 }, (_, index) => {
+                      const pageNumber = index + 1;
+                      const isActive = currentPage === pageNumber;
+                      return (
+                        <button key={`mt-${pageNumber}`} type="button" onClick={() => { changePage(pageNumber); setShowMobilePages(false); }} className={`flex-shrink-0 rounded-lg border p-1 transition ${isActive ? 'border-primary-400 shadow' : 'border-slate-200 dark:border-slate-700'}`}>
+                          <Page pageNumber={pageNumber} width={80} renderTextLayer={false} renderAnnotationLayer={false} />
+                        </button>
+                      );
+                    })}
+                  </Document>
+                </div>
+              </div>
+              )}
             </div>
           </div>
         )}

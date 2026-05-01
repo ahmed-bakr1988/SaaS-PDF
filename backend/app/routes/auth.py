@@ -96,47 +96,63 @@ def _social_redirect_uri(provider: str) -> str:
 @auth_bp.route("/register", methods=["POST"])
 @limiter.limit("10/hour")
 def register_route():
-    """Create a new account and start an authenticated session."""
-    email, password = _parse_credentials()
-    validation_error = _validate_credentials(email, password)
-    if validation_error:
-        return jsonify({"error": validation_error}), 400
-
     try:
-        user = create_user(email, password)
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 409
+        email, password = _parse_credentials()
+        validation_error = _validate_credentials(email, password)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
 
-    login_user_session(user["id"])
-    credits = get_credit_summary(user["id"], user.get("plan", "free"))
-    return jsonify({
-        "message": "Account created successfully.",
-        "user": user,
-        "credits": credits,
-        "is_new_account": True,
-    }), 201
+        try:
+            user = create_user(email, password)
+        except ValueError as exc:
+            return jsonify({"error": str(exc)}), 409
+
+        login_user_session(user["id"])
+        credits = get_credit_summary(user["id"], user.get("plan", "free"))
+        return (
+            jsonify(
+                {
+                    "message": "Account created successfully.",
+                    "user": user,
+                    "credits": credits,
+                    "is_new_account": True,
+                }
+            ),
+            201,
+        )
+    except Exception as exc:
+        import traceback
+        return jsonify({"error": f"Server Error: {str(exc)}\n{traceback.format_exc()}"}), 500
 
 
 @auth_bp.route("/login", methods=["POST"])
 @limiter.limit("20/hour")
 def login_route():
-    """Authenticate an existing account and start an authenticated session."""
-    email, password = _parse_credentials()
-    validation_error = _validate_credentials(email, password)
-    if validation_error:
-        return jsonify({"error": validation_error}), 400
+    try:
+        email, password = _parse_credentials()
+        validation_error = _validate_credentials(email, password)
+        if validation_error:
+            return jsonify({"error": validation_error}), 400
 
-    user = authenticate_user(email, password)
-    if user is None:
-        return jsonify({"error": "Invalid email or password."}), 401
+        user = authenticate_user(email, password)
+        if user is None:
+            return jsonify({"error": "Invalid email or password."}), 401
 
-    login_user_session(user["id"])
-    credits = get_credit_summary(user["id"], user.get("plan", "free"))
-    return jsonify({
-        "message": "Signed in successfully.",
-        "user": user,
-        "credits": credits,
-    }), 200
+        login_user_session(user["id"])
+        credits = get_credit_summary(user["id"], user.get("plan", "free"))
+        return (
+            jsonify(
+                {
+                    "message": "Signed in successfully.",
+                    "user": user,
+                    "credits": credits,
+                }
+            ),
+            200,
+        )
+    except Exception as exc:
+        import traceback
+        return jsonify({"error": f"Server Error: {str(exc)}\n{traceback.format_exc()}"}), 500
 
 
 @auth_bp.route("/logout", methods=["POST"])

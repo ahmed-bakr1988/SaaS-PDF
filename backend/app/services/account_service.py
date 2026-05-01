@@ -79,7 +79,7 @@ def _serialize_user(row: dict | None) -> dict | None:
         "role": _resolve_row_role(row),
         "is_allowlisted_admin": is_allowlisted_admin_email(row.get("email")),
         "created_at": row.get("created_at"),
-        "welcome_bonus_available": int(row.get("welcome_bonus_used", 0)) == 0,
+        "welcome_bonus_available": int(row.get("welcome_bonus_used") or 0) == 0,
     }
 
 
@@ -285,6 +285,13 @@ def _init_postgres_tables(conn):
         cursor.execute(
             "ALTER TABLE users ADD COLUMN welcome_bonus_used INTEGER NOT NULL DEFAULT 0"
         )
+    if not _column_exists(conn, "users", "plan"):
+        cursor.execute("ALTER TABLE users ADD COLUMN plan TEXT NOT NULL DEFAULT 'free'")
+    if not _column_exists(conn, "users", "updated_at"):
+        cursor.execute("ALTER TABLE users ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''")
+    if not _column_exists(conn, "users", "role"):
+        cursor.execute("ALTER TABLE users ADD COLUMN role TEXT NOT NULL DEFAULT 'user'")
+
 
 
 def _init_sqlite_tables(conn):

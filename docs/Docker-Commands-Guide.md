@@ -16,6 +16,9 @@
 - `docker-compose.yml`: للتطوير المحلي.
 - `docker-compose.prod.yml`: للإنتاج على السيرفر.
 
+docker-compose docker-compose.prod.yml exec postgres psql -U dociva -d dociva -c "ALTER USER dociva WITH PASSWORD '6x3PjV4ghRTQuZ3Q';"
+
+
 هذا يعني:
 
 - إذا كنت تعمل على جهازك المحلي للتطوير، استخدم أوامر ملف التطوير.

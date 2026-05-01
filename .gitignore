@@ -11,7 +11,6 @@ build/
 venv/
 .venv/
 env/
-docs/
 # Node
 node_modules/
 frontend/dist/
@@ -63,4 +62,4 @@ coverage/
 backend/celerybeat-schedule
 backend/data/dociva.db
 
-docs/
+docs/ 
