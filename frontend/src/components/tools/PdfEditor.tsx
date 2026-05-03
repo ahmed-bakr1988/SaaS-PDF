@@ -8,6 +8,7 @@
  * Reference UI: PDFAid (https://pdfaid.com) — single toolbar + wide preview.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { RotateCcw, AlertTriangle } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -52,6 +53,13 @@ import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
 import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
+import {
+  useEditorSessionRecovery,
+  hasRecoverableSession as checkRecoverableSession,
+  recoverSession,
+  clearSession,
+  type EditorSessionMeta,
+} from '@/hooks/useEditorSessionRecovery';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 import api, { type TaskResponse, getTaskErrorMessage } from '@/services/api';
@@ -373,6 +381,10 @@ export default function PdfEditor() {
   const [zoomLevel, setZoomLevel] = useState(100);
   /** Whether the mobile page-thumbnails drawer is visible. */
   const [showMobilePages, setShowMobilePages] = useState(false);
+  /** Whether a recoverable session banner is shown. */
+  const [showRecoveryBanner, setShowRecoveryBanner] = useState(false);
+  /** Metadata of the recoverable session (for display). */
+  const [recoveryMeta, setRecoveryMeta] = useState<EditorSessionMeta | null>(null);
 
   const previewRef = useRef<HTMLDivElement | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
@@ -399,6 +411,67 @@ export default function PdfEditor() {
     description: t('tools.pdfEditor.description', 'Open a PDF, add text, images and shapes visually, then save the edited file online.'),
     url: `${window.location.origin}/tools/pdf-editor`,
   }), [t]);
+
+  /* ── Session recovery hook — auto-saves & beforeunload guard ── */
+  const getCanvasStates = useCallback(() => ({
+    pageStates: { ...pageStatesRef.current },
+    pageSizes: { ...pageSizesRef.current },
+  }), []);
+
+  const { persistNow } = useEditorSessionRecovery({
+    isEditing: phase === 'edit',
+    file,
+    currentPage,
+    numPages,
+    zoomLevel,
+    getCanvasStates,
+  });
+
+  /* ── Check for recoverable session on mount ── */
+  useEffect(() => {
+    if (phase === 'upload' && checkRecoverableSession()) {
+      import('@/hooks/useEditorSessionRecovery').then(({ getSessionMeta }) => {
+        const meta = getSessionMeta();
+        if (meta) {
+          setRecoveryMeta(meta);
+          setShowRecoveryBanner(true);
+        }
+      });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /** Restore a previously saved editing session. */
+  const handleRecoverSession = useCallback(async () => {
+    const session = await recoverSession();
+    if (!session) {
+      toast.error(t('tools.pdfEditor.recoveryFailed', 'Could not recover the previous session.'));
+      setShowRecoveryBanner(false);
+      return;
+    }
+
+    // Restore file & PDF URL
+    const url = URL.createObjectURL(session.file);
+    setFile(session.file);
+    setPdfUrl(url);
+    setCurrentPage(session.meta.currentPage || 1);
+    setZoomLevel(session.meta.zoomLevel || 100);
+    setPhase('edit');
+
+    // Restore canvas states
+    pageStatesRef.current = session.canvasStates.pageStates || {};
+    pageSizesRef.current = session.canvasStates.pageSizes || {};
+    pageHistoryRef.current = {};
+
+    setShowRecoveryBanner(false);
+    toast.success(t('tools.pdfEditor.sessionRestored', 'Your previous editing session has been restored.'));
+  }, [t]);
+
+  /** Dismiss the recovery banner and clear the saved session. */
+  const handleDismissRecovery = useCallback(async () => {
+    setShowRecoveryBanner(false);
+    setRecoveryMeta(null);
+    await clearSession();
+  }, []);
 
   useEffect(() => {
     currentPageRef.current = currentPage;
@@ -828,6 +901,8 @@ export default function PdfEditor() {
     pageStatesRef.current[currentPage] = serializeCanvas(fabricCanvasRef.current);
     setCurrentPage(nextPage);
     setSelectedObject(null);
+    // Persist session on page change so recovery captures all pages
+    void persistNow();
   };
 
   /** Collect all edits across all pages, serialise them, and submit to the backend. */
@@ -847,6 +922,8 @@ export default function PdfEditor() {
 
     setError(null);
     setPhase('processing');
+    // Clear the recovery session — we are submitting edits to the backend now
+    void clearSession();
     try {
       const fd = new FormData();
       fd.append('file', file);
@@ -866,6 +943,7 @@ export default function PdfEditor() {
 
   /** Reset the editor back to the upload phase. */
   const handleReset = () => {
+    void clearSession();
     handleFileSelect(null);
   };
 
@@ -906,6 +984,53 @@ export default function PdfEditor() {
         </div>
 
         <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
+
+        {/* ═══ SESSION RECOVERY BANNER ═══ */}
+        {showRecoveryBanner && recoveryMeta && phase === 'upload' && (
+          <div className="mx-auto mb-6 max-w-2xl animate-in fade-in slide-in-from-top-2 duration-300">
+            <div className="relative overflow-hidden rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-5 shadow-lg dark:border-amber-800/50 dark:from-amber-950/40 dark:to-orange-950/30">
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjQ1LDE1OCwxMSwwLjA1KSIvPjwvc3ZnPg==')] opacity-50" />
+              <div className="relative flex items-start gap-4">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-900/50">
+                  <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">
+                    {t('tools.pdfEditor.unsavedSession', 'Unsaved editing session found')}
+                  </h3>
+                  <p className="mt-1 text-xs text-amber-700/80 dark:text-amber-300/70">
+                    {t('tools.pdfEditor.recoveryDescription', 'You were editing "{{fileName}}" ({{pages}} pages). Would you like to continue where you left off?', {
+                      fileName: recoveryMeta.fileName,
+                      pages: recoveryMeta.numPages,
+                    })}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-amber-600/60 dark:text-amber-400/50">
+                    {t('tools.pdfEditor.recoverySavedAt', 'Last saved: {{time}}', {
+                      time: new Date(recoveryMeta.savedAt).toLocaleString(),
+                    })}
+                  </p>
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleRecoverSession}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-amber-700 active:scale-[0.97]"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                      {t('tools.pdfEditor.restoreSession', 'Restore session')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleDismissRecovery}
+                      className="rounded-lg px-3 py-1.5 text-xs font-medium text-amber-700 transition hover:bg-amber-100 dark:text-amber-300 dark:hover:bg-amber-900/40"
+                    >
+                      {t('tools.pdfEditor.discardSession', 'Discard')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {phase === 'upload' && (
           <div className="mx-auto max-w-2xl space-y-4">
