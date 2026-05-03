@@ -1,4 +1,4 @@
-z/**
+/*
  * useEditorSessionRecovery — Persist and recover PDF editor sessions.
  *
  * Uses IndexedDB for binary file storage (File objects can be large)
