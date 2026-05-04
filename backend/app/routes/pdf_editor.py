@@ -25,7 +25,7 @@ from app.tasks.pdf_editor_tasks import edit_pdf_task
 pdf_editor_bp = Blueprint("pdf_editor", __name__)
 
 # All edit operation types accepted by the backend service.
-_VALID_EDIT_TYPES = {"text", "rect", "ellipse", "line", "arrow", "image", "link", "note"}
+_VALID_EDIT_TYPES = {"text", "rect", "ellipse", "line", "arrow", "image", "link", "note", "path"}
 
 # Maximum total size (bytes) of all embedded data-URLs across all edits.
 _MAX_TOTAL_DATA_URL_BYTES = 50 * 1024 * 1024  # 50 MB

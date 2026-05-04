@@ -8,7 +8,7 @@
  * Reference UI: PDFAid (https://pdfaid.com) — single toolbar + wide preview.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RotateCcw, AlertTriangle } from 'lucide-react';
+import { RotateCcw, AlertTriangle, Brush } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -42,6 +42,7 @@ import {
   Ellipse,
   FabricImage,
   Line,
+  PencilBrush,
   Rect,
   Textbox,
   type FabricObject,
@@ -70,7 +71,7 @@ import 'react-pdf/dist/Page/TextLayer.css';
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 type Phase = 'upload' | 'edit' | 'processing' | 'done';
-type EditorTool = 'select';
+type EditorTool = 'select' | 'draw';
 
 interface PageSize {
   width: number;
@@ -102,6 +103,9 @@ interface SerializedCanvasObject {
   bgFill?: string;
   bgOpacity?: number;
   linkUrl?: string;
+  path?: unknown[];
+  rx?: number;
+  ry?: number;
 }
 
 interface SerializedCanvasState {
@@ -132,6 +136,7 @@ interface PdfEditOperation {
   bg_fill?: string;
   bg_opacity?: number;
   link_url?: string;
+  path_data?: string;
 }
 
 interface PageHistory {
@@ -149,10 +154,11 @@ function clampPercent(value: number): number {
   return Math.max(0, Math.min(100, Number(value.toFixed(4))));
 }
 
-/** Serialise the current Fabric.js canvas state (including custom props) to a JSON string. */
+/** Serialise the current Fabric.js canvas state (including custom props) to a JSON string.
+ *  IMPORTANT: Fabric.js v6 made toJSON() async. We use toObject() which is synchronous. */
 function serializeCanvas(canvas: Canvas | null): string {
   if (!canvas) return EMPTY_CANVAS_STATE;
-  return JSON.stringify((canvas as any).toJSON(CUSTOM_PROPS));
+  return JSON.stringify(canvas.toObject(CUSTOM_PROPS));
 }
 
 /** Safely parse a serialised canvas JSON string, returning an empty state on failure. */
@@ -268,6 +274,31 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
           page,
           ...rect,
           data_url: object.src,
+        });
+      }
+      continue;
+    }
+
+    // Freehand drawing paths
+    if (type === 'path') {
+      const rect = objectRectPercent(object, pageSize);
+      let pathStr = '';
+      if (Array.isArray(object.path)) {
+        pathStr = object.path.map((seg: unknown) => {
+          if (Array.isArray(seg)) return seg.join(' ');
+          return String(seg);
+        }).join(' ');
+      }
+      if (pathStr) {
+        operations.push({
+          type: 'path',
+          page,
+          ...rect,
+          path_data: pathStr,
+          stroke: object.stroke ?? '#111827',
+          stroke_width: object.strokeWidth ?? 2,
+          opacity: object.opacity ?? 1,
+          fill: object.fill ?? '',
         });
       }
     }
@@ -664,14 +695,44 @@ export default function PdfEditor() {
     }
   };
 
-  /** Guard helper — returns the Fabric canvas or shows an error toast. */
+  /** Guard helper — returns the Fabric canvas or shows an error toast.
+   *  Also exits drawing mode so shape/text tools work correctly. */
   const ensureCanvas = () => {
     const canvas = fabricCanvasRef.current;
     if (!canvas || !pageSize) {
       toast.error(t('tools.pdfEditor.previewNotReady', 'Wait for the page preview to finish loading first.'));
       return null;
     }
+    // Auto-exit drawing mode when using non-draw tools
+    if (canvas.isDrawingMode) {
+      canvas.isDrawingMode = false;
+      setTool('select');
+    }
     return canvas;
+  };
+
+  /** Activate freehand drawing mode with PencilBrush. */
+  const activateDrawingMode = () => {
+    const canvas = ensureCanvas();
+    if (!canvas) return;
+    const brush = new PencilBrush(canvas);
+    brush.color = '#111827';
+    brush.width = 2;
+    canvas.freeDrawingBrush = brush;
+    canvas.isDrawingMode = true;
+    canvas.discardActiveObject();
+    canvas.requestRenderAll();
+    setTool('draw');
+  };
+
+  /** Switch back to select/pointer mode. */
+  const activateSelectMode = () => {
+    const canvas = fabricCanvasRef.current;
+    if (canvas) {
+      canvas.isDrawingMode = false;
+      canvas.requestRenderAll();
+    }
+    setTool('select');
   };
 
   /** Add a text box (plain text or sticky-note style) to the canvas. */
@@ -716,9 +777,15 @@ export default function PdfEditor() {
     const canvas = ensureCanvas();
     if (!canvas) return;
     const active = canvas.getActiveObject();
-    if (!active || active.type !== 'textbox') {
+    if (!active || (active.type ?? '').toLowerCase() !== 'textbox') {
       toast.error(t('tools.pdfEditor.selectTextFirst', 'Select a text element first.'));
       return;
+    }
+
+    // Exit drawing mode if active
+    if (canvas.isDrawingMode) {
+      canvas.isDrawingMode = false;
+      setTool('select');
     }
 
     const textbox = active as Textbox;
@@ -910,6 +977,14 @@ export default function PdfEditor() {
   /** Collect all edits across all pages, serialise them, and submit to the backend. */
   const handleSave = async () => {
     if (!file) return;
+
+    // Exit drawing mode to finalize any in-progress strokes
+    const canvas = fabricCanvasRef.current;
+    if (canvas?.isDrawingMode) {
+      canvas.isDrawingMode = false;
+      setTool('select');
+    }
+
     pageStatesRef.current[currentPage] = serializeCanvas(fabricCanvasRef.current);
 
     const operations: PdfEditOperation[] = [];
@@ -1081,7 +1156,7 @@ export default function PdfEditor() {
               <div className="overflow-x-auto border-b border-slate-200 px-3 py-2.5 dark:border-slate-700">
                 <div className="flex items-center gap-1 min-w-max">
                   {/* ── Text tools ── */}
-                  <button type="button" onClick={() => setTool('select')} title={t('tools.pdfEditor.select', 'Select')} className={`flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-300 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-800' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                  <button type="button" onClick={activateSelectMode} title={t('tools.pdfEditor.select', 'Select')} className={`flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'select' ? 'bg-amber-50 text-amber-700 ring-1 ring-amber-300 dark:bg-amber-900/20 dark:text-amber-200 dark:ring-amber-800' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
                     <MousePointer2 className="h-5 w-5" /><span>{t('tools.pdfEditor.select', 'Select')}</span>
                   </button>
                   <button type="button" onClick={() => addTextbox()} title={t('tools.pdfEditor.addText', 'Text')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
@@ -1092,6 +1167,11 @@ export default function PdfEditor() {
                   </button>
 
                   <div className="mx-1 h-10 w-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* ── Freehand drawing ── */}
+                  <button type="button" onClick={activateDrawingMode} title={t('tools.pdfEditor.draw', 'Draw')} className={`flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium transition ${tool === 'draw' ? 'bg-violet-50 text-violet-700 ring-1 ring-violet-300 dark:bg-violet-900/20 dark:text-violet-200 dark:ring-violet-800' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}>
+                    <Brush className="h-5 w-5" /><span>{t('tools.pdfEditor.draw', 'Draw')}</span>
+                  </button>
 
                   {/* ── Drawing tools ── */}
                   <button type="button" onClick={() => signatureInputRef.current?.click()} title={t('tools.pdfEditor.addSignature', 'Signature')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">

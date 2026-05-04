@@ -31,7 +31,7 @@ class PDFEditorError(Exception):
 MAX_IMAGE_BYTES = 12 * 1024 * 1024
 
 # All edit operation types the service can process.
-SUPPORTED_TYPES = {"text", "rect", "ellipse", "line", "arrow", "image", "link", "note"}
+SUPPORTED_TYPES = {"text", "rect", "ellipse", "line", "arrow", "image", "link", "note", "path"}
 
 # Regex matching any Arabic / extended-Arabic Unicode block character.
 ARABIC_RE = re.compile(r"[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]")
@@ -330,11 +330,32 @@ def _draw_arrow(page, start, end, color, width, fill_opacity, pymupdf):
 # Per-type edit applicators
 # ---------------------------------------------------------------------------
 
+def _get_font_path(font_type: str = "latin") -> str | None:
+    """Resolve the absolute path to a bundled TTF font file.
+
+    Args:
+        font_type: ``"latin"`` for NotoSans, ``"arabic"`` for NotoSansArabic.
+
+    Returns:
+        Absolute path string if the font file exists, otherwise ``None``.
+    """
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    fonts = {
+        "latin": os.path.join(base_dir, "fonts", "NotoSans-Regular.ttf"),
+        "arabic": os.path.join(base_dir, "fonts", "NotoSansArabic-Regular.ttf"),
+    }
+    path = fonts.get(font_type)
+    if path and os.path.exists(path):
+        return path
+    return None
+
+
 def _apply_text(page, edit: dict, pymupdf) -> bool:
     """Insert a text box onto *page*.
 
     Handles font resolution, Arabic reshaping, optional background
     fill (for sticky-note style annotations), and inline hyperlinks.
+    Uses embedded TTF fonts for reliable rendering across all viewers.
 
     Args:
         page: PyMuPDF page object.
@@ -355,27 +376,37 @@ def _apply_text(page, edit: dict, pymupdf) -> bool:
 
     if not text and not background_fill:
         return False
-    text = _prepare_pdf_text(text)
+
+    text = _prepare_pdf_text(text) if text else ""
 
     font_size = _clamp(_to_float(edit.get("font_size"), 16), 6, 144)
     color = _normalize_color(edit.get("fill"), (0, 0, 0))
     opacity = _clamp(_to_float(edit.get("opacity"), 1), 0, 1)
     align_map = {"left": 0, "center": 1, "right": 2, "justify": 3}
-    align = align_map.get(str(edit.get("align", "left")), 2 if ARABIC_RE.search(text) else 0)
-    font_name = _resolve_font_name(str(edit.get("font_family", "Helvetica")))
+    align = align_map.get(str(edit.get("align", "left")), 2 if text and ARABIC_RE.search(text) else 0)
 
-    # Check for Arabic text to use the appropriate font
-    if ARABIC_RE.search(text):
-        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        arabic_font_path = os.path.join(base_dir, "fonts", "NotoSansArabic-Regular.ttf")
-        if os.path.exists(arabic_font_path):
-            font_name = "arab"
-            try:
-                page.insert_font(fontname=font_name, fontfile=arabic_font_path)
-            except Exception as e:
-                logger.warning(f"Could not insert Arabic font: {e}")
+    # Select font: prefer embedded TTF for reliable cross-platform rendering.
+    font_name = "helv"  # fallback
+    fontfile = None
+    if text and ARABIC_RE.search(text):
+        arabic_path = _get_font_path("arabic")
+        if arabic_path:
+            font_name = "noar"  # custom name for NotoSansArabic
+            fontfile = arabic_path
+    else:
+        latin_path = _get_font_path("latin")
+        if latin_path:
+            font_name = "noto"  # custom name for NotoSans
+            fontfile = latin_path
 
-    background_fill = edit.get("bg_fill")
+    # Register the font on the page if using a TTF file.
+    if fontfile:
+        try:
+            page.insert_font(fontname=font_name, fontfile=fontfile)
+        except Exception as e:
+            logger.warning("Could not register font %s: %s", font_name, e)
+            fontfile = None  # fall back to built-in
+            font_name = "helv"
 
     # Draw a coloured background rectangle (used by "note" annotations).
     if background_fill:
@@ -387,18 +418,47 @@ def _apply_text(page, edit: dict, pymupdf) -> bool:
             overlay=True,
         )
 
+    # Insert the text.
     if text:
-        page.insert_textbox(
-            rect,
-            text,
-            fontsize=font_size,
-            fontname=font_name,
-            color=color,
-            align=align,
-            fill_opacity=opacity,
-            stroke_opacity=opacity,
-            overlay=True,
-        )
+        try:
+            rc = page.insert_textbox(
+                rect,
+                text,
+                fontsize=font_size,
+                fontname=font_name,
+                fontfile=fontfile,
+                color=color,
+                align=align,
+                fill_opacity=opacity,
+                stroke_opacity=opacity,
+                overlay=True,
+            )
+            # rc < 0 means text overflowed the rect. Try a smaller font.
+            if rc < 0:
+                smaller = max(6, font_size * 0.7)
+                page.insert_textbox(
+                    rect,
+                    text,
+                    fontsize=smaller,
+                    fontname=font_name,
+                    fontfile=fontfile,
+                    color=color,
+                    align=align,
+                    fill_opacity=opacity,
+                    stroke_opacity=opacity,
+                    overlay=True,
+                )
+        except Exception as e:
+            logger.warning("insert_textbox failed: %s — retrying with built-in font", e)
+            page.insert_textbox(
+                rect,
+                text,
+                fontsize=font_size,
+                fontname="helv",
+                color=color,
+                align=align,
+                overlay=True,
+            )
 
     # Optionally attach a clickable URI link over the text area.
     link_url = str(edit.get("link_url", "")).strip()
@@ -563,6 +623,69 @@ def _apply_image(page, edit: dict, pymupdf) -> bool:
     return True
 
 
+def _apply_path(page, edit: dict, pymupdf) -> bool:
+    """Draw a freehand path (from PencilBrush) onto *page*.
+
+    The frontend sends the Fabric.js path data as a serialised SVG path
+    string plus bounding-box percentages.  We render it onto the PDF page
+    by converting the path to an SVG image and inserting it.
+
+    Args:
+        page: PyMuPDF page object.
+        edit: Edit dict with ``path_data``, position, and styling keys.
+        pymupdf: The PyMuPDF module.
+
+    Returns:
+        ``True`` if the path was drawn.
+    """
+    rect = _page_rect_from_edit(page, edit, pymupdf)
+    if rect.width < 2 or rect.height < 2:
+        return False
+
+    path_data = str(edit.get("path_data", "")).strip()
+    if not path_data:
+        return False
+
+    stroke_color = _normalize_color(edit.get("stroke"), (0.067, 0.094, 0.153))
+    stroke_width = _clamp(_to_float(edit.get("stroke_width"), 2), 0.5, 24)
+    opacity = _clamp(_to_float(edit.get("opacity"), 1), 0, 1)
+
+    # Build an SVG representing the freehand path and insert it as an image.
+    # This gives us full fidelity for complex Bézier curves.
+    svg_width = max(1, rect.width)
+    svg_height = max(1, rect.height)
+    stroke_hex = "#" + "".join(f"{int(c * 255):02x}" for c in stroke_color)
+    fill_raw = str(edit.get("fill", "")).strip()
+    fill_attr = f'fill="{fill_raw}"' if fill_raw and fill_raw != "" else 'fill="none"'
+
+    svg = (
+        f'<svg xmlns="http://www.w3.org/2000/svg" '
+        f'width="{svg_width:.1f}" height="{svg_height:.1f}" '
+        f'viewBox="0 0 {svg_width:.1f} {svg_height:.1f}">'
+        f'<path d="{path_data}" stroke="{stroke_hex}" '
+        f'stroke-width="{stroke_width:.1f}" stroke-linecap="round" '
+        f'stroke-linejoin="round" {fill_attr} opacity="{opacity:.2f}"/>'
+        f'</svg>'
+    )
+
+    try:
+        svg_bytes = svg.encode("utf-8")
+        page.insert_image(rect, stream=svg_bytes, overlay=True)
+    except Exception:
+        # Fallback: draw a simple line from top-left to bottom-right
+        logger.warning("SVG path insertion failed, drawing fallback line")
+        page.draw_line(
+            pymupdf.Point(rect.x0, rect.y0),
+            pymupdf.Point(rect.x1, rect.y1),
+            color=stroke_color,
+            width=stroke_width,
+            stroke_opacity=opacity,
+            overlay=True,
+        )
+
+    return True
+
+
 def _apply_link(page, edit: dict, pymupdf) -> bool:
     """Insert a clickable hyperlink annotation rendered as underlined text.
 
@@ -622,6 +745,8 @@ def _apply_single_edit(page, edit: dict, pymupdf) -> bool:
         return _apply_arrow(page, edit, pymupdf)
     if edit_type == "image":
         return _apply_image(page, edit, pymupdf)
+    if edit_type == "path":
+        return _apply_path(page, edit, pymupdf)
     if edit_type == "link":
         return _apply_link(page, edit, pymupdf)
     return False
