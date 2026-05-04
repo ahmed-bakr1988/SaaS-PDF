@@ -131,6 +131,7 @@ services:
     depends_on:
       - backend
       - frontend_build_step
+      - gitea
     restart: always
 
   # --- Frontend Build (one-shot) ---
@@ -207,6 +208,12 @@ services:
       - "3000"
     ports:
       - "2222:22"
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
 
 volumes:
   postgres_data:
