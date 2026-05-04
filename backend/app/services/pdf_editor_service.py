@@ -351,7 +351,9 @@ def _apply_text(page, edit: dict, pymupdf) -> bool:
         return False
 
     text = str(edit.get("text", "")).strip()
-    if not text:
+    background_fill = edit.get("bg_fill")
+
+    if not text and not background_fill:
         return False
     text = _prepare_pdf_text(text)
 
@@ -361,6 +363,18 @@ def _apply_text(page, edit: dict, pymupdf) -> bool:
     align_map = {"left": 0, "center": 1, "right": 2, "justify": 3}
     align = align_map.get(str(edit.get("align", "left")), 2 if ARABIC_RE.search(text) else 0)
     font_name = _resolve_font_name(str(edit.get("font_family", "Helvetica")))
+
+    # Check for Arabic text to use the appropriate font
+    if ARABIC_RE.search(text):
+        base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        arabic_font_path = os.path.join(base_dir, "fonts", "NotoSansArabic-Regular.ttf")
+        if os.path.exists(arabic_font_path):
+            font_name = "arab"
+            try:
+                page.insert_font(fontname=font_name, fontfile=arabic_font_path)
+            except Exception as e:
+                logger.warning(f"Could not insert Arabic font: {e}")
+
     background_fill = edit.get("bg_fill")
 
     # Draw a coloured background rectangle (used by "note" annotations).
@@ -373,17 +387,18 @@ def _apply_text(page, edit: dict, pymupdf) -> bool:
             overlay=True,
         )
 
-    page.insert_textbox(
-        rect,
-        text,
-        fontsize=font_size,
-        fontname=font_name,
-        color=color,
-        align=align,
-        fill_opacity=opacity,
-        stroke_opacity=opacity,
-        overlay=True,
-    )
+    if text:
+        page.insert_textbox(
+            rect,
+            text,
+            fontsize=font_size,
+            fontname=font_name,
+            color=color,
+            align=align,
+            fill_opacity=opacity,
+            stroke_opacity=opacity,
+            overlay=True,
+        )
 
     # Optionally attach a clickable URI link over the text area.
     link_url = str(edit.get("link_url", "")).strip()

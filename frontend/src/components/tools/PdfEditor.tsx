@@ -1120,7 +1120,7 @@ export default function PdfEditor() {
                   <button type="button" onClick={() => addRect('rgba(250,204,21,0.35)', '#ca8a04')} title={t('tools.pdfEditor.highlight', 'Highlight')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                     <Highlighter className="h-5 w-5" /><span>{t('tools.pdfEditor.highlight', 'Highlight')}</span>
                   </button>
-                  <button type="button" onClick={() => addRect('#ffffff', '#e2e8f0')} title={t('tools.pdfEditor.whiteout', 'Whiteout')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
+                  <button type="button" onClick={() => addRect('#ffffff', '#ffffff')} title={t('tools.pdfEditor.whiteout', 'Whiteout')} className="flex flex-col min-w-[60px] items-center gap-1 rounded-xl p-2 text-xs font-medium text-slate-600 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800">
                     <Eraser className="h-5 w-5" /><span>{t('tools.pdfEditor.whiteout', 'Whiteout')}</span>
                   </button>
 
