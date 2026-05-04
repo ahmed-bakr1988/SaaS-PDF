@@ -126,9 +126,6 @@ def edit_pdf_route():
         return jsonify({"error": "Invalid JSON in 'edits' field."}), 400
 
     # --- Basic edits bounds ---
-    if not edits:
-        return jsonify({"error": "At least one edit is required."}), 400
-
     if len(edits) > 500:
         return jsonify({"error": "Maximum 500 edits allowed."}), 400
 

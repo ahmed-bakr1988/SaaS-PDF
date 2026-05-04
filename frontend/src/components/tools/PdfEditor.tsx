@@ -186,10 +186,10 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
   const operations: PdfEditOperation[] = [];
 
   for (const object of objects) {
-    const type = object.type ?? '';
-    const editorKind = object.editorKind ?? type;
+    const type = (object.type ?? '').toLowerCase();
+    const editorKind = (object.editorKind ?? type).toLowerCase();
 
-    if (type === 'textbox') {
+    if (type === 'textbox' || type === 'i-text' || type === 'text') {
       const rect = objectRectPercent(object, pageSize);
       const baseText: PdfEditOperation = {
         type: editorKind === 'link' ? 'link' : 'text',
@@ -260,14 +260,16 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
       continue;
     }
 
-    if (type === 'image' && typeof object.src === 'string' && object.src.startsWith('data:')) {
-      const rect = objectRectPercent(object, pageSize);
-      operations.push({
-        type: 'image',
-        page,
-        ...rect,
-        data_url: object.src,
-      });
+    if (type === 'image' || type === 'fabricimage') {
+      if (typeof object.src === 'string' && object.src.startsWith('data:')) {
+        const rect = objectRectPercent(object, pageSize);
+        operations.push({
+          type: 'image',
+          page,
+          ...rect,
+          data_url: object.src,
+        });
+      }
     }
   }
 

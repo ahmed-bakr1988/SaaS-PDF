@@ -637,8 +637,8 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
         PDFEditorError: On invalid input, password-protected PDFs,
             or internal PyMuPDF failures.
     """
-    if not edits:
-        raise PDFEditorError("No edits provided.")
+    if edits is None:
+        edits = []
 
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     pymupdf = _load_pymupdf()
@@ -663,9 +663,7 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
                 if _apply_single_edit(page, edit, pymupdf):
                     edits_applied += 1
 
-            if edits_applied == 0:
-                raise PDFEditorError("No valid edits could be applied.")
-
+            # Allow saving even if no edits were applied (just re-renders/optimizes the PDF)
             doc.save(output_path, garbage=3, deflate=True)
         finally:
             doc.close()
