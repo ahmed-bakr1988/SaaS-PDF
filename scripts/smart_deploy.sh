@@ -126,6 +126,11 @@ $COMPOSE up -d --remove-orphans \
 
 log_ok "تم إطلاق خدمات التطبيق"
 
+log_step "تشغيل migrations..."
+$COMPOSE exec -T backend alembic upgrade head || true
+$COMPOSE exec -T backend python -c "from app import create_app; create_app().app_context().push(); from app.services.account_service import init_account_db; init_account_db()" || true
+log_ok "تم الانتهاء من migrations"
+
 # انتظار اكتمال بناء الـ frontend قبل تشغيل nginx
 log_warn "انتظار اكتمال بناء الـ frontend..."
 FRONTEND_MAX=120
