@@ -114,8 +114,14 @@ class BaseConfig:
     CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")
 
     # Rate Limiting
-    RATELIMIT_STORAGE_URI = os.getenv("REDIS_URL", "redis://redis:6379/0")
+    # Uses a dedicated env var so it can be configured independently from REDIS_URL.
+    # Falls back to in-memory storage so Redis downtime never causes 500 errors.
+    RATELIMIT_STORAGE_URI = os.getenv(
+        "RATELIMIT_STORAGE_URI",
+        os.getenv("REDIS_URL", "memory://"),
+    )
     RATELIMIT_DEFAULT = "100/hour"
+    RATELIMIT_ENABLED = os.getenv("RATELIMIT_ENABLED", "true").lower() == "true"
 
     # Gemini AI (primary provider — Google AI Studio)
     GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", os.getenv("GOOGLE_API_KEY", ""))
@@ -252,7 +258,7 @@ class TestingConfig(BaseConfig):
     HTML_TO_PDF_RENDERER = "weasyprint"
     HTML_TO_PDF_ENABLE_WEASYPRINT_FALLBACK = True
 
-    # Disable Redis-backed rate limiting; use in-memory instead
+    # Disable rate limiting in tests — always use in-memory, never Redis
     RATELIMIT_STORAGE_URI = "memory://"
     RATELIMIT_ENABLED = False
 

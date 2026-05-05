@@ -23,6 +23,11 @@ frontend/.indexnow/
 .env
 .env.local
 .env.production
+.env.bak
+.env.bak.*
+.env.save
+.env.server
+server-secrets.env
 
 # IDE
 .vscode/

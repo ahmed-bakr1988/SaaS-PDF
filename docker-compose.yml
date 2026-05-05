@@ -48,10 +48,8 @@ services:
       - .env
     environment:
       - FLASK_ENV=development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+      # Redis URLs are loaded from env_file (.env) to allow override.yml to work correctly.
     volumes:
       - ./backend:/app
       - upload_data:/tmp/uploads
@@ -77,10 +75,8 @@ services:
       - .env
     environment:
       - FLASK_ENV=development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+      # Redis URLs are loaded from env_file (.env) to allow override.yml to work correctly.
     volumes:
       - ./backend:/app
       - upload_data:/tmp/uploads
@@ -110,10 +106,8 @@ services:
       - .env
     environment:
       - FLASK_ENV=development
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+      # Redis URLs are loaded from env_file (.env) to allow override.yml to work correctly.
     volumes:
       - ./backend:/app
     depends_on:

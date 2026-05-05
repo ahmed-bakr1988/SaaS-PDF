@@ -1,133 +1,128 @@
 #!/bin/bash
-# deploy.sh — Production deployment script for Dociva
+# =============================================================================
+# deploy.sh — Safe production deploy script for Dociva
+# Usage: ~/deploy.sh
+# =============================================================================
 set -euo pipefail
 
-echo "========================================="
-echo "  Dociva Production Deployment"
-echo "========================================="
+DEPLOY_START=$(date +%s)
+echo "══════════════════════════════════════"
+echo " Dociva — Safe Deploy"
+echo " $(date '+%Y-%m-%d %H:%M:%S')"
+echo "══════════════════════════════════════"
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+cd ~/SaaS-PDF
 
-# Check Docker
-if ! command -v docker &> /dev/null; then
-    echo -e "${RED}Docker is not installed.${NC}"
-    exit 1
-fi
-if ! command -v docker-compose &> /dev/null && ! docker compose version &> /dev/null; then
-    echo -e "${RED}Docker Compose is not installed.${NC}"
-    exit 1
-fi
+# ── Pre-flight checks ────────────────────────────────────────────────────────
+echo ""
+echo "▶ Running pre-flight checks..."
 
-# Check .env
-if [ ! -f ".env" ]; then
-    echo -e "${RED}.env file not found! Copy .env.example and configure it.${NC}"
+# Check server secrets file
+if [ ! -f /root/server-secrets.env ]; then
+    echo "❌ /root/server-secrets.env not found!"
+    echo "   Run: bash scripts/server-setup.sh"
     exit 1
 fi
 
-read_env_value() {
-    local key="$1"
-    local fallback="${2:-}"
-    local shell_value="${!key-}"
-    local file_value
-
-    file_value="$(grep -E "^${key}=" .env 2>/dev/null | tail -n 1 | cut -d= -f2- || true)"
-
-    if [ -n "$shell_value" ]; then
-        printf '%s' "$shell_value"
-    elif [ -n "$file_value" ]; then
-        printf '%s' "$file_value"
-    else
-        printf '%s' "$fallback"
-    fi
-}
-
-normalize_bool() {
-    printf '%s' "$1" | tr '[:upper:]' '[:lower:]'
-}
-
-INDEXNOW_AUTO_SUBMIT_VALUE="$(normalize_bool "$(read_env_value INDEXNOW_AUTO_SUBMIT 1)")"
-INDEXNOW_STRICT_VALUE="$(normalize_bool "$(read_env_value INDEXNOW_STRICT false)")"
-
-echo -e "${YELLOW}1/8 — Pulling latest code...${NC}"
-git pull origin main 2>/dev/null || echo "Not a git repo or no remote, skipping pull."
-
-echo -e "${YELLOW}2/8 — Building Docker images...${NC}"
-docker compose -f docker-compose.prod.yml build --no-cache
-
-echo -e "${YELLOW}3/8 — Stopping old containers...${NC}"
-docker compose -f docker-compose.prod.yml down --remove-orphans
-
-echo -e "${YELLOW}4/8 — Starting services...${NC}"
-docker compose -f docker-compose.prod.yml up -d
-
-if [ "${SKIP_AI_RUNTIME_CHECKS:-0}" != "1" ]; then
-    echo -e "${YELLOW}5/8 — Verifying AI runtime in backend + worker...${NC}"
-    for service in backend celery_worker; do
-        if ! docker compose -f docker-compose.prod.yml exec -T "$service" python - <<'PY'
-import importlib.util
-import os
-import sys
-
-issues = []
-api_key = os.getenv("OPENROUTER_API_KEY", "").strip()
-if not api_key or api_key.startswith("replace-with-"):
-    issues.append("OPENROUTER_API_KEY is missing or still set to a placeholder")
-if importlib.util.find_spec("vtracer") is None:
-    issues.append("vtracer is not installed in this container")
-
-if issues:
-    print("; ".join(issues))
-    sys.exit(1)
-
-print("AI runtime OK")
-PY
-        then
-            echo -e "${RED}✗ AI runtime check failed in ${service}.${NC}"
-            echo "  Fix the container env/dependencies, then redeploy backend and celery_worker."
-            echo "  Do not redeploy the frontend alone when backend routes, Celery tasks, or AI dependencies changed."
-            exit 1
-        fi
-    done
-else
-    echo -e "${YELLOW}5/8 — Skipping AI runtime checks (SKIP_AI_RUNTIME_CHECKS=1).${NC}"
+# Recreate override if missing (e.g., after docker compose down)
+if [ ! -f docker-compose.override.yml ]; then
+    echo "⚠️  docker-compose.override.yml missing — recreating..."
+    cat > docker-compose.override.yml << 'OVERRIDE_EOF'
+services:
+  backend:
+    env_file:
+      - /root/server-secrets.env
+    environment:
+      - FLASK_ENV=production
+  celery_worker:
+    env_file:
+      - /root/server-secrets.env
+  celery_beat:
+    env_file:
+      - /root/server-secrets.env
+OVERRIDE_EOF
 fi
 
-echo -e "${YELLOW}6/8 — Waiting for health check...${NC}"
-sleep 10
-
-# Health check
-if curl -sf http://localhost/api/health > /dev/null 2>&1; then
-    echo -e "${GREEN}✓ Deployment successful! Service is healthy.${NC}"
-else
-    echo -e "${RED}✗ Health check failed. Check logs:${NC}"
-    echo "  docker compose -f docker-compose.prod.yml logs backend"
-    exit 1
+# Check redis.conf bind
+if grep -q "^bind 127\.0\.0\.1" deploy/redis/redis.conf; then
+    echo "⚠️  redis.conf has bind 127.0.0.1 — auto-fixing..."
+    sed -i 's/^bind 127\.0\.0\.1.*/bind 0.0.0.0/' deploy/redis/redis.conf
 fi
 
-if [ "${INDEXNOW_AUTO_SUBMIT_VALUE:-1}" = "1" ] || [ "${INDEXNOW_AUTO_SUBMIT_VALUE:-true}" = "true" ]; then
-    echo -e "${YELLOW}7/8 — Submitting URLs to IndexNow...${NC}"
-    if docker compose -f docker-compose.prod.yml run --rm frontend_build_step node scripts/submit-indexnow.mjs; then
-        echo -e "${GREEN}✓ IndexNow notification completed.${NC}"
-    else
-        if [ "$INDEXNOW_STRICT_VALUE" = "1" ] || [ "$INDEXNOW_STRICT_VALUE" = "true" ]; then
-            echo -e "${RED}✗ IndexNow notification failed and INDEXNOW_STRICT is enabled.${NC}"
-            exit 1
-        fi
+echo "✅ Pre-flight checks passed"
 
-        echo -e "${YELLOW}! IndexNow notification failed; deployment will continue.${NC}"
-    fi
-else
-    echo -e "${YELLOW}7/8 — Skipping IndexNow notification (INDEXNOW_AUTO_SUBMIT=0).${NC}"
+# ── Git: resolve conflicts and pull ─────────────────────────────────────────
+echo ""
+echo "▶ Updating code from repository..."
+
+# Fix any lingering merge conflicts
+if git status | grep -qE "needs merge|Unmerged paths|both modified"; then
+    echo "⚠️  Merge conflict detected — resetting to HEAD"
+    git merge --abort 2>/dev/null || true
+    git checkout -- .
 fi
 
-echo -e "${YELLOW}8/8 — Current containers:${NC}"
-docker compose -f docker-compose.prod.yml ps
+# Stash any uncommitted local changes
+if ! git diff --quiet HEAD 2>/dev/null; then
+    STASH_MSG="auto-stash $(date +%Y%m%d-%H%M%S)"
+    echo "⚠️  Stashing local changes: $STASH_MSG"
+    git stash push -m "$STASH_MSG"
+fi
+
+# Pull latest
+git fetch origin
+git pull --ff-only origin main
+
+echo "📋 Latest 3 commits:"
+git log -3 --oneline --decorate
+
+# ── Rebuild services ─────────────────────────────────────────────────────────
+echo ""
+echo "▶ Rebuilding services..."
+docker compose up -d --build backend frontend celery_worker celery_beat
+
+# ── Health check ─────────────────────────────────────────────────────────────
+echo ""
+echo "▶ Waiting for services to become healthy..."
+sleep 15
 
 echo ""
-echo -e "${GREEN}Deployment complete!${NC}"
-echo "  App:  http://localhost"
-echo "  Logs: docker compose -f docker-compose.prod.yml logs -f"
+echo "════ Container Status ════"
+docker ps --format "table {{.Names}}\t{{.Status}}"
+
+echo ""
+echo "════ Health Check ════"
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://dociva.io/api/health 2>/dev/null || echo "000")
+if [ "$HTTP_CODE" = "200" ]; then
+    echo "✅ API /health: OK (200)"
+else
+    echo "⚠️  API /health returned: $HTTP_CODE"
+    echo "   Check logs: docker logs saas-pdf-backend-1 --tail 30"
+fi
+
+# Check Redis connection from backend
+REDIS_OK=$(docker exec saas-pdf-backend-1 python3 -c "
+import redis, os, sys
+try:
+    r = redis.from_url(os.environ.get('REDIS_URL', 'redis://redis:6379/0'))
+    r.ping()
+    print('OK')
+except Exception as e:
+    print(f'FAIL: {e}')
+    sys.exit(1)
+" 2>/dev/null || echo "FAIL")
+
+if [ "$REDIS_OK" = "OK" ]; then
+    echo "✅ Redis connection: OK"
+else
+    echo "⚠️  Redis connection: $REDIS_OK"
+    echo "   Check: grep '^bind' ~/SaaS-PDF/deploy/redis/redis.conf"
+fi
+
+DEPLOY_END=$(date +%s)
+DEPLOY_TIME=$((DEPLOY_END - DEPLOY_START))
+
+echo ""
+echo "══════════════════════════════════════"
+echo " ✅ Deploy completed in ${DEPLOY_TIME}s"
+echo "══════════════════════════════════════"

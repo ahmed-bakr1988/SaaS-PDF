@@ -10,7 +10,12 @@ from flask_talisman import Talisman
 
 # Initialize extensions (will be bound to app in create_app)
 cors = CORS()
-limiter = Limiter(key_func=get_remote_address)
+limiter = Limiter(
+    key_func=get_remote_address,
+    # Prevent Redis connection failures from causing 500 errors on every request.
+    # When Redis is unreachable, rate limiting is skipped rather than crashing.
+    swallow_errors=True,
+)
 talisman = Talisman()
 celery = Celery()
 
