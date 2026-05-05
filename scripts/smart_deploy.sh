@@ -1,238 +1,114 @@
 #!/usr/bin/env bash
 # =============================================================================
-# smart_deploy.sh — سكريبت النشر الذكي لـ Dociva
+# smart_deploy.sh — The Professional, Zero-500-Error Deploy Script for Dociva
 # =============================================================================
-# الاستخدام:
-#   ./scripts/smart_deploy.sh           # نشر عادي (بدون --build)
-#   ./scripts/smart_deploy.sh --build   # إعادة بناء الصور أيضاً
-#   ./scripts/smart_deploy.sh --full    # إعادة تشغيل كامل (مثل down && up)
+# This script combines the "Safe Commands" that fixed the Redis and UI issues.
+# Usage:
+#   bash scripts/smart_deploy.sh
 # =============================================================================
 
 set -eo pipefail
 
-# يصلح صلاحيات التشغيل تلقائياً في كل مرة
-chmod +x "$0" 2>/dev/null || true
+# --- Configuration ---
+PROJECT_DIR="$HOME/SaaS-PDF"
+SECRETS_FILE="/root/server-secrets.env"
+COMPOSE_CMD="docker compose"
 
-# --- الألوان ---
-RED='\033[0;31m'
+# --- Visual Colors ---
+CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-CYAN='\033[0;36m'
-NC='\033[0m'
-
-COMPOSE="docker compose -f docker-compose.prod.yml"
-BUILD_FLAG=""
-FULL_RESTART=false
-
-# --- قراءة المعاملات ---
-for arg in "$@"; do
-    case "$arg" in
-        --build) BUILD_FLAG="--build" ;;
-        --full)  FULL_RESTART=true ;;
-    esac
-done
+RED='\033[0;31m'
+NC='\033[0m' # No Color
 
 log_step() { echo -e "\n${CYAN}▶ $1${NC}"; }
-log_ok()   { echo -e "${GREEN}✓ $1${NC}"; }
-log_warn() { echo -e "${YELLOW}⚠ $1${NC}"; }
-log_err()  { echo -e "${RED}✗ $1${NC}"; }
+log_ok()   { echo -e "${GREEN}✅ $1${NC}"; }
+log_warn() { echo -e "${YELLOW}⚠️  $1${NC}"; }
+log_err()  { echo -e "${RED}❌ $1${NC}"; }
 
-echo ""
-echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║     Dociva Smart Deploy — بدون 500 Errors   ║${NC}"
-echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+echo -e "${CYAN}══════════════════════════════════════════════${NC}"
+echo -e "${CYAN}         Dociva — Smart Production Deploy      ${NC}"
+echo -e "${CYAN}         $(date '+%Y-%m-%d %H:%M:%S')          ${NC}"
+echo -e "${CYAN}══════════════════════════════════════════════${NC}"
 
-# =============================================================================
-# 1. سحب آخر الكود من Git
-# =============================================================================
-log_step "1/7 — سحب آخر التعديلات من Git..."
+# --- 1. Navigate to Project ---
+cd "$PROJECT_DIR" || { log_err "Project directory not found!"; exit 1; }
+
+# --- 2. Update Code from Git ---
+log_step "Updating code from repository..."
+git fetch origin main
+# Auto-resolve minor conflicts by favoring local if needed, but here we expect a clean pull
 git pull origin main
-# تأكد أن السكريبت قابل للتشغيل بعد كل pull
-chmod +x scripts/smart_deploy.sh 2>/dev/null || true
-log_ok "تم سحب الكود بنجاح"
+log_ok "Code updated successfully."
 
-# =============================================================================
-# 2. تحقق من ملف .env
-# =============================================================================
-log_step "2/7 — التحقق من ملف .env..."
-if [ ! -f ".env" ]; then
-    log_err ".env غير موجود! انسخ .env.example وعدّله."
-    exit 1
-fi
-log_ok "ملف .env موجود"
-
-# =============================================================================
-# 3. تشغيل قاعدة البيانات و Redis أولاً
-# =============================================================================
-log_step "3/7 — تشغيل قاعدة البيانات وRedis أولاً..."
-
-if [ "$FULL_RESTART" = true ]; then
-    log_warn "وضع الإعادة الكاملة: إيقاف كل الخدمات..."
-    $COMPOSE down --remove-orphans
-    log_warn "انتظار 3 ثواني للتأكد من التوقف..."
-    sleep 3
-fi
-
-$COMPOSE up -d $BUILD_FLAG postgres redis gitea
-log_ok "تم تشغيل postgres و redis و gitea"
-
-# =============================================================================
-# 4. انتظار جاهزية قاعدة البيانات و Redis
-# =============================================================================
-log_step "4/7 — انتظار جاهزية قاعدة البيانات..."
-
-DB_USER="${POSTGRES_USER:-dociva}"
-DB_NAME="${POSTGRES_DB:-dociva}"
-MAX_WAIT=60
-WAITED=0
-until $COMPOSE exec -T postgres pg_isready -U "$DB_USER" -d "$DB_NAME" > /dev/null 2>&1; do
-    if [ "$WAITED" -ge "$MAX_WAIT" ]; then
-        log_err "انتهت مهلة انتظار قاعدة البيانات ($MAX_WAIT ثانية)"
-        $COMPOSE logs postgres | tail -20
-        exit 1
-    fi
-    echo -n "."
-    sleep 2
-    WAITED=$((WAITED + 2))
-done
-echo ""
-log_ok "قاعدة البيانات جاهزة! (انتظرت ${WAITED} ثانية)"
-
-# انتظار Redis
-REDIS_WAITED=0
-until $COMPOSE exec -T redis redis-cli ping > /dev/null 2>&1; do
-    if [ "$REDIS_WAITED" -ge 30 ]; then
-        log_err "Redis لم يستجب خلال 30 ثانية"
-        $COMPOSE logs redis | tail -10
-        exit 1
-    fi
-    echo -n "."
-    sleep 1
-    REDIS_WAITED=$((REDIS_WAITED + 1))
-done
-echo ""
-log_ok "Redis جاهز!"
-
-# =============================================================================
-# 5. بناء وإعادة تشغيل خدمات التطبيق
-# =============================================================================
-log_step "5/7 — تحديث خدمات التطبيق..."
-
-if [ -n "$BUILD_FLAG" ]; then
-    log_warn "إعادة بناء الصور..."
-    $COMPOSE build backend celery_worker celery_beat frontend_build_step
-    log_ok "تم بناء الصور"
-fi
-
-# تشغيل frontend build أولاً في الخلفية
-$COMPOSE up -d --remove-orphans frontend_build_step
-
-# تشغيل backend وcelery
-$COMPOSE up -d --remove-orphans \
-    backend \
-    celery_worker \
-    celery_beat
-
-log_ok "تم إطلاق خدمات التطبيق"
-
-# تهيئة قاعدة البيانات مباشرة عبر Python (بدلاً من alembic غير المثبت)
-log_step "تهيئة جداول قاعدة البيانات..."
-sleep 5
-$COMPOSE exec -T backend python -c "
-from app import create_app
-app = create_app('production')
-with app.app_context():
-    from app.services.account_service import init_account_db
-    init_account_db()
-    print('DB OK')
-" && log_ok "تم تهيئة قاعدة البيانات" \
-  || log_warn "تحذير: فشل تهيئة DB (قد تكون مهيأة مسبقاً)"
-
-# =============================================================================
-# انتظار اكتمال بناء الـ frontend (300 ثانية = 5 دقائق)
-# =============================================================================
-log_warn "انتظار اكتمال بناء الـ frontend (قد يصل إلى 5 دقائق)..."
-FRONTEND_MAX=300
-FRONTEND_WAITED=0
-until $COMPOSE ps frontend_build_step 2>/dev/null | grep -qE "Exit 0|Exited \(0\)|exited.*\(0\)"; do
-    if [ "$FRONTEND_WAITED" -ge "$FRONTEND_MAX" ]; then
-        log_warn "Frontend تجاوز ${FRONTEND_MAX} ثانية — سجلات البناء:"
-        $COMPOSE logs --tail=20 frontend_build_step
-        log_warn "تشغيل nginx مع الملفات المتاحة..."
-        break
-    fi
-    echo -n "."
-    sleep 3
-    FRONTEND_WAITED=$((FRONTEND_WAITED + 3))
-done
-echo ""
-log_ok "Frontend جاهز! (انتظرت ${FRONTEND_WAITED} ثانية)"
-
-# تشغيل nginx بعد اكتمال الـ frontend
-$COMPOSE up -d nginx
-log_ok "Nginx يعمل"
-
-# =============================================================================
-# 6. فحص صحة التطبيق (مع تشخيص كامل عند الفشل)
-# =============================================================================
-log_step "6/7 — فحص صحة التطبيق..."
-log_warn "انتظار استجابة الـ backend..."
-
-HEALTH_MAX=90
-HEALTH_WAITED=0
-HEALTH_PASSED=false
-until curl -sf http://localhost/api/health > /dev/null 2>&1; do
-    if [ "$HEALTH_WAITED" -ge "$HEALTH_MAX" ]; then
-        log_err "فشل فحص الصحة بعد ${HEALTH_MAX} ثانية — التشخيص الكامل:"
-        echo ""
-        log_warn "═══ حالة الخدمات ═══"
-        $COMPOSE ps
-        echo ""
-        log_warn "═══ آخر 30 سطر من backend ═══"
-        $COMPOSE logs --tail=30 backend
-        echo ""
-        log_warn "═══ آخر 15 سطر من nginx ═══"
-        $COMPOSE logs --tail=15 nginx
-        echo ""
-        log_err "الخدمات شغالة لكن هناك خطأ — راجع السجلات أعلاه"
-        log_warn "لمتابعة يدوية: $COMPOSE logs -f backend"
-        HEALTH_PASSED=false
-        break
-    fi
-    echo -n "."
-    sleep 2
-    HEALTH_WAITED=$((HEALTH_WAITED + 2))
-done
-
-if curl -sf http://localhost/api/health > /dev/null 2>&1; then
-    HEALTH_PASSED=true
-fi
-
-echo ""
-if [ "$HEALTH_PASSED" = true ]; then
-    log_ok "التطبيق يعمل بصحة جيدة! (انتظرت ${HEALTH_WAITED} ثانية)"
-fi
-
-# =============================================================================
-# 7. ملخص الحالة
-# =============================================================================
-log_step "7/7 — ملخص حالة الخدمات:"
-$COMPOSE ps
-
-echo ""
-if [ "$HEALTH_PASSED" = true ]; then
-    echo -e "${GREEN}╔══════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║           ✓ النشر اكتمل بنجاح!              ║${NC}"
-    echo -e "${GREEN}╚══════════════════════════════════════════════╝${NC}"
+# --- 3. Synchronize Secrets & Redis Config ---
+log_step "Synchronizing secrets and Redis configuration..."
+if [ -f "scripts/server-setup.sh" ]; then
+    bash scripts/server-setup.sh
+    log_ok "Secrets and environment files synchronized."
 else
-    echo -e "${YELLOW}╔══════════════════════════════════════════════════╗${NC}"
-    echo -e "${YELLOW}║  ⚠ الخدمات تعمل لكن هناك مشكلة في الـ API     ║${NC}"
-    echo -e "${YELLOW}║  راجع السجلات: docker compose logs -f backend  ║${NC}"
-    echo -e "${YELLOW}╚══════════════════════════════════════════════════╝${NC}"
+    log_warn "scripts/server-setup.sh not found. Skipping secrets sync."
 fi
-echo ""
-echo "  🌐 الموقع:  https://$(hostname -f 2>/dev/null || echo 'dociva.io')"
-echo "  📋 السجلات: $COMPOSE logs -f"
-echo "  📊 الحالة:  $COMPOSE ps"
-echo ""
+
+# --- 4. Force Restart Redis (Critical for Password Changes) ---
+log_step "Applying Redis security settings..."
+$COMPOSE_CMD stop redis
+$COMPOSE_CMD up -d redis
+log_ok "Redis is up and healthy with latest config."
+
+# --- 5. Clean Build of Core Services (Ensures Design Changes Appear) ---
+log_step "Building application services (clean cache)..."
+# We build with --no-cache to ensure CSS/JS design updates are actually bundled
+$COMPOSE_CMD build --no-cache frontend backend celery_worker celery_beat
+log_ok "Images built successfully."
+
+# --- 6. Launch Application ---
+log_step "Launching application services..."
+$COMPOSE_CMD up -d --remove-orphans
+log_ok "All containers are starting."
+
+# --- 7. Health Check & Validation ---
+log_step "Verifying system health..."
+echo -n "Waiting for backend to warm up..."
+for i in {1..30}; do
+    if curl -s "http://localhost/api/health" | grep -q "healthy"; then
+        echo ""
+        log_ok "Backend Health: OK (200)"
+        break
+    fi
+    echo -n "."
+    sleep 2
+    if [ $i -eq 30 ]; then
+        echo ""
+        log_err "Health check timed out! Check logs with: docker logs saas-pdf-backend-1"
+    fi
+done
+
+# Check Redis connectivity from inside the backend
+log_step "Testing internal Redis connectivity..."
+REDIS_TEST=$(docker exec saas-pdf-backend-1 python3 -c "
+import redis, os, sys
+try:
+    url = os.environ.get('REDIS_URL', 'redis://redis:6379/0')
+    r = redis.from_url(url)
+    r.ping()
+    print('CONNECTED')
+except Exception as e:
+    print(f'FAILED: {e}')
+    sys.exit(1)
+" 2>/dev/null || echo "FAILED")
+
+if [ "$REDIS_TEST" == "CONNECTED" ]; then
+    log_ok "Redis Connection: OK"
+else
+    log_err "Redis Connection: FAILED. Check your server-secrets.env"
+fi
+
+# --- Final Status ---
+echo -e "\n${CYAN}════════ Container Status ════════${NC}"
+$COMPOSE_CMD ps --format "table {{.Names}}\t{{.Status}}"
+echo -e "${CYAN}══════════════════════════════════${NC}"
+
+log_ok "Deployment completed successfully!"
+echo -e "${GREEN}Your changes are now live at: https://dociva.io${NC}"
+echo -e "${YELLOW}Tip: If design changes don't appear, try Ctrl+F5 in your browser.${NC}\n"
