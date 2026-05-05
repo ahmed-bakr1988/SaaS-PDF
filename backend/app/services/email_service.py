@@ -65,6 +65,65 @@ def send_email(to: str, subject: str, html_body: str) -> bool:
         return False
 
 
+def send_email_with_attachment(
+    to: str,
+    subject: str,
+    html_body: str,
+    attachment_bytes: bytes,
+    attachment_name: str,
+    attachment_mime: str = "application/octet-stream",
+) -> bool:
+    """Send an HTML email with a binary file attachment. Returns True on success."""
+    from email.mime.base import MIMEBase
+    from email import encoders
+
+    cfg = _get_smtp_config()
+    if not cfg["host"]:
+        logger.warning("SMTP not configured — email with attachment to %s suppressed.", to)
+        return False
+
+    msg = MIMEMultipart("mixed")
+    msg["Subject"] = subject
+    msg["From"] = cfg["from_addr"]
+    msg["To"] = to
+
+    # HTML body part
+    alt = MIMEMultipart("alternative")
+    alt.attach(MIMEText(html_body, "html"))
+    msg.attach(alt)
+
+    # PDF attachment part
+    main_type, sub_type = attachment_mime.split("/", 1)
+    part = MIMEBase(main_type, sub_type)
+    part.set_payload(attachment_bytes)
+    encoders.encode_base64(part)
+    part.add_header(
+        "Content-Disposition",
+        "attachment",
+        filename=attachment_name,
+    )
+    msg.attach(part)
+
+    try:
+        if cfg["use_tls"]:
+            server = smtplib.SMTP(cfg["host"], cfg["port"], timeout=15)
+            server.starttls()
+        else:
+            server = smtplib.SMTP(cfg["host"], cfg["port"], timeout=15)
+
+        if cfg["user"]:
+            server.login(cfg["user"], cfg["password"])
+
+        server.sendmail(cfg["from_addr"], [to], msg.as_string())
+        server.quit()
+        logger.info("Email with attachment sent to %s: %s", to, subject)
+        return True
+    except Exception:
+        logger.exception("Failed to send email with attachment to %s", to)
+        return False
+
+
+
 def send_password_reset_email(to: str, token: str) -> bool:
     """Send a password reset link."""
     frontend = current_app.config.get("FRONTEND_URL", "http://localhost:5173")

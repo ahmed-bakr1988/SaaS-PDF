@@ -46,6 +46,11 @@
     { "slug": "ازالة-كلمة-مرور-من-pdf", "mainKeyword": "إزالة كلمة مرور من PDF", "category": "security", "intent": "high", "language": "ar" },
     { "slug": "تحويل-pdf-الى-نص-باستخدام-ocr", "mainKeyword": "تحويل PDF إلى نص باستخدام OCR", "category": "ocr", "intent": "high", "language": "ar" },
     { "slug": "تحويل-pdf-الى-excel-اونلاين", "mainKeyword": "تحويل PDF إلى Excel أونلاين", "category": "conversion", "intent": "high", "language": "ar" },
-    { "slug": "تحويل-pdf-الى-صور", "mainKeyword": "تحويل PDF الى صور", "category": "conversion", "intent": "medium", "language": "ar" }
+    { "slug": "تحويل-pdf-الى-صور", "mainKeyword": "تحويل PDF الى صور", "category": "conversion", "intent": "medium", "language": "ar" },
+    { "slug": "word-count-online", "mainKeyword": "word count online", "category": "utility", "intent": "high", "language": "en" },
+    { "slug": "word-counter-free", "mainKeyword": "word counter free", "category": "utility", "intent": "high", "language": "en" },
+    { "slug": "crop-pdf", "mainKeyword": "crop pdf", "category": "utility", "intent": "high", "language": "en" },
+    { "slug": "words-counter-online", "mainKeyword": "words counter online", "category": "utility", "intent": "high", "language": "en" },
+    { "slug": "online-word-counter", "mainKeyword": "online word counter", "category": "utility", "intent": "high", "language": "en" }
   ]
 }

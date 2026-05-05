@@ -8,7 +8,7 @@
  * Reference UI: PDFAid (https://pdfaid.com) — single toolbar + wide preview.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { RotateCcw, AlertTriangle, Brush } from 'lucide-react';
+import { RotateCcw, AlertTriangle, Brush, Mail, CheckCircle2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import {
@@ -279,9 +279,14 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
       continue;
     }
 
-    // Freehand drawing paths
+    // Freehand drawing paths — send raw canvas-pixel dims so the backend
+    // can set the correct SVG viewBox for coordinate mapping.
     if (type === 'path') {
       const rect = objectRectPercent(object, pageSize);
+      const leftPx = Number(object.left ?? 0);
+      const topPx = Number(object.top ?? 0);
+      const widthPx = Number((object.width ?? 0) * (object.scaleX ?? 1));
+      const heightPx = Number((object.height ?? 0) * (object.scaleY ?? 1));
       let pathStr = '';
       if (Array.isArray(object.path)) {
         pathStr = object.path.map((seg: unknown) => {
@@ -299,7 +304,12 @@ function collectOperationsFromState(raw: string | null | undefined, page: number
           stroke_width: object.strokeWidth ?? 2,
           opacity: object.opacity ?? 1,
           fill: object.fill ?? '',
-        });
+          // Canvas-pixel bounding-box metadata for SVG viewBox calculation
+          left_px: leftPx,
+          top_px: topPx,
+          width_px: widthPx,
+          height_px: heightPx,
+        } as PdfEditOperation);
       }
     }
   }
@@ -418,6 +428,11 @@ export default function PdfEditor() {
   const [showRecoveryBanner, setShowRecoveryBanner] = useState(false);
   /** Metadata of the recoverable session (for display). */
   const [recoveryMeta, setRecoveryMeta] = useState<EditorSessionMeta | null>(null);
+  /** Email-send UI state. */
+  const [emailAddress, setEmailAddress] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
 
   const previewRef = useRef<HTMLDivElement | null>(null);
   const canvasElementRef = useRef<HTMLCanvasElement | null>(null);
@@ -1021,7 +1036,39 @@ export default function PdfEditor() {
   /** Reset the editor back to the upload phase. */
   const handleReset = () => {
     void clearSession();
+    setEmailAddress('');
+    setEmailSent(false);
+    setEmailError(null);
     handleFileSelect(null);
+  };
+
+  /** Send the completed PDF to the user-supplied email address. */
+  const handleSendEmail = async () => {
+    if (!result?.download_url) return;
+    const trimmed = emailAddress.trim();
+    if (!trimmed || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(trimmed)) {
+      setEmailError(t('tools.pdfEditor.invalidEmail', 'Please enter a valid email address.'));
+      return;
+    }
+    setEmailSending(true);
+    setEmailError(null);
+    try {
+      // Fetch the PDF blob from the download URL, then post it to the email endpoint.
+      const pdfBlob = await fetch(result.download_url).then((r) => r.blob());
+      const fd = new FormData();
+      fd.append('file', pdfBlob, result.filename ?? 'edited.pdf');
+      fd.append('email', trimmed);
+      fd.append('filename', result.filename ?? 'edited.pdf');
+      await api.post('/pdf-editor/email', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setEmailSent(true);
+      toast.success(t('tools.pdfEditor.emailSent', 'PDF sent to {{email}}!', { email: trimmed }));
+    } catch {
+      const msg = t('tools.pdfEditor.emailFailed', 'Could not send the email. Please try downloading instead.');
+      setEmailError(msg);
+      toast.error(msg);
+    } finally {
+      setEmailSending(false);
+    }
   };
 
   /** Adjust zoom level by a delta, clamped to 50–200%. */
@@ -1364,8 +1411,91 @@ export default function PdfEditor() {
         )}
 
         {phase === 'done' && result && result.status === 'completed' && (
-          <div className="mx-auto max-w-2xl space-y-4">
+          <div className="mx-auto max-w-2xl space-y-5">
+            {/* ── Success header ── */}
+            <div className="overflow-hidden rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-teal-50 shadow-sm dark:border-emerald-800/40 dark:from-emerald-950/40 dark:to-teal-950/30">
+              <div className="flex items-start gap-4 p-5">
+                <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-900/50">
+                  <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-base font-bold text-emerald-900 dark:text-emerald-200">
+                    {t('tools.pdfEditor.doneTitle', 'Your PDF is ready!')}
+                  </h2>
+                  <p className="mt-0.5 text-sm text-emerald-700/80 dark:text-emerald-300/70">
+                    {t('tools.pdfEditor.doneStats', '{{edits}} edits applied across {{pages}} page(s)', {
+                      edits: result.edits_applied ?? 0,
+                      pages: result.page_count ?? 1,
+                    })}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Download button ── */}
             <DownloadButton result={result} onStartOver={handleReset} />
+
+            {/* ── Send via email ── */}
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <div className="mb-3 flex items-center gap-2">
+                <Mail className="h-5 w-5 text-indigo-500" />
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                  {t('tools.pdfEditor.sendByEmail', 'Send to email')}
+                </h3>
+              </div>
+              {emailSent ? (
+                <div className="flex items-center gap-3 rounded-xl bg-emerald-50 px-4 py-3 dark:bg-emerald-900/20">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+                  <p className="text-sm font-medium text-emerald-700 dark:text-emerald-300">
+                    {t('tools.pdfEditor.emailSentConfirm', 'PDF sent to {{email}}!', { email: emailAddress })}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex gap-2">
+                    <input
+                      id="pdf-email-input"
+                      type="email"
+                      value={emailAddress}
+                      onChange={(e) => { setEmailAddress(e.target.value); setEmailError(null); }}
+                      onKeyDown={(e) => { if (e.key === 'Enter') void handleSendEmail(); }}
+                      placeholder={t('tools.pdfEditor.emailPlaceholder', 'your@email.com')}
+                      className="flex-1 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 shadow-sm outline-none transition focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/30"
+                      disabled={emailSending}
+                      autoComplete="email"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => void handleSendEmail()}
+                      disabled={emailSending || !emailAddress.trim()}
+                      className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {emailSending
+                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                        : <Mail className="h-4 w-4" />}
+                      {emailSending
+                        ? t('tools.pdfEditor.sending', 'Sending…')
+                        : t('tools.pdfEditor.send', 'Send')}
+                    </button>
+                  </div>
+                  {emailError && (
+                    <p className="text-xs text-red-600 dark:text-red-400">{emailError}</p>
+                  )}
+                  <p className="text-xs text-slate-400 dark:text-slate-500">
+                    {t('tools.pdfEditor.emailNote', 'The PDF will be sent as an email attachment.')}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* ── Edit again ── */}
+            <button
+              type="button"
+              onClick={handleReset}
+              className="w-full rounded-2xl border border-slate-200 bg-white py-3 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+            >
+              {t('tools.pdfEditor.editAnotherFile', 'Edit another PDF')}
+            </button>
           </div>
         )}
 

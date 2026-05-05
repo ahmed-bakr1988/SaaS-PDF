@@ -657,7 +657,7 @@ export const TOOLS_SEO: ToolSEO[] = [
     metaDescription: 'Count words, characters, sentences, and paragraphs in your text instantly. Free online word counter and text analyzer.',
     category: 'Utility',
     relatedSlugs: ['text-cleaner', 'summarize-pdf', 'translate-pdf'],
-    keywords: 'word counter, character counter, word count, text counter, letter counter',
+    keywords: 'word counter, word count online, word counter free, words counter online, online word counter, online word count, word counter online, character counter, word count, text counter, letter counter',
     features: [
       'Count words, characters, sentences, paragraphs',
       'Real-time counting as you type',

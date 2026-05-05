@@ -626,13 +626,15 @@ def _apply_image(page, edit: dict, pymupdf) -> bool:
 def _apply_path(page, edit: dict, pymupdf) -> bool:
     """Draw a freehand path (from PencilBrush) onto *page*.
 
-    The frontend sends the Fabric.js path data as a serialised SVG path
-    string plus bounding-box percentages.  We render it onto the PDF page
-    by converting the path to an SVG image and inserting it.
+    Fabric.js path coordinates are in *canvas pixel* space.  The frontend
+    now sends ``left_px``, ``top_px``, ``width_px``, ``height_px`` so we can
+    build an SVG ``viewBox`` that maps canvas pixels → PDF points correctly.
+    Without those fields we fall back to a centred-origin estimate.
 
     Args:
         page: PyMuPDF page object.
-        edit: Edit dict with ``path_data``, position, and styling keys.
+        edit: Edit dict with ``path_data``, position, styling, and optional
+              ``left_px``/``top_px``/``width_px``/``height_px`` keys.
         pymupdf: The PyMuPDF module.
 
     Returns:
@@ -650,18 +652,30 @@ def _apply_path(page, edit: dict, pymupdf) -> bool:
     stroke_width = _clamp(_to_float(edit.get("stroke_width"), 2), 0.5, 24)
     opacity = _clamp(_to_float(edit.get("opacity"), 1), 0, 1)
 
-    # Build an SVG representing the freehand path and insert it as an image.
-    # This gives us full fidelity for complex Bézier curves.
-    svg_width = max(1, rect.width)
-    svg_height = max(1, rect.height)
     stroke_hex = "#" + "".join(f"{int(c * 255):02x}" for c in stroke_color)
     fill_raw = str(edit.get("fill", "")).strip()
-    fill_attr = f'fill="{fill_raw}"' if fill_raw and fill_raw != "" else 'fill="none"'
+    fill_attr = f'fill="{fill_raw}"' if fill_raw else 'fill="none"'
+
+    # Build SVG viewBox from canvas-pixel metadata when available.
+    # This maps the Fabric.js coordinate space to the PDF rectangle.
+    left_px = _to_float(edit.get("left_px"), -1)
+    top_px = _to_float(edit.get("top_px"), -1)
+    width_px = _to_float(edit.get("width_px"), 0)
+    height_px = _to_float(edit.get("height_px"), 0)
+
+    if width_px > 0 and height_px > 0 and left_px >= 0:
+        # Exact mapping: viewBox covers the canvas region the path occupies.
+        vb = f"{left_px:.2f} {top_px:.2f} {width_px:.2f} {height_px:.2f}"
+    else:
+        # Fallback: assume path coords are centred around 0,0 (Fabric default).
+        hw = max(1, rect.width) / 2
+        hh = max(1, rect.height) / 2
+        vb = f"{-hw:.2f} {-hh:.2f} {max(1, rect.width):.2f} {max(1, rect.height):.2f}"
 
     svg = (
         f'<svg xmlns="http://www.w3.org/2000/svg" '
-        f'width="{svg_width:.1f}" height="{svg_height:.1f}" '
-        f'viewBox="0 0 {svg_width:.1f} {svg_height:.1f}">'
+        f'width="{rect.width:.2f}" height="{rect.height:.2f}" '
+        f'viewBox="{vb}">'
         f'<path d="{path_data}" stroke="{stroke_hex}" '
         f'stroke-width="{stroke_width:.1f}" stroke-linecap="round" '
         f'stroke-linejoin="round" {fill_attr} opacity="{opacity:.2f}"/>'
@@ -669,11 +683,9 @@ def _apply_path(page, edit: dict, pymupdf) -> bool:
     )
 
     try:
-        svg_bytes = svg.encode("utf-8")
-        page.insert_image(rect, stream=svg_bytes, overlay=True)
+        page.insert_image(rect, stream=svg.encode("utf-8"), overlay=True)
     except Exception:
-        # Fallback: draw a simple line from top-left to bottom-right
-        logger.warning("SVG path insertion failed, drawing fallback line")
+        logger.warning("SVG path insertion failed, drawing fallback line for task")
         page.draw_line(
             pymupdf.Point(rect.x0, rect.y0),
             pymupdf.Point(rect.x1, rect.y1),
@@ -684,6 +696,8 @@ def _apply_path(page, edit: dict, pymupdf) -> bool:
         )
 
     return True
+
+
 
 
 def _apply_link(page, edit: dict, pymupdf) -> bool:

@@ -2254,6 +2254,116 @@
         "ar": ""
       },
       "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "word-count-online",
+      "toolSlug": "word-count-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "word count online",
+        "ar": "word count online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to word count online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "word-counter-free",
+      "toolSlug": "word-counter-free",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "word counter free",
+        "ar": "word counter free"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to word counter free.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "crop-pdf",
+      "toolSlug": "crop-pdf",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "crop pdf",
+        "ar": "crop pdf"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to crop pdf.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "words-counter-online",
+      "toolSlug": "words-counter-online",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "words counter online",
+        "ar": "words counter online"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to words counter online.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
+    },
+    {
+      "slug": "online-word-counter",
+      "toolSlug": "online-word-counter",
+      "category": "PDF",
+      "focusKeyword": {
+        "en": "online word counter",
+        "ar": "online word counter"
+      },
+      "supportingKeywords": {
+        "en": [],
+        "ar": []
+      },
+      "benefit": {
+        "en": "Use Dociva to online word counter.",
+        "ar": ""
+      },
+      "useCase": {
+        "en": "Quick online processing without signup.",
+        "ar": ""
+      },
+      "relatedCollectionSlugs": []
     }
   ],
   "collectionPageSeeds": [
