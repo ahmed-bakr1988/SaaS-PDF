@@ -29,6 +29,46 @@ export interface TaskErrorPayload {
   detail?: string;
 }
 
+export interface SocialPlatformRecommendation {
+  id: string;
+  name: string;
+  hard_limit: number;
+  remaining_characters: number;
+  optimal_range: { min: number; max: number };
+  recommended_hashtags: { min: number; max: number };
+  status: 'ready' | 'needs-work' | 'over-limit';
+  score: number;
+  recommendations: string[];
+}
+
+export interface SocialTextAnalysisResponse {
+  input: {
+    text: string;
+    max_length: number;
+  };
+  stats: {
+    words: number;
+    characters: number;
+    characters_no_spaces: number;
+    sentences: number;
+    paragraphs: number;
+    hashtags: number;
+    mentions: number;
+    links: number;
+    emojis: number;
+    reading_time_seconds: number;
+    tone: string;
+    has_cta: boolean;
+  };
+  overall_score: number;
+  platforms: SocialPlatformRecommendation[];
+  suggestions: {
+    top_priority: string;
+    lowest_priority: string;
+    summary: string;
+  };
+}
+
 export interface TaskStatus {
   task_id: string;
   state: 'PENDING' | 'PROCESSING' | 'SUCCESS' | 'FAILURE';
@@ -55,6 +95,8 @@ export interface TaskResult {
   duration?: number;
   fps?: number;
   format?: string;
+  edits_applied?: number;
+  page_count?: number;
   // Flowchart-specific fields
   procedures?: Array<{ id: string; title: string; description: string; pages: number[]; step_count: number }>;
   flowcharts?: Array<{ id: string; procedureId: string; title: string; steps: Array<{ id: string; type: string; title: string; description: string; connections: string[] }> }>;

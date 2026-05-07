@@ -7,13 +7,21 @@ def test_build_pdf_ai_error_payload_contains_classified_fields():
     """Should include error_code and user_message for task status normalization."""
     error = PdfAiError(
         "AI service is experiencing high demand. Please wait a moment and try again.",
+<<<<<<< ours
         error_code="AI_RATE_LIMIT",
+=======
+        error_code="OPENROUTER_RATE_LIMIT",
+>>>>>>> theirs
     )
 
     payload = _build_pdf_ai_error_payload("task-123", error, "chat-pdf")
 
     assert payload["status"] == "failed"
+<<<<<<< ours
     assert payload["error_code"] == "AI_RATE_LIMIT"
+=======
+    assert payload["error_code"] == "OPENROUTER_RATE_LIMIT"
+>>>>>>> theirs
     assert "user_message" in payload
     assert payload["task_id"] == "task-123"
 

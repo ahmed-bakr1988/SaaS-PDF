@@ -178,6 +178,7 @@ def create_app(config_name=None, config_overrides=None):
     from app.routes.pdf_extra import pdf_extra_bp
     from app.routes.image_extra import image_extra_bp
     from app.routes.barcode import barcode_bp
+    from app.routes.text import text_bp
     from app.routes.sitemap import sitemap_bp
     from app.routes.ai_models import ai_models_bp
 
@@ -214,6 +215,7 @@ def create_app(config_name=None, config_overrides=None):
     app.register_blueprint(pdf_extra_bp, url_prefix="/api/pdf-tools")
     app.register_blueprint(image_extra_bp, url_prefix="/api/image")
     app.register_blueprint(barcode_bp, url_prefix="/api/barcode")
+    app.register_blueprint(text_bp, url_prefix="/api/text")
     app.register_blueprint(sitemap_bp)
     app.register_blueprint(ai_models_bp, url_prefix="/api/ai-models")
 

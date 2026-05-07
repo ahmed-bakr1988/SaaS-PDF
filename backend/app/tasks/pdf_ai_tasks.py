@@ -62,6 +62,35 @@ def _build_pdf_ai_error_payload(task_id: str, error: PdfAiError, tool: str) -> d
     return payload
 
 
+def _build_pdf_ai_error_payload(task_id: str, error: PdfAiError, tool: str) -> dict:
+    """Build a normalized error payload for AI tasks and emit structured logs."""
+    payload = {
+        "status": "failed",
+        "error_code": getattr(error, "error_code", "PDF_AI_ERROR"),
+        "user_message": getattr(error, "user_message", str(error)) or "AI processing failed.",
+        "task_id": task_id,
+    }
+
+    detail = getattr(error, "detail", None)
+    if detail:
+        payload["detail"] = detail
+
+    logger.error(
+        json.dumps(
+            {
+                "event": "pdf_ai_task_failed",
+                "tool": tool,
+                "task_id": task_id,
+                "error_code": payload["error_code"],
+                "user_message": payload["user_message"],
+                "detail": detail,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return payload
+
+
 # ---------------------------------------------------------------------------
 # Chat with PDF
 # ---------------------------------------------------------------------------
@@ -358,7 +387,11 @@ def translate_pdf_task(
         return result
 
     except PdfAiError as e:
+<<<<<<< ours
         result = _build_pdf_ai_error_payload(task_id, e, tool_slug)
+=======
+        result = _build_pdf_ai_error_payload(task_id, e, "translate-pdf")
+>>>>>>> theirs
         finalize_task_tracking(
             user_id=user_id,
             tool=tool_slug,
