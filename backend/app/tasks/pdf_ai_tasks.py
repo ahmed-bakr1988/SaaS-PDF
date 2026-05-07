@@ -387,11 +387,8 @@ def translate_pdf_task(
         return result
 
     except PdfAiError as e:
-<<<<<<< ours
         result = _build_pdf_ai_error_payload(task_id, e, tool_slug)
-=======
         result = _build_pdf_ai_error_payload(task_id, e, "translate-pdf")
->>>>>>> theirs
         finalize_task_tracking(
             user_id=user_id,
             tool=tool_slug,
