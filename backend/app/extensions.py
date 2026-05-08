@@ -48,8 +48,13 @@ def import_celery_tasks() -> None:
         import_module(module)
 
 
-def init_celery(app):
-    """Initialize Celery with Flask app context."""
+def init_celery(app, *, import_tasks: bool = False):
+    """Initialize Celery with Flask app context.
+
+    Web processes should not eagerly import task modules during startup because
+    many task modules depend on optional worker-only libraries. Workers opt in
+    to importing tasks explicitly after Flask initialization.
+    """
     celery.conf.broker_url = app.config["CELERY_BROKER_URL"]
     celery.conf.result_backend = app.config["CELERY_RESULT_BACKEND"]
     celery.conf.result_expires = app.config.get("FILE_EXPIRY_SECONDS", 1800)
@@ -99,5 +104,6 @@ def init_celery(app):
                 return self.run(*args, **kwargs)
 
     celery.Task = ContextTask
-    import_celery_tasks()
+    if import_tasks:
+        import_celery_tasks()
     return celery

@@ -20,7 +20,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.pdf_editor_tasks import edit_pdf_task
+from app.utils.task_queue import enqueue_task
 
 pdf_editor_bp = Blueprint("pdf_editor", __name__)
 
@@ -116,7 +116,8 @@ def edit_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = edit_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_editor_tasks.edit_pdf_task",
         input_path, task_id, original_filename, edits,
         **build_task_tracking_kwargs(actor),
     )

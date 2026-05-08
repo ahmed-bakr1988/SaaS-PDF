@@ -17,49 +17,9 @@ from app.services.policy_service import (
     resolve_api_actor,
     validate_actor_file,
 )
+from app.utils.task_queue import named_task_proxy
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.compress_tasks import compress_pdf_task
-from app.tasks.convert_tasks import convert_pdf_to_word, convert_word_to_pdf
-from app.tasks.image_tasks import convert_image_task, resize_image_task
-from app.tasks.video_tasks import create_gif_task
-from app.tasks.pdf_tools_tasks import (
-    merge_pdfs_task,
-    split_pdf_task,
-    rotate_pdf_task,
-    add_page_numbers_task,
-    pdf_to_images_task,
-    images_to_pdf_task,
-    watermark_pdf_task,
-    protect_pdf_task,
-    unlock_pdf_task,
-)
-from app.tasks.flowchart_tasks import extract_flowchart_task
-from app.tasks.ocr_tasks import ocr_image_task, ocr_pdf_task
-from app.tasks.removebg_tasks import remove_bg_task
-from app.tasks.pdf_ai_tasks import (
-    chat_with_pdf_task,
-    summarize_pdf_task,
-    translate_pdf_task,
-    extract_tables_task,
-)
-from app.tasks.pdf_to_excel_tasks import pdf_to_excel_task
-from app.tasks.html_to_pdf_tasks import html_to_pdf_task
-from app.tasks.qrcode_tasks import generate_qr_task
-from app.tasks.pdf_convert_tasks import (
-    pdf_to_pptx_task,
-    excel_to_pdf_task,
-    pptx_to_pdf_task,
-    sign_pdf_task,
-)
-from app.tasks.pdf_extra_tasks import (
-    crop_pdf_task,
-    flatten_pdf_task,
-    repair_pdf_task,
-    edit_metadata_task,
-)
-from app.tasks.image_extra_tasks import crop_image_task, rotate_flip_image_task
-from app.tasks.barcode_tasks import generate_barcode_task
 from app.services.barcode_service import SUPPORTED_BARCODE_TYPES
 from app.services.html_to_pdf_service import parse_html_to_pdf_render_options
 
@@ -70,6 +30,44 @@ v1_bp = Blueprint("v1", __name__)
 ALLOWED_IMAGE_TYPES = ["png", "jpg", "jpeg", "webp"]
 ALLOWED_VIDEO_TYPES = ["mp4", "webm"]
 ALLOWED_OUTPUT_FORMATS = ["jpg", "png", "webp"]
+
+compress_pdf_task = named_task_proxy("app.tasks.compress_tasks.compress_pdf_task")
+convert_pdf_to_word = named_task_proxy("app.tasks.convert_tasks.convert_pdf_to_word")
+convert_word_to_pdf = named_task_proxy("app.tasks.convert_tasks.convert_word_to_pdf")
+convert_image_task = named_task_proxy("app.tasks.image_tasks.convert_image_task")
+resize_image_task = named_task_proxy("app.tasks.image_tasks.resize_image_task")
+create_gif_task = named_task_proxy("app.tasks.video_tasks.create_gif_task")
+merge_pdfs_task = named_task_proxy("app.tasks.pdf_tools_tasks.merge_pdfs_task")
+split_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.split_pdf_task")
+rotate_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.rotate_pdf_task")
+add_page_numbers_task = named_task_proxy("app.tasks.pdf_tools_tasks.add_page_numbers_task")
+pdf_to_images_task = named_task_proxy("app.tasks.pdf_tools_tasks.pdf_to_images_task")
+images_to_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.images_to_pdf_task")
+watermark_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.watermark_pdf_task")
+protect_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.protect_pdf_task")
+unlock_pdf_task = named_task_proxy("app.tasks.pdf_tools_tasks.unlock_pdf_task")
+extract_flowchart_task = named_task_proxy("app.tasks.flowchart_tasks.extract_flowchart_task")
+ocr_image_task = named_task_proxy("app.tasks.ocr_tasks.ocr_image_task")
+ocr_pdf_task = named_task_proxy("app.tasks.ocr_tasks.ocr_pdf_task")
+remove_bg_task = named_task_proxy("app.tasks.removebg_tasks.remove_bg_task")
+chat_with_pdf_task = named_task_proxy("app.tasks.pdf_ai_tasks.chat_with_pdf_task")
+summarize_pdf_task = named_task_proxy("app.tasks.pdf_ai_tasks.summarize_pdf_task")
+translate_pdf_task = named_task_proxy("app.tasks.pdf_ai_tasks.translate_pdf_task")
+extract_tables_task = named_task_proxy("app.tasks.pdf_ai_tasks.extract_tables_task")
+pdf_to_excel_task = named_task_proxy("app.tasks.pdf_to_excel_tasks.pdf_to_excel_task")
+html_to_pdf_task = named_task_proxy("app.tasks.html_to_pdf_tasks.html_to_pdf_task")
+generate_qr_task = named_task_proxy("app.tasks.qrcode_tasks.generate_qr_task")
+pdf_to_pptx_task = named_task_proxy("app.tasks.pdf_convert_tasks.pdf_to_pptx_task")
+excel_to_pdf_task = named_task_proxy("app.tasks.pdf_convert_tasks.excel_to_pdf_task")
+pptx_to_pdf_task = named_task_proxy("app.tasks.pdf_convert_tasks.pptx_to_pdf_task")
+sign_pdf_task = named_task_proxy("app.tasks.pdf_convert_tasks.sign_pdf_task")
+crop_pdf_task = named_task_proxy("app.tasks.pdf_extra_tasks.crop_pdf_task")
+flatten_pdf_task = named_task_proxy("app.tasks.pdf_extra_tasks.flatten_pdf_task")
+repair_pdf_task = named_task_proxy("app.tasks.pdf_extra_tasks.repair_pdf_task")
+edit_metadata_task = named_task_proxy("app.tasks.pdf_extra_tasks.edit_metadata_task")
+crop_image_task = named_task_proxy("app.tasks.image_extra_tasks.crop_image_task")
+rotate_flip_image_task = named_task_proxy("app.tasks.image_extra_tasks.rotate_flip_image_task")
+generate_barcode_task = named_task_proxy("app.tasks.barcode_tasks.generate_barcode_task")
 
 
 def _resolve_and_check() -> tuple:

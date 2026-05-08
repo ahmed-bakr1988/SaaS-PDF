@@ -12,12 +12,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.pdf_extra_tasks import (
-    crop_pdf_task,
-    flatten_pdf_task,
-    repair_pdf_task,
-    edit_metadata_task,
-)
+from app.utils.task_queue import enqueue_task
 
 pdf_extra_bp = Blueprint("pdf_extra", __name__)
 
@@ -75,7 +70,8 @@ def crop_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = crop_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_extra_tasks.crop_pdf_task",
         input_path, task_id, original_filename,
         margin_left, margin_right, margin_top, margin_bottom, pages,
         crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct,
@@ -114,7 +110,8 @@ def flatten_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = flatten_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_extra_tasks.flatten_pdf_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )
@@ -151,7 +148,8 @@ def repair_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = repair_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_extra_tasks.repair_pdf_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )
@@ -209,7 +207,8 @@ def edit_metadata_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = edit_metadata_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_extra_tasks.edit_metadata_task",
         input_path, task_id, original_filename,
         title, author, subject, keywords, creator,
         **build_task_tracking_kwargs(actor),

@@ -11,7 +11,7 @@ from app.services.policy_service import (
     record_accepted_usage,
     resolve_web_actor,
 )
-from app.tasks.qrcode_tasks import generate_qr_task
+from app.utils.task_queue import enqueue_task
 
 qrcode_bp = Blueprint("qrcode", __name__)
 
@@ -51,7 +51,8 @@ def generate_qr_route():
 
     task_id = str(uuid.uuid4())
 
-    task = generate_qr_task.delay(
+    task = enqueue_task(
+        "app.tasks.qrcode_tasks.generate_qr_task",
         task_id,
         str(data).strip(),
         size,

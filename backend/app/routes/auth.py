@@ -41,8 +41,7 @@ EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 MIN_PASSWORD_LENGTH = 8
 MAX_PASSWORD_LENGTH = 128
 SOCIAL_AUTH_SESSION_KEY = "social_auth_flow"
-# "x" is temporarily disabled — re-add when X Developer email permission is ready.
-SUPPORTED_SOCIAL_PROVIDERS = {"google", "facebook"}
+SUPPORTED_SOCIAL_PROVIDERS = {"google", "facebook", "x"}
 
 
 def _parse_credentials() -> tuple[str | None, str | None]:

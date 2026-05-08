@@ -12,7 +12,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.video_tasks import create_gif_task
+from app.utils.task_queue import enqueue_task
 
 video_bp = Blueprint("video", __name__)
 
@@ -73,7 +73,8 @@ def video_to_gif_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = create_gif_task.delay(
+    task = enqueue_task(
+        "app.tasks.video_tasks.create_gif_task",
         input_path, task_id, original_filename,
         start_time, duration, fps, width,
         **build_task_tracking_kwargs(actor),

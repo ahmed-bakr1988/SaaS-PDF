@@ -255,6 +255,14 @@ class TestingConfig(BaseConfig):
     FEATURE_EDITOR = False
     FEATURE_OCR = False
     FEATURE_REMOVEBG = False
+    FRONTEND_URL = "http://localhost:5173"
+    BACKEND_PUBLIC_URL = "http://localhost:5000"
+    GOOGLE_OAUTH_CLIENT_ID = ""
+    GOOGLE_OAUTH_CLIENT_SECRET = ""
+    FACEBOOK_APP_ID = ""
+    FACEBOOK_APP_SECRET = ""
+    X_CLIENT_ID = ""
+    X_CLIENT_SECRET = ""
     HTML_TO_PDF_RENDERER = "weasyprint"
     HTML_TO_PDF_ENABLE_WEASYPRINT_FALLBACK = True
 

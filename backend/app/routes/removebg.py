@@ -15,7 +15,7 @@ from app.services.policy_service import (
 from app.services.quote_service import create_quote, QuoteError
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.removebg_tasks import remove_bg_task
+from app.utils.task_queue import enqueue_task
 
 removebg_bp = Blueprint("removebg", __name__)
 
@@ -61,7 +61,8 @@ def remove_bg_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = remove_bg_task.delay(
+    task = enqueue_task(
+        "app.tasks.removebg_tasks.remove_bg_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )

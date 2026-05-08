@@ -13,7 +13,7 @@ from app.services.policy_service import (
 from app.services.html_to_pdf_service import parse_html_to_pdf_render_options
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.html_to_pdf_tasks import html_to_pdf_task
+from app.utils.task_queue import enqueue_task
 
 html_to_pdf_bp = Blueprint("html_to_pdf", __name__)
 
@@ -54,7 +54,8 @@ def html_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = html_to_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.html_to_pdf_tasks.html_to_pdf_task",
         input_path,
         task_id,
         original_filename,

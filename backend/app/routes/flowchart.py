@@ -13,10 +13,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.flowchart_tasks import (
-    extract_flowchart_task,
-    extract_sample_flowchart_task,
-)
+from app.utils.task_queue import enqueue_task
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +48,8 @@ def extract_flowchart_route():
     task_id, input_path = generate_safe_path(ext)
     file.save(input_path)
 
-    task = extract_flowchart_task.delay(
+    task = enqueue_task(
+        "app.tasks.flowchart_tasks.extract_flowchart_task",
         input_path,
         task_id,
         original_filename,
@@ -79,7 +77,10 @@ def extract_sample_flowchart_route():
     except PolicyError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = extract_sample_flowchart_task.delay(**build_task_tracking_kwargs(actor))
+    task = enqueue_task(
+        "app.tasks.flowchart_tasks.extract_sample_flowchart_task",
+        **build_task_tracking_kwargs(actor),
+    )
     record_accepted_usage(actor, "pdf-flowchart-sample", task.id)
 
     return jsonify({

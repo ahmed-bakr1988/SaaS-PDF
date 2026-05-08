@@ -15,7 +15,7 @@ from app.services.policy_service import (
 from app.services.quote_service import create_quote, QuoteError
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.compress_tasks import compress_pdf_task
+from app.utils.task_queue import enqueue_task
 
 compress_bp = Blueprint("compress", __name__)
 
@@ -59,7 +59,8 @@ def compress_pdf_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = compress_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.compress_tasks.compress_pdf_task",
         input_path,
         task_id,
         original_filename,

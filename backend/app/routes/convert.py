@@ -12,7 +12,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.convert_tasks import convert_pdf_to_word, convert_word_to_pdf
+from app.utils.task_queue import enqueue_task
 
 convert_bp = Blueprint("convert", __name__)
 
@@ -45,7 +45,8 @@ def pdf_to_word_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = convert_pdf_to_word.delay(
+    task = enqueue_task(
+        "app.tasks.convert_tasks.convert_pdf_to_word",
         input_path,
         task_id,
         original_filename,
@@ -89,7 +90,8 @@ def word_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = convert_word_to_pdf.delay(
+    task = enqueue_task(
+        "app.tasks.convert_tasks.convert_word_to_pdf",
         input_path,
         task_id,
         original_filename,

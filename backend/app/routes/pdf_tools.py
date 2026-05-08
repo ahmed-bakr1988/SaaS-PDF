@@ -15,20 +15,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.pdf_tools_tasks import (
-    merge_pdfs_task,
-    split_pdf_task,
-    rotate_pdf_task,
-    add_page_numbers_task,
-    pdf_to_images_task,
-    images_to_pdf_task,
-    watermark_pdf_task,
-    protect_pdf_task,
-    unlock_pdf_task,
-    remove_watermark_task,
-    reorder_pdf_task,
-    extract_pages_task,
-)
+from app.utils.task_queue import enqueue_task
 
 pdf_tools_bp = Blueprint("pdf_tools", __name__)
 
@@ -77,7 +64,8 @@ def merge_pdfs_route():
         input_paths.append(file_path)
         original_filenames.append(original_filename)
 
-    task = merge_pdfs_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.merge_pdfs_task",
         input_paths,
         task_id,
         original_filenames,
@@ -135,7 +123,8 @@ def split_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = split_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.split_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -195,7 +184,8 @@ def rotate_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = rotate_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.rotate_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -258,7 +248,8 @@ def add_page_numbers_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = add_page_numbers_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.add_page_numbers_task",
         input_path,
         task_id,
         original_filename,
@@ -316,7 +307,8 @@ def pdf_to_images_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = pdf_to_images_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.pdf_to_images_task",
         input_path,
         task_id,
         original_filename,
@@ -376,7 +368,8 @@ def images_to_pdf_route():
         input_paths.append(file_path)
         original_filenames.append(original_filename)
 
-    task = images_to_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.images_to_pdf_task",
         input_paths,
         task_id,
         original_filenames,
@@ -436,7 +429,8 @@ def watermark_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = watermark_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.watermark_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -492,7 +486,8 @@ def protect_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = protect_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.protect_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -544,7 +539,8 @@ def unlock_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = unlock_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.unlock_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -591,7 +587,8 @@ def remove_watermark_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = remove_watermark_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.remove_watermark_task",
         input_path,
         task_id,
         original_filename,
@@ -650,7 +647,8 @@ def reorder_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = reorder_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.reorder_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -702,7 +700,8 @@ def extract_pages_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = extract_pages_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_tools_tasks.extract_pages_task",
         input_path,
         task_id,
         original_filename,

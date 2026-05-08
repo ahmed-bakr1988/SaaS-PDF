@@ -12,7 +12,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.image_tasks import convert_image_task, resize_image_task, convert_image_to_svg_task
+from app.utils.task_queue import enqueue_task
 
 image_bp = Blueprint("image", __name__)
 
@@ -68,7 +68,8 @@ def convert_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = convert_image_task.delay(
+    task = enqueue_task(
+        "app.tasks.image_tasks.convert_image_task",
         input_path,
         task_id,
         original_filename,
@@ -141,7 +142,8 @@ def resize_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = resize_image_task.delay(
+    task = enqueue_task(
+        "app.tasks.image_tasks.resize_image_task",
         input_path,
         task_id,
         original_filename,
@@ -194,7 +196,8 @@ def convert_image_to_svg_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = convert_image_to_svg_task.delay(
+    task = enqueue_task(
+        "app.tasks.image_tasks.convert_image_to_svg_task",
         input_path,
         task_id,
         original_filename,

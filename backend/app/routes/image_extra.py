@@ -12,7 +12,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.image_extra_tasks import crop_image_task, rotate_flip_image_task
+from app.utils.task_queue import enqueue_task
 
 image_extra_bp = Blueprint("image_extra", __name__)
 
@@ -68,7 +68,8 @@ def crop_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = crop_image_task.delay(
+    task = enqueue_task(
+        "app.tasks.image_extra_tasks.crop_image_task",
         input_path, task_id, original_filename,
         left, top, right, bottom, quality,
         **build_task_tracking_kwargs(actor),
@@ -134,7 +135,8 @@ def rotate_flip_image_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = rotate_flip_image_task.delay(
+    task = enqueue_task(
+        "app.tasks.image_extra_tasks.rotate_flip_image_task",
         input_path, task_id, original_filename,
         rotation, flip_horizontal, flip_vertical, quality,
         **build_task_tracking_kwargs(actor),

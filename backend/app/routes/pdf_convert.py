@@ -15,12 +15,7 @@ from app.services.policy_service import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.pdf_convert_tasks import (
-    pdf_to_pptx_task,
-    excel_to_pdf_task,
-    pptx_to_pdf_task,
-    sign_pdf_task,
-)
+from app.utils.task_queue import enqueue_task
 
 pdf_convert_bp = Blueprint("pdf_convert", __name__)
 
@@ -52,7 +47,8 @@ def pdf_to_pptx_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = pdf_to_pptx_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_convert_tasks.pdf_to_pptx_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )
@@ -91,7 +87,8 @@ def excel_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = excel_to_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_convert_tasks.excel_to_pdf_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )
@@ -130,7 +127,8 @@ def pptx_to_pdf_route():
     task_id, input_path = generate_safe_path(ext, folder_type="upload")
     file.save(input_path)
 
-    task = pptx_to_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_convert_tasks.pptx_to_pdf_task",
         input_path, task_id, original_filename,
         **build_task_tracking_kwargs(actor),
     )
@@ -204,7 +202,8 @@ def sign_pdf_route():
     signature_path = os.path.join(upload_dir, f"{uuid.uuid4()}.{sig_ext}")
     sig_file.save(signature_path)
 
-    task = sign_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_convert_tasks.sign_pdf_task",
         input_path, signature_path, task_id, original_filename,
         page, x, y, width, height,
         **build_task_tracking_kwargs(actor),

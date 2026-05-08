@@ -10,7 +10,7 @@ from app.services.policy_service import (
     resolve_web_actor,
 )
 from app.services.barcode_service import SUPPORTED_BARCODE_TYPES
-from app.tasks.barcode_tasks import generate_barcode_task
+from app.utils.task_queue import enqueue_task
 from app.utils.sanitizer import generate_safe_path
 
 barcode_bp = Blueprint("barcode", __name__)
@@ -58,7 +58,8 @@ def generate_barcode_route():
 
     task_id, _ = generate_safe_path("tmp", folder_type="upload")
 
-    task = generate_barcode_task.delay(
+    task = enqueue_task(
+        "app.tasks.barcode_tasks.generate_barcode_task",
         data, barcode_type, task_id, output_format,
         **build_task_tracking_kwargs(actor),
     )

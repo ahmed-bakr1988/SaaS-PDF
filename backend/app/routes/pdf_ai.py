@@ -20,12 +20,7 @@ from app.services.translation_guardrails import (
 )
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.pdf_ai_tasks import (
-    chat_with_pdf_task,
-    summarize_pdf_task,
-    translate_pdf_task,
-    extract_tables_task,
-)
+from app.utils.task_queue import enqueue_task
 
 pdf_ai_bp = Blueprint("pdf_ai", __name__)
 
@@ -76,7 +71,8 @@ def chat_pdf_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = chat_with_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_ai_tasks.chat_with_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -140,7 +136,8 @@ def summarize_pdf_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = summarize_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_ai_tasks.summarize_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -274,7 +271,8 @@ def translate_pdf_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = translate_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_ai_tasks.translate_pdf_task",
         input_path,
         task_id,
         original_filename,
@@ -336,7 +334,8 @@ def extract_tables_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = extract_tables_task.delay(
+    task = enqueue_task(
+        "app.tasks.pdf_ai_tasks.extract_tables_task",
         input_path,
         task_id,
         original_filename,

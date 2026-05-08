@@ -1,6 +1,7 @@
 """Flask Application Factory."""
 
 import os
+import time
 
 from flask import Flask, jsonify
 
@@ -40,6 +41,33 @@ def _init_sentry(app):
         )
     except ImportError:
         app.logger.warning("sentry-sdk not installed — monitoring disabled.")
+
+
+def _initialize_runtime_state(app):
+    """Initialize persistent application state with bounded startup retries."""
+    max_attempts = max(1, int(os.getenv("APP_STARTUP_INIT_RETRIES", "5")))
+    delay_seconds = max(1, int(os.getenv("APP_STARTUP_INIT_DELAY_SECONDS", "3")))
+
+    for attempt in range(1, max_attempts + 1):
+        try:
+            with app.app_context():
+                init_account_db()
+                init_ratings_db()
+                init_ai_cost_db()
+                init_site_assistant_db()
+                init_contact_db()
+                init_stripe_db()
+                init_paypal_db()
+            return
+        except Exception:
+            app.logger.exception(
+                "Application initialization failed on attempt %s/%s",
+                attempt,
+                max_attempts,
+            )
+            if attempt >= max_attempts:
+                raise
+            time.sleep(delay_seconds)
 
 
 def create_app(config_name=None, config_overrides=None):
@@ -133,16 +161,9 @@ def create_app(config_name=None, config_overrides=None):
         return apply_csrf_cookie(response)
 
     # Initialize Celery
-    init_celery(app)
+    init_celery(app, import_tasks=False)
 
-    with app.app_context():
-        init_account_db()
-        init_ratings_db()
-        init_ai_cost_db()
-        init_site_assistant_db()
-        init_contact_db()
-        init_stripe_db()
-        init_paypal_db()
+    _initialize_runtime_state(app)
 
     # Register blueprints
     from app.routes.health import health_bp

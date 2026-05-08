@@ -16,7 +16,7 @@ from app.services.quote_service import create_quote, QuoteError
 from app.services.ocr_service import SUPPORTED_LANGUAGES
 from app.utils.file_validator import FileValidationError
 from app.utils.sanitizer import generate_safe_path
-from app.tasks.ocr_tasks import ocr_image_task, ocr_pdf_task
+from app.utils.task_queue import enqueue_task
 
 ocr_bp = Blueprint("ocr", __name__)
 
@@ -75,7 +75,8 @@ def ocr_image_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = ocr_image_task.delay(
+    task = enqueue_task(
+        "app.tasks.ocr_tasks.ocr_image_task",
         input_path, task_id, original_filename, lang,
         **build_task_tracking_kwargs(actor),
     )
@@ -132,7 +133,8 @@ def ocr_pdf_route():
     except QuoteError as e:
         return jsonify({"error": e.message}), e.status_code
 
-    task = ocr_pdf_task.delay(
+    task = enqueue_task(
+        "app.tasks.ocr_tasks.ocr_pdf_task",
         input_path, task_id, original_filename, lang,
         **build_task_tracking_kwargs(actor),
     )
