@@ -184,10 +184,7 @@ def _get_deepl_settings() -> DeepLSettings:
 
 class PdfAiError(Exception):
     """Custom exception for PDF AI service failures."""
-<<<<<<< ours
 
-=======
->>>>>>> theirs
     def __init__(
         self,
         user_message: str,
@@ -198,7 +195,6 @@ class PdfAiError(Exception):
         self.user_message = user_message
         self.error_code = error_code
         self.detail = detail
-<<<<<<< ours
 
 
 class RetryableTranslationError(PdfAiError):
@@ -235,8 +231,6 @@ def _translate_with_retry(action, provider_name: str) -> dict:
         "Translation provider failed unexpectedly.",
         error_code="TRANSLATION_PROVIDER_FAILED",
     )
-=======
->>>>>>> theirs
 
 
 def _estimate_tokens(text: str) -> int:
@@ -304,7 +298,6 @@ def _call_openrouter(
     callers will be updated incrementally.
     """
     try:
-<<<<<<< ours
         return call_gemini_text(
             system_prompt,
             user_message,
@@ -404,17 +397,6 @@ def _call_openrouter_translate(
             source_language, default=""
         ),
     }
-=======
-        from app.services.ai_cost_service import check_ai_budget, AiBudgetExceededError
-        check_ai_budget()
-    except AiBudgetExceededError:
-        raise PdfAiError(
-            "Monthly AI processing budget has been reached. Please try again next month.",
-            error_code="AI_BUDGET_EXCEEDED",
-        )
-    except Exception:
-        pass  # Don't block if cost service unavailable
->>>>>>> theirs
 
 
 def _call_deepl_translate(
@@ -424,13 +406,8 @@ def _call_deepl_translate(
     settings = _get_deepl_settings()
     if not settings.api_key:
         raise PdfAiError(
-<<<<<<< ours
             "DeepL is not configured.",
             error_code="DEEPL_NOT_CONFIGURED",
-=======
-            "AI features are temporarily unavailable. Our team has been notified.",
-            error_code="OPENROUTER_MISSING_API_KEY",
->>>>>>> theirs
         )
 
     target_code = DEEPL_LANGUAGE_CODES.get(_normalize_language_code(target_language))
@@ -479,7 +456,6 @@ def _call_deepl_translate(
             detail=str(error),
         )
 
-<<<<<<< ours
     if response.status_code == 429:
         raise RetryableTranslationError(
             "Premium translation service is busy. Retrying...",
@@ -491,35 +467,6 @@ def _call_deepl_translate(
             "Premium translation service is experiencing issues. Retrying...",
             error_code="DEEPL_SERVER_ERROR",
         )
-=======
-        if response.status_code == 401:
-            logger.error("OpenRouter API key is invalid or expired (401).")
-            raise PdfAiError(
-                "AI features are temporarily unavailable due to a configuration issue. Our team has been notified.",
-                error_code="OPENROUTER_UNAUTHORIZED",
-            )
-
-        if response.status_code == 402:
-            logger.error("OpenRouter account has insufficient credits (402).")
-            raise PdfAiError(
-                "AI processing credits have been exhausted. Please try again later.",
-                error_code="OPENROUTER_INSUFFICIENT_CREDITS",
-            )
-
-        if response.status_code == 429:
-            logger.warning("OpenRouter rate limit reached (429).")
-            raise PdfAiError(
-                "AI service is experiencing high demand. Please wait a moment and try again.",
-                error_code="OPENROUTER_RATE_LIMIT",
-            )
-
-        if response.status_code >= 500:
-            logger.error("OpenRouter server error (%s).", response.status_code)
-            raise PdfAiError(
-                "AI service provider is experiencing issues. Please try again shortly.",
-                error_code="OPENROUTER_SERVER_ERROR",
-            )
->>>>>>> theirs
 
     if response.status_code in {403, 456}:
         raise PdfAiError(
@@ -527,7 +474,6 @@ def _call_deepl_translate(
             error_code="DEEPL_CREDITS_OR_PERMISSIONS",
         )
 
-<<<<<<< ours
     response.raise_for_status()
     data = response.json()
     translations = data.get("translations") or []
@@ -536,17 +482,6 @@ def _call_deepl_translate(
             "Premium translation provider returned an empty response.",
             error_code="DEEPL_EMPTY_RESPONSE",
         )
-=======
-        # Handle model-level errors returned inside a 200 response
-        if data.get("error"):
-            error_msg = data["error"].get("message", "") if isinstance(data["error"], dict) else str(data["error"])
-            logger.error("OpenRouter returned an error payload: %s", error_msg)
-            raise PdfAiError(
-                "AI service encountered an issue. Please try again.",
-                error_code="OPENROUTER_ERROR_PAYLOAD",
-                detail=error_msg,
-            )
->>>>>>> theirs
 
     first = translations[0]
     translated_text = str(first.get("text", "")).strip()
@@ -556,7 +491,6 @@ def _call_deepl_translate(
             error_code="DEEPL_EMPTY_TEXT",
         )
 
-<<<<<<< ours
     return {
         "translation": translated_text,
         "provider": "deepl",
@@ -564,13 +498,6 @@ def _call_deepl_translate(
         .strip()
         .lower(),
     }
-=======
-        if not reply:
-            raise PdfAiError(
-                "AI returned an empty response. Please try again.",
-                error_code="OPENROUTER_EMPTY_RESPONSE",
-            )
->>>>>>> theirs
 
 
 def _translate_document_text(
@@ -622,35 +549,12 @@ def _translate_document_text(
                 chunk_result["detected_source_language"]
             )
 
-<<<<<<< ours
     return {
         "translation": "\n\n".join(part for part in translations if part),
         "provider": ", ".join(sorted(set(providers_used))),
         "detected_source_language": detected_source_language,
         "chunks_translated": len(translations),
     }
-=======
-    except PdfAiError:
-        raise
-    except requests.exceptions.Timeout:
-        raise PdfAiError(
-            "AI service timed out. Please try again.",
-            error_code="OPENROUTER_TIMEOUT",
-        )
-    except requests.exceptions.ConnectionError:
-        logger.error("Cannot connect to OpenRouter API at %s", settings.base_url)
-        raise PdfAiError(
-            "AI service is unreachable. Please try again shortly.",
-            error_code="OPENROUTER_CONNECTION_ERROR",
-        )
-    except requests.exceptions.RequestException as e:
-        logger.error("OpenRouter API error: %s", e)
-        raise PdfAiError(
-            "AI service is temporarily unavailable.",
-            error_code="OPENROUTER_REQUEST_ERROR",
-            detail=str(e),
-        )
->>>>>>> theirs
 
 
 # ---------------------------------------------------------------------------
@@ -668,7 +572,6 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
         {"reply": "...", "pages_analyzed": int}
     """
     if not question or not question.strip():
-<<<<<<< ours
         raise PdfAiError(
             "Please provide a question.", error_code="PDF_AI_INVALID_INPUT"
         )
@@ -678,13 +581,6 @@ def chat_with_pdf(input_path: str, question: str) -> dict:
         raise PdfAiError(
             "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
         )
-=======
-        raise PdfAiError("Please provide a question.", error_code="PDF_AI_INVALID_INPUT")
-
-    text = _extract_text_from_pdf(input_path)
-    if not text.strip():
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
->>>>>>> theirs
 
     # Truncate to fit context window
     max_chars = 12000
@@ -722,13 +618,9 @@ def summarize_pdf(input_path: str, length: str = "medium") -> dict:
     """
     text = _extract_text_from_pdf(input_path)
     if not text.strip():
-<<<<<<< ours
         raise PdfAiError(
             "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
         )
-=======
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
->>>>>>> theirs
 
     length_instruction = {
         "short": "Provide a brief summary in 2-3 sentences.",
@@ -774,7 +666,6 @@ def translate_pdf(
     Returns:
         {"translation": "...", "pages_analyzed": int, "target_language": str}
     """
-<<<<<<< ours
     normalized_target_language = _normalize_language_code(target_language)
     normalized_source_language = _normalize_language_code(
         source_language, default="auto"
@@ -799,17 +690,6 @@ def translate_pdf(
         raise PdfAiError(
             "Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY"
         )
-=======
-    if not target_language or not target_language.strip():
-        raise PdfAiError("Please specify a target language.", error_code="PDF_AI_INVALID_INPUT")
-
-    text = _extract_text_from_pdf(input_path)
-    if not text.strip():
-        raise PdfAiError("Could not extract any text from the PDF.", error_code="PDF_TEXT_EMPTY")
-
-    max_chars = 10000
-    truncated = text[:max_chars]
->>>>>>> theirs
 
     translated = _translate_document_text(
         text,
@@ -901,13 +781,9 @@ def extract_tables(input_path: str) -> dict:
     except PdfAiError:
         raise
     except ImportError:
-<<<<<<< ours
         raise PdfAiError(
             "tabula-py library is not installed.", error_code="TABULA_NOT_INSTALLED"
         )
-=======
-        raise PdfAiError("tabula-py library is not installed.", error_code="TABULA_NOT_INSTALLED")
->>>>>>> theirs
     except Exception as e:
         raise PdfAiError(
             "Failed to extract tables.",
