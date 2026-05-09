@@ -10,7 +10,8 @@ RUN set -eux; \
     success=''; \
     for attempt in 1 2 3; do \
         if apt-get update -o Acquire::Retries=5 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 -o Acquire::ForceIPv4=true && \
-           apt-get install -y --no-install-recommends \
+            apt-get install -y --no-install-recommends \
+                tini \
                 libreoffice-core \
                 libreoffice-writer \
                 libreoffice-calc \
@@ -63,5 +64,7 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
     CMD curl -f http://localhost:5000/api/health/live || exit 1
 
-# Run with Gunicorn (--preload ensures DB tables are created once before forking workers)
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "--timeout", "120", "--preload", "wsgi:app"]
+ENTRYPOINT ["tini", "--"]
+
+# Run with Gunicorn using external config file
+CMD ["gunicorn", "-c", "gunicorn_config.py", "wsgi:app"]

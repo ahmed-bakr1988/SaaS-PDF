@@ -61,8 +61,130 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # --- Celery Worker ---
-  celery_worker:
+  # --- Celery Workers (Isolated Queues) ---
+  
+  # 1. Light Tasks Worker (High Concurrency, Low CPU)
+  celery_worker_light:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+      --concurrency=4
+      -Q light_tasks
+      -n worker_light@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+    volumes:
+      - ./backend:/app
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # 2. PDF Processing Worker (Medium Concurrency)
+  celery_worker_pdf:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+      --concurrency=1
+      -Q pdf_processing
+      -n worker_pdf@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+    volumes:
+      - ./backend:/app
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # 3. Image Processing Worker
+  celery_worker_image:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+      --concurrency=1
+      -Q image_processing
+      -n worker_image@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+    volumes:
+      - ./backend:/app
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # 4. OCR & AI Worker (CPU/RAM Heavy - strictly isolated)
+  celery_worker_heavy:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+      --concurrency=1
+      -Q ocr_tasks,ai_heavy
+      -n worker_heavy@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+    volumes:
+      - ./backend:/app
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # 5. Video Worker
+  celery_worker_video:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      celery -A celery_worker.celery worker
+      --loglevel=info
+      --concurrency=1
+      -Q video_processing
+      -n worker_video@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
+    volumes:
+      - ./backend:/app
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+    depends_on:
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # 6. Default Worker
+  celery_worker_default:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -70,28 +192,34 @@ services:
       celery -A celery_worker.celery worker
       --loglevel=info
       --concurrency=2
-      -Q default,convert,compress,image,video,pdf_tools,flowchart,ai_heavy
-    env_file:
-      - .env
+      -Q default
+      -n worker_default@%h
+    env_file: [.env]
     environment:
-      - FLASK_ENV=development
+      - FLASK_ENV=production
       - DATABASE_URL=postgresql://dociva:${POSTGRES_PASSWORD:-6x3PjV4ghRTQuZ3Q}@postgres:5432/dociva
-      # Redis URLs are loaded from env_file (.env) to allow override.yml to work correctly.
     volumes:
       - ./backend:/app
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
     depends_on:
-      redis:
-        condition: service_healthy
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "celery", "-A", "celery_worker.celery", "inspect", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+      redis: { condition: service_healthy }
+      postgres: { condition: service_healthy }
+    restart: unless-stopped
+
+  # --- Celery Monitoring (Flower) ---
+  flower:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: celery -A celery_worker.celery flower --port=5555
+    ports:
+      - "5555:5555"
+    env_file: [.env]
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+    depends_on:
+      redis: { condition: service_healthy }
     restart: unless-stopped
 
   # --- Celery Beat (Scheduled Tasks) ---

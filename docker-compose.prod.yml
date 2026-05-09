@@ -53,38 +53,113 @@ services:
         condition: service_healthy
     restart: always
 
-  # --- Celery Worker ---
-  celery_worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    command: >
-      celery -A celery_worker.celery worker
-      --loglevel=warning
-      --concurrency=4
-      -Q default,convert,compress,image,video,pdf_tools,flowchart,ai_heavy
-    env_file:
-      - .env
+  # --- Celery Workers (Isolated Queues) ---
+  
+  celery_worker_light:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=4 -Q light_tasks -n worker_light@%h
+    env_file: [.env]
     environment:
       - FLASK_ENV=production
-      - REDIS_URL=redis://redis:6379/0
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://redis:6379/1
       - DATABASE_URL=${DATABASE_URL:-}
     volumes:
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
       - db_data:/app/data
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 30s
-      timeout: 5s
-      retries: 1
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  celery_worker_pdf:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q pdf_processing -n worker_pdf@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  celery_worker_image:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q image_processing -n worker_image@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  celery_worker_heavy:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q ocr_tasks,ai_heavy -n worker_heavy@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  celery_worker_video:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q video_processing -n worker_video@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  celery_worker_default:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=2 -Q default -n worker_default@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    restart: always
+
+  flower:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery flower --port=5555
+    ports: ["5555:5555"]
+    env_file: [.env]
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL:-redis://redis:6379/0}
+    depends_on:
+      redis: { condition: service_healthy }
     restart: always
 
   # --- Celery Beat (Scheduled Tasks) ---

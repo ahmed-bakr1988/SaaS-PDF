@@ -65,33 +65,60 @@ def init_celery(app, *, import_tasks: bool = False):
     celery.conf.task_track_started = True
     celery.conf.imports = CELERY_TASK_MODULES
 
+    # --- Safety & Performance Hardening ---
+    # Global time limits to prevent hanging processes
+    celery.conf.task_time_limit = 3600  # 1 hour hard limit
+    celery.conf.task_soft_time_limit = 3300  # 55 min soft limit
+    
+    # Avoid prefetching multiple heavy tasks (better for resource isolation)
+    celery.conf.worker_prefetch_multiplier = 1
+    # Use -Ofair behavior by default
+    celery.conf.task_acks_late = True
+    celery.conf.worker_send_task_events = True
+    # Prevent memory leaks by restarting workers after X tasks
+    celery.conf.worker_max_tasks_per_child = 50
+    # Prevent memory leaks by restarting workers if memory exceeds X KB
+    celery.conf.worker_max_memory_per_child = 500000  # 500MB
+
     # Set task routes
     celery.conf.task_routes = {
-        "app.tasks.convert_tasks.*": {"queue": "convert"},
-        "app.tasks.compress_tasks.*": {"queue": "compress"},
-        "app.tasks.image_tasks.*": {"queue": "image"},
-        "app.tasks.video_tasks.*": {"queue": "video"},
-        "app.tasks.pdf_tools_tasks.*": {"queue": "pdf_tools"},
-        "app.tasks.flowchart_tasks.*": {"queue": "flowchart"},
-        "app.tasks.ocr_tasks.*": {"queue": "image"},
-        "app.tasks.removebg_tasks.*": {"queue": "image"},
-        "app.tasks.pdf_editor_tasks.*": {"queue": "pdf_tools"},
-        "app.tasks.compress_image_tasks.*": {"queue": "image"},
-        "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_tools"},
-        "app.tasks.qrcode_tasks.*": {"queue": "default"},
-        "app.tasks.html_to_pdf_tasks.*": {"queue": "convert"},
+        # Light / fast tasks
+        "app.tasks.maintenance_tasks.*": {"queue": "light_tasks"},
+        "app.tasks.qrcode_tasks.*": {"queue": "light_tasks"},
+        "app.tasks.barcode_tasks.*": {"queue": "light_tasks"},
+        "app.tasks.history_tasks.*": {"queue": "light_tasks"},
+
+        # PDF processing (CPU/Memory intensive but core)
+        "app.tasks.pdf_tools_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.pdf_editor_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.pdf_convert_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.pdf_extra_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.convert_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.html_to_pdf_tasks.*": {"queue": "pdf_processing"},
+
+        # Image processing
+        "app.tasks.image_tasks.*": {"queue": "image_processing"},
+        "app.tasks.image_extra_tasks.*": {"queue": "image_processing"},
+        "app.tasks.compress_image_tasks.*": {"queue": "image_processing"},
+        "app.tasks.compress_tasks.*": {"queue": "image_processing"},
+
+        # Specialized / Heavy
+        "app.tasks.ocr_tasks.*": {"queue": "ocr_tasks"},
+        "app.tasks.removebg_tasks.*": {"queue": "ai_heavy"},
         "app.tasks.pdf_ai_tasks.*": {"queue": "ai_heavy"},
-        "app.tasks.pdf_convert_tasks.*": {"queue": "convert"},
-        "app.tasks.pdf_extra_tasks.*": {"queue": "pdf_tools"},
-        "app.tasks.image_extra_tasks.*": {"queue": "image"},
-        "app.tasks.barcode_tasks.*": {"queue": "default"},
+        "app.tasks.video_tasks.*": {"queue": "video_processing"},
+        "app.tasks.flowchart_tasks.*": {"queue": "pdf_processing"},
+
+        # Default fallback
+        "app.tasks.*": {"queue": "default"},
     }
 
     # Celery Beat — periodic tasks
     celery.conf.beat_schedule = {
         "cleanup-expired-files": {
             "task": "app.tasks.maintenance_tasks.cleanup_expired_files",
-            "schedule": crontab(minute="*/30"),
+            "schedule": crontab(minute="*/10"),
         },
     }
 

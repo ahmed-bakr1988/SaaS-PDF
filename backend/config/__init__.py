@@ -32,12 +32,13 @@ class BaseConfig:
     INTERNAL_ADMIN_EMAILS = _parse_csv_env("INTERNAL_ADMIN_EMAILS")
 
     # File upload settings
+    # ABSOLUTE limit for any single request body
     MAX_CONTENT_LENGTH = (
-        int(os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 100)) * 1024 * 1024
+        int(os.getenv("ABSOLUTE_MAX_CONTENT_LENGTH_MB", 50)) * 1024 * 1024
     )
     UPLOAD_FOLDER = _env_or_default("UPLOAD_FOLDER", "/tmp/uploads")
     OUTPUT_FOLDER = _env_or_default("OUTPUT_FOLDER", "/tmp/outputs")
-    FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1800))
+    FILE_EXPIRY_SECONDS = int(os.getenv("FILE_EXPIRY_SECONDS", 1200))
     STORAGE_ALLOW_LOCAL_FALLBACK = (
         os.getenv("STORAGE_ALLOW_LOCAL_FALLBACK", "true").lower() == "true"
     )
