@@ -71,7 +71,7 @@ services:
     command: >
       celery -A celery_worker.celery worker
       --loglevel=info
-      --concurrency=4
+      --concurrency=2
       -Q light_tasks
       -n worker_light@%h
     env_file: [.env]
@@ -326,4 +326,5 @@ volumes:
   postgres_data:
   upload_data:
   output_data:
+  db_data:
   gitea_data:
