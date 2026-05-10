@@ -1673,7 +1673,7 @@ export default function InternalAdminPage() {
           <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Database Type</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('admin.databaseType')}</p>
                 <p className="mt-3 text-2xl font-bold capitalize text-slate-900 dark:text-white">{databaseStats.database_type}</p>
               </div>
               <Database className="h-5 w-5 text-slate-400" />
@@ -1682,7 +1682,7 @@ export default function InternalAdminPage() {
           <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Tables</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('admin.totalTables')}</p>
                 <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">{databaseStats.table_count}</p>
               </div>
               <Database className="h-5 w-5 text-slate-400" />
@@ -1691,7 +1691,7 @@ export default function InternalAdminPage() {
           <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Total Rows</p>
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{t('admin.totalRows')}</p>
                 <p className="mt-3 text-2xl font-bold text-slate-900 dark:text-white">
                   {databaseStats.tables.reduce((sum, t) => sum + t.row_count, 0).toLocaleString()}
                 </p>
@@ -1702,15 +1702,15 @@ export default function InternalAdminPage() {
         </section>
 
         <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-          <h2 className="text-xl font-bold text-slate-900 dark:text-white">Tables</h2>
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('admin.tablesTitle')}</h2>
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-700">
               <thead>
                 <tr className="text-left text-slate-500 dark:text-slate-400">
-                  <th className="py-2 pe-3 font-medium">Table Name</th>
-                  <th className="py-2 pe-3 font-medium">Row Count</th>
+                  <th className="py-2 pe-3 font-medium">{t('admin.tableName')}</th>
+                  <th className="py-2 pe-3 font-medium">{t('admin.rowCount')}</th>
                   {databaseStats.tables[0]?.total_size_kb !== undefined && (
-                    <th className="py-2 pe-3 font-medium">Size (KB)</th>
+                    <th className="py-2 pe-3 font-medium">{t('admin.sizeKb')}</th>
                   )}
                 </tr>
               </thead>

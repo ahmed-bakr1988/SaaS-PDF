@@ -411,9 +411,9 @@ export default function PricingPage() {
               className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               {showFullTable ? (
-                <><ChevronUp className="h-4 w-4" /> Show less</>
+                <><ChevronUp className="h-4 w-4" /> {t('pricing.showLess')}</>
               ) : (
-                <><ChevronDown className="h-4 w-4" /> Show all features</>
+                <><ChevronDown className="h-4 w-4" /> {t('pricing.showAllFeatures')}</>
               )}
             </button>
           </div>
@@ -532,9 +532,9 @@ export default function PricingPage() {
 
         {/* ── Bottom CTA banner ─────────────────────────────────────────── */}
         <div className="rounded-3xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-700 p-10 text-center text-white shadow-2xl shadow-violet-200 dark:shadow-violet-900/30">
-          <h2 className="text-3xl font-extrabold">Start processing PDFs smarter today</h2>
+          <h2 className="text-3xl font-extrabold">{t('pricing.startProcessingSmarter')}</h2>
           <p className="mt-3 text-violet-200">
-            Join thousands of users who rely on Dociva every day.
+            {t('pricing.joinThousands')}
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
