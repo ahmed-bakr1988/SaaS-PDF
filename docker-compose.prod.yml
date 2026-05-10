@@ -289,16 +289,11 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - frontend_build:/usr/share/nginx/html:ro
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     depends_on:
       - backend
-      - frontend_build_step
-      # NOTE: gitea removed from depends_on intentionally.
-      # Gitea has a 60s start_period; making nginx depend on it causes
-      # unnecessary startup delays and cascade failures. Nginx proxies
-      # to gitea via upstream; if gitea is slow nginx returns 502 gracefully.
+      - frontend
     # Nginx uses ~60MB just for shared memory zones (rate limiting + SSL cache).
     # 128m was too strict and caused OOMKills on startup.
     mem_limit: 256m
@@ -313,12 +308,14 @@ services:
       start_period: 10s
     restart: always
 
-  # --- Frontend Build (one-shot) ---
-  frontend_build_step:
+
+
+  # --- Frontend (Static Files Nginx) ---
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-      target: build
+      target: production
       args:
         VITE_GA_MEASUREMENT_ID: ${VITE_GA_MEASUREMENT_ID:-}
         VITE_PLAUSIBLE_DOMAIN: ${VITE_PLAUSIBLE_DOMAIN:-}
@@ -338,36 +335,14 @@ services:
         INDEXNOW_KEY: ${INDEXNOW_KEY:-}
         INDEXNOW_ENDPOINT: ${INDEXNOW_ENDPOINT:-https://www.bing.com/indexnow}
         INDEXNOW_STRICT: ${INDEXNOW_STRICT:-false}
-    environment:
-      - VITE_GA_MEASUREMENT_ID=${VITE_GA_MEASUREMENT_ID:-}
-      - VITE_PLAUSIBLE_DOMAIN=${VITE_PLAUSIBLE_DOMAIN:-}
-      - VITE_PLAUSIBLE_SRC=${VITE_PLAUSIBLE_SRC:-https://plausible.io/js/script.js}
-      - VITE_GOOGLE_SITE_VERIFICATION=${VITE_GOOGLE_SITE_VERIFICATION:-}
-      - VITE_ADSENSE_CLIENT_ID=${VITE_ADSENSE_CLIENT_ID:-}
-      - VITE_ADSENSE_SLOT_HOME_TOP=${VITE_ADSENSE_SLOT_HOME_TOP:-}
-      - VITE_ADSENSE_SLOT_HOME_BOTTOM=${VITE_ADSENSE_SLOT_HOME_BOTTOM:-}
-      - VITE_ADSENSE_SLOT_TOP_BANNER=${VITE_ADSENSE_SLOT_TOP_BANNER:-}
-      - VITE_ADSENSE_SLOT_BOTTOM_BANNER=${VITE_ADSENSE_SLOT_BOTTOM_BANNER:-}
-      - VITE_FEATURE_EDITOR=${VITE_FEATURE_EDITOR:-true}
-      - VITE_FEATURE_OCR=${VITE_FEATURE_OCR:-true}
-      - VITE_FEATURE_REMOVEBG=${VITE_FEATURE_REMOVEBG:-true}
-      - VITE_SITE_DOMAIN=${VITE_SITE_DOMAIN:-}
-      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN:-}
-      - VITE_CLARITY_PROJECT_ID=${VITE_CLARITY_PROJECT_ID:-}
-      - INDEXNOW_KEY=${INDEXNOW_KEY:-}
-      - INDEXNOW_ENDPOINT=${INDEXNOW_ENDPOINT:-https://www.bing.com/indexnow}
-      - INDEXNOW_STRICT=${INDEXNOW_STRICT:-false}
-      - INDEXNOW_STATE_DIR=/app/.indexnow
-      - INDEXNOW_FULL_SUBMIT=${INDEXNOW_FULL_SUBMIT:-false}
-    volumes:
-      - frontend_build:/app/dist
-      - indexnow_state:/app/.indexnow
-    # Important: this is a ONE-SHOT build container. It must NOT restart.
-    # restart:no prevents an infinite restart loop after npm run build exits 0.
-    restart: "no"
-    command: ["sh", "-lc", "npm run build"]
-
-  # --- Gitea (self-hosted Git) ---
+    restart: always
+    mem_limit: 128m
+    mem_reservation: 32m
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
   gitea:
     image: gitea/gitea:latest
     restart: always
