@@ -3,6 +3,14 @@
 Handles subscription approval URL creation, webhook verification,
 and subscription lifecycle events (activation, cancellation, payment failure).
 
+Plans supported:
+  - starter  ($4.99 / month)
+  - pro      ($9.99 / month)   ← default / existing subscribers
+  - business ($29.99 / month)
+
+Legacy alias:
+  - micro    → treated identically to starter (backwards compat for existing PayPal subscriptions)
+
 Docs: https://developer.paypal.com/docs/subscriptions/
 """
 
@@ -46,57 +54,67 @@ def _get_base_url() -> str:
 
 def get_paypal_client_id() -> str:
     val = current_app.config.get("PAYPAL_CLIENT_ID") or os.getenv("PAYPAL_CLIENT_ID", "")
-    return normalize_optional_config(
-        val,
-        ("replace-with",),
-    )
+    return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paypal_client_secret() -> str:
     val = current_app.config.get("PAYPAL_CLIENT_SECRET") or os.getenv("PAYPAL_CLIENT_SECRET", "")
-    return normalize_optional_config(
-        val,
-        ("replace-with",),
-    )
+    return normalize_optional_config(val, ("replace-with",))
 
 
-def get_paypal_plan_id(billing: str = "monthly", trial: bool = False, is_micro: bool = False) -> str:
-    """Return the configured PayPal plan ID for the requested billing cycle.
+def get_paypal_plan_id(
+    billing: str = "monthly",
+    trial: bool = False,
+    is_micro: bool = False,
+    plan: str = "pro",
+) -> str:
+    """Return the configured PayPal plan ID for the requested billing cycle and plan tier.
 
-    Trial plans are optional dedicated PayPal plan IDs. If a trial plan is not
-    configured, the regular plan is returned instead.
+    Args:
+        billing:  'monthly' | 'yearly'
+        trial:    Use dedicated trial plan ID if configured (pro only)
+        is_micro: Legacy alias — treated as 'starter'
+        plan:     'starter' | 'pro' | 'business'  (default 'pro' for backwards compat)
     """
+    # Normalise legacy micro → starter
     if is_micro:
-        val = current_app.config.get("PAYPAL_PLAN_ID_MICRO") or os.getenv("PAYPAL_PLAN_ID_MICRO", "")
-        return normalize_optional_config(val, ("replace-with",))
+        plan = "starter"
 
-    monthly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
-    yearly_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY", "")
+    # ── Starter plan ($4.99) ─────────────────────────────────────────────────
+    if plan == "starter":
+        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_STARTER_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_STARTER_MONTHLY", "")
+        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_STARTER_YEARLY")  or os.getenv("PAYPAL_PLAN_ID_STARTER_YEARLY",  "")
+        monthly = normalize_optional_config(monthly_val, ("replace-with",))
+        yearly  = normalize_optional_config(yearly_val,  ("replace-with",))
+        # Fallback: try legacy MICRO env var if new starter vars are absent
+        if not monthly:
+            micro_val = current_app.config.get("PAYPAL_PLAN_ID_MICRO") or os.getenv("PAYPAL_PLAN_ID_MICRO", "")
+            monthly = normalize_optional_config(micro_val, ("replace-with",))
+        return yearly if (billing == "yearly" and yearly) else monthly
+
+    # ── Business plan ($29.99) ───────────────────────────────────────────────
+    if plan == "business":
+        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_BUSINESS_MONTHLY", "")
+        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_YEARLY")  or os.getenv("PAYPAL_PLAN_ID_BUSINESS_YEARLY",  "")
+        monthly = normalize_optional_config(monthly_val, ("replace-with",))
+        yearly  = normalize_optional_config(yearly_val,  ("replace-with",))
+        return yearly if (billing == "yearly" and yearly) else monthly
+
+    # ── Pro plan ($9.99) — default ───────────────────────────────────────────
+    monthly_val       = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY")       or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY",       "")
+    yearly_val        = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY")        or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY",        "")
     monthly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
-    yearly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL", "")
+    yearly_trial_val  = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL")  or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL",  "")
 
-    monthly = normalize_optional_config(
-        monthly_val,
-        ("replace-with",),
-    )
-    yearly = normalize_optional_config(
-        yearly_val,
-        ("replace-with",),
-    )
-    monthly_trial = normalize_optional_config(
-        monthly_trial_val,
-        ("replace-with",),
-    )
-    yearly_trial = normalize_optional_config(
-        yearly_trial_val,
-        ("replace-with",),
-    )
+    monthly       = normalize_optional_config(monthly_val,       ("replace-with",))
+    yearly        = normalize_optional_config(yearly_val,        ("replace-with",))
+    monthly_trial = normalize_optional_config(monthly_trial_val, ("replace-with",))
+    yearly_trial  = normalize_optional_config(yearly_trial_val,  ("replace-with",))
 
     if billing == "yearly" and trial and yearly_trial:
         return yearly_trial
     if billing == "yearly" and yearly:
         return yearly
-
     if trial and monthly_trial:
         return monthly_trial
     return monthly
@@ -183,8 +201,9 @@ def create_subscription(
     The user must be redirected to this URL to approve the subscription in
     their PayPal account. After approval PayPal redirects to ``return_url``.
 
-    A free trial period is automatically added for first-time subscribers
-    when ``PAYPAL_TRIAL_DAYS`` is set (default: 7).
+    A free trial period is automatically added for first-time Pro subscribers
+    when ``PAYPAL_TRIAL_DAYS`` is set (default: 7). Starter and Business plans
+    do not get a trial unless a dedicated trial plan ID is configured.
     """
     token = _get_access_token()
 
@@ -194,10 +213,12 @@ def create_subscription(
         with db_connection() as conn:
             row = execute_query(
                 conn,
-                "SELECT paypal_subscription_id FROM users WHERE id = ?",
+                "SELECT paypal_subscription_id FROM users WHERE id = ?"
+                if not is_postgres()
+                else "SELECT paypal_subscription_id FROM users WHERE id = %s",
                 (user_id,),
             )
-            if row and row[0].get("paypal_subscription_id"):
+            if row and row.fetchone() and row.fetchone().get("paypal_subscription_id"):
                 is_first_time = False
     except Exception:
         pass  # Non-critical — still allow subscription
@@ -216,12 +237,13 @@ def create_subscription(
         },
     }
 
-    # Prefer dedicated PayPal trial plans over runtime billing-cycle overrides.
-    # The override approach is brittle and PayPal rejects our current payload in
-    # sandbox with 422 validation errors.
-    is_micro = plan_id == get_paypal_plan_id(is_micro=True)
-    
-    if is_first_time and trial_days > 0 and not is_micro:
+    # Only offer trial on Pro plans (starter/business have fixed pricing)
+    is_starter  = plan_id == get_paypal_plan_id(plan="starter", billing="monthly") or \
+                  plan_id == get_paypal_plan_id(plan="starter", billing="yearly")
+    is_business = plan_id == get_paypal_plan_id(plan="business", billing="monthly") or \
+                  plan_id == get_paypal_plan_id(plan="business", billing="yearly")
+
+    if is_first_time and trial_days > 0 and not is_starter and not is_business:
         trial_plan_id = get_paypal_plan_id(
             "yearly" if plan_id == get_paypal_plan_id("yearly") else "monthly",
             trial=True,
@@ -277,22 +299,25 @@ def cancel_paypal_subscription(user_id: int) -> bool:
         cursor = execute_query(conn, sql, (user_id,))
         row = cursor.fetchone()
         sub_id = row["paypal_subscription_id"] if row else None
-        
+
     if not sub_id:
         return False
-        
+
     token = _get_access_token()
     resp = requests.post(
         f"{_get_base_url()}/v1/billing/subscriptions/{sub_id}/cancel",
-        json={"reason": "Automatic cancellation after micro trial limits reached."},
+        json={"reason": "Automatic cancellation after plan limits reached."},
         headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json"},
         timeout=10,
     )
     if resp.status_code == 204:
-        logger.info(f"Cancelled PayPal subscription {sub_id} for user {user_id}")
+        logger.info("Cancelled PayPal subscription %s for user %s", sub_id, user_id)
         return True
     else:
-        logger.warning(f"Failed to cancel PayPal subscription {sub_id} for user {user_id}: {resp.text}")
+        logger.warning(
+            "Failed to cancel PayPal subscription %s for user %s: %s",
+            sub_id, user_id, resp.text,
+        )
         return False
 
 
@@ -311,14 +336,10 @@ def verify_webhook_signature(
     """Verify an incoming PayPal webhook notification via the verification API.
 
     Uses PayPal's server-side verification endpoint — more reliable than
-    local signature verification because it does not require certificate
-    pinning.
+    local signature verification because it does not require certificate pinning.
     """
     webhook_val = current_app.config.get("PAYPAL_WEBHOOK_ID") or os.getenv("PAYPAL_WEBHOOK_ID", "")
-    webhook_id = normalize_optional_config(
-        webhook_val,
-        ("replace-with",),
-    )
+    webhook_id = normalize_optional_config(webhook_val, ("replace-with",))
     if not webhook_id:
         logger.warning("PAYPAL_WEBHOOK_ID not configured — cannot verify webhook.")
         return False
@@ -359,12 +380,12 @@ def handle_webhook_event(event: dict) -> dict:
 
     handlers = {
         "BILLING.SUBSCRIPTION.ACTIVATED": _handle_subscription_activated,
-        "BILLING.SUBSCRIPTION.UPDATED": _handle_subscription_updated,
+        "BILLING.SUBSCRIPTION.UPDATED":   _handle_subscription_updated,
         "BILLING.SUBSCRIPTION.CANCELLED": _handle_subscription_cancelled,
         "BILLING.SUBSCRIPTION.SUSPENDED": _handle_subscription_suspended,
-        "BILLING.SUBSCRIPTION.EXPIRED": _handle_subscription_expired,
-        "PAYMENT.SALE.COMPLETED": _handle_payment_completed,
-        "PAYMENT.SALE.DENIED": _handle_payment_denied,
+        "BILLING.SUBSCRIPTION.EXPIRED":   _handle_subscription_expired,
+        "PAYMENT.SALE.COMPLETED":         _handle_payment_completed,
+        "PAYMENT.SALE.DENIED":            _handle_payment_denied,
     }
 
     handler = handlers.get(event_type)
@@ -373,6 +394,10 @@ def handle_webhook_event(event: dict) -> dict:
 
     return {"status": "ok", "event_type": event_type}
 
+
+# ---------------------------------------------------------------------------
+# Internal helpers
+# ---------------------------------------------------------------------------
 
 def _find_user_by_paypal_subscription(subscription_id: str) -> dict | None:
     with db_connection() as conn:
@@ -409,11 +434,36 @@ def _deactivate_user_plan(user_id: int, reason: str) -> None:
     logger.info("User %s downgraded to Free — reason: %s.", user_id, reason)
 
 
+def _resolve_plan_type_from_plan_id(plan_id: str | None) -> str:
+    """Map a PayPal plan_id to our internal plan name (starter / pro / business)."""
+    if not plan_id:
+        return "pro"  # safe default
+    try:
+        if plan_id in (
+            get_paypal_plan_id(plan="starter", billing="monthly"),
+            get_paypal_plan_id(plan="starter", billing="yearly"),
+            get_paypal_plan_id(is_micro=True),   # legacy micro → starter
+        ):
+            return "starter"
+        if plan_id in (
+            get_paypal_plan_id(plan="business", billing="monthly"),
+            get_paypal_plan_id(plan="business", billing="yearly"),
+        ):
+            return "business"
+    except Exception:
+        pass
+    return "pro"  # covers all pro monthly / yearly / trial plan IDs
+
+
+# ---------------------------------------------------------------------------
+# Webhook event handlers
+# ---------------------------------------------------------------------------
+
 def _handle_subscription_activated(resource: dict) -> None:
     subscription_id = resource.get("id")
     custom_id = resource.get("custom_id")  # set to user_id on creation
     plan_id = resource.get("plan_id")
-    plan_type = "micro" if plan_id and plan_id == get_paypal_plan_id(is_micro=True) else "pro"
+    plan_type = _resolve_plan_type_from_plan_id(plan_id)
 
     if custom_id:
         _activate_user_plan(int(custom_id), subscription_id, plan_type=plan_type)
@@ -433,7 +483,7 @@ def _handle_subscription_updated(resource: dict) -> None:
         return
 
     if status in _ACTIVE_STATUSES:
-        plan_type = "micro" if plan_id and plan_id == get_paypal_plan_id(is_micro=True) else "pro"
+        plan_type = _resolve_plan_type_from_plan_id(plan_id)
         update_user_plan(user["id"], plan_type)
         logger.info("User %s PayPal subscription updated — %s plan.", user["id"], plan_type)
     elif status in ("CANCELLED", "SUSPENDED", "EXPIRED"):
@@ -452,8 +502,8 @@ def _handle_subscription_suspended(resource: dict) -> None:
     user = _find_user_by_paypal_subscription(subscription_id)
     if user:
         logger.warning("User %s PayPal subscription suspended.", user["id"])
-        # Keep the plan for now — PayPal may reactivate on next payment
-        # Downgrade only on CANCELLED or EXPIRED
+        # Keep plan active — PayPal may reactivate on the next payment retry.
+        # Downgrade only on CANCELLED or EXPIRED.
 
 
 def _handle_subscription_expired(resource: dict) -> None:
@@ -464,7 +514,7 @@ def _handle_subscription_expired(resource: dict) -> None:
 
 
 def _handle_payment_completed(resource: dict) -> None:
-    # PAYMENT.SALE.COMPLETED fires on successful recurring charge — plan stays Pro
+    # PAYMENT.SALE.COMPLETED fires on successful recurring charge — plan stays active
     billing_agreement_id = resource.get("billing_agreement_id")
     if billing_agreement_id:
         user = _find_user_by_paypal_subscription(billing_agreement_id)

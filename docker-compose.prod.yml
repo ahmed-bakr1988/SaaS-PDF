@@ -31,7 +31,7 @@ services:
       retries: 5
     restart: always
 
-  # --- Flask Backend ---
+  # --- Flask Backend (Gunicorn) ---
   backend:
     build:
       context: ./backend
@@ -44,6 +44,12 @@ services:
       - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/1
       - DATABASE_URL=${DATABASE_URL:-}
+      - GUNICORN_WORKERS=${GUNICORN_WORKERS:-2}
+      - GUNICORN_THREADS=${GUNICORN_THREADS:-2}
+      - GUNICORN_TIMEOUT=${GUNICORN_TIMEOUT:-45}
+      - GUNICORN_LOG_LEVEL=${GUNICORN_LOG_LEVEL:-warning}
+      - GUNICORN_MAX_REQUESTS=${GUNICORN_MAX_REQUESTS:-500}
+      - GUNICORN_MAX_REQUESTS_JITTER=${GUNICORN_MAX_REQUESTS_JITTER:-50}
     volumes:
       - upload_data:/tmp/uploads
       - output_data:/tmp/outputs
@@ -53,6 +59,15 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    # Limit backend to 512 MB — it should only route/validate, not process files
+    mem_limit: 512m
+    mem_reservation: 128m
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:5000/api/health/live"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
     restart: always
 
   # --- Celery Workers (Isolated Queues) ---
@@ -60,7 +75,6 @@ services:
   celery_worker_light:
     build: { context: ./backend, dockerfile: Dockerfile }
     # concurrency=2: light_tasks are quick (word count, compress, metadata).
-    # Keeping concurrency low prevents CPU thrashing on 2-vCPU VPS.
     command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=2 -Q light_tasks -n worker_light@%h
     env_file: [.env]
     environment:
@@ -76,32 +90,8 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
-    # Override Dockerfile HEALTHCHECK — Celery workers don't serve HTTP.
-    # CMD true always passes; real monitoring is handled by Flower.
-    healthcheck:
-      test: ["CMD", "true"]
-      interval: 30s
-      timeout: 5s
-      retries: 1
-    restart: always
-
-  celery_worker_pdf:
-    build: { context: ./backend, dockerfile: Dockerfile }
-    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q pdf_processing -n worker_pdf@%h
-    env_file: [.env]
-    environment:
-      - FLASK_ENV=production
-      - DATABASE_URL=${DATABASE_URL:-}
-      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
-      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/1
-    volumes:
-      - upload_data:/tmp/uploads
-      - output_data:/tmp/outputs
-      - db_data:/app/data
-    depends_on:
-      postgres: { condition: service_healthy }
-      redis: { condition: service_healthy }
+    mem_limit: 256m
+    mem_reservation: 64m
     healthcheck:
       test: ["CMD", "true"]
       interval: 30s
@@ -126,6 +116,34 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+    mem_limit: 512m
+    mem_reservation: 128m
+    healthcheck:
+      test: ["CMD", "true"]
+      interval: 30s
+      timeout: 5s
+      retries: 1
+    restart: always
+
+  celery_worker_pdf:
+    build: { context: ./backend, dockerfile: Dockerfile }
+    command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q pdf_processing -n worker_pdf@%h
+    env_file: [.env]
+    environment:
+      - FLASK_ENV=production
+      - DATABASE_URL=${DATABASE_URL:-}
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_BROKER_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://:${REDIS_PASSWORD}@redis:6379/1
+    volumes:
+      - upload_data:/tmp/uploads
+      - output_data:/tmp/outputs
+      - db_data:/app/data
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    mem_limit: 768m
+    mem_reservation: 128m
     healthcheck:
       test: ["CMD", "true"]
       interval: 30s
@@ -135,6 +153,7 @@ services:
 
   celery_worker_heavy:
     build: { context: ./backend, dockerfile: Dockerfile }
+    # OCR + AI heavy: ONNX, Tesseract, OpenRouter — needs more RAM
     command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q ocr_tasks,ai_heavy -n worker_heavy@%h
     env_file: [.env]
     environment:
@@ -150,6 +169,9 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+    # OCR + AI models can be memory-hungry — cap at 1 GB
+    mem_limit: 1024m
+    mem_reservation: 256m
     healthcheck:
       test: ["CMD", "true"]
       interval: 30s
@@ -159,6 +181,7 @@ services:
 
   celery_worker_video:
     build: { context: ./backend, dockerfile: Dockerfile }
+    # FFmpeg can be very memory-hungry for large video files
     command: celery -A celery_worker.celery worker --loglevel=warning --concurrency=1 -Q video_processing -n worker_video@%h
     env_file: [.env]
     environment:
@@ -174,6 +197,8 @@ services:
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
+    mem_limit: 512m
+    mem_reservation: 128m
     healthcheck:
       test: ["CMD", "true"]
       interval: 30s
@@ -274,6 +299,15 @@ services:
       # Gitea has a 60s start_period; making nginx depend on it causes
       # unnecessary startup delays and cascade failures. Nginx proxies
       # to gitea via upstream; if gitea is slow nginx returns 502 gracefully.
+    # Nginx is lightweight but acts as the public gate — cap it conservatively
+    mem_limit: 128m
+    mem_reservation: 32m
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
     restart: always
 
   # --- Frontend Build (one-shot) ---

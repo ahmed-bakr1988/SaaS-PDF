@@ -19,16 +19,31 @@ import os
 from dataclasses import dataclass
 
 # ── Credit allocations per rolling 30-day window ────────────────
-FREE_CREDITS_PER_WINDOW = int(os.getenv("FREE_CREDITS_PER_WINDOW", "50"))
-PRO_CREDITS_PER_WINDOW = int(os.getenv("PRO_CREDITS_PER_WINDOW", "500"))
+FREE_CREDITS_PER_WINDOW    = int(os.getenv("FREE_CREDITS_PER_WINDOW",    "50"))
+STARTER_CREDITS_PER_WINDOW = int(os.getenv("STARTER_CREDITS_PER_WINDOW", "200"))
+PRO_CREDITS_PER_WINDOW     = int(os.getenv("PRO_CREDITS_PER_WINDOW",     "1000"))
+BUSINESS_CREDITS_PER_WINDOW = int(os.getenv("BUSINESS_CREDITS_PER_WINDOW", "0"))  # 0 = Unlimited
 CREDIT_WINDOW_DAYS = int(os.getenv("CREDIT_WINDOW_DAYS", "30"))
 
 # ── Guest demo budget (anonymous, pre-registration) ────────────
 GUEST_DEMO_BUDGET = int(os.getenv("GUEST_DEMO_BUDGET", "3"))
 GUEST_DEMO_TTL_HOURS = int(os.getenv("GUEST_DEMO_TTL_HOURS", "24"))
 
-# ── API quota (Pro only, per rolling window) ────────────────────
-PRO_API_CREDITS_PER_WINDOW = int(os.getenv("PRO_API_CREDITS_PER_WINDOW", "1000"))
+# ── API quotas per plan (per rolling window) ────────────────────
+FREE_API_CREDITS_PER_WINDOW     = 0       # No API access
+STARTER_API_CREDITS_PER_WINDOW  = 0       # No API access
+PRO_API_CREDITS_PER_WINDOW      = int(os.getenv("PRO_API_CREDITS_PER_WINDOW", "1000"))
+BUSINESS_API_CREDITS_PER_WINDOW = int(os.getenv("BUSINESS_API_CREDITS_PER_WINDOW", "10000"))
+
+# ── File upload size limits per plan (MB) ───────────────────────
+FREE_MAX_FILE_SIZE_MB      = int(os.getenv("FREE_MAX_FILE_SIZE_MB",      "25"))
+STARTER_MAX_FILE_SIZE_MB   = int(os.getenv("STARTER_MAX_FILE_SIZE_MB",   "250"))
+PRO_MAX_FILE_SIZE_MB       = int(os.getenv("PRO_MAX_FILE_SIZE_MB",       "1024"))
+BUSINESS_MAX_FILE_SIZE_MB  = int(os.getenv("BUSINESS_MAX_FILE_SIZE_MB",  "2048"))
+
+# ── Plan pricing (USD) ──────────────────────────────────────────
+PLAN_PRICE_MONTHLY = {"free": 0, "starter": 4.99, "pro": 9.99, "business": 29.99}
+PLAN_PRICE_YEARLY  = {"free": 0, "starter": 3.99, "pro": 7.99, "business": 24.99}
 
 # ── Cost tiers ──────────────────────────────────────────────────
 TIER_LIGHT = 1       # Fast, in-memory or trivial server ops
@@ -231,9 +246,78 @@ def get_tool_credit_cost(tool: str) -> int:
     return TOOL_CREDIT_COSTS.get(tool, DEFAULT_CREDIT_COST)
 
 
+# Sentinel value for unlimited credits (business plan)
+UNLIMITED_CREDITS = -1
+
+
 def get_credits_for_plan(plan: str) -> int:
-    """Return the total credits per window for a plan."""
-    return PRO_CREDITS_PER_WINDOW if plan == "pro" else FREE_CREDITS_PER_WINDOW
+    """Return the total credits per window for a plan.
+
+    Returns UNLIMITED_CREDITS (-1) for the business plan.
+    The micro plan is a legacy alias for starter (backwards compatibility).
+    """
+    plan_map = {
+        "free":     FREE_CREDITS_PER_WINDOW,
+        "starter":  STARTER_CREDITS_PER_WINDOW,
+        "micro":    STARTER_CREDITS_PER_WINDOW,   # legacy alias
+        "pro":      PRO_CREDITS_PER_WINDOW,
+        "business": UNLIMITED_CREDITS,
+    }
+    return plan_map.get(plan, FREE_CREDITS_PER_WINDOW)
+
+
+def get_max_file_size_for_plan(plan: str) -> int:
+    """Return the maximum upload size in MB for a given plan."""
+    plan_map = {
+        "free":     FREE_MAX_FILE_SIZE_MB,
+        "starter":  STARTER_MAX_FILE_SIZE_MB,
+        "micro":    STARTER_MAX_FILE_SIZE_MB,   # legacy alias
+        "pro":      PRO_MAX_FILE_SIZE_MB,
+        "business": BUSINESS_MAX_FILE_SIZE_MB,
+    }
+    return plan_map.get(plan, FREE_MAX_FILE_SIZE_MB)
+
+
+def plan_has_api_access(plan: str) -> bool:
+    """Return True if the given plan includes API access."""
+    return plan in ("pro", "business")
+
+
+def plan_has_feature(plan: str, feature: str) -> bool:
+    """Return True if the plan has access to the given premium feature.
+
+    Feature registry:
+      - ai_chat:          AI PDF Chat
+      - ai_summary:       AI PDF Summarization
+      - ai_translate:     AI PDF Translation
+      - ocr_advanced:     Advanced Arabic/multilingual OCR
+      - batch_processing: Upload and process multiple files at once
+      - priority_queue:   Jobs processed ahead of free-tier jobs
+      - api_access:       REST API access with token authentication
+      - history_cloud:    Cloud file history retention
+      - no_ads:           No advertisements
+      - email_delivery:   Send results via email
+      - teams:            Team workspace sharing
+      - white_label:      White-label branding
+      - sla_support:      Priority SLA support
+    """
+    _features: dict[str, set[str]] = {
+        "free": set(),
+        "starter": {"ai_chat", "ai_summary", "batch_processing", "email_delivery", "no_ads"},
+        "micro":   {"ai_chat", "ai_summary", "batch_processing", "email_delivery", "no_ads"},  # legacy
+        "pro": {
+            "ai_chat", "ai_summary", "ai_translate", "ocr_advanced",
+            "batch_processing", "priority_queue", "api_access",
+            "history_cloud", "no_ads", "email_delivery",
+        },
+        "business": {
+            "ai_chat", "ai_summary", "ai_translate", "ocr_advanced",
+            "batch_processing", "priority_queue", "api_access",
+            "history_cloud", "no_ads", "email_delivery",
+            "teams", "white_label", "sla_support",
+        },
+    }
+    return feature in _features.get(plan, set())
 
 
 def get_all_tool_costs() -> dict[str, int]:

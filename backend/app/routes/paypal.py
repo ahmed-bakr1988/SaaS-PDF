@@ -22,13 +22,15 @@ paypal_bp = Blueprint("paypal", __name__)
 @paypal_bp.route("/create-subscription", methods=["POST"])
 @limiter.limit("10/hour")
 def create_subscription_route():
-    """Create a PayPal subscription approval URL for the Pro plan.
+    """Create a PayPal subscription approval URL.
 
     Request body (JSON):
-        billing  "monthly" | "yearly"  (default: "monthly")
+        plan     "starter" | "pro" | "business"  (default: "pro")
+        billing  "monthly" | "yearly"             (default: "monthly")
 
     Returns:
         200  {"url": "<paypal_approval_url>"}
+        400  Invalid plan
         401  Not authenticated
         503  PayPal not configured
         500  PayPal API error
@@ -41,27 +43,32 @@ def create_subscription_route():
         return jsonify({"error": "Payment system is not configured."}), 503
 
     data = request.get_json(silent=True) or {}
-    plan_type = str(data.get("plan", "")).lower()
     billing = str(data.get("billing", "monthly")).lower()
     if billing not in ("monthly", "yearly"):
         billing = "monthly"
 
-    if plan_type == "micro":
-        plan_id = get_paypal_plan_id(is_micro=True)
-    else:
-        plan_id = get_paypal_plan_id(billing)
+    # Resolve plan — support legacy "micro" as alias for "starter"
+    raw_plan = str(data.get("plan", "pro")).lower()
+    if raw_plan == "micro":
+        raw_plan = "starter"
+
+    valid_plans = ("starter", "pro", "business")
+    if raw_plan not in valid_plans:
+        return jsonify({"error": f"Invalid plan. Must be one of: {', '.join(valid_plans)}."}), 400
+
+    plan_id = get_paypal_plan_id(billing=billing, plan=raw_plan)
     if not plan_id:
-        return jsonify({"error": "Selected billing cycle is not available."}), 503
+        return jsonify({"error": "Selected plan / billing cycle is not yet available."}), 503
 
     base_url = request.host_url.rstrip("/")
-    success_url = f"{base_url}/account?paypal=success"
-    cancel_url = f"{base_url}/pricing?paypal=cancel"
+    success_url = f"{base_url}/account?paypal=success&plan={raw_plan}"
+    cancel_url  = f"{base_url}/pricing?paypal=cancel"
 
     try:
         approval_url = create_subscription(user_id, plan_id, success_url, cancel_url)
         return jsonify({"url": approval_url}), 200
     except Exception:
-        logger.exception("PayPal subscription creation failed")
+        logger.exception("PayPal subscription creation failed (plan=%s billing=%s)", raw_plan, billing)
         return jsonify({"error": "Failed to create PayPal subscription. Please try again."}), 500
 
 

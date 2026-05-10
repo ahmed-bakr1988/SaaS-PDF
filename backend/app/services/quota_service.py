@@ -14,61 +14,73 @@ logger = logging.getLogger(__name__)
 
 
 class QuotaLimits:
-    """Define quota limits for each tier"""
+    """Define quota limits for each tier.
+
+    Plans:  free | starter ($4.99) | pro ($9.99) | business ($29+)
+    Legacy: micro is an alias for starter for backwards-compat with existing
+            PayPal subscriptions created before the plan rename.
+    """
 
     CONVERSIONS_PER_DAY = {
-        "free": 5,
-        "micro": 10,  # Limits handled fully in track logic
-        "pro": 100,
-        "business": float("inf"),
+        "free":     5,
+        "starter":  100,
+        "micro":    100,  # legacy alias
+        "pro":      float("inf"),  # Unlimited
+        "business": float("inf"),  # Unlimited
     }
 
     MAX_FILE_SIZE_MB = {
-        "free": 10,
-        "micro": 100,
-        "pro": 100,
-        "business": 500,
+        "free":     25,
+        "starter":  250,
+        "micro":    250,  # legacy alias
+        "pro":      1024,
+        "business": 2048,
     }
 
     STORAGE_LIMIT_MB = {
-        "free": 500,
-        "micro": 5000,
-        "pro": 5000,
+        "free":     500,
+        "starter":  5000,
+        "micro":    5000,  # legacy alias
+        "pro":      10000,
         "business": float("inf"),
     }
 
     API_RATE_LIMIT = {
-        "free": 10,
-        "micro": 60,
-        "pro": 60,
+        "free":     0,     # No API access
+        "starter":  0,     # No API access
+        "micro":    0,     # legacy alias
+        "pro":      60,    # 60 req/min
         "business": float("inf"),
     }
 
     CONCURRENT_JOBS = {
-        "free": 1,
-        "micro": 3,
-        "pro": 3,
-        "business": 10,
+        "free":     1,
+        "starter":  3,
+        "micro":    3,  # legacy alias
+        "pro":      5,
+        "business": 20,
     }
 
     BATCH_FILE_LIMIT = {
-        "free": 1,
-        "micro": 5,
-        "pro": 5,
-        "business": 20,
+        "free":     1,
+        "starter":  5,
+        "micro":    5,  # legacy alias
+        "pro":      20,
+        "business": 50,
     }
 
     PREMIUM_FEATURES = {
         "free": set(),
-        "micro": {"batch_processing", "priority_queue", "email_delivery", "api_access"},
-        "pro": {"batch_processing", "priority_queue", "email_delivery", "api_access"},
+        "starter": {"batch_processing", "email_delivery", "no_ads"},
+        "micro":   {"batch_processing", "email_delivery", "no_ads"},  # legacy
+        "pro": {
+            "batch_processing", "priority_queue", "email_delivery",
+            "api_access", "history_cloud", "no_ads",
+        },
         "business": {
-            "batch_processing",
-            "priority_queue",
-            "email_delivery",
-            "api_access",
-            "webhook",
-            "sso",
+            "batch_processing", "priority_queue", "email_delivery",
+            "api_access", "history_cloud", "no_ads",
+            "webhook", "sso", "teams", "white_label", "sla_support",
         },
     }
 
@@ -199,7 +211,7 @@ class QuotaService:
 
     @staticmethod
     def get_user_plan(user_id: int) -> str:
-        """Get user's current plan"""
+        """Get user's current plan, normalising the legacy micro alias to starter."""
         with db_connection() as conn:
             sql = (
                 "SELECT plan FROM users WHERE id = %s"
@@ -208,7 +220,10 @@ class QuotaService:
             )
             cursor = execute_query(conn, sql, (user_id,))
             row = row_to_dict(cursor.fetchone())
-            return row["plan"] if row else "free"
+            plan = row["plan"] if row else "free"
+            # Normalise legacy micro plan to starter for quota calculations
+            # (micro PayPal subscribers keep their DB value but get starter limits)
+            return "starter" if plan == "micro" else plan
 
     @staticmethod
     def get_daily_usage(user_id: int, date: Optional[str] = None) -> Dict:
