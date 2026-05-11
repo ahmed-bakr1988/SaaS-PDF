@@ -294,10 +294,7 @@ services:
     depends_on:
       - backend
       - frontend
-    # Nginx uses ~60MB just for shared memory zones (rate limiting + SSL cache).
-    # 128m was too strict and caused OOMKills on startup.
-    mem_limit: 256m
-    mem_reservation: 64m
+    # Memory limits removed to ensure Nginx proxy zones don't cause OOMKills.
     healthcheck:
       # Use --max-redirect=0 to avoid following the 308 HTTPS redirect, 
       # which would fail due to missing localhost SSL cert.
@@ -336,8 +333,6 @@ services:
         INDEXNOW_ENDPOINT: ${INDEXNOW_ENDPOINT:-https://www.bing.com/indexnow}
         INDEXNOW_STRICT: ${INDEXNOW_STRICT:-false}
     restart: always
-    mem_limit: 128m
-    mem_reservation: 32m
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost"]
       interval: 30s
