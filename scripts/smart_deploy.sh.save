@@ -1,0 +1,239 @@
+#!/usr/bin/env bash
+# =============================================================================
+# smart_deploy.sh — سكريبت النشر الذكي لـ Dociva
+# =============================================================================
+# الاستخدام:
+#   ./scripts/smart_deploy.sh           # نشر عادي (بدون --build)
+#   ./scripts/smart_deploy.sh --build   # إعادة بناء الصور أيضاً
+#   ./scripts/smart_deploy.sh --full    # إعادة تشغيل كامل (مثل down && up)
+# =============================================================================
+
+set -eo pipefail
+
+# يصلح صلاحيات التشغيل تلقائياً في كل مرة
+chmod +x "$0" 2>/dev/null || true
+
+# --- الألوان ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC='\033[0m'
+
+COMPOSE="docker compose -f docker-compose.prod.yml"
+BUILD_FLAG=""
+FULL_RESTART=false
+
+# --- قراءة المعاملات ---
+for arg in "$@"; do
+    case "$arg" in
+        --build) BUILD_FLAG="--build" ;;
+        --full)  FULL_RESTART=true ;;
+    esac
+done
+
+log_step() { echo -e "\n${CYAN}▶ $1${NC}"; }
+log_ok()   { echo -e "${GREEN}✓ $1${NC}"; }
+log_warn() { echo -e "${YELLOW}⚠ $1${NC}"; }
+log_err()  { echo -e "${RED}✗ $1${NC}"; }
+
+echo ""
+echo -e "${BLUE}╔══════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║     Dociva Smart Deploy — بدون 500 Errors   ║${NC}"
+echo -e "${BLUE}╚══════════════════════════════════════════════╝${NC}"
+
+# =============================================================================
+# 1. سحب آخر الكود من Git
+# =============================================================================
+log_step "1/7 — سحب آخر التعديلات من Git..."
+git stash
+git pull origin main
+# تأكد أن السكريبت قابل للتشغيل بعد كل pull
+chmod +x scripts/smart_deploy.sh 2>/dev/null || true
+log_ok "تم سحب الكود بنجاح"
+
+# =============================================================================
+# 2. تحقق من ملف .env
+# =============================================================================
+log_step "2/7 — التحقق من ملف .env..."
+if [ ! -f ".env" ]; then
+    log_err ".env غير موجود! انسخ .env.example وعدّله."
+    exit 1
+fi
+log_ok "ملف .env موجود"
+
+# =============================================================================
+# 3. تشغيل قاعدة البيانات و Redis أولاً
+# =============================================================================
+log_step "3/7 — تشغيل قاعدة البيانات وRedis أولاً..."
+
+if [ "$FULL_RESTART" = true ]; then
+    log_warn "وضع الإعادة الكاملة: إيقاف كل الخدمات..."
+    $COMPOSE down --remove-orphans
+    log_warn "انتظار 3 ثواني للتأكد من التوقف..."
+    sleep 3
+fi
+
+$COMPOSE up -d $BUILD_FLAG postgres redis gitea
+log_ok "تم تشغيل postgres و redis و gitea"
+
+# =============================================================================
+# 4. انتظار جاهزية قاعدة البيانات و Redis
+# =============================================================================
+log_step "4/7 — انتظار جاهزية قاعدة البيانات..."
+
+DB_USER="${POSTGRES_USER:-dociva}"
+DB_NAME="${POSTGRES_DB:-dociva}"
+MAX_WAIT=60
+WAITED=0
+until $COMPOSE exec -T postgres pg_isready -U "$DB_USER" -d "$DB_NAME" > /dev/null 2>&1; do
+    if [ "$WAITED" -ge "$MAX_WAIT" ]; then
+        log_err "انتهت مهلة انتظار قاعدة البيانات ($MAX_WAIT ثانية)"
+        $COMPOSE logs postgres | tail -20
+        exit 1
+    fi
+    echo -n "."
+    sleep 2
+    WAITED=$((WAITED + 2))
+done
+echo ""
+log_ok "قاعدة البيانات جاهزة! (انتظرت ${WAITED} ثانية)"
+
+# انتظار Redis
+REDIS_WAITED=0
+until $COMPOSE exec -T redis redis-cli ping > /dev/null 2>&1; do
+    if [ "$REDIS_WAITED" -ge 30 ]; then
+        log_err "Redis لم يستجب خلال 30 ثانية"
+        $COMPOSE logs redis | tail -10
+        exit 1
+    fi
+    echo -n "."
+    sleep 1
+    REDIS_WAITED=$((REDIS_WAITED + 1))
+done
+echo ""
+log_ok "Redis جاهز!"
+
+# =============================================================================
+# 5. بناء وإعادة تشغيل خدمات التطبيق
+# =============================================================================
+log_step "5/7 — تحديث خدمات التطبيق..."
+
+if [ -n "$BUILD_FLAG" ]; then
+    log_warn "إعادة بناء الصور..."
+    $COMPOSE build backend celery_worker celery_beat frontend_build_step
+    log_ok "تم بناء الصور"
+fi
+
+# تشغيل frontend build أولاً في الخلفية
+$COMPOSE up -d --remove-orphans frontend_build_step
+
+# تشغيل backend وcelery
+$COMPOSE up -d --remove-orphans \
+    backend \
+    celery_worker \
+    celery_beat
+
+log_ok "تم إطلاق خدمات التطبيق"
+
+# تهيئة قاعدة البيانات مباشرة عبر Python (بدلاً من alembic غير المثبت)
+log_step "تهيئة جداول قاعدة البيانات..."
+sleep 5
+$COMPOSE exec -T backend python -c "
+from app import create_app
+app = create_app('production')
+with app.app_context():
+    from app.services.account_service import init_account_db
+    init_account_db()
+    print('DB OK')
+" && log_ok "تم تهيئة قاعدة البيانات" \
+  || log_warn "تحذير: فشل تهيئة DB (قد تكون مهيأة مسبقاً)"
+
+# =============================================================================
+# انتظار اكتمال بناء الـ frontend (300 ثانية = 5 دقائق)
+# =============================================================================
+log_warn "انتظار اكتمال بناء الـ frontend (قد يصل إلى 5 دقائق)..."
+FRONTEND_MAX=300
+FRONTEND_WAITED=0
+until $COMPOSE ps frontend_build_step 2>/dev/null | grep -qE "Exit 0|Exited \(0\)|exited.*\(0\)"; do
+    if [ "$FRONTEND_WAITED" -ge "$FRONTEND_MAX" ]; then
+        log_warn "Frontend تجاوز ${FRONTEND_MAX} ثانية — سجلات البناء:"
+        $COMPOSE logs --tail=20 frontend_build_step
+        log_warn "تشغيل nginx مع الملفات المتاحة..."
+        break
+    fi
+    echo -n "."
+    sleep 3
+    FRONTEND_WAITED=$((FRONTEND_WAITED + 3))
+done
+echo ""
+log_ok "Frontend جاهز! (انتظرت ${FRONTEND_WAITED} ثانية)"
+
+# تشغيل nginx بعد اكتمال الـ frontend
+$COMPOSE up -d nginx
+log_ok "Nginx يعمل"
+
+# =============================================================================
+# 6. فحص صحة التطبيق (مع تشخيص كامل عند الفشل)
+# =============================================================================
+log_step "6/7 — فحص صحة التطبيق..."
+log_warn "انتظار استجابة الـ backend..."
+
+HEALTH_MAX=90
+HEALTH_WAITED=0
+HEALTH_PASSED=false
+until curl -sf http://localhost/api/health > /dev/null 2>&1; do
+    if [ "$HEALTH_WAITED" -ge "$HEALTH_MAX" ]; then
+        log_err "فشل فحص الصحة بعد ${HEALTH_MAX} ثانية — التشخيص الكامل:"
+        echo ""
+        log_warn "═══ حالة الخدمات ═══"
+        $COMPOSE ps
+        echo ""
+        log_warn "═══ آخر 30 سطر من backend ═══"
+        $COMPOSE logs --tail=30 backend
+        echo ""
+        log_warn "═══ آخر 15 سطر من nginx ═══"
+        $COMPOSE logs --tail=15 nginx
+        echo ""
+        log_err "الخدمات شغالة لكن هناك خطأ — راجع السجلات أعلاه"
+        log_warn "لمتابعة يدوية: $COMPOSE logs -f backend"
+        HEALTH_PASSED=false
+        break
+    fi
+    echo -n "."
+    sleep 2
+    HEALTH_WAITED=$((HEALTH_WAITED + 2))
+done
+
+if curl -sf http://localhost/api/health > /dev/null 2>&1; then
+    HEALTH_PASSED=true
+fi
+
+echo ""
+if [ "$HEALTH_PASSED" = true ]; then
+    log_ok "التطبيق يعمل بصحة جيدة! (انتظرت ${HEALTH_WAITED} ثانية)"
+fi
+
+# =============================================================================
+# 7. ملخص الحالة
+# =============================================================================
+log_step "7/7 — ملخص حالة الخدمات:"
+$COMPOSE ps
+
+echo ""
+if [ "$HEALTH_PASSED" = true ]; then
+    echo -e "${GREEN}╔══════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║           ✓ النشر اكتمل بنجاح!              ║${NC}"
+    echo -e "${GREEN}╚══════════════════════════════════════════════╝${NC}"
+else
+    echo -e "${YELLOW}╔══════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}║  ⚠ الخدمات تعمل لكن هناك مشكلة في الـ API     ║${NC}"
+    echo -e "${YELLOW}║  راجع السجلات: docker compose logs -f backend  ║${NC}"
+    echo -e "${YELLOW}╚══════════════════════════════════════════════════╝${NC}"
+fi
+echo ""
+echo "  🌐 الموقع:  https://$(hostname -f 2>/dev/null || echo 'dociva.io')"
+echo "  📋 السجلات: $COMPOSE logs -f"
+echo "  📊 الحالة:  $COMPOSE ps"
+echo ""
