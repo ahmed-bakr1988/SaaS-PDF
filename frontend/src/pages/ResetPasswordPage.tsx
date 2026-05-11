@@ -64,6 +64,7 @@ export default function ResetPasswordPage() {
     <>
       <Helmet>
         <title>{t('auth.resetPassword.title')} — {t('common.appName')}</title>
+        <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
       <div className="mx-auto max-w-md">

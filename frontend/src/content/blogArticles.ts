@@ -498,6 +498,227 @@ export const BLOG_ARTICLES: BlogArticle[] = [
       },
     ],
   },
+  {
+    slug: 'how-to-prepare-pdf-for-google-indexing',
+    category: 'PDF',
+    publishedAt: '2026-05-11',
+    readingMinutes: 6,
+    toolSlugs: ['compress-pdf', 'ocr', 'pdf-metadata'],
+    title: {
+      en: 'How to Prepare PDF Files for Better Google Indexing',
+      ar: 'كيف تجهز ملفات PDF لفهرسة أفضل في Google',
+      fr: 'Comment preparer des PDF pour une meilleure indexation Google',
+    },
+    excerpt: {
+      en: 'A practical workflow for making PDFs lighter, searchable, and easier for Google to understand and index.',
+      ar: 'مسار عملي لجعل ملفات PDF أخف وزناً وقابلة للبحث وأسهل على Google في الفهم والفهرسة.',
+      fr: 'Un workflow pratique pour rendre les PDF plus legers, consultables et plus faciles a indexer par Google.',
+    },
+    seoDescription: {
+      en: 'Learn how PDF compression, OCR, metadata, and clean file naming improve crawlability and indexing quality.',
+      ar: 'تعرف على كيف يرفع ضغط PDF وOCR والبيانات الوصفية وأسماء الملفات الواضحة من قابلية الزحف وجودة الفهرسة.',
+      fr: 'Comprenez comment la compression, l OCR, les metadonnees et un nom de fichier propre ameliorent l indexation.',
+    },
+    keyTakeaways: [
+      { en: 'Use text-based PDFs whenever possible instead of scanned images.', ar: 'استخدم ملفات PDF النصية كلما أمكن بدلاً من النسخ الممسوحة كصور.', fr: 'Preferez les PDF textuels aux versions scannees en image.' },
+      { en: 'Keep file sizes low so documents are easier to crawl and load.', ar: 'حافظ على حجم الملف منخفضاً ليكون أسهل في الزحف والتحميل.', fr: 'Gardez des fichiers legers pour faciliter le crawl et le chargement.' },
+      { en: 'Add useful metadata and descriptive filenames before publishing.', ar: 'أضف بيانات وصفية مفيدة واسم ملف واضح قبل النشر.', fr: 'Ajoutez des metadonnees utiles et un nom de fichier descriptif avant publication.' },
+    ],
+    sections: [
+      {
+        heading: { en: 'Start with crawlable text', ar: 'ابدأ بنص قابل للزحف', fr: 'Commencez par un texte explorable' },
+        paragraphs: [
+          { en: 'Google indexes PDFs far better when the document contains real selectable text. If your file is only a scan, run OCR first so search engines and users can search and extract the content.', ar: 'يفهرس Google ملفات PDF بشكل أفضل كثيراً عندما يحتوي المستند على نص حقيقي يمكن تحديده. إذا كان الملف مجرد مسح ضوئي، شغّل OCR أولاً حتى تتمكن محركات البحث والمستخدمون من البحث داخل المحتوى واستخراجه.', fr: 'Google indexe mieux les PDF contenant du vrai texte selectionnable. Si le document est seulement scanne, utilisez d abord l OCR pour rendre le contenu exploitable.' },
+          { en: 'This matters most for guides, whitepapers, proposals, manuals, and downloadable resources that you want to rank for long-tail queries.', ar: 'وهذا مهم خصوصاً للأدلة والوايت بيبر والعروض والكتيبات والموارد القابلة للتنزيل التي تريد أن تتصدر كلماتها المفتاحية الطويلة.', fr: 'C est essentiel pour les guides, livres blancs, propositions, manuels et ressources telechargeables visant la longue traine.' },
+        ],
+      },
+      {
+        heading: { en: 'Reduce friction before publishing', ar: 'قلل العوائق قبل النشر', fr: 'Reduisez les frictions avant publication' },
+        paragraphs: [
+          { en: 'Compress large PDFs, remove unnecessary metadata noise, and use filenames that describe the topic clearly. Small cleanup steps improve both user experience and indexing quality.', ar: 'اضغط ملفات PDF الكبيرة، واحذف الضوضاء غير الضرورية من البيانات الوصفية، واستخدم أسماء ملفات تصف الموضوع بوضوح. هذه الخطوات الصغيرة تحسن تجربة المستخدم وجودة الفهرسة معاً.', fr: 'Compressez les gros PDF, supprimez les metadonnees inutiles et utilisez des noms de fichiers clairs. Ces ajustements ameliorent l experience et l indexation.' },
+        ],
+        bullets: [
+          { en: 'Prefer one canonical PDF URL per document.', ar: 'استخدم رابط PDF أساسي واحد لكل مستند.', fr: 'Gardez une seule URL canonique par document PDF.' },
+          { en: 'Avoid duplicate uploads with different filenames.', ar: 'تجنب رفع نسخ مكررة بأسماء ملفات مختلفة.', fr: 'Evitez les doublons publies sous plusieurs noms de fichiers.' },
+          { en: 'Link to the PDF from a relevant HTML page with context.', ar: 'اربط الـ PDF من صفحة HTML ذات صلة وتحتوي على سياق واضح.', fr: 'Liez le PDF depuis une page HTML pertinente et contextualisee.' },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'best-pdf-seo-workflow-for-content-teams',
+    category: 'PDF',
+    publishedAt: '2026-05-11',
+    readingMinutes: 6,
+    toolSlugs: ['merge-pdf', 'compress-pdf', 'pdf-to-word'],
+    title: {
+      en: 'Best PDF SEO Workflow for Content Teams',
+      ar: 'أفضل سير عمل SEO لملفات PDF لفرق المحتوى',
+      fr: 'Le meilleur workflow SEO PDF pour les equipes contenu',
+    },
+    excerpt: {
+      en: 'Build a repeatable process for publishing lead magnets, reports, and downloadable PDFs without creating indexing waste.',
+      ar: 'ابنِ عملية قابلة للتكرار لنشر الأدلة والملفات القابلة للتنزيل بدون خلق هدر في الفهرسة.',
+      fr: 'Construisez un processus reproductible pour publier des PDF telechargeables sans gaspiller le budget de crawl.',
+    },
+    seoDescription: {
+      en: 'A content operations guide for avoiding duplicate PDFs, improving internal linking, and publishing stronger document assets.',
+      ar: 'دليل تشغيلي لفرق المحتوى لتجنب تكرار ملفات PDF وتحسين الربط الداخلي ونشر أصول مستندية أقوى.',
+      fr: 'Un guide operationnel pour eviter les doublons PDF, renforcer le maillage interne et publier de meilleurs actifs documentaires.',
+    },
+    keyTakeaways: [
+      { en: 'Create one source file, one landing page, and one public PDF URL.', ar: 'أنشئ ملفاً مصدرياً واحداً وصفحة هبوط واحدة ورابط PDF علنياً واحداً.', fr: 'Gardez un fichier source, une page d atterrissage et une seule URL PDF publique.' },
+      { en: 'Use HTML pages to target intent and PDFs to deliver the asset.', ar: 'استخدم صفحات HTML لاستهداف نية البحث، وPDF لتسليم الأصل.', fr: 'Utilisez les pages HTML pour l intention et les PDF pour la livraison du contenu.' },
+      { en: 'Update old PDFs instead of republishing slight duplicates.', ar: 'حدّث ملفات PDF القديمة بدلاً من إعادة نشر نسخ متشابهة جداً.', fr: 'Mettez a jour les anciens PDF au lieu de republier de quasi-doublons.' },
+    ],
+    sections: [
+      {
+        heading: { en: 'Separate ranking pages from downloadable assets', ar: 'افصل بين صفحات الترتيب والأصول القابلة للتنزيل', fr: 'Separez les pages de ranking des actifs telechargeables' },
+        paragraphs: [
+          { en: 'The strongest setup is usually an HTML landing page that explains the topic and links to one downloadable PDF. This helps Google understand the subject while still giving users the file they need.', ar: 'أفضل إعداد غالباً هو صفحة HTML تشرح الموضوع ثم تربط إلى ملف PDF واحد قابل للتنزيل. هذا يساعد Google على فهم الموضوع ويمنح المستخدمين الملف الذي يحتاجون إليه.', fr: 'La meilleure configuration repose souvent sur une page HTML explicative qui pointe vers un seul PDF a telecharger. Google comprend mieux le sujet et l utilisateur obtient le fichier attendu.' },
+        ],
+      },
+      {
+        heading: { en: 'Control version sprawl', ar: 'سيطر على تضخم الإصدارات', fr: 'Controlez la multiplication des versions' },
+        paragraphs: [
+          { en: 'Many indexing problems come from publishing versioned PDFs, campaign copies, and renamed duplicates. Keep a clean archive and point internal links to the current canonical asset.', ar: 'كثير من مشاكل الفهرسة تأتي من نشر ملفات PDF بإصدارات متعددة أو نسخ حملات أو تكرارات بأسماء مختلفة. احتفظ بأرشيف نظيف ووجّه الروابط الداخلية إلى الأصل الحالي فقط.', fr: 'Beaucoup de problemes d indexation viennent des PDF versionnes, copies de campagne et doublons renommes. Gardez un archive propre et dirigez les liens internes vers l actif canonique courant.' },
+        ],
+        bullets: [
+          { en: 'Merge appendices into one final delivery file.', ar: 'ادمج الملاحق في ملف تسليم نهائي واحد.', fr: 'Fusionnez les annexes dans un seul fichier final.' },
+          { en: 'Compress before upload to avoid oversized downloads.', ar: 'اضغط قبل الرفع لتجنب ملفات تنزيل ضخمة.', fr: 'Compressez avant publication pour eviter des telechargements trop lourds.' },
+          { en: 'Retire old URLs with redirects when documents are replaced.', ar: 'اسحب الروابط القديمة بإعادة توجيه عند استبدال المستندات.', fr: 'Retirez les anciennes URL avec redirection lorsque le document change.' },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'how-to-fix-soft-404-and-canonical-issues',
+    category: 'AI',
+    publishedAt: '2026-05-11',
+    readingMinutes: 6,
+    toolSlugs: ['text-cleaner', 'word-counter', 'html-to-pdf'],
+    title: {
+      en: 'How to Fix Soft 404 and Canonical Issues on SEO Pages',
+      ar: 'كيف تعالج Soft 404 ومشاكل Canonical في صفحات SEO',
+      fr: 'Comment corriger les Soft 404 et les problemes de canonique SEO',
+    },
+    excerpt: {
+      en: 'A technical SEO checklist for stopping weak pages, duplicate routes, and invalid URL shells from confusing Google.',
+      ar: 'قائمة تقنية لإيقاف الصفحات الضعيفة والمسارات المكررة وواجهات الروابط غير الصحيحة عن إرباك Google.',
+      fr: 'Une checklist SEO technique pour empecher les pages faibles, doublons et URL invalides de perturber Google.',
+    },
+    seoDescription: {
+      en: 'Learn when to return real 404s, when to use canonical tags, and how static route shells improve indexing quality.',
+      ar: 'تعرف على متى يجب إرجاع 404 حقيقي، ومتى تستخدم canonical، وكيف تحسن shells الثابتة جودة الفهرسة.',
+      fr: 'Apprenez quand renvoyer un vrai 404, quand utiliser une canonique et comment les shells statiques aident l indexation.',
+    },
+    keyTakeaways: [
+      { en: 'Unknown routes should not return a normal 200 page.', ar: 'المسارات غير المعروفة يجب ألا تعيد صفحة 200 عادية.', fr: 'Les routes inconnues ne doivent pas renvoyer une page 200 normale.' },
+      { en: 'Canonical tags help duplicates, but they do not fix weak or invalid URLs alone.', ar: 'علامات canonical تساعد مع التكرار، لكنها لا تعالج الروابط الضعيفة أو الخاطئة وحدها.', fr: 'La balise canonique aide sur les doublons mais ne corrige pas a elle seule les URL faibles ou invalides.' },
+      { en: 'Pre-rendered shells give search engines cleaner first-response metadata.', ar: 'الـ shells المولدة مسبقاً تمنح محركات البحث بيانات وصفية أنظف من أول استجابة.', fr: 'Les shells pre-rendus fournissent des metadonnees plus propres des la premiere reponse.' },
+    ],
+    sections: [
+      {
+        heading: { en: 'Use the right response for the right URL', ar: 'استخدم الاستجابة المناسبة للرابط المناسب', fr: 'Utilisez la bonne reponse pour la bonne URL' },
+        paragraphs: [
+          { en: 'If a URL is invalid, removed, or never existed, return a real 404. If the content exists in two places for business reasons, keep one canonical version and redirect or annotate the secondary page.', ar: 'إذا كان الرابط غير صالح أو محذوفاً أو لم يوجد أصلاً، فأرجع 404 حقيقياً. وإذا كان المحتوى موجوداً في مكانين لأسباب عملية، فاحتفظ بنسخة أساسية واحدة وأعد التوجيه أو أضف canonical على الصفحة الثانوية.', fr: 'Si une URL est invalide, supprimee ou inexistante, renvoyez un vrai 404. Si le contenu existe a deux endroits pour des raisons legitimes, gardez une version canonique et redirigez ou annotez la secondaire.' },
+        ],
+      },
+      {
+        heading: { en: 'Avoid indexation waste', ar: 'تجنب هدر الفهرسة', fr: 'Evitez le gaspillage d indexation' },
+        paragraphs: [
+          { en: 'Search engines lose trust when invalid routes, parameter noise, or empty shells look like real pages. Clean routing and stronger metadata reduce crawl waste and improve prioritization.', ar: 'تفقد محركات البحث الثقة عندما تبدو المسارات الخاطئة أو المعلمات الفوضوية أو الواجهات الفارغة كأنها صفحات حقيقية. التنظيف الجيد للمسارات والبيانات الوصفية الأقوى يقللان هدر الزحف ويحسنان الأولوية.', fr: 'Les moteurs perdent en confiance lorsque des routes invalides, des parametres inutiles ou des shells vides ressemblent a de vraies pages. Un routage propre et de meilleures metadonnees reduisent le gaspillage.' },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'image-optimization-for-faster-seo-pages',
+    category: 'Image',
+    publishedAt: '2026-05-11',
+    readingMinutes: 5,
+    toolSlugs: ['compress-image', 'image-resize', 'image-converter'],
+    title: {
+      en: 'Image Optimization for Faster SEO Pages',
+      ar: 'تحسين الصور لصفحات SEO أسرع',
+      fr: 'Optimisation des images pour des pages SEO plus rapides',
+    },
+    excerpt: {
+      en: 'Speed up landing pages and blog posts by resizing, converting, and compressing images with a publishing-first workflow.',
+      ar: 'سرّع صفحات الهبوط والمقالات عبر تغيير الأبعاد والتحويل والضغط ضمن سير عمل مخصص للنشر.',
+      fr: 'Accellerez les pages et articles en redimensionnant, convertissant et compressant les images avant publication.',
+    },
+    seoDescription: {
+      en: 'Reduce image weight without harming design quality so your SEO pages load faster and keep users engaged.',
+      ar: 'قلل وزن الصور بدون الإضرار بجودة التصميم حتى تحمل صفحات SEO أسرع وتحافظ على تفاعل المستخدم.',
+      fr: 'Reduisez le poids des images sans nuire au rendu afin de charger plus vite et conserver l engagement.',
+    },
+    keyTakeaways: [
+      { en: 'Resize first, then compress.', ar: 'غيّر الأبعاد أولاً ثم اضغط.', fr: 'Redimensionnez d abord, puis compressez.' },
+      { en: 'Use the right format for screenshots, photos, and graphics.', ar: 'استخدم الصيغة المناسبة للقطات الشاشة والصور والعناصر الرسومية.', fr: 'Choisissez le bon format selon le type d image.' },
+      { en: 'Fast-loading media supports both rankings and conversions.', ar: 'الوسائط السريعة تدعم الترتيب والتحويلات معاً.', fr: 'Des medias rapides aident a la fois le SEO et la conversion.' },
+    ],
+    sections: [
+      {
+        heading: { en: 'Performance starts before upload', ar: 'الأداء يبدأ قبل الرفع', fr: 'La performance commence avant l upload' },
+        paragraphs: [
+          { en: 'Many pages become slow because oversized source images are uploaded and only visually scaled down in the layout. Resize to the real display size first, then compress for delivery.', ar: 'تصبح كثير من الصفحات بطيئة لأن الصور المصدرية الضخمة تُرفع كما هي ثم تُصغر بصرياً فقط داخل التصميم. غيّر أبعادها إلى المقاس الحقيقي أولاً، ثم اضغطها للتسليم.', fr: 'Beaucoup de pages ralentissent car des images surdimensionnees sont mises en ligne puis seulement reduites visuellement. Ajustez d abord la taille reelle, puis compressez.' },
+        ],
+      },
+      {
+        heading: { en: 'Protect quality where it matters', ar: 'احفظ الجودة حيث يلزم', fr: 'Preservez la qualite la ou elle compte' },
+        paragraphs: [
+          { en: 'Keep sharp text in graphics, preserve transparency for interface elements, and avoid repeated lossy exports. Better asset hygiene produces lighter pages with fewer visual regressions.', ar: 'حافظ على وضوح النص داخل الرسومات، واحتفظ بالشفافية للعناصر البصرية، وتجنب التصدير الضائع المتكرر. نظافة الأصول البصرية تنتج صفحات أخف مع تراجعات بصرية أقل.', fr: 'Conservez un texte net dans les visuels, la transparence pour les elements d interface et evitez les exports destructifs repetes. Une hygiene d actifs correcte produit des pages plus legeres.' },
+        ],
+      },
+    ],
+  },
+  {
+    slug: 'document-workflows-that-improve-technical-seo',
+    category: 'PDF',
+    publishedAt: '2026-05-11',
+    readingMinutes: 6,
+    toolSlugs: ['merge-pdf', 'extract-pages', 'ocr'],
+    title: {
+      en: 'Document Workflows That Improve Technical SEO',
+      ar: 'مسارات عمل المستندات التي تحسن Technical SEO',
+      fr: 'Des workflows documentaires qui ameliorent le SEO technique',
+    },
+    excerpt: {
+      en: 'Smart document operations reduce duplicate files, improve discoverability, and make large content libraries easier to crawl.',
+      ar: 'عمليات المستندات الذكية تقلل الملفات المكررة وتحسن الاكتشاف وتجعل مكتبات المحتوى الكبيرة أسهل للزحف.',
+      fr: 'Des operations documentaires intelligentes reduisent les doublons et rendent les bibliotheques plus faciles a explorer.',
+    },
+    seoDescription: {
+      en: 'See how extraction, consolidation, OCR, and cleanup workflows support cleaner site architecture and stronger indexation signals.',
+      ar: 'اكتشف كيف يدعم الاستخراج والدمج وOCR والتنظيف بنية موقع أنظف وإشارات فهرسة أقوى.',
+      fr: 'Voyez comment l extraction, la consolidation, l OCR et le nettoyage soutiennent une architecture plus propre et une meilleure indexation.',
+    },
+    keyTakeaways: [
+      { en: 'File operations affect crawl efficiency more than many teams expect.', ar: 'عمليات الملفات تؤثر على كفاءة الزحف أكثر مما تتوقعه كثير من الفرق.', fr: 'Les operations sur fichiers influencent le crawl plus qu on ne le pense.' },
+      { en: 'A cleaner archive reduces duplicate and thin document URLs.', ar: 'الأرشيف الأنظف يقلل الروابط المكررة والصفحات المستندية الضعيفة.', fr: 'Une archive plus propre reduit les URL documentaires dupliquees ou faibles.' },
+      { en: 'Document SEO works best when combined with clear HTML entry pages.', ar: 'SEO الخاص بالمستندات يعمل أفضل عند دمجه مع صفحات HTML مدخلية واضحة.', fr: 'Le SEO des documents fonctionne mieux avec des pages HTML d entree claires.' },
+    ],
+    sections: [
+      {
+        heading: { en: 'Consolidate scattered resources', ar: 'وحّد الموارد المتناثرة', fr: 'Consolidez les ressources dispersees' },
+        paragraphs: [
+          { en: 'When the same topic is split across annexes, outdated scans, and separate exports, search engines see fragmented signals. Consolidating related pages into one final document often improves clarity.', ar: 'عندما يتوزع الموضوع نفسه بين ملاحق ونسخ ممسوحة قديمة وتصديرات منفصلة، ترى محركات البحث إشارات مجزأة. توحيد الصفحات المرتبطة في مستند نهائي واحد يحسن الوضوح غالباً.', fr: 'Quand un meme sujet est disperse entre annexes, anciens scans et exports separes, les moteurs recoivent des signaux fragmentes. Regrouper dans un document final ameliore souvent la clarte.' },
+        ],
+      },
+      {
+        heading: { en: 'Remove low-value document clutter', ar: 'أزل فوضى المستندات منخفضة القيمة', fr: 'Supprimez le bruit documentaire a faible valeur' },
+        paragraphs: [
+          { en: 'Extract only the pages worth publishing, archive the rest, and run OCR where the content still matters. This leaves a smaller, stronger set of assets for Google to discover.', ar: 'استخرج الصفحات التي تستحق النشر فقط، وأرشف الباقي، وشغّل OCR حيث لا يزال المحتوى مهماً. هذا يترك مجموعة أصغر وأقوى من الأصول ليكتشفها Google.', fr: 'Extrayez seulement les pages utiles, archivez le reste et appliquez l OCR la ou le contenu compte encore. Vous gardez ainsi un ensemble d actifs plus petit et plus fort a indexer.' },
+        ],
+        bullets: [
+          { en: 'Publish one strong resource instead of many weak attachments.', ar: 'انشر مورداً واحداً قوياً بدلاً من مرفقات كثيرة ضعيفة.', fr: 'Publiez une ressource forte plutot que plusieurs pieces jointes faibles.' },
+          { en: 'Keep internal links aligned with the latest canonical asset.', ar: 'اجعل الروابط الداخلية تشير دائماً إلى الأصل الأحدث.', fr: 'Gardez les liens internes alignes sur l actif canonique le plus recent.' },
+          { en: 'Audit old downloads during every content refresh cycle.', ar: 'راجع التنزيلات القديمة في كل دورة تحديث محتوى.', fr: 'Auditez les anciens telechargements a chaque cycle de mise a jour.' },
+        ],
+      },
+    ],
+  },
 ];
 
 export function normalizeBlogLocale(language: string): BlogLocale {

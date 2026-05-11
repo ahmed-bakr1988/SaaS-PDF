@@ -418,6 +418,7 @@ export default function AccountPage() {
       <Helmet>
         <title>{t('account.metaTitle')} — {t('common.appName')}</title>
         <meta name="description" content={t('account.heroSubtitle')} />
+        <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
       {!initialized && authLoading ? (

@@ -22,6 +22,11 @@ BLOG_SLUGS = [
     "ocr-extract-text-from-images",
     "merge-split-pdf-files",
     "ai-chat-with-pdf-documents",
+    "how-to-prepare-pdf-for-google-indexing",
+    "best-pdf-seo-workflow-for-content-teams",
+    "how-to-fix-soft-404-and-canonical-issues",
+    "image-optimization-for-faster-seo-pages",
+    "document-workflows-that-improve-technical-seo",
 ]
 
 TOOL_SLUGS = [

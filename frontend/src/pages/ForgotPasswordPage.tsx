@@ -36,6 +36,7 @@ export default function ForgotPasswordPage() {
     <>
       <Helmet>
         <title>{t('auth.forgotPassword.title')} — {t('common.appName')}</title>
+        <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
       <div className="mx-auto max-w-md">
