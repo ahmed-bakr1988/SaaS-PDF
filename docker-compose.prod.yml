@@ -375,6 +375,4 @@ volumes:
   upload_data:
   output_data:
   db_data:
-  frontend_build:
-  indexnow_state:
   gitea_data:
