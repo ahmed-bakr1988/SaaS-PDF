@@ -67,7 +67,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 20s
+      start_period: 60s
     restart: always
 
   # --- Celery Workers (Isolated Queues) ---
@@ -292,8 +292,10 @@ services:
       - ./certbot/conf:/etc/letsencrypt:ro
       - ./certbot/www:/var/www/certbot:ro
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     # Memory limits removed to ensure Nginx proxy zones don't cause OOMKills.
     healthcheck:
       # Use --max-redirect=0 to avoid following the 308 HTTPS redirect, 
