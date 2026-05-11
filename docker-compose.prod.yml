@@ -63,7 +63,7 @@ services:
     mem_limit: 512m
     mem_reservation: 128m
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:5000/api/health/live"]
+      test: ["CMD", "curl", "-sf", "-H", "X-Forwarded-Proto: https", "http://127.0.0.1:5000/api/health/live"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -300,7 +300,7 @@ services:
     healthcheck:
       # Use --max-redirect=0 to avoid following the 308 HTTPS redirect, 
       # which would fail due to missing localhost SSL cert.
-      test: ["CMD-SHELL", "wget -q --max-redirect=0 http://localhost || true"]
+      test: ["CMD-SHELL", "wget -q --max-redirect=0 http://127.0.0.1 || true"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -336,7 +336,7 @@ services:
         INDEXNOW_STRICT: ${INDEXNOW_STRICT:-false}
     restart: always
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost"]
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1"]
       interval: 30s
       timeout: 5s
       retries: 3
