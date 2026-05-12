@@ -41,6 +41,19 @@ ENV VITE_GA_MEASUREMENT_ID=$VITE_GA_MEASUREMENT_ID \
 	INDEXNOW_ENDPOINT=$INDEXNOW_ENDPOINT \
 	INDEXNOW_STRICT=$INDEXNOW_STRICT
 
+# Install Chromium and dependencies for Puppeteer (SEO Prerendering)
+RUN apk add --no-cache \
+      chromium \
+      nss \
+      freetype \
+      harfbuzz \
+      ca-certificates \
+      ttf-freefont
+
+# Tell Puppeteer to use the installed Alpine Chromium and skip downloading its own
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
 # Install dependencies
 COPY package.json ./
 RUN npm install

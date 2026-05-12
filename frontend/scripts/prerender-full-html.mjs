@@ -50,7 +50,11 @@ async function main() {
   routes.push('/'); // include root
   console.log(`Found ${routes.length} routes to prerender.`);
 
-  const browser = await puppeteer.launch({ headless: 'new' });
+  const browser = await puppeteer.launch({ 
+    headless: 'new',
+    executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+  });
   const page = await browser.newPage();
   
   // Disable external resources to speed up prerendering and avoid errors
