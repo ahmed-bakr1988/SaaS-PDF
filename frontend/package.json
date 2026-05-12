@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/merge-keywords.mjs && node scripts/generate-seo-assets.mjs",
-    "build": "tsc --noEmit && vite build && node scripts/render-seo-shells.mjs",
+    "build": "tsc --noEmit && vite build && node scripts/render-seo-shells.mjs && node scripts/prerender-full-html.mjs",
     "indexnow:submit": "node scripts/submit-indexnow.mjs",
     "indexnow:dry-run": "node scripts/submit-indexnow.mjs --dry-run",
     "preview": "vite preview",
@@ -48,6 +48,8 @@
     "jsdom": "^28.1.0",
     "msw": "^2.12.10",
     "postcss": "^8.4.0",
+    "puppeteer": "^22.0.0",
+    "express": "^4.19.2",
     "tailwindcss": "^3.4.0",
     "typescript": "^5.5.0",
     "vite": "^5.4.0",

@@ -387,7 +387,10 @@
         "aiTools": "AI tools included",
         "priorityProcessing": "Priority processing",
         "noAds": "No ads",
-        "emailSupport": "Email support"
+        "emailSupport": "Email support",
+        "chooseYourPlan" : "Choose your plan",
+        "startFreeUpgrade" : "Start free, upgrade when you need more. All plans include 32+ PDF tools",
+        "simpleTransparent": "Simple, transparent pricing"
       },
       "faqTitle": "Frequently Asked Questions",
       "faq1q": "Is the Free plan really free?",

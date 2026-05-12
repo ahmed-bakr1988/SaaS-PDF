@@ -247,13 +247,13 @@ export default function PricingPage() {
         <div className="text-center">
           <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-sm font-medium text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300">
             <Sparkles className="h-4 w-4" />
-            Simple, transparent pricing
+            {t('pricing.simpleTransparent')}
           </div>
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
-            Choose your plan
+            {t('pricing.chooseYourPlan')}
           </h1>
           <p className="mx-auto max-w-xl text-lg text-slate-500 dark:text-slate-400">
-            Start free, upgrade when you need more. All plans include 32+ PDF tools.
+            {t('pricing.startFreeUpgrade')}
           </p>
 
           {/* Billing toggle */}

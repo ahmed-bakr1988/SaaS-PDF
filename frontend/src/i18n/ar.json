@@ -387,7 +387,9 @@
         "aiTools": "أدوات الذكاء الاصطناعي",
         "priorityProcessing": "المعالجة ذات الأولوية",
         "noAds": "بدون إعلانات",
-        "emailSupport": "دعم عبر البريد الإلكتروني"
+        "emailSupport": "دعم عبر البريد الإلكتروني",
+        "chooseYourPlan" : "اختيار خطتك",
+        "startFreeUpgrade" : "Start free, upgrade when you need more. All plans include 32+ PDF tools"
       },
       "faqTitle": "الأسئلة الشائعة",
       "faq1q": "هل الخطة المجانية مجانية فعلًا؟",

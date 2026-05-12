@@ -143,7 +143,7 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
 
         <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
 
-        <div className="space-y-6">
+        <div className="space-y-6 min-h-[400px]">
           {phase === 'upload' && (
             <div className="space-y-6">
               <FileUploader
