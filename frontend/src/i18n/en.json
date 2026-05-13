@@ -46,7 +46,7 @@
       "uploadFailed": "Upload failed. Please try again.",
       "processingFailed": "Processing failed. Please try again.",
       "quotaExceeded": "Monthly usage limit reached. Please try again next month.",
-      "rateLimited": "Too many requests. Please wait a moment and try again.",
+      "rateLimited": "Insufficient balance. Please recharge your account to continue.",
       "serverError": "A server error occurred. Please try again later.",
       "networkError": "Network error. Please check your connection and try again.",
       "noFileSelected": "No file selected. Please choose a file to upload.",

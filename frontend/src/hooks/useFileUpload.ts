@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import { uploadFile, type TaskResponse, type QuoteInfo } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
+import { useAuthStore } from '@/stores/authStore';
 
 interface UseFileUploadOptions {
   endpoint: string;
@@ -111,7 +112,10 @@ export function useFileUpload({
       );
 
       setTaskId(response.task_id);
-      if (response.quote) setQuote(response.quote);
+      if (response.quote) {
+        setQuote(response.quote);
+        useAuthStore.getState().refreshUser().catch(() => {});
+      }
       setIsUploading(false);
       trackEvent('upload_accepted', { endpoint });
       return response.task_id;

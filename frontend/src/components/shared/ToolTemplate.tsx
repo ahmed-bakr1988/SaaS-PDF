@@ -12,6 +12,7 @@ import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
+import UpgradeModal from '@/components/shared/UpgradeModal';
 
 export interface ToolConfig {
   slug: string;
@@ -57,6 +58,7 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
   const { t } = useTranslation();
   const [phase, setPhase] = useState<'upload' | 'processing' | 'done'>('upload');
   const [extraData, setExtraData] = useState<Record<string, any>>(config.extraData || {});
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const colors = colorMap[config.color || 'blue'];
   const bgColor = colors.bg;
@@ -85,6 +87,12 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
       setPhase('upload');
     }
   }, []);
+
+  useEffect(() => {
+    if (error === t('common.errors.rateLimited')) {
+      setShowUpgradeModal(true);
+    }
+  }, [error, t]);
 
   const handleUpload = useCallback(async () => {
     // Get fresh extraData from child if callback provided
@@ -227,6 +235,13 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
 
         <AdSlot slot="bottom-banner" className="mt-8" />
       </div>
+
+      {showUpgradeModal && (
+        <UpgradeModal
+          onClose={() => setShowUpgradeModal(false)}
+          reason="credits_exhausted"
+        />
+      )}
     </>
   );
 }

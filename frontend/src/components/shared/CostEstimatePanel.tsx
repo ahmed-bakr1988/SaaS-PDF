@@ -18,7 +18,7 @@ export default function CostEstimatePanel({ toolSlug, file }: CostEstimatePanelP
   const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
-    if (!user || !file) {
+    if (!file) {
       setEstimate(null);
       return;
     }
@@ -41,7 +41,7 @@ export default function CostEstimatePanel({ toolSlug, file }: CostEstimatePanelP
     return () => { cancelled = true; };
   }, [user, file, toolSlug]);
 
-  if (!user || !file || loading || !estimate) return null;
+  if (!file || loading || !estimate) return null;
 
   const isAffordable = estimate.affordable;
 

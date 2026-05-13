@@ -21,8 +21,10 @@ export function dispatchCurrentToolRatingPrompt(options: RatingPromptOptions = {
   if (typeof window === 'undefined') return;
 
   const path = window.location.pathname.replace(/\/$/, '');
-  if (!path.startsWith('/tools/')) return;
+  const match = path.match(/^(?:\/[a-z]{2})?\/tools\/(.+)$/);
+  
+  if (!match) return;
 
-  const toolSlug = path.replace('/tools/', '');
+  const toolSlug = match[1];
   dispatchRatingPrompt(toolSlug, options);
 }
