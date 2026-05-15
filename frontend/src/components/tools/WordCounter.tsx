@@ -1,10 +1,11 @@
 import { startTransition, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Helmet } from 'react-helmet-async';
 import {
   CheckCheck,
   Copy,
+  Download,
   FileSearch,
+  Goal,
   Instagram,
   Linkedin,
   LoaderCircle,
@@ -16,7 +17,6 @@ import {
 import { chatWithAssistant } from '@/services/api';
 import type { SocialTextAnalysisResponse } from '@/services/apiTypes';
 import { analyzeSocialText } from '@/services/socialTextApi';
-import { generateToolSchema } from '@/utils/seo';
 
 const SAMPLE_POSTS = [
   `Launching our new creator analytics dashboard today. Track engagement, save time, and spot your best-performing hooks faster. Try the demo and tell us what metric you want next. #analytics #saas`,
@@ -28,6 +28,15 @@ const PLATFORM_LIMITS = [
   { id: 'facebook', label: 'Facebook', limit: 250 },
   { id: 'x', label: 'X', limit: 280 },
   { id: 'linkedin', label: 'LinkedIn', limit: 300 },
+] as const;
+
+const LOCAL_DRAFT_KEY = 'dociva-word-counter-draft';
+const LOCAL_GOAL_KEY = 'dociva-word-counter-goal';
+
+const USE_CASE_PRESETS = [
+  { id: 'ad', label: 'Ad copy', text: 'Write a short high-converting paid ad caption with a clear CTA, one benefit, and one proof point.' },
+  { id: 'caption', label: 'Social caption', text: 'Draft a concise social caption with a natural hook, one value point, and a final CTA.' },
+  { id: 'email', label: 'Email intro', text: 'Write a short product update email opening that sounds clear, confident, and human.' },
 ] as const;
 
 type AssistantActionKey = 'paraphrase' | 'grammar' | 'detectAi' | 'plagiarism';
@@ -164,6 +173,7 @@ function GaugeCard({
 export default function WordCounter() {
   const { t, i18n } = useTranslation();
   const [text, setText] = useState('');
+  const [goal, setGoal] = useState(280);
   const [analysis, setAnalysis] = useState<SocialTextAnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -172,13 +182,47 @@ export default function WordCounter() {
   const [assistantError, setAssistantError] = useState<string | null>(null);
   const [assistantSessionId, setAssistantSessionId] = useState<string | null>(null);
   const [assistantFingerprint] = useState(() => createId('word-counter-assistant'));
+  const [restoredDraft, setRestoredDraft] = useState(false);
   const deferredText = useDeferredValue(text);
 
-  const schema = generateToolSchema({
-    name: t('tools.wordCounter.title'),
-    description: t('tools.wordCounter.description'),
-    url: `${window.location.origin}/tools/word-counter`,
-  });
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem(LOCAL_DRAFT_KEY);
+      const savedGoal = localStorage.getItem(LOCAL_GOAL_KEY);
+      if (savedDraft) {
+        setText(savedDraft);
+        setRestoredDraft(true);
+      }
+      if (savedGoal) {
+        const parsedGoal = Number(savedGoal);
+        if (Number.isFinite(parsedGoal) && parsedGoal > 0) {
+          setGoal(parsedGoal);
+        }
+      }
+    } catch {
+      // Ignore draft restore issues.
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (text.trim()) {
+        localStorage.setItem(LOCAL_DRAFT_KEY, text);
+      } else {
+        localStorage.removeItem(LOCAL_DRAFT_KEY);
+      }
+    } catch {
+      // Ignore draft persistence issues.
+    }
+  }, [text]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LOCAL_GOAL_KEY, String(goal));
+    } catch {
+      // Ignore goal persistence issues.
+    }
+  }, [goal]);
 
   useEffect(() => {
     const trimmed = deferredText.trim();
@@ -274,6 +318,17 @@ export default function WordCounter() {
     await navigator.clipboard.writeText(text);
   };
 
+  const handleExportText = () => {
+    if (!text.trim()) return;
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'dociva-word-counter.txt';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleAssistantAction = async (action: AssistantActionKey) => {
     const trimmed = text.trim();
     if (!trimmed) return;
@@ -305,15 +360,11 @@ export default function WordCounter() {
     setText(assistantResult.content);
   };
 
+  const goalProgress = goal > 0 ? Math.min((displayCharacters / goal) * 100, 100) : 0;
+  const goalRemaining = Math.max(goal - displayCharacters, 0);
+
   return (
     <>
-      <Helmet>
-        <title>{t('tools.wordCounter.title')} — {t('common.appName')}</title>
-        <meta name="description" content={t('tools.wordCounter.description')} />
-        <link rel="canonical" href={`${window.location.origin}/tools/word-counter`} />
-        <script type="application/ld+json">{JSON.stringify(schema)}</script>
-      </Helmet>
-
       <section className="mx-auto max-w-[1032px] px-4 py-4 sm:px-6 sm:py-5">
         <div className="rounded-[30px] bg-[linear-gradient(135deg,rgba(255,232,241,0.72),rgba(239,238,255,0.96)_55%,rgba(226,226,255,0.96))] px-4 py-4 sm:px-6 sm:py-6">
           <div className="mx-auto max-w-[928px]">
@@ -324,6 +375,11 @@ export default function WordCounter() {
               <p className="mx-auto mt-2.5 max-w-[720px] text-sm text-slate-600 sm:text-base">
                 {t('tools.wordCounter.heroSubtitle')}
               </p>
+              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-slate-600">
+                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustRealtime', 'Real-time feedback')}</span>
+                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustSocial', 'Built for social and ad copy')}</span>
+                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustDrafts', 'Local draft autosave')}</span>
+              </div>
             </header>
 
             <div className="overflow-hidden rounded-[30px] border border-white/70 bg-white/92 shadow-[0_14px_40px_rgba(104,86,185,0.08)] backdrop-blur">
@@ -344,7 +400,23 @@ export default function WordCounter() {
                     <button type="button" onClick={() => setText(SAMPLE_POSTS[1])} className="rounded-full border border-violet-200 bg-violet-50 px-3.5 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-100">
                       {t('tools.wordCounter.sampleArabic')}
                     </button>
+                    {USE_CASE_PRESETS.map((preset) => (
+                      <button
+                        key={preset.id}
+                        type="button"
+                        onClick={() => setText(preset.text)}
+                        className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                      >
+                        {preset.label}
+                      </button>
+                    ))}
                   </div>
+
+                  {restoredDraft && text.trim() && (
+                    <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-700">
+                      {t('tools.wordCounter.draftRestored', 'Your last draft was restored on this device.')}
+                    </div>
+                  )}
 
                   <textarea
                     value={text}
@@ -366,6 +438,10 @@ export default function WordCounter() {
                       <button type="button" onClick={handleCopy} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-violet-900" disabled={!text.trim()}>
                         <Copy className="h-4 w-4" />
                         {t('tools.wordCounter.copy')}
+                      </button>
+                      <button type="button" onClick={handleExportText} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-violet-900" disabled={!text.trim()}>
+                        <Download className="h-4 w-4" />
+                        {t('tools.wordCounter.export', 'Export')}
                       </button>
                     </div>
                   </div>
@@ -393,6 +469,34 @@ export default function WordCounter() {
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="mt-3 rounded-[22px] border border-violet-100 bg-violet-50/60 px-4 py-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                          <Goal className="h-4 w-4 text-violet-600" />
+                          {t('tools.wordCounter.goalTitle', 'Character goal')}
+                        </div>
+                        <p className="mt-1 text-xs text-slate-500">
+                          {goalRemaining > 0
+                            ? t('tools.wordCounter.goalRemaining', '{{count}} characters remaining', { count: goalRemaining })
+                            : t('tools.wordCounter.goalReached', 'Goal reached')}
+                        </p>
+                      </div>
+                      <input
+                        type="number"
+                        min={50}
+                        max={5000}
+                        step={10}
+                        value={goal}
+                        onChange={(event) => setGoal(Math.max(50, Number(event.target.value) || 50))}
+                        className="w-24 rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none"
+                      />
+                    </div>
+                    <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-violet-100">
+                      <div className="h-full rounded-full bg-violet-600 transition-all duration-300" style={{ width: `${goalProgress}%` }} />
+                    </div>
                   </div>
 
                   <div className="mt-3 rounded-[22px] bg-[#fafafa] px-4 py-4">

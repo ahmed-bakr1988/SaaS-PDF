@@ -7,10 +7,11 @@
  *
  * Reference UI: PDFAid (https://pdfaid.com) — single toolbar + wide preview.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { RotateCcw, AlertTriangle, Brush, Mail, CheckCircle2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
+import { Link } from 'react-router-dom';
 import {
   ArrowLeft,
   ArrowRight,
@@ -61,14 +62,13 @@ import {
   clearSession,
   type EditorSessionMeta,
 } from '@/hooks/useEditorSessionRecovery';
-import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 import api, { type TaskResponse, getTaskErrorMessage } from '@/services/api';
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
 
 type Phase = 'upload' | 'edit' | 'processing' | 'done';
 type EditorTool = 'select' | 'draw';
@@ -453,12 +453,6 @@ export default function PdfEditor() {
 
   const storeFile = useFileStore((s) => s.file);
   const clearStoreFile = useFileStore((s) => s.clearFile);
-
-  const schema = useMemo(() => generateToolSchema({
-    name: t('tools.pdfEditor.title', 'Edit PDF'),
-    description: t('tools.pdfEditor.description', 'Open a PDF, add text, images and shapes visually, then save the edited file online.'),
-    url: `${window.location.origin}/tools/pdf-editor`,
-  }), [t]);
 
   /* ── Session recovery hook — auto-saves & beforeunload guard ── */
   const getCanvasStates = useCallback(() => ({
@@ -1089,11 +1083,7 @@ export default function PdfEditor() {
   return (
     <>
       <Helmet>
-        <title>{t('tools.pdfEditor.title', 'Edit PDF')} — {t('common.appName')}</title>
-        <meta name="description" content={t('tools.pdfEditor.description', 'Open a PDF, add text, images and shapes visually, then save the edited file online.')} />
-        <link rel="canonical" href={`${window.location.origin}/tools/pdf-editor`} />
         <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&family=Noto+Kufi+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
-        <script type="application/ld+json">{JSON.stringify(schema)}</script>
       </Helmet>
 
       <div className="mx-auto max-w-7xl">
@@ -1105,6 +1095,11 @@ export default function PdfEditor() {
           <p className="mt-2 text-slate-500 dark:text-slate-400">
             {t('tools.pdfEditor.description', 'Open a PDF, add text, images and shapes visually, then save the edited file online.')}
           </p>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-slate-600 dark:text-slate-300">
+            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.pdfEditor.trustVisual', 'Visual editing for notes, text, links, and signatures')}</span>
+            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.pdfEditor.trustRecover', 'Session recovery enabled')}</span>
+            <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.pdfEditor.trustAsync', 'Saving runs asynchronously')}</span>
+          </div>
         </div>
 
         <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
@@ -1165,11 +1160,39 @@ export default function PdfEditor() {
               maxSizeMB={20}
               acceptLabel="PDF (.pdf)"
             />
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                <p className="font-semibold text-slate-900 dark:text-white">{t('tools.pdfEditor.stepUpload', '1. Upload your PDF')}</p>
+                <p className="mt-2">{t('tools.pdfEditor.stepUploadDesc', 'Open the file in the browser and start editing without waiting for background processing first.')}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                <p className="font-semibold text-slate-900 dark:text-white">{t('tools.pdfEditor.stepAnnotate', '2. Add text, notes, images, or signatures')}</p>
+                <p className="mt-2">{t('tools.pdfEditor.stepAnnotateDesc', 'Best for overlays, annotations, links, highlights, and signing workflows.')}</p>
+              </div>
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300">
+                <p className="font-semibold text-slate-900 dark:text-white">{t('tools.pdfEditor.stepSave', '3. Save a fresh edited PDF')}</p>
+                <p className="mt-2">{t('tools.pdfEditor.stepSaveDesc', 'When you are done, Dociva generates a new PDF file in the processing queue.')}</p>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-200">
+              <p className="font-semibold">{t('tools.pdfEditor.scannedDocsTitle', 'Working with a scanned PDF?')}</p>
+              <p className="mt-1">{t('tools.pdfEditor.scannedDocsDesc', 'If the document is a scan, OCR will usually give better results before editing text-heavy pages.')}</p>
+              <Link to="/tools/ocr" className="mt-3 inline-flex text-sm font-semibold text-amber-700 underline dark:text-amber-300">
+                {t('tools.pdfEditor.goToOcr', 'Open OCR tool')}
+              </Link>
+            </div>
           </div>
         )}
 
         {phase === 'edit' && pdfUrl && (
           <div className="flex flex-col">
+            <div className="mb-4 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm text-sky-900 dark:border-sky-800/50 dark:bg-sky-900/20 dark:text-sky-100">
+              <p className="font-semibold">{t('tools.pdfEditor.editHintTitle', 'Best fit for this editor')}</p>
+              <p className="mt-1">{t('tools.pdfEditor.editHintDesc', 'Use this editor to add or place content visually: text, notes, signatures, links, shapes, highlights, and images. For scanned documents, run OCR first if you need text extraction.')}</p>
+            </div>
+
             {/* ═══ ACTION BAR ═══ */}
             <div className="flex flex-wrap items-center justify-between gap-2 rounded-t-2xl border border-slate-200 bg-white px-3 py-2 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:px-4 sm:py-2.5">
               <div className="flex items-center gap-2">

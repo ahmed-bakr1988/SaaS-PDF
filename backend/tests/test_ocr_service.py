@@ -57,11 +57,25 @@ class TestOcrImage:
 
 
 class TestPdfEditorService:
-    def test_no_edits_raises(self):
-        """Should raise PDFEditorError when no edits provided."""
-        from app.services.pdf_editor_service import apply_pdf_edits, PDFEditorError
-        with pytest.raises(PDFEditorError, match="No edits"):
-            apply_pdf_edits("/fake.pdf", "/out.pdf", [])
+    def test_empty_edits_are_allowed(self, tmp_path):
+        """Empty edit lists should still save a valid output PDF."""
+        from app.services.pdf_editor_service import apply_pdf_edits
+
+        input_path = tmp_path / "input.pdf"
+        output_path = tmp_path / "out.pdf"
+        input_path.write_bytes(
+            b"%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+            b"2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n"
+            b"3 0 obj<</Type/Page/MediaBox[0 0 612 792]/Parent 2 0 R>>endobj\n"
+            b"xref\n0 4\n0000000000 65535 f \n0000000009 00000 n \n"
+            b"0000000058 00000 n \n0000000115 00000 n \n"
+            b"trailer<</Root 1 0 R/Size 4>>\nstartxref\n190\n%%EOF"
+        )
+
+        result = apply_pdf_edits(str(input_path), str(output_path), [])
+        assert result["page_count"] == 1
+        assert result["edits_applied"] == 0
+        assert output_path.exists()
 
 
 class TestOcrPdf:
@@ -71,11 +85,14 @@ class TestOcrPdf:
         mock_pytesseract.image_to_string.side_effect = ["Page one", "Page two"]
         mock_pytesseract.pytesseract.tesseract_cmd = ""
 
-        fake_images = [MagicMock(mode="RGB"), MagicMock(mode="RGB")]
+        fake_images = [
+            (1, 2, MagicMock(mode="RGB", close=MagicMock())),
+            (2, 2, MagicMock(mode="RGB", close=MagicMock())),
+        ]
         output_path = tmp_path / "ocr.txt"
 
         with patch.dict(sys.modules, {"pytesseract": mock_pytesseract}):
-            with patch("app.services.ocr_service.render_pdf_pages", return_value=fake_images):
+            with patch("app.services.ocr_service.iter_pdf_page_images", return_value=iter(fake_images)):
                 result = ocr_pdf("/fake/input.pdf", str(output_path), lang="eng")
 
         assert result["page_count"] == 2

@@ -743,7 +743,9 @@
       "language": "OCR Language",
       "extract": "Extract Text",
       "charsExtracted": "{{count}} characters extracted",
-      "copyText": "Copy Text"
+      "copyText": "Copy Text",
+      "searchablePdf": "Create searchable PDF",
+      "searchablePdfDesc": "Embed invisible text layer so the PDF can be searched and copied. Takes longer but produces a more useful result."
     },
     "removeBg": {
       "title": "Remove Background",

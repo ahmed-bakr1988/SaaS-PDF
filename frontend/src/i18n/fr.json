@@ -785,7 +785,9 @@
       "language": "Langue OCR",
       "extract": "Extraire le texte",
       "charsExtracted": "{{count}} caractères extraits",
-      "copyText": "Copier le texte"
+      "copyText": "Copier le texte",
+      "searchablePdf": "Créer un PDF consultable",
+      "searchablePdfDesc": "Intégrer une couche de texte invisible pour que le PDF soit recherchant et copiable. Prend plus de temps mais donne un résultat plus utile."
     },
     "removeBg": {
       "title": "Supprimer l'arrière-plan",

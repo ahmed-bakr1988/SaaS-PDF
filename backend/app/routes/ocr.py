@@ -97,6 +97,7 @@ def ocr_pdf_route():
     Accepts: multipart/form-data with:
         - 'file': PDF file
         - 'lang' (optional): Language code — eng, ara, fra (default: eng)
+        - 'searchable' (optional): "true" to produce a searchable PDF
     Returns: JSON with task_id for polling
     """
     flag_err = _check_feature_flag()
@@ -110,6 +111,7 @@ def ocr_pdf_route():
     lang = request.form.get("lang", "eng").lower()
     if lang not in SUPPORTED_LANGUAGES:
         lang = "eng"
+    searchable = request.form.get("searchable", "false").lower() == "true"
 
     actor = resolve_web_actor()
     try:
@@ -136,6 +138,7 @@ def ocr_pdf_route():
     task = enqueue_task(
         "app.tasks.ocr_tasks.ocr_pdf_task",
         input_path, task_id, original_filename, lang,
+        searchable=searchable,
         **build_task_tracking_kwargs(actor),
     )
     record_accepted_usage(actor, "ocr-pdf", task.id, quote=quote)

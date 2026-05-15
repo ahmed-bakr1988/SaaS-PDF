@@ -5,7 +5,7 @@ import logging
 from flask import current_app
 
 from app.extensions import celery
-from app.services.ocr_service import ocr_image, ocr_pdf, OCRError
+from app.services.ocr_service import ocr_image, ocr_pdf, ocr_pdf_searchable, OCRError
 from app.services.storage_service import storage
 from app.services.task_tracking_service import finalize_task_tracking
 from app.utils.sanitizer import cleanup_task_files
@@ -109,21 +109,39 @@ def ocr_pdf_task(
     user_id: int | None = None,
     usage_source: str = "web",
     api_key_id: int | None = None,
+    searchable: bool = False,
 ):
     """Async task: Extract text from a scanned PDF via OCR."""
     output_dir = _get_output_dir(task_id)
-    output_path = os.path.join(output_dir, f"{task_id}.txt")
 
     try:
         self.update_state(state="PROCESSING", meta={"step": "Converting PDF pages & running OCR..."})
 
-        stats = ocr_pdf(input_path, output_path, lang=lang)
+        def _report_page_progress(page_number: int, total_pages: int) -> None:
+            progress = 15 + int((page_number / max(total_pages, 1)) * 65)
+            self.update_state(
+                state="PROCESSING",
+                meta={
+                    "step": f"Running OCR on page {page_number} of {total_pages}...",
+                    "progress": progress,
+                    "page": page_number,
+                    "total_pages": total_pages,
+                },
+            )
+
+        name_without_ext = os.path.splitext(original_filename)[0]
+
+        if searchable:
+            output_path = os.path.join(output_dir, f"{task_id}_searchable.pdf")
+            stats = ocr_pdf_searchable(input_path, output_path, lang=lang, progress_callback=_report_page_progress)
+            download_name = f"{name_without_ext}_searchable.pdf"
+        else:
+            output_path = os.path.join(output_dir, f"{task_id}.txt")
+            stats = ocr_pdf(input_path, output_path, lang=lang, progress_callback=_report_page_progress)
+            download_name = f"{name_without_ext}_ocr.txt"
 
         self.update_state(state="PROCESSING", meta={"step": "Uploading result..."})
         s3_key = storage.upload_file(output_path, task_id, folder="outputs")
-
-        name_without_ext = os.path.splitext(original_filename)[0]
-        download_name = f"{name_without_ext}_ocr.txt"
 
         download_url = storage.generate_presigned_url(s3_key, original_filename=download_name)
 
@@ -135,9 +153,10 @@ def ocr_pdf_task(
             "page_count": stats["page_count"],
             "char_count": stats["char_count"],
             "lang": lang,
+            "searchable": searchable,
         }
 
-        logger.info("Task %s: OCR PDF completed (%d pages, %d chars)", task_id, stats["page_count"], stats["char_count"])
+        logger.info("Task %s: OCR PDF completed (%d pages, %d chars, searchable=%s)", task_id, stats["page_count"], stats["char_count"], searchable)
         return _finalize_task(
             task_id, user_id, "ocr-pdf", original_filename,
             result, usage_source, api_key_id, self.request.id,

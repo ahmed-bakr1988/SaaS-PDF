@@ -85,7 +85,7 @@ class TestOcrSuccess:
             lambda ext, folder_type: ("mock-id", save_path),
         )
         monkeypatch.setattr(
-            "app.routes.ocr.ocr_image_task.delay",
+            "app.routes.ocr.enqueue_task",
             MagicMock(return_value=mock_task),
         )
 
@@ -117,7 +117,7 @@ class TestOcrSuccess:
             lambda ext, folder_type: ("mock-id", save_path),
         )
         monkeypatch.setattr(
-            "app.routes.ocr.ocr_pdf_task.delay",
+            "app.routes.ocr.enqueue_task",
             MagicMock(return_value=mock_task),
         )
 
@@ -148,8 +148,8 @@ class TestOcrSuccess:
             "app.routes.ocr.generate_safe_path",
             lambda ext, folder_type: ("mock-id", save_path),
         )
-        mock_delay = MagicMock(return_value=mock_task)
-        monkeypatch.setattr("app.routes.ocr.ocr_image_task.delay", mock_delay)
+        mock_enqueue = MagicMock(return_value=mock_task)
+        monkeypatch.setattr("app.routes.ocr.enqueue_task", mock_enqueue)
 
         data = {"file": (io.BytesIO(make_png_bytes()), "test.png"), "lang": "invalid"}
         response = client.post(
@@ -159,5 +159,5 @@ class TestOcrSuccess:
         )
         assert response.status_code == 202
         # Verify 'eng' was passed to the task
-        call_args = mock_delay.call_args
-        assert call_args[0][3] == "eng"  # 4th positional arg is lang
+        call_args = mock_enqueue.call_args
+        assert call_args[0][4] == "eng"  # 5th positional arg is lang

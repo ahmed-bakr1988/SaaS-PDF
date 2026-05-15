@@ -1,4 +1,5 @@
 """Tests for Phase 2 routes — PDF Conversion, PDF Extra, Image Extra, Barcode."""
+import importlib
 import io
 import json
 import os
@@ -50,6 +51,7 @@ def _mock_route(monkeypatch, route_module, task_name, validator_name='validate_a
     mock_task.id = 'mock-task-id'
     tmp_dir = tempfile.mkdtemp()
     save_path = os.path.join(tmp_dir, 'mock_file')
+    module = importlib.import_module(f'app.routes.{route_module}')
 
     monkeypatch.setattr(
         f'app.routes.{route_module}.validate_actor_file',
@@ -60,7 +62,10 @@ def _mock_route(monkeypatch, route_module, task_name, validator_name='validate_a
         lambda ext, folder_type: ('mock-task-id', save_path),
     )
     mock_delay = MagicMock(return_value=mock_task)
-    monkeypatch.setattr(f'app.routes.{route_module}.{task_name}.delay', mock_delay)
+    if hasattr(module, task_name):
+        monkeypatch.setattr(f'app.routes.{route_module}.{task_name}.delay', mock_delay)
+    else:
+        monkeypatch.setattr(f'app.routes.{route_module}.enqueue_task', mock_delay)
     return mock_task, mock_delay
 
 

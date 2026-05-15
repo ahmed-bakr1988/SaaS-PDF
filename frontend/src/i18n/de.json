@@ -785,7 +785,9 @@
       "language": "OCR-Sprache",
       "extract": "Text extrahieren",
       "charsExtracted": "{{count}} Zeichen extrahiert",
-      "copyText": "Text kopieren"
+      "copyText": "Text kopieren",
+      "searchablePdf": "Durchsuchbares PDF erstellen",
+      "searchablePdfDesc": "Unsichtbare Textebene einbetten, damit das PDF durchsucht und kopiert werden kann. Dauert länger, liefert aber ein nützlicheres Ergebnis."
     },
     "removeBg": {
       "title": "Hintergrund entfernen",

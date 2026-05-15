@@ -102,10 +102,11 @@ export interface TaskResult {
   flowcharts?: Array<{ id: string; procedureId: string; title: string; steps: Array<{ id: string; type: string; title: string; description: string; connections: string[] }> }>;
   pages?: Array<{ page: number; text: string }>;
   procedures_count?: number;
-  total_pages?: number;
   // OCR-specific fields
   text?: string;
   char_count?: number;
+  total_pages?: number;
+  cropped_pages?: number;
   // AI PDF fields
   reply?: string;
   summary?: string;

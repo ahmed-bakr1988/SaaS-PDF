@@ -789,7 +789,8 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
 
     Raises:
         PDFEditorError: On invalid input, password-protected PDFs,
-            or internal PyMuPDF failures.
+            unsupported PDF types, output corruption, or internal
+            PyMuPDF failures.
     """
     if edits is None:
         edits = []
@@ -807,6 +808,17 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
             if page_count == 0:
                 raise PDFEditorError("PDF has no pages.")
 
+            # Early detection of unsupported PDF types
+            if doc.is_form_filler():
+                raise PDFEditorError(
+                    "This PDF is an interactive form (XFA/FDF). "
+                    "Please flatten it first or use a regular PDF."
+                )
+            if doc.is_pdf_portfolio():
+                raise PDFEditorError(
+                    "This PDF is a portfolio (MIMEPDF) which is not supported for editing."
+                )
+
             edits_applied = 0
             for edit in edits:
                 page_num = int(edit.get("page", 1))
@@ -817,8 +829,52 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
                 if _apply_single_edit(page, edit, pymupdf):
                     edits_applied += 1
 
-            # Allow saving even if no edits were applied (just re-renders/optimizes the PDF)
-            doc.save(output_path, garbage=3, deflate=True)
+            # Save to a temporary file first, then validate before overwriting
+            import tempfile
+
+            output_dir = os.path.dirname(output_path)
+            output_stem = os.path.basename(output_path)
+            with tempfile.NamedTemporaryFile(
+                suffix=".pdf", dir=output_dir, delete=False
+            ) as tmp:
+                tmp_path = tmp.name
+
+            try:
+                doc.save(tmp_path, garbage=3, deflate=True)
+                tmp_size = os.path.getsize(tmp_path)
+
+                # Validate the output is a real, openable PDF
+                if tmp_size < 50:
+                    raise PDFEditorError("Generated PDF is suspiciously small — may be corrupted.")
+
+                try:
+                    validate_doc = pymupdf.open(tmp_path)
+                    validate_doc.close()
+                except Exception:
+                    raise PDFEditorError("Generated PDF failed validation — output may be corrupted.")
+
+                # Check that page count is preserved
+                try:
+                    validate_doc = pymupdf.open(tmp_path)
+                    if validate_doc.page_count != page_count:
+                        raise PDFEditorError(
+                            f"Page count mismatch after editing: "
+                            f"expected {page_count}, got {validate_doc.page_count}."
+                        )
+                    validate_doc.close()
+                except PDFEditorError:
+                    raise
+                except Exception:
+                    pass
+
+                # All checks passed — move temp file to final destination
+                os.replace(tmp_path, output_path)
+            except Exception:
+                # Clean up temp file on any failure
+                if os.path.exists(tmp_path):
+                    os.remove(tmp_path)
+                raise
+
         finally:
             doc.close()
 

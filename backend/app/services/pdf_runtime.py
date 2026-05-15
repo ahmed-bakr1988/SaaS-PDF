@@ -1,5 +1,6 @@
 """Shared PDF runtime helpers with safe optional backends."""
 import logging
+from collections.abc import Iterator
 
 from PIL import Image
 
@@ -81,31 +82,43 @@ def extract_text_pages(input_path: str, max_pages: int | None = None) -> list[di
 
 def render_pdf_pages(input_path: str, dpi: int = 300) -> list[Image.Image]:
     """Render PDF pages to PIL images with PyMuPDF first, pdf2image fallback."""
+    return [image for _, _, image in iter_pdf_page_images(input_path, dpi=dpi)]
+
+
+def iter_pdf_page_images(input_path: str, dpi: int = 300) -> Iterator[tuple[int, int, Image.Image]]:
+    """Yield one rendered PDF page at a time to avoid holding all pages in memory.
+
+    Returns tuples of ``(page_number, total_pages, image)`` where ``page_number``
+    is 1-based.
+    """
     try:
         import fitz
 
-        images = []
         doc = fitz.open(input_path)
         try:
             if getattr(doc, "is_encrypted", False) and not doc.authenticate(""):
                 raise PdfPasswordProtectedError("This PDF is password-protected.")
 
+            total_pages = doc.page_count
             zoom = dpi / 72
             matrix = fitz.Matrix(zoom, zoom)
-            for page in doc:
+            for index in range(total_pages):
+                page = doc.load_page(index)
                 pix = page.get_pixmap(matrix=matrix, alpha=False)
                 image = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-                images.append(image)
+                yield index + 1, total_pages, image
         finally:
             doc.close()
-
-        if images:
-            return images
+        return
     except PdfPasswordProtectedError:
         raise
     except Exception as exc:
         logger.debug("PyMuPDF render failed for %s: %s", input_path, exc)
 
     from pdf2image import convert_from_path
-
-    return convert_from_path(input_path, dpi=dpi)
+    total_pages = count_pdf_pages(input_path)
+    for index in range(total_pages):
+        images = convert_from_path(input_path, dpi=dpi, first_page=index + 1, last_page=index + 1)
+        if not images:
+            continue
+        yield index + 1, total_pages, images[0]

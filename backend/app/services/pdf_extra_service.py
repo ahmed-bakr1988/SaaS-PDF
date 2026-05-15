@@ -53,6 +53,8 @@ def crop_pdf(
             raise PDFExtraError("PDF has no pages.")
 
         target_indices = _parse_pages(pages, total_pages)
+        if not target_indices:
+            raise PDFExtraError("No valid pages were selected for cropping.")
         use_normalized_crop = all(
             value is not None
             for value in (crop_x_pct, crop_y_pct, crop_width_pct, crop_height_pct)

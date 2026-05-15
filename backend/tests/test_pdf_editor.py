@@ -68,9 +68,28 @@ class TestPdfEditorValidation:
         assert response.status_code == 400
         assert "JSON array" in response.get_json()["error"]
 
-    def test_pdf_editor_empty_edits(self, client, app):
-        """Should return 400 when edits array is empty."""
+    def test_pdf_editor_empty_edits_allowed(self, client, app, monkeypatch):
+        """Empty edits should still dispatch a save task."""
         app.config["FEATURE_EDITOR"] = True
+        mock_task = MagicMock()
+        mock_task.id = "edit-task-empty"
+
+        tmp_dir = tempfile.mkdtemp()
+        save_path = os.path.join(tmp_dir, "mock.pdf")
+
+        monkeypatch.setattr(
+            "app.routes.pdf_editor.validate_actor_file",
+            lambda f, allowed_types, actor: ("doc.pdf", "pdf"),
+        )
+        monkeypatch.setattr(
+            "app.routes.pdf_editor.generate_safe_path",
+            lambda ext, folder_type: ("mock-id", save_path),
+        )
+        monkeypatch.setattr(
+            "app.routes.pdf_editor.enqueue_task",
+            MagicMock(return_value=mock_task),
+        )
+
         data = {
             "file": (io.BytesIO(make_pdf_bytes()), "doc.pdf"),
             "edits": json.dumps([]),
@@ -80,8 +99,8 @@ class TestPdfEditorValidation:
             data=data,
             content_type="multipart/form-data",
         )
-        assert response.status_code == 400
-        assert "At least one edit" in response.get_json()["error"]
+        assert response.status_code == 202
+        assert response.get_json()["task_id"] == "edit-task-empty"
 
     def test_pdf_editor_too_many_edits(self, client, app):
         """Should return 400 when more than 500 edits."""
@@ -122,7 +141,7 @@ class TestPdfEditorSuccess:
             lambda ext, folder_type: ("mock-id", save_path),
         )
         monkeypatch.setattr(
-            "app.routes.pdf_editor.edit_pdf_task.delay",
+            "app.routes.pdf_editor.enqueue_task",
             MagicMock(return_value=mock_task),
         )
 

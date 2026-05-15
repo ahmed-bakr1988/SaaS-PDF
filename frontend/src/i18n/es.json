@@ -785,7 +785,9 @@
       "language": "Idioma del OCR",
       "extract": "Extraer texto",
       "charsExtracted": "{{count}} caracteres extraídos",
-      "copyText": "Copiar texto"
+      "copyText": "Copiar texto",
+      "searchablePdf": "Crear PDF buscable",
+      "searchablePdfDesc": "Incrustar capa de texto invisible para que el PDF se pueda buscar y copiar. Toma más tiempo pero produce un resultado más útil."
     },
     "removeBg": {
       "title": "Eliminar fondo",
