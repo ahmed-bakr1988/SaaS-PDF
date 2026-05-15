@@ -808,15 +808,24 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
             if page_count == 0:
                 raise PDFEditorError("PDF has no pages.")
 
-            # Early detection of unsupported PDF types
-            if doc.is_form_filler():
+            # Early detection of unsupported PDF types (safe method check)
+            if hasattr(doc, "is_form_filler") and doc.is_form_filler():
                 raise PDFEditorError(
                     "This PDF is an interactive form (XFA/FDF). "
                     "Please flatten it first or use a regular PDF."
                 )
-            if doc.is_pdf_portfolio():
+            if hasattr(doc, "is_pdf_portfolio") and doc.is_pdf_portfolio():
                 raise PDFEditorError(
                     "This PDF is a portfolio (MIMEPDF) which is not supported for editing."
+                )
+            if hasattr(doc, "is_form_pdf") and doc.is_form_pdf():
+                raise PDFEditorError(
+                    "This PDF is an interactive form. "
+                    "Please flatten it first or use a regular PDF."
+                )
+            if hasattr(doc, "portfolio") and doc.portfolio:
+                raise PDFEditorError(
+                    "This PDF is a portfolio which is not supported for editing."
                 )
 
             edits_applied = 0

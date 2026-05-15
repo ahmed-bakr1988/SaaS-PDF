@@ -38,6 +38,7 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 import {
   Canvas,
   Ellipse,
@@ -418,6 +419,7 @@ export default function PdfEditor() {
   const [currentPage, setCurrentPage] = useState(1);
   const [previewWidth, setPreviewWidth] = useState(900);
   const [pageSize, setPageSize] = useState<PageSize | null>(null);
+  const [pdfLoadError, setPdfLoadError] = useState<string | null>(null);
   const [tool, setTool] = useState<EditorTool>('select');
   const [selectedObject, setSelectedObject] = useState<FabricObject | null>(null);
   /** Current zoom level as a percentage (50–200). */
@@ -680,6 +682,7 @@ export default function PdfEditor() {
     setCurrentPage(1);
     setSelectedObject(null);
     setPageSize(null);
+    setPdfLoadError(null);
     setTool('select');
     pageStatesRef.current = {};
     pageSizesRef.current = {};
@@ -1363,21 +1366,38 @@ export default function PdfEditor() {
                           file={pdfUrl}
                           onLoadSuccess={({ numPages: totalPages }) => {
                             setNumPages(totalPages);
+                            setPdfLoadError(null);
                             if (currentPage > totalPages) setCurrentPage(totalPages || 1);
                           }}
+                          onLoadError={(err) => {
+                            setPdfLoadError(err instanceof Error ? err.message : String(err));
+                          }}
                         >
-                          <Page
-                            key={`page-${currentPage}-${effectivePreviewWidth}`}
-                            pageNumber={currentPage}
-                            width={effectivePreviewWidth}
-                            onLoadSuccess={(pageProxy) => {
-                              const viewport = pageProxy.getViewport({ scale: 1 });
-                              const scale = effectivePreviewWidth / viewport.width;
-                              const nextPageSize = { width: effectivePreviewWidth, height: viewport.height * scale };
-                              pageSizesRef.current[currentPage] = nextPageSize;
-                              setPageSize(nextPageSize);
-                            }}
-                          />
+                          {pdfLoadError ? (
+                            <div className="flex min-h-[360px] items-center justify-center rounded-lg bg-red-50 p-8 text-center dark:bg-red-900/20">
+                              <div>
+                                <p className="text-sm font-semibold text-red-700 dark:text-red-400">
+                                  {t('tools.pdfEditor.previewFailed', 'Could not preview this PDF.')}
+                                </p>
+                                <p className="mt-1 text-xs text-red-600/70 dark:text-red-300/50">
+                                  {pdfLoadError}
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <Page
+                              key={`page-${currentPage}-${effectivePreviewWidth}`}
+                              pageNumber={currentPage}
+                              width={effectivePreviewWidth}
+                              onLoadSuccess={(pageProxy) => {
+                                const viewport = pageProxy.getViewport({ scale: 1 });
+                                const scale = effectivePreviewWidth / viewport.width;
+                                const nextPageSize = { width: effectivePreviewWidth, height: viewport.height * scale };
+                                pageSizesRef.current[currentPage] = nextPageSize;
+                                setPageSize(nextPageSize);
+                              }}
+                            />
+                          )}
                         </Document>
 
                         {pageSize && (
