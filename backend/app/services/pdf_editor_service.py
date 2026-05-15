@@ -77,6 +77,30 @@ def _load_pymupdf():
         return fitz
 
 
+def _check_pdf_attr(doc, attr_name: str) -> bool:
+    """Check a boolean attribute on a PDF document, handling both property and method forms.
+
+    PyMuPDF changed several boolean checks from methods (callable) to properties
+    (bare bool) across versions — this helper normalises the difference.
+
+    Args:
+        doc: A PyMuPDF Document object.
+        attr_name: Attribute name to check (e.g. ``"is_form_filler"``).
+
+    Returns:
+        ``True`` if the attribute exists and evaluates to ``True``.
+    """
+    val = getattr(doc, attr_name, None)
+    if val is None:
+        return False
+    if callable(val):
+        try:
+            return bool(val())
+        except Exception:
+            return False
+    return bool(val)
+
+
 def _clamp(value: float, minimum: float, maximum: float) -> float:
     """Clamp *value* to the inclusive range [*minimum*, *maximum*].
 
@@ -808,22 +832,22 @@ def apply_pdf_edits(input_path: str, output_path: str, edits: list[dict]) -> dic
             if page_count == 0:
                 raise PDFEditorError("PDF has no pages.")
 
-            # Early detection of unsupported PDF types (safe method check)
-            if hasattr(doc, "is_form_filler") and doc.is_form_filler():
+            # Early detection of unsupported PDF types (handles both property and method APIs)
+            if _check_pdf_attr(doc, "is_form_filler"):
                 raise PDFEditorError(
                     "This PDF is an interactive form (XFA/FDF). "
                     "Please flatten it first or use a regular PDF."
                 )
-            if hasattr(doc, "is_pdf_portfolio") and doc.is_pdf_portfolio():
+            if _check_pdf_attr(doc, "is_pdf_portfolio"):
                 raise PDFEditorError(
                     "This PDF is a portfolio (MIMEPDF) which is not supported for editing."
                 )
-            if hasattr(doc, "is_form_pdf") and doc.is_form_pdf():
+            if _check_pdf_attr(doc, "is_form_pdf"):
                 raise PDFEditorError(
                     "This PDF is an interactive form. "
                     "Please flatten it first or use a regular PDF."
                 )
-            if hasattr(doc, "portfolio") and doc.portfolio:
+            if _check_pdf_attr(doc, "portfolio"):
                 raise PDFEditorError(
                     "This PDF is a portfolio which is not supported for editing."
                 )
