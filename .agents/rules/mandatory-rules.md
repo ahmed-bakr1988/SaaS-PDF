@@ -81,3 +81,20 @@ cd frontend && npx tsc --noEmit
 - [ ] لا تغييرات في ملفات غير مطلوبة
 - [ ] لا أسرار أو مفاتيح في الكود
 - [ ] الـ PR صغير ومركّز
+
+## 9. تحديثات الأدوات
+
+### Rotate PDF (تم التحديث)
+- **التغيير:** إضافة معاينة PDF تفاعلية مع شريط تعديلات جانبي (نمط CropPdf)
+- **الميزات الجديدة:**
+  - عرض PDF في نافذة معاينة مع react-pdf
+  - دعم اختيار الصفحات (all / current / range)
+  - أزرار Zoom + Rotate للمعاينة
+  - تنقل بين الصفحات
+  - دعم Dark Mode كامل
+- **الملفات المعدّلة:**
+  - `frontend/src/components/tools/RotatePdf.tsx`
+  - `frontend/src/i18n/en.json`
+  - `frontend/src/i18n/ar.json`
+  - `frontend/src/services/apiTypes.ts` (إضافة rotated_pages)
+- **الـ Backend:** لا يحتاج تعديل (يدعم بالفعل معلمة pages و rotated_pages)

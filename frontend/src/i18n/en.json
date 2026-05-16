@@ -902,7 +902,19 @@
       "angle": "Rotation Angle",
       "90": "90° Clockwise",
       "180": "180° Flip",
-      "270": "270° Counter-clockwise"
+      "270": "270° Counter-clockwise",
+      "rotationAngle": "Rotation Angle",
+      "visualInstruction": "Choose the rotation angle, then select which pages to apply it to.",
+      "pagesLabel": "Pages",
+      "allPages": "All pages",
+      "currentPage": "Current page",
+      "pageRange": "Page range",
+      "pageRangePlaceholder": "Example: 1-3, 6, 9-12",
+      "scopeHelp": "Use page ranges when only some pages need rotation. Example: 1-3, 8, 10-12.",
+      "zoomLabel": "Zoom",
+      "previousPage": "Previous page",
+      "nextPage": "Next page",
+      "doneSummary": "Rotated {{rotated}} page(s) out of {{total}}."
     },
     "pdfToImages": {
       "title": "PDF to Images",

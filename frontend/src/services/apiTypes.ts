@@ -107,6 +107,7 @@ export interface TaskResult {
   char_count?: number;
   total_pages?: number;
   cropped_pages?: number;
+  rotated_pages?: number;
   // AI PDF fields
   reply?: string;
   summary?: string;
