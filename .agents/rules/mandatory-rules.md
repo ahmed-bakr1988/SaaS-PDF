@@ -98,3 +98,33 @@ cd frontend && npx tsc --noEmit
   - `frontend/src/i18n/ar.json`
   - `frontend/src/services/apiTypes.ts` (إضافة rotated_pages)
 - **الـ Backend:** لا يحتاج تعديل (يدعم بالفعل معلمة pages و rotated_pages)
+
+### نظام الدفع والاشتراكات (تم التحديث)
+- **التغيير:** إضافة صفحتين جديدتين لتدفق الدفع + دمج PayMob كبوابة دفع
+- **الميزات الجديدة:**
+  - صفحة `/balance-depleted` — تظهر للمستخدم عند نفاد الرصيد مع عرض خطط الاشتراك
+  - صفحة `/payment` — صفحة دفع مشتركة تدعم PayPal و PayMob و Stripe
+  - دمج PayMob كبوابة دفع جديدة (مصر/الشرق الأوسط)
+  - تحديث صفحة التسعير لتوجيه المستخدمين لصفحة الدفع المشتركة
+- **الملفات الجديدة:**
+  - `backend/app/services/paymob_service.py` — خدمة PayMob (إنشاء Intention، Webhook، HMAC verification)
+  - `backend/app/routes/paymob.py` — مسارات PayMob (`/api/paymob/create-intention`, `/api/paymob/payment-key`, `/api/paymob/webhook`, `/api/paymob/config`)
+  - `backend/tests/test_paymob.py` — اختبارات PayMob
+  - `frontend/src/pages/BalanceDepletedPage.tsx` — صفحة نفاد الرصيد
+  - `frontend/src/pages/PaymentPage.tsx` — صفحة الدفع المشتركة
+- **الملفات المعدّلة:**
+  - `backend/app/__init__.py` — تسجيل PayMob blueprint + init_paymob_db()
+  - `backend/app/routes/account.py` — تحديث endpoint الاشتراك ليشمل PayMob
+  - `backend/.env.example` — إضافة متغيرات PayMob البيئية
+  - `frontend/src/App.tsx` — إضافة routes جديدة
+  - `frontend/src/config/routes.ts` — إضافة `/balance-depleted` و `/payment`
+  - `frontend/src/pages/PricingPage.tsx` — توجيه المستخدمين لصفحة الدفع المشتركة
+  - `frontend/src/i18n/en.json` — إضافة مفاتيح balanceDepleted و payment
+  - `frontend/src/i18n/ar.json` — إضافة مفاتيح balanceDepleted و payment بالعربية
+- **قاعدة البيانات:**
+  - إضافة عمود `paymob_transaction_id` لجدول users
+  - تحديث عمود `billing_provider` ليدعم القيمة `'paymob'`
+- **الـ Backend:**
+  - PayMob يستخدم Intention API لإنشاء روابط دفع
+  - Webhook يتحقق عبر HMAC-SHA512
+  - الأسعار بالدولار تُحوّل لـ EGP عبر متغير `PAYMOB_USD_TO_EGP_RATE`

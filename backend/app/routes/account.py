@@ -35,6 +35,10 @@ from app.services.paypal_service import (
     get_paypal_plan_id,
     get_subscription as get_paypal_subscription,
 )
+from app.services.paymob_service import (
+    is_paymob_configured,
+    get_plan_amount_cents,
+)
 from app.utils.auth import get_current_user_id, has_session_task_access
 import stripe
 import logging
@@ -95,11 +99,13 @@ def get_subscription_status():
 
     paypal_ok = is_paypal_configured()
     stripe_ok = is_stripe_configured()
+    paymob_ok = is_paymob_configured()
 
     # Determine which provider this user is currently on
     billing_provider = user.get("billing_provider")
     paypal_sub_id = user.get("paypal_subscription_id")
     stripe_sub_id = user.get("stripe_subscription_id")
+    paymob_txn_id = user.get("paymob_transaction_id")
 
     subscription_info = None
 
@@ -159,14 +165,21 @@ def get_subscription_status():
         }), 200
 
     # --- No active subscription (free plan or new user) ---
+    paymob_plans = {}
+    if paymob_ok:
+        for p in ("starter", "pro", "business"):
+            for b in ("monthly", "yearly"):
+                paymob_plans[f"{p}_{b}"] = get_plan_amount_cents(p, b)
+
     return jsonify({
         "plan": user["plan"],
         "payment_provider": None,
-        "checkout_enabled": paypal_ok or stripe_ok,
+        "checkout_enabled": paypal_ok or stripe_ok or paymob_ok,
         "subscription": None,
         "pricing": {
             "monthly_plan_id": get_paypal_plan_id("monthly") if paypal_ok else None,
             "yearly_plan_id": get_paypal_plan_id("yearly") if paypal_ok else None,
+            "paymob_plans": paymob_plans if paymob_ok else None,
         },
     }), 200
 

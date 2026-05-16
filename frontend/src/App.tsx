@@ -27,6 +27,8 @@ const ForgotPasswordPage = lazy(() => import('@/pages/ForgotPasswordPage'));
 const ResetPasswordPage = lazy(() => import('@/pages/ResetPasswordPage'));
 const PricingPage = lazy(() => import('@/pages/PricingPage'));
 const PricingTransparencyPage = lazy(() => import('@/pages/PricingTransparencyPage'));
+const BalanceDepletedPage = lazy(() => import('@/pages/BalanceDepletedPage'));
+const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
 const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const BlogPostPage = lazy(() => import('@/pages/BlogPostPage'));
 const DevelopersPage = lazy(() => import('@/pages/DevelopersPage'));
@@ -89,7 +91,7 @@ export default function App() {
   const isRTL = document.documentElement.getAttribute('dir') === 'rtl';
   const isMarketingLayout =
     location.pathname === '/' ||
-    ['/about', '/contact', '/pricing', '/tools', '/developers', '/pricing-transparency'].includes(location.pathname) ||
+    ['/about', '/contact', '/pricing', '/tools', '/developers', '/pricing-transparency', '/balance-depleted', '/payment'].includes(location.pathname) ||
     location.pathname.startsWith('/compare/');
 
   useEffect(() => {
@@ -173,6 +175,8 @@ export default function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/pricing" element={<PricingPage />} />
             <Route path="/pricing-transparency" element={<PricingTransparencyPage />} />
+            <Route path="/balance-depleted" element={<BalanceDepletedPage />} />
+            <Route path="/payment" element={<PaymentPage />} />
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/blog/:slug" element={<BlogPostPage />} />
             <Route path="/developers" element={<DevelopersPage />} />

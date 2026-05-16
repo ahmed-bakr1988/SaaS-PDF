@@ -206,8 +206,7 @@ export default function PricingPage() {
     setLoadingPlan(plan.id);
     try {
       await api.post('internal/admin/plan-interest/record', { plan: plan.id, billing }).catch(() => {});
-      const { data } = await api.post('paypal/create-subscription', { plan: plan.id, billing });
-      if (data.url) window.location.href = data.url;
+      window.location.href = `/payment?plan=${plan.id}&billing=${billing}`;
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
       alert(msg || 'Payment system is being set up. Please try again later.');

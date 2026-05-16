@@ -27,6 +27,8 @@ const STATIC_PAGE_ROUTES = [
   '/tools',
   '/internal/admin',
   '/pricing-transparency',
+  '/balance-depleted',
+  '/payment',
   '/compare/:slug',
 ] as const;
 
