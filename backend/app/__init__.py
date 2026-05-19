@@ -190,6 +190,7 @@ def create_app(config_name=None, config_overrides=None):
     from app.routes.pdf_to_excel import pdf_to_excel_bp
     from app.routes.qrcode import qrcode_bp
     from app.routes.html_to_pdf import html_to_pdf_bp
+    from app.routes.markdown_convert import markdown_convert_bp
     from app.routes.pdf_ai import pdf_ai_bp
     from app.routes.rating import rating_bp
     from app.routes.assistant import assistant_bp
@@ -228,6 +229,7 @@ def create_app(config_name=None, config_overrides=None):
     app.register_blueprint(pdf_to_excel_bp, url_prefix="/api/convert")
     app.register_blueprint(qrcode_bp, url_prefix="/api/qrcode")
     app.register_blueprint(html_to_pdf_bp, url_prefix="/api/convert")
+    app.register_blueprint(markdown_convert_bp, url_prefix="/api/convert")
     app.register_blueprint(pdf_ai_bp, url_prefix="/api/pdf-ai")
     app.register_blueprint(rating_bp, url_prefix="/api/ratings")
     app.register_blueprint(assistant_bp, url_prefix="/api/assistant")

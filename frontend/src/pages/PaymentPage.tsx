@@ -1,12 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import SEOHead from '@/components/seo/SEOHead';
-import { getSiteOrigin } from '@/utils/seo';
-import {
-  Check, FileText, Shield, CreditCard, Wallet, Loader2,
-  ArrowRight, Lock, Info, AlertCircle
-} from 'lucide-react';
+import { ArrowRight, Check, CreditCard, FileText, Loader2, Lock, Shield, Wallet } from 'lucide-react';
 import { useAuthStore } from '@/stores/authStore';
 import { getApiClient } from '@/services/api';
 import { toast } from 'sonner';
@@ -15,12 +11,26 @@ const api = getApiClient();
 
 type PaymentMethod = 'paypal' | 'paymob' | 'stripe';
 
-interface PlanInfo {
-  id: string;
-  name: string;
-  price: number;
-  billing: string;
-  credits: number;
+interface SubscriptionStatusResponse {
+  pricing?: {
+    monthly_plan_id?: string | null;
+    yearly_plan_id?: string | null;
+    monthly_price_id?: string | null;
+    yearly_price_id?: string | null;
+    paymob_plans?: Record<string, number> | null;
+  };
+  payment_methods?: Array<{
+    id: PaymentMethod;
+    enabled: boolean;
+    supports_plans?: string[];
+  }>;
+}
+
+interface ResolvedMethodState {
+  id: PaymentMethod;
+  enabled: boolean;
+  selectable: boolean;
+  reason?: string;
 }
 
 const PLAN_INFO: Record<string, { name: string; credits: number }> = {
@@ -35,6 +45,12 @@ const PLAN_PRICES: Record<string, { monthly: number; yearly: number }> = {
   business: { monthly: 29.99, yearly: 24.99 },
 };
 
+const METHOD_PLAN_SUPPORT: Record<PaymentMethod, string[]> = {
+  paypal: ['starter', 'pro', 'business'],
+  paymob: ['starter', 'pro', 'business'],
+  stripe: ['pro'],
+};
+
 const FEATURES_LIST = [
   { icon: <CreditCard className="h-4 w-4" />, label: 'Unlimited edits' },
   { icon: <FileText className="h-4 w-4" />, label: 'Unlimited downloads' },
@@ -42,35 +58,57 @@ const FEATURES_LIST = [
   { icon: <Shield className="h-4 w-4" />, label: 'Convert to any format' },
 ];
 
+export function resolvePaymentMethods(
+  plan: string,
+  availability: Record<PaymentMethod, boolean>
+): ResolvedMethodState[] {
+  return (['paypal', 'paymob', 'stripe'] as PaymentMethod[]).map((id) => {
+    const enabled = availability[id];
+    const supportsPlan = METHOD_PLAN_SUPPORT[id].includes(plan);
+    const selectable = enabled && supportsPlan;
+
+    let reason: string | undefined;
+    if (!enabled) {
+      reason = 'Unavailable right now';
+    } else if (!supportsPlan) {
+      reason = 'Not available for this plan';
+    }
+
+    return { id, enabled, selectable, reason };
+  });
+}
+
 export default function PaymentPage() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const user = useAuthStore((s) => s.user);
-  const refreshUser = useAuthStore((s) => s.refreshUser);
+
+  const rawPlan = (searchParams.get('plan') || 'starter').toLowerCase();
+  const plan = Object.prototype.hasOwnProperty.call(PLAN_INFO, rawPlan) ? rawPlan : 'starter';
+  const rawBilling = (searchParams.get('billing') || 'yearly').toLowerCase();
+  const billing = rawBilling === 'monthly' ? 'monthly' : 'yearly';
+  const returnUrl = searchParams.get('return') || '/account';
 
   const [selectedMethod, setSelectedMethod] = useState<PaymentMethod>('paypal');
   const [processing, setProcessing] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
-  const [paymobEnabled, setPaymobEnabled] = useState(false);
-  const [paypalEnabled, setPaypalEnabled] = useState(false);
-  const [stripeEnabled, setStripeEnabled] = useState(false);
-  const [cardNumber, setCardNumber] = useState('');
-  const [expiry, setExpiry] = useState('');
-  const [cvv, setCvv] = useState('');
-  const [cardName, setCardName] = useState('');
-  const [paymobIframeReady, setPaymobIframeReady] = useState(false);
-  const [paymobToken, setPaymobToken] = useState<string | null>(null);
-  const [paymobIframeId, setPaymobIframeId] = useState<string | null>(null);
+  const [loadingMethods, setLoadingMethods] = useState(true);
+  const [methodAvailability, setMethodAvailability] = useState<Record<PaymentMethod, boolean>>({
+    paypal: false,
+    paymob: false,
+    stripe: false,
+  });
 
-  const plan = searchParams.get('plan') || 'starter';
-  const billing = searchParams.get('billing') || 'yearly';
-  const returnUrl = searchParams.get('return') || '/account';
-
-  const planData = PLAN_INFO[plan] || PLAN_INFO.starter;
-  const prices = PLAN_PRICES[plan] || PLAN_PRICES.starter;
+  const planData = PLAN_INFO[plan];
+  const prices = PLAN_PRICES[plan];
   const price = billing === 'yearly' ? prices.yearly : prices.monthly;
+
+  const resolvedMethods = useMemo(
+    () => resolvePaymentMethods(plan, methodAvailability),
+    [plan, methodAvailability]
+  );
+  const hasSelectableMethod = resolvedMethods.some((method) => method.selectable);
 
   useEffect(() => {
     if (!user) {
@@ -79,89 +117,123 @@ export default function PaymentPage() {
   }, [user, navigate, plan, billing]);
 
   useEffect(() => {
-    const checkPaymentMethods = async () => {
-      try {
-        const [paymobRes, subRes] = await Promise.allSettled([
-          api.get('paymob/config').catch(() => ({ data: { enabled: false } })),
-          api.get('account/subscription').catch(() => ({ data: { checkout_enabled: false } })),
-        ]);
+    if (!user) return;
 
-        if (paymobRes.status === 'fulfilled') {
-          setPaymobEnabled(paymobRes.value.data?.enabled ?? false);
+    let cancelled = false;
+
+    const loadPaymentAvailability = async () => {
+      setLoadingMethods(true);
+      try {
+        const { data } = await api.get<SubscriptionStatusResponse>('account/subscription');
+        const pricing = data?.pricing ?? {};
+
+        const fallbackAvailability: Record<PaymentMethod, boolean> = {
+          paypal: Boolean(pricing.monthly_plan_id || pricing.yearly_plan_id),
+          stripe: Boolean(pricing.monthly_price_id || pricing.yearly_price_id),
+          paymob: Boolean(pricing.paymob_plans && Object.keys(pricing.paymob_plans).length > 0),
+        };
+
+        const resolvedAvailability = { ...fallbackAvailability };
+        if (Array.isArray(data?.payment_methods)) {
+          for (const method of data.payment_methods) {
+            resolvedAvailability[method.id] = Boolean(method.enabled);
+          }
         }
-        if (subRes.status === 'fulfilled') {
-          const pricing = subRes.value.data?.pricing;
-          setPaypalEnabled(!!pricing?.monthly_plan_id);
-          setStripeEnabled(!!pricing?.monthly_price_id);
+
+        if (!cancelled) {
+          setMethodAvailability(resolvedAvailability);
         }
       } catch {
-        // ignore
+        if (!cancelled) {
+          setMethodAvailability({ paypal: false, paymob: false, stripe: false });
+        }
+      } finally {
+        if (!cancelled) {
+          setLoadingMethods(false);
+        }
       }
     };
-    void checkPaymentMethods();
-  }, []);
+
+    void loadPaymentAvailability();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  useEffect(() => {
+    const activeMethod = resolvedMethods.find((method) => method.id === selectedMethod);
+    if (activeMethod?.selectable) return;
+
+    const firstSelectable = resolvedMethods.find((method) => method.selectable);
+    if (firstSelectable) {
+      setSelectedMethod(firstSelectable.id);
+    }
+  }, [resolvedMethods, selectedMethod]);
 
   const handlePayPal = useCallback(async () => {
-    if (!agreedToTerms) {
-      toast.error(t('payment.agreeToTerms'));
-      return;
-    }
     setProcessing(true);
     try {
       const { data } = await api.post('paypal/create-subscription', { plan, billing });
       if (data.url) {
         window.location.href = data.url;
+        return;
       }
+      toast.error(t('payment.errorGeneric'));
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
       toast.error(msg || t('payment.errorGeneric'));
     } finally {
       setProcessing(false);
     }
-  }, [agreedToTerms, plan, billing, t]);
+  }, [plan, billing, t]);
 
   const handlePayMob = useCallback(async () => {
-    if (!agreedToTerms) {
-      toast.error(t('payment.agreeToTerms'));
-      return;
-    }
     setProcessing(true);
     try {
       const { data } = await api.post('paymob/create-intention', { plan, billing });
       if (data.url) {
         window.location.href = data.url;
-      } else if (data.client_secret) {
-        setPaymobToken(data.client_secret);
-        setPaymobIframeReady(true);
+        return;
       }
+      toast.error(t('payment.errorGeneric'));
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
       toast.error(msg || t('payment.errorGeneric'));
     } finally {
       setProcessing(false);
     }
-  }, [agreedToTerms, plan, billing, t]);
+  }, [plan, billing, t]);
 
   const handleStripe = useCallback(async () => {
-    if (!agreedToTerms) {
-      toast.error(t('payment.agreeToTerms'));
-      return;
-    }
     setProcessing(true);
     try {
       const { data } = await api.post('stripe/create-checkout-session', { plan, billing });
       if (data.url) {
         window.location.href = data.url;
+        return;
       }
+      toast.error(t('payment.errorGeneric'));
     } catch (err) {
       const msg = err instanceof Error ? err.message : '';
       toast.error(msg || t('payment.errorGeneric'));
     } finally {
       setProcessing(false);
     }
-  }, [agreedToTerms, plan, billing, t]);
+  }, [plan, billing, t]);
 
   const handleSubmit = () => {
+    if (!agreedToTerms) {
+      toast.error(t('payment.agreeToTerms'));
+      return;
+    }
+
+    const activeMethod = resolvedMethods.find((method) => method.id === selectedMethod);
+    if (!activeMethod || !activeMethod.selectable) {
+      toast.error(activeMethod?.reason || t('payment.methodUnavailable', 'Selected payment method is unavailable.'));
+      return;
+    }
+
     switch (selectedMethod) {
       case 'paypal':
         void handlePayPal();
@@ -175,25 +247,6 @@ export default function PaymentPage() {
     }
   };
 
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || '';
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    return parts.length ? parts.join(' ') : v;
-  };
-
-  const formatExpiry = (value: string) => {
-    const v = value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
-    if (v.length >= 2) {
-      return v.substring(0, 2) + '/' + v.substring(2, 4);
-    }
-    return v;
-  };
-
   if (!user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -203,16 +256,11 @@ export default function PaymentPage() {
   }
 
   const isRTL = i18n.dir() === 'rtl';
-
-  const paymentMethods: { id: PaymentMethod; label: string; icon: React.ReactNode; enabled: boolean }[] = [
-    { id: 'paypal', label: 'PayPal', icon: <Wallet className="h-5 w-5" />, enabled: paypalEnabled },
-    { id: 'paymob', label: 'PayMob', icon: <CreditCard className="h-5 w-5" />, enabled: paymobEnabled },
-    { id: 'stripe', label: 'Stripe', icon: <CreditCard className="h-5 w-5" />, enabled: stripeEnabled },
-  ].filter((m) => m.enabled);
-
-  if (paymentMethods.length === 0) {
-    paymentMethods.push({ id: 'paypal', label: 'PayPal', icon: <Wallet className="h-5 w-5" />, enabled: true });
-  }
+  const methodUI = {
+    paypal: { label: 'PayPal', icon: <Wallet className="h-5 w-5" /> },
+    paymob: { label: 'PayMob', icon: <CreditCard className="h-5 w-5" /> },
+    stripe: { label: 'Stripe', icon: <CreditCard className="h-5 w-5" /> },
+  } as const;
 
   return (
     <>
@@ -223,7 +271,6 @@ export default function PaymentPage() {
       />
 
       <div className="mx-auto max-w-5xl">
-        {/* Progress Steps */}
         <div className="mb-8 flex items-center justify-center gap-2 text-sm">
           <span className="flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300">
             <Check className="h-3.5 w-3.5" />
@@ -246,7 +293,6 @@ export default function PaymentPage() {
           </span>
         </div>
 
-        {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
             {t('payment.title', 'Final Step to Get Your Document')}
@@ -254,15 +300,14 @@ export default function PaymentPage() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_1.3fr]">
-          {/* Order Summary */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
             <div className="mb-4">
               <p className="text-lg font-bold text-slate-900 dark:text-white">
-                {t('payment.totalDue', 'Total Due Now:')} <span className="text-violet-600 dark:text-violet-400">${price}</span>
+                {t('payment.totalDue', 'Total Due Now:')}{' '}
+                <span className="text-violet-600 dark:text-violet-400">${price}</span>
               </p>
             </div>
 
-            {/* Document Preview */}
             <div className="mb-4 rounded-xl bg-gradient-to-br from-violet-50 to-indigo-50 p-6 dark:from-violet-950/30 dark:to-indigo-950/30">
               <div className="flex items-center justify-center">
                 <div className="relative">
@@ -284,7 +329,6 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            {/* Plan Details */}
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
               <div className="flex items-center justify-between">
                 <div>
@@ -301,7 +345,6 @@ export default function PaymentPage() {
               </div>
             </div>
 
-            {/* Features */}
             <div className="mt-4 grid gap-2">
               {FEATURES_LIST.map((feature) => (
                 <div key={feature.label} className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300">
@@ -312,112 +355,59 @@ export default function PaymentPage() {
             </div>
           </div>
 
-          {/* Payment Form */}
           <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-700 dark:bg-slate-800">
             <h2 className="mb-5 text-xl font-bold text-slate-900 dark:text-white">
               {t('payment.quickPayment', 'Quick Payment')}
             </h2>
 
-            {/* Payment Method Selection */}
-            <div className="mb-5 grid grid-cols-3 gap-2">
-              {paymentMethods.map((method) => (
-                <button
-                  key={method.id}
-                  onClick={() => setSelectedMethod(method.id)}
-                  className={`flex flex-col items-center gap-2 rounded-xl border p-3 transition-all ${
-                    selectedMethod === method.id
-                      ? 'border-violet-500 bg-violet-50 dark:border-violet-500 dark:bg-violet-950/30'
-                      : 'border-slate-200 hover:border-violet-300 dark:border-slate-700 dark:hover:border-violet-700'
-                  }`}
-                >
-                  <span className={selectedMethod === method.id ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400'}>
-                    {method.icon}
-                  </span>
-                  <span className={`text-xs font-semibold ${
-                    selectedMethod === method.id ? 'text-violet-700 dark:text-violet-300' : 'text-slate-500 dark:text-slate-400'
-                  }`}>
-                    {method.label}
-                  </span>
-                </button>
-              ))}
+            <div className="mb-4 grid grid-cols-3 gap-2">
+              {resolvedMethods.map((method) => {
+                const ui = methodUI[method.id];
+                return (
+                  <button
+                    key={method.id}
+                    type="button"
+                    disabled={!method.selectable}
+                    onClick={() => setSelectedMethod(method.id)}
+                    className={`rounded-xl border p-3 transition-all ${
+                      selectedMethod === method.id && method.selectable
+                        ? 'border-violet-500 bg-violet-50 dark:border-violet-500 dark:bg-violet-950/30'
+                        : 'border-slate-200 dark:border-slate-700'
+                    } ${!method.selectable ? 'cursor-not-allowed opacity-60' : 'hover:border-violet-300 dark:hover:border-violet-700'}`}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <span className={selectedMethod === method.id && method.selectable ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400'}>
+                        {ui.icon}
+                      </span>
+                      <span className={`text-xs font-semibold ${
+                        selectedMethod === method.id && method.selectable
+                          ? 'text-violet-700 dark:text-violet-300'
+                          : 'text-slate-500 dark:text-slate-400'
+                      }`}>
+                        {ui.label}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
 
-            {/* Card Payment Form (for PayMob/Stripe) */}
-            {(selectedMethod === 'paymob' || selectedMethod === 'stripe') && !paymobIframeReady && (
-              <div className="mb-5 space-y-3">
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-                    {t('payment.cardNumber', 'Card Number')}
-                  </label>
-                  <input
-                    type="text"
-                    value={cardNumber}
-                    onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
-                    placeholder="XXXX XXXX XXXX XXXX"
-                    maxLength={19}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-                      {t('payment.expiry', 'MM/YY')}
-                    </label>
-                    <input
-                      type="text"
-                      value={expiry}
-                      onChange={(e) => setExpiry(formatExpiry(e.target.value))}
-                      placeholder="MM/YY"
-                      maxLength={5}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    />
-                  </div>
-                  <div>
-                    <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-                      {t('payment.cvv', 'CVV')}
-                    </label>
-                    <input
-                      type="text"
-                      value={cvv}
-                      onChange={(e) => setCvv(e.target.value.replace(/[^0-9]/g, ''))}
-                      placeholder="CVV"
-                      maxLength={4}
-                      className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">
-                    {t('payment.cardName', 'Name on Card')}
-                  </label>
-                  <input
-                    type="text"
-                    value={cardName}
-                    onChange={(e) => setCardName(e.target.value)}
-                    placeholder={t('payment.cardNamePlaceholder', 'Full name as on card')}
-                    className="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500 dark:border-slate-700 dark:bg-slate-900 dark:text-white"
-                  />
-                </div>
+            <div className="mb-5 grid gap-1.5">
+              {resolvedMethods
+                .filter((method) => !method.selectable)
+                .map((method) => (
+                  <p key={method.id} className="text-xs text-slate-500 dark:text-slate-400">
+                    {methodUI[method.id].label}: {method.reason}
+                  </p>
+                ))}
+            </div>
+
+            {!hasSelectableMethod && !loadingMethods && (
+              <div className="mb-5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-700/50 dark:bg-amber-900/20 dark:text-amber-200">
+                {t('payment.noMethodsAvailable', 'No payment method is currently available for this plan. Please choose another plan or try again later.')}
               </div>
             )}
 
-            {/* PayMob Iframe */}
-            {selectedMethod === 'paymob' && paymobIframeReady && paymobToken && (
-              <div className="mb-5 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
-                <p className="mb-2 text-sm font-medium text-slate-700 dark:text-slate-300">
-                  {t('payment.secureCheckout', 'Secure Checkout via PayMob')}
-                </p>
-                <div className="h-96 overflow-hidden rounded-lg">
-                  <iframe
-                    src={`https://accept.paymob.com/api/acceptance/iframes/${paymobIframeId}?payment_token=${paymobToken}`}
-                    className="h-full w-full border-0"
-                    title="PayMob Payment"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Terms Checkbox */}
             <div className="mb-5 flex items-start gap-2">
               <input
                 type="checkbox"
@@ -435,18 +425,17 @@ export default function PaymentPage() {
                 <Link to="/privacy" className="text-violet-600 hover:underline dark:text-violet-400">
                   {t('payment.privacyPolicy', 'Privacy Policy')}
                 </Link>
-                .{' '}
-                {t('payment.termsDesc', 'You can cancel your subscription at any time from your account page.')}
+                . {t('payment.termsDesc', 'You can cancel your subscription at any time from your account page.')}
               </label>
             </div>
 
-            {/* Submit Button */}
             <button
+              type="button"
               onClick={handleSubmit}
-              disabled={processing || !agreedToTerms}
+              disabled={processing || loadingMethods || !agreedToTerms || !hasSelectableMethod}
               className="btn-success w-full py-3 text-base font-bold disabled:opacity-60"
             >
-              {processing ? (
+              {processing || loadingMethods ? (
                 <Loader2 className="mx-auto h-5 w-5 animate-spin" />
               ) : (
                 <>
@@ -456,13 +445,11 @@ export default function PaymentPage() {
               )}
             </button>
 
-            {/* Security Badge */}
             <div className="mt-4 flex items-center justify-center gap-2 text-xs text-slate-400">
               <Shield className="h-4 w-4 text-emerald-500" />
               <span>{t('payment.securedBy', 'This is a secure 128-bit encrypted payment')}</span>
             </div>
 
-            {/* Norton Badge Placeholder */}
             <div className="mt-3 flex items-center justify-center gap-1 text-[10px] text-slate-400">
               <Shield className="h-3 w-3 text-slate-400" />
               <span>{t('payment.nortonBadge', 'Secured by industry-standard encryption')}</span>
@@ -470,7 +457,6 @@ export default function PaymentPage() {
           </div>
         </div>
 
-        {/* Back Link */}
         <div className="mt-6 text-center">
           <Link
             to={returnUrl}

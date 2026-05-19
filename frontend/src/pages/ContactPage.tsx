@@ -126,11 +126,11 @@ export default function ContactPage() {
 
       <div className="mx-auto max-w-6xl">
         {/* Page header */}
-        <div className="mb-10">
-          <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
+        <div className="mb-12">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
             {t('pages.contact.title', 'Get in Touch')}
           </h1>
-          <p className="mt-3 text-lg text-primary-600 dark:text-primary-400">
+          <p className="mt-4 text-xl font-medium text-primary-600 dark:text-primary-400">
             {t('pages.contact.subtitle')}
           </p>
         </div>
@@ -144,11 +144,13 @@ export default function ContactPage() {
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-slate-700 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
               >
                 <option value="general">{t('pages.contact.categories.general')}</option>
                 <option value="bug">{t('pages.contact.categories.bug')}</option>
                 <option value="feature">{t('pages.contact.categories.feature')}</option>
+                <option value="business">{t('pages.contact.categories.business-plan')}</option>
+
               </select>
 
               {/* Name */}
@@ -157,7 +159,7 @@ export default function ContactPage() {
                 type="text"
                 required
                 placeholder={t('pages.contact.namePlaceholder', 'Name')}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-slate-700 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
               />
 
               {/* Email */}
@@ -166,7 +168,7 @@ export default function ContactPage() {
                 type="email"
                 required
                 placeholder={t('pages.contact.emailPlaceholder', 'Email')}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-slate-700 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
               />
 
               {/* Subject */}
@@ -175,7 +177,7 @@ export default function ContactPage() {
                 type="text"
                 required
                 placeholder={t('pages.contact.subjectPlaceholder', 'Subject')}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-slate-700 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
               />
 
               {/* Message */}
@@ -184,7 +186,7 @@ export default function ContactPage() {
                 rows={5}
                 required
                 placeholder={t(placeholderKey, 'Message')}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-700 shadow-sm transition-colors focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-slate-700 shadow-sm transition-all focus:border-primary-500 focus:outline-none focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200"
               />
 
               {/* Error */}
@@ -210,9 +212,9 @@ export default function ContactPage() {
           {/* Right column — Contact info cards */}
           <div className="space-y-5">
             {/* Email card */}
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
-                <Mail className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <div className="premium-card flex items-start gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-900/30">
+                <Mail className="h-7 w-7 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 dark:text-white">{t('pages.contact.emailLabel', 'Email:')}</p>
@@ -226,9 +228,9 @@ export default function ContactPage() {
             </div>
 
             {/* Phone card */}
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
-                <Phone className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <div className="premium-card flex items-start gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-900/30">
+                <Phone className="h-7 w-7 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 dark:text-white">{t('pages.contact.phoneLabel', 'Phone:')}</p>
@@ -237,9 +239,9 @@ export default function ContactPage() {
             </div>
 
             {/* Office card */}
-            <div className="flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-100 dark:bg-primary-900/30">
-                <MapPin className="h-6 w-6 text-primary-600 dark:text-primary-400" />
+            <div className="premium-card flex items-start gap-5">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary-50 dark:bg-primary-900/30">
+                <MapPin className="h-7 w-7 text-primary-600 dark:text-primary-400" />
               </div>
               <div>
                 <p className="font-semibold text-slate-900 dark:text-white">{t('pages.contact.officeLabel', 'Office:')}</p>

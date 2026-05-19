@@ -229,7 +229,8 @@
       "categories": {
         "general": "استفسار عام",
         "bug": "الإبلاغ عن خطأ",
-        "feature": "طلب ميزة جديدة"
+        "feature": "طلب ميزة جديدة",
+        "business-plan": "استفسار/شراء خطة الشركات "
       },
       "bugPlaceholder": "يرجى وصف المشكلة: ماذا فعلت، ماذا توقعت، وماذا حدث بالفعل.",
       "featurePlaceholder": "صف الميزة التي ترغب في رؤيتها وكيف ستساعدك.",
@@ -909,6 +910,18 @@
       "toSentenceCase": "حالة الجملة",
       "removeDiacritics": "إزالة التشكيل العربي",
       "copyResult": "نسخ النتيجة"
+    },
+    "fileToMarkdown": {
+      "title": "تحويل الملف إلى Markdown",
+      "description": "حوّل المستندات والصور والجداول والعروض وملفات النص والأرشيفات والفيديو إلى Markdown مضغوط لاستخدامات الذكاء الاصطناعي.",
+      "shortDesc": "ملف إلى MD",
+      "acceptLabel": "PDF، أوفيس، صور، فيديو، نص، HTML، CSV، JSON، XML، ZIP",
+      "outputTitle": "ناتج Markdown",
+      "outputDesc": "تستخرج الأداة المحتوى المقروء أولاً، ثم تحاول تحويلًا وسيطًا مدعومًا عند تعذر الاستخراج المباشر.",
+      "convert": "تحويل إلى Markdown",
+      "processing": "جاري تحويل الملف إلى Markdown...",
+      "preview": "معاينة Markdown",
+      "charCount": "{{count}} حرف"
     },
     "mergePdf": {
       "title": "دمج PDF",

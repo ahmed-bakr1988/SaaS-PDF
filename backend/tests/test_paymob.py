@@ -1,7 +1,11 @@
 """Tests for PayMob payment routes."""
 
 import pytest
+import hmac
+import hashlib
+import json
 from unittest.mock import MagicMock, patch
+from app.services.paymob_service import verify_webhook_signature
 
 
 class TestPayMobIntentionRoute:
@@ -175,8 +179,8 @@ class TestPayMobConfig:
             "PAYMOB_INTEGRATION_ID": "123",
         })
         with patch("app.routes.paymob.is_paymob_configured", return_value=True), \
-             patch("app.routes.paymob.get_paymob_public_key", return_value="pk_test_123"), \
-             patch("app.routes.paymob.get_paymob_iframe_id", return_value="iframe_123"):
+             patch("app.services.paymob_service.get_paymob_public_key", return_value="pk_test_123"), \
+             patch("app.services.paymob_service.get_paymob_iframe_id", return_value="iframe_123"):
             response = client.get("/api/paymob/config")
 
         assert response.status_code == 200
@@ -193,3 +197,52 @@ class TestPayMobConfig:
         assert response.status_code == 503
         data = response.get_json()
         assert data["enabled"] is False
+
+
+class TestPayMobSignatureVerification:
+    def test_verify_signature_supports_nested_obj_payload(self, app):
+        app.config["PAYMOB_HMAC_SECRET"] = "paymob-test-secret"
+
+        event_obj = {
+            "amount_cents": 10000,
+            "created_at": "2026-01-01T00:00:00Z",
+            "currency": "EGP",
+            "error_occured": False,
+            "has_parent_transaction": False,
+            "id": 12345,
+            "integration_id": 4444,
+            "is_3d_secure": True,
+            "is_auth": False,
+            "is_capture": False,
+            "is_refunded": False,
+            "is_standalone_payment": False,
+            "is_voided": False,
+            "order": {"id": 99},
+            "owner": 1,
+            "pending": False,
+            "source_data": {"pan": "1111"},
+            "success": True,
+        }
+
+        fields_to_verify = [
+            "amount_cents", "created_at", "currency", "error_occured",
+            "has_parent_transaction", "id", "integration_id", "is_3d_secure",
+            "is_auth", "is_capture", "is_refunded", "is_standalone_payment",
+            "is_voided", "order", "owner", "pending", "source_data", "success",
+        ]
+        message = ""
+        for field in fields_to_verify:
+            value = event_obj.get(field, "")
+            if isinstance(value, dict):
+                value = json.dumps(value, sort_keys=True)
+            message += str(value)
+
+        signature = hmac.new(
+            app.config["PAYMOB_HMAC_SECRET"].encode("utf-8"),
+            message.encode("utf-8"),
+            hashlib.sha512,
+        ).hexdigest()
+
+        payload = {"hmac": signature, "obj": event_obj}
+        with app.app_context():
+            assert verify_webhook_signature(payload) is True

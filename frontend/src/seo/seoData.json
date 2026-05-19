@@ -740,6 +740,25 @@
         "ar": "مفيد للتجارة الإلكترونية والعروض وتصميم الكتالوجات والمحتوى الاجتماعي."
       },
       "relatedCollectionSlugs": ["online-image-tools", "convert-files-online"]
+    },
+    {
+      "slug": "file-to-markdown",
+      "toolSlug": "file-to-markdown",
+      "category": "Convert",
+      "focusKeyword": { "en": "file to markdown converter", "ar": "تحويل الملفات إلى Markdown" },
+      "supportingKeywords": {
+        "en": ["convert file to md", "document to markdown", "markdown converter for ai"],
+        "ar": ["تحويل ملف إلى md", "مستند إلى markdown", "محول markdown للذكاء الاصطناعي"]
+      },
+      "benefit": {
+        "en": "Turn readable content from common file formats into compact Markdown that is easier to paste into AI tools.",
+        "ar": "حوّل المحتوى المقروء من صيغ الملفات الشائعة إلى Markdown مضغوط يسهل استخدامه مع أدوات الذكاء الاصطناعي."
+      },
+      "useCase": {
+        "en": "Best for developers, prompt workflows, documentation extraction, and reducing token-heavy uploads.",
+        "ar": "مناسب للمطورين ومسارات البرومبت واستخراج التوثيق وتقليل رفع الملفات كثيرة التوكنات."
+      },
+      "relatedCollectionSlugs": ["convert-files-online", "ai-document-tools"]
     }
   ],
   "collectionPageSeeds": [

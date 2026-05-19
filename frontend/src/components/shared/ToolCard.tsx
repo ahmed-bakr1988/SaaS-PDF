@@ -24,15 +24,15 @@ export default function ToolCard({
 }: ToolCardProps) {
   return (
     <Link to={to} className="group block h-full">
-      <div className="relative flex h-full flex-col gap-3 overflow-hidden rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/80 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:shadow-slate-200/60 hover:ring-primary-200 dark:bg-slate-800/80 dark:ring-slate-700 dark:hover:ring-primary-700/60 dark:hover:shadow-slate-900/60">
+      <div className="relative flex h-full flex-col gap-4 overflow-hidden rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/60 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary-500/10 hover:ring-primary-300/50 dark:bg-slate-900/40 dark:ring-slate-800 dark:hover:ring-primary-700/50 dark:hover:shadow-primary-950/40">
         {/* Top color accent bar — slides in on hover */}
-        <div className="absolute inset-x-0 top-0 h-[3px] origin-left scale-x-0 rounded-t-2xl bg-gradient-to-r from-primary-500 to-accent-500 transition-transform duration-300 group-hover:scale-x-100" />
+        <div className="absolute inset-x-0 top-0 h-[4px] origin-left scale-x-0 rounded-t-3xl bg-gradient-to-r from-primary-500 via-sky-500 to-accent-500 transition-transform duration-500 group-hover:scale-x-100" />
 
         <div className="flex items-start justify-between gap-3">
           {/* Icon + title */}
           <div className="flex items-center gap-3">
             <div
-              className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl ring-1 ring-black/5 transition-transform duration-200 group-hover:scale-110 ${bgColor} dark:ring-white/5 dark:brightness-90`}
+              className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl ring-1 ring-black/5 transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${bgColor} dark:ring-white/5 dark:brightness-90`}
             >
               {icon}
             </div>

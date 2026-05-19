@@ -69,15 +69,15 @@ export default function Footer() {
         <div className="marketing-panel overflow-hidden px-6 py-8 sm:px-8 sm:py-10">
           <div className="grid gap-10 xl:grid-cols-[1.15fr,1.85fr]">
             <div>
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-500 via-sky-500 to-accent-500 shadow-lg shadow-primary-200/70 dark:shadow-primary-950/40">
-                  <Layers3 className="h-5 w-5 text-white" />
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 shadow-xl shadow-primary-500/20 dark:shadow-primary-950/40">
+                  <Layers3 className="h-6 w-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-xl font-black tracking-tight text-slate-950 dark:text-white">
+                  <p className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">
                     {t('common.appName')}
                   </p>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
                     {t('common.siteTagline')}
                   </p>
                 </div>
@@ -90,7 +90,7 @@ export default function Footer() {
               <div className="mt-6 flex flex-wrap gap-3">
                 <Link
                   to="/tools"
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 dark:bg-white dark:text-slate-950 dark:hover:bg-primary-300"
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-slate-200/50 transition-all hover:-translate-y-0.5 hover:bg-primary-600 dark:bg-white dark:text-slate-950 dark:shadow-none dark:hover:bg-primary-300"
                 >
                   {t('common.allTools')}
                   <ArrowRight className="h-4 w-4" />

@@ -28,6 +28,7 @@ CELERY_TASK_MODULES = (
     "app.tasks.html_to_pdf_tasks",
     "app.tasks.image_extra_tasks",
     "app.tasks.image_tasks",
+    "app.tasks.markdown_convert_tasks",
     "app.tasks.maintenance_tasks",
     "app.tasks.ocr_tasks",
     "app.tasks.pdf_ai_tasks",
@@ -96,6 +97,11 @@ def init_celery(app, *, import_tasks: bool = False):
         "app.tasks.pdf_to_excel_tasks.*": {"queue": "pdf_processing"},
         "app.tasks.convert_tasks.*": {"queue": "pdf_processing"},
         "app.tasks.html_to_pdf_tasks.*": {"queue": "pdf_processing"},
+        "app.tasks.markdown_convert_tasks.convert_file_to_markdown_task": {"queue": "pdf_processing"},
+        "app.tasks.markdown_convert_tasks.convert_image_to_markdown_task": {"queue": "ocr_tasks"},
+        "app.tasks.markdown_convert_tasks.convert_video_to_markdown_task": {"queue": "video_processing"},
+        "app.tasks.markdown_convert_tasks.convert_text_to_markdown_task": {"queue": "lightweight_queue"},
+        "app.tasks.markdown_convert_tasks.convert_code_to_markdown_task": {"queue": "code_analysis_queue"},
 
         # Image processing
         "app.tasks.image_tasks.*": {"queue": "image_processing"},

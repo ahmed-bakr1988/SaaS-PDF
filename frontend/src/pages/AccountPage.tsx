@@ -5,20 +5,17 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   AlertTriangle,
-  BarChart3,
   BadgeCheck,
   Check,
   Copy,
   Download,
   FolderClock,
   KeyRound,
-  LogOut,
   PartyPopper,
   ShieldCheck,
   Sparkles,
   Trash2,
-  UserRound,
-  Zap,
+  User,
 } from 'lucide-react';
 import {
   getHistory,
@@ -30,11 +27,18 @@ import {
   type HistoryEntry,
   type UsageSummary,
   type ApiKey,
-  type SocialAuthProviderOption,
-} from '@/services/api';
-import { useAuthStore } from '@/stores/authStore';
+  getCreditInfo,
+  getPublicStats,
+  getProfile,
+  updateProfile,
+  } from '@/services/api';
+  import { useAuthStore } from '@/stores/authStore';
+  import AccountSidebar, { type AccountTab } from '@/components/layout/AccountSidebar';
+  import { cn } from '@/utils/cn';
 
-type AuthMode = 'login' | 'register';
+  import type { UserProfile } from '@/services/apiTypes';
+
+  type AuthMode = 'login' | 'register';
 
 const toolKeyMap: Record<string, string> = {
   'pdf-to-word': 'tools.pdfToWord.title',
@@ -141,7 +145,6 @@ export default function AccountPage() {
   const logout = useAuthStore((state) => state.logout);
   const isNewAccount = useAuthStore((state) => state.isNewAccount);
   const clearNewAccount = useAuthStore((state) => state.clearNewAccount);
-  const credits = useAuthStore((state) => state.credits);
 
   // Welcome celebration for new registrations
   useEffect(() => {
@@ -175,6 +178,7 @@ export default function AccountPage() {
   }, [location.pathname, location.search, navigate]);
 
   const [mode, setMode] = useState<AuthMode>('login');
+  const [activeTab, setActiveTab] = useState<AccountTab>('overview');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -190,12 +194,14 @@ export default function AccountPage() {
 
   // API Keys state (pro only)
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [apiKeysLoading, setApiKeysLoading] = useState(false);
   const [newKeyName, setNewKeyName] = useState('');
   const [newKeyCreating, setNewKeyCreating] = useState(false);
-  const [newKeyError, setNewKeyError] = useState<string | null>(null);
   const [revealedKey, setRevealedKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
+
+  // Profile state
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileSaving, setProfileSaving] = useState(false);
 
   const dateFormatter = useMemo(
     () =>
@@ -314,21 +320,58 @@ export default function AccountPage() {
 
     const loadApiKeys = async () => {
       if (user.plan !== 'pro') return;
-      setApiKeysLoading(true);
       try {
         const keys = await getApiKeys();
         setApiKeys(keys);
       } catch {
         // non-critical
-      } finally {
-        setApiKeysLoading(false);
+      }
+    };
+
+    const loadProfile = async () => {
+      try {
+        const p = await getProfile();
+        setProfile(p);
+      } catch {
+        // non-critical
       }
     };
 
     void loadHistory();
     void loadUsage();
     void loadApiKeys();
+    void loadProfile();
   }, [t, user]);
+
+  const handleUpdateProfile = async (data: Partial<UserProfile>) => {
+    setProfileSaving(true);
+    try {
+      const updated = await updateProfile(data);
+      setProfile(updated);
+      toast.success(t('account.profileUpdated', 'Profile updated successfully.'));
+    } catch {
+      toast.error(t('account.profileUpdateError', 'Failed to update profile.'));
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
+  const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1024 * 1024) {
+      toast.error(t('account.imageTooLarge', 'Image must be less than 1MB.'));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      const base64 = reader.result as string;
+      await handleUpdateProfile({ profile_picture_url: base64 });
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -423,576 +466,499 @@ export default function AccountPage() {
 
       {!initialized && authLoading ? (
         <div className="flex min-h-[40vh] items-center justify-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400" />
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600 dark:border-brand-800 dark:border-t-brand-400" />
         </div>
       ) : user ? (
-        <div className="space-y-8">
-          <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-amber-100 via-orange-50 to-white p-8 shadow-sm ring-1 ring-amber-200 dark:from-amber-950/60 dark:via-slate-900 dark:to-slate-950 dark:ring-amber-900/50">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-2xl space-y-4">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-amber-900 ring-1 ring-amber-200 dark:bg-amber-400/10 dark:text-amber-200 dark:ring-amber-700/40">
-                  {user.plan === 'pro' ? <Zap className="h-4 w-4" /> : <BadgeCheck className="h-4 w-4" />}
-                  {user.plan === 'pro' ? t('account.proPlanBadge') : t('account.freePlanBadge')}
-                </div>
-                <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-                  {t('account.heroTitle')}
-                </h1>
-                <p className="max-w-xl text-base leading-7 text-slate-600 dark:text-slate-300">
-                  {t('account.heroSubtitle')}
-                </p>
-                {user.plan === 'free' && (
-                  <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                    {t('account.upgradeNotice')}
-                  </p>
-                )}
-              </div>
+        <div className="flex flex-col gap-8 md:flex-row">
+          <AccountSidebar 
+            activeTab={activeTab} 
+            onTabChange={setActiveTab} 
+            onLogout={handleLogout}
+            userEmail={user.email}
+            isPro={user.plan === 'pro'}
+            profilePictureUrl={profile?.profile_picture_url}
+          />
 
-              <div className="rounded-[1.5rem] bg-white/90 p-5 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900/90 dark:ring-slate-800">
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-slate-800 dark:text-slate-100">
-                    <UserRound className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                    <span className="text-sm font-medium">{t('account.signedInAs')}</span>
-                  </div>
-                  <p className="max-w-xs break-all text-lg font-semibold text-slate-900 dark:text-white">
-                    {user.email}
-                  </p>
-                  <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                    <Sparkles className="h-4 w-4" />
-                    <span>
-                      {t('account.currentPlan')}: {user.plan === 'pro' ? t('account.plans.pro') : t('account.plans.free')}
-                    </span>
-                  </div>
-                  <button type="button" onClick={handleLogout} className="btn-secondary w-full">
-                    <LogOut className="h-4 w-4" />
-                    {t('account.logoutCta')}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Credit Balance Cards */}
-          {usage && usage.credits && (
-            <section className="grid gap-4 sm:grid-cols-2">
-              <div className="card rounded-[1.5rem] p-5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                  {t('account.creditBalanceTitle')}
-                </p>
-                <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                  {usage.credits.credits_remaining}
-                  <span className="text-base font-normal text-slate-400"> / {usage.credits.credits_allocated}</span>
-                </p>
-                <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                  <div
-                    className="h-full rounded-full bg-primary-500 transition-all"
-                    style={{ width: `${Math.min(100, (usage.credits.credits_used / usage.credits.credits_allocated) * 100)}%` }}
-                  />
-                </div>
-                {usage.credits.window_end && (
-                  <p className="mt-2 text-xs text-slate-400">
-                    {t('account.creditWindowResets')}: {new Date(usage.credits.window_end).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-              {usage.api_quota?.limit != null && (
-                <div className="card rounded-[1.5rem] p-5">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">
-                    {t('account.apiQuotaTitle')}
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-slate-900 dark:text-white">
-                    {usage.api_quota.used}
-                    <span className="text-base font-normal text-slate-400"> / {usage.api_quota.limit}</span>
-                  </p>
-                  <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-                    <div
-                      className="h-full rounded-full bg-emerald-500 transition-all"
-                      style={{ width: `${Math.min(100, (usage.api_quota.used / usage.api_quota.limit) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              )}
-            </section>
-          )}
-
-          <section className="card rounded-[2rem] p-0">
-            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
-              <div className="flex items-center gap-3">
-                <BarChart3 className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                    {t('account.dashboardTitle')}
-                  </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {t('account.dashboardSubtitle')}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-6 p-6">
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricProcessed')}</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.totalProcessed}</p>
-                </div>
-                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricSuccessRate')}</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.successRate}%</p>
-                </div>
-                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricFavoriteTool')}</p>
-                  <p className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">
-                    {dashboardMetrics.favoriteToolSlug
-                      ? formatHistoryTool(dashboardMetrics.favoriteToolSlug, t)
-                      : t('account.metricFavoriteToolEmpty')}
-                  </p>
-                </div>
-                <div className="rounded-[1.5rem] bg-slate-50 p-5 dark:bg-slate-800/80">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('account.metricFailures')}</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{dashboardMetrics.failedCount}</p>
-                </div>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-[1fr_1fr_1.1fr]">
-                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.topToolsTitle')}</h3>
-                  <div className="mt-4 space-y-3">
-                    {dashboardMetrics.topTools.length === 0 ? (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.historyEmpty')}</p>
-                    ) : (
-                      dashboardMetrics.topTools.map(([tool, count]) => (
-                        <div key={tool} className="flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/70">
-                          <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{formatHistoryTool(tool, t)}</span>
-                          <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">{count}</span>
-                        </div>
-                      ))
+          <main className="flex-1 space-y-8 min-w-0">
+            {activeTab === 'overview' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                <section className="premium-surface relative overflow-hidden p-8 sm:p-12">
+                  <div className="pointer-events-none absolute -left-20 -top-20 h-64 w-64 rounded-full bg-amber-400/10 blur-[100px] dark:bg-amber-600/5" />
+                  <div className="relative space-y-4">
+                    <h1 className="text-3xl font-black tracking-tight text-zinc-900 dark:text-white sm:text-4xl">
+                      {t('account.heroTitle')}
+                    </h1>
+                    <p className="max-w-xl text-lg text-zinc-600 dark:text-zinc-400">
+                      {t('account.heroSubtitle')}
+                    </p>
+                    {user.plan === 'free' && (
+                      <div className="inline-flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-2 text-sm font-bold text-amber-800 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:ring-amber-800/40">
+                        <Sparkles className="h-4 w-4" />
+                        {t('account.upgradeNotice')}
+                      </div>
                     )}
                   </div>
+                </section>
+
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                  {[
+                    { label: t('account.metricProcessed'), value: dashboardMetrics.totalProcessed, icon: Check, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+                    { label: t('account.metricSuccessRate'), value: `${dashboardMetrics.successRate}%`, icon: BadgeCheck, color: 'text-brand-500', bg: 'bg-brand-50 dark:bg-brand-900/20' },
+                    { label: t('account.metricFavoriteTool'), value: dashboardMetrics.favoriteToolSlug ? formatHistoryTool(dashboardMetrics.favoriteToolSlug, t) : '—', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+                    { label: t('account.metricFailures'), value: dashboardMetrics.failedCount, icon: AlertTriangle, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
+                  ].map((m, i) => (
+                    <div key={i} className="premium-card !p-6 flex flex-col gap-4">
+                      <div className={cn('flex h-12 w-12 items-center justify-center rounded-2xl', m.bg)}>
+                        <m.icon className={cn('h-6 w-6', m.color)} />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{m.label}</p>
+                        <p className="mt-1 text-2xl font-black text-zinc-900 dark:text-white">{m.value}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
-                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.issuesTitle')}</h3>
-                  <div className="mt-4 space-y-3">
-                    {dashboardMetrics.recentFailures.length === 0 ? (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.issuesEmpty')}</p>
-                    ) : (
-                      dashboardMetrics.recentFailures.map((item) => (
-                        <div key={item.id} className="rounded-xl bg-red-50 px-4 py-3 dark:bg-red-950/30">
-                          <div className="flex items-start gap-3">
-                            <AlertTriangle className="mt-0.5 h-4 w-4 text-red-500" />
-                            <div>
-                              <p className="text-sm font-semibold text-red-800 dark:text-red-300">{formatHistoryTool(item.tool, t)}</p>
-                              <p className="mt-1 text-xs text-red-700 dark:text-red-400">{typeof item.metadata?.error === 'string' ? item.metadata.error : t('account.statusFailed')}</p>
-                            </div>
-                          </div>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                <div className="rounded-[1.5rem] border border-slate-200 p-5 dark:border-slate-700">
-                  <h3 className="text-base font-semibold text-slate-900 dark:text-white">{t('account.onboardingTitle')}</h3>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('account.onboardingSubtitle')}</p>
-                  <div className="mt-4 space-y-3">
-                    {dashboardMetrics.onboardingItems.map((item) => (
-                      <div key={item.key} className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/70">
-                        <div className="flex items-start gap-3">
-                          <span className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full ${item.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'}`}>
-                            {item.done ? <Check className="h-3.5 w-3.5" /> : <span className="text-[10px] font-bold">•</span>}
+                <div className="grid gap-6 lg:grid-cols-2">
+                  <div className="premium-card !p-6">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-6">{t('account.onboardingTitle')}</h3>
+                    <div className="space-y-4">
+                      {dashboardMetrics.onboardingItems.map((item) => (
+                        <div key={item.key} className="flex items-start gap-4 rounded-2xl bg-zinc-50/50 p-4 dark:bg-zinc-900/40">
+                          <span className={cn(
+                            'mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-black',
+                            item.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800'
+                          )}>
+                            {item.done ? <Check className="h-4 w-4" /> : '•'}
                           </span>
                           <div>
-                            <p className="text-sm font-semibold text-slate-900 dark:text-white">{item.title}</p>
-                            <p className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">{item.description}</p>
+                            <p className="font-bold text-zinc-900 dark:text-white">{item.title}</p>
+                            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>
                           </div>
                         </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="premium-card !p-6">
+                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-6">{t('account.issuesTitle')}</h3>
+                    <div className="space-y-4">
+                      {dashboardMetrics.recentFailures.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-zinc-400">
+                          <ShieldCheck className="h-12 w-12 opacity-20 mb-4" />
+                          <p>{t('account.issuesEmpty')}</p>
+                        </div>
+                      ) : (
+                        dashboardMetrics.recentFailures.map((item) => (
+                          <div key={item.id} className="rounded-2xl bg-red-50/50 p-4 ring-1 ring-red-100 dark:bg-red-900/10 dark:ring-red-900/20">
+                            <div className="flex items-start gap-3">
+                              <AlertTriangle className="mt-1 h-5 w-5 text-red-500" />
+                              <div>
+                                <p className="font-bold text-red-900 dark:text-red-400">{formatHistoryTool(item.tool, t)}</p>
+                                <p className="mt-1 text-sm text-red-700 dark:text-red-500/80">
+                                  {typeof item.metadata?.error === 'string' ? item.metadata.error : t('account.statusFailed')}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'history' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{t('account.historyTitle')}</h2>
+                    <p className="text-zinc-500 dark:text-zinc-400">{t('account.historySubtitle')}</p>
+                  </div>
+                </div>
+
+                {historyLoading ? (
+                  <div className="py-20 text-center text-zinc-400">{t('account.historyLoading')}</div>
+                ) : historyError ? (
+                  <div className="rounded-2xl bg-red-50 p-6 text-red-700">{historyError}</div>
+                ) : historyItems.length === 0 ? (
+                  <div className="premium-card py-20 text-center">
+                    <FolderClock className="h-16 w-16 mx-auto text-zinc-200 mb-4" />
+                    <p className="text-zinc-500">{t('account.historyEmpty')}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {historyItems.map((item) => (
+                      <article key={item.id} className="premium-card !p-6 hover:shadow-md transition-shadow">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-center gap-4">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-zinc-50 dark:bg-zinc-900">
+                              <Download className="h-6 w-6 text-zinc-400" />
+                            </div>
+                            <div>
+                              <h3 className="font-bold text-zinc-900 dark:text-white truncate max-w-xs md:max-w-md">
+                                {item.output_filename || item.original_filename || formatHistoryTool(item.tool, t)}
+                              </h3>
+                              <p className="text-xs text-zinc-500">{dateFormatter.format(new Date(item.created_at))}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className={cn(
+                              "text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full",
+                              item.status === 'completed' ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30' : 'bg-red-50 text-red-700 dark:bg-red-900/30'
+                            )}>
+                              {item.status === 'completed' ? t('account.statusCompleted') : t('account.statusFailed')}
+                            </span>
+                            {item.download_url && (
+                              <a href={item.download_url} className="text-brand-600 hover:text-brand-700 dark:text-brand-400">
+                                <Download className="h-5 w-5" />
+                              </a>
+                            )}
+                          </div>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'usage' && usage && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{t('account.tabUsage')}</h2>
+                
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="premium-card !p-8">
+                    <div className="flex items-center justify-between mb-8">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{t('account.creditBalanceTitle')}</p>
+                      <Sparkles className="h-6 w-6 text-amber-500" />
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-black text-zinc-900 dark:text-white">{usage.credits.credits_remaining}</span>
+                      <span className="text-zinc-400 font-bold">/ {usage.credits.credits_allocated}</span>
+                    </div>
+                    <div className="mt-8 h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000"
+                        style={{ width: `${(usage.credits.credits_remaining / usage.credits.credits_allocated) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {usage.api_quota?.limit != null && (
+                    <div className="premium-card !p-8">
+                      <div className="flex items-center justify-between mb-8">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-zinc-400">{t('account.apiQuotaTitle')}</p>
+                        <KeyRound className="h-6 w-6 text-brand-500" />
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-5xl font-black text-zinc-900 dark:text-white">{usage.api_quota.used}</span>
+                        <span className="text-zinc-400 font-bold">/ {usage.api_quota.limit}</span>
+                      </div>
+                      <div className="mt-8 h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-brand-400 to-sky-500 transition-all duration-1000"
+                          style={{ width: `${(usage.api_quota.used / usage.api_quota.limit) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <div className="premium-card !p-6">
+                  <h3 className="font-bold mb-4">{t('account.topToolsTitle')}</h3>
+                  <div className="space-y-2">
+                    {dashboardMetrics.topTools.map(([tool, count]) => (
+                      <div key={tool} className="flex items-center justify-between p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-900">
+                        <span className="font-medium">{formatHistoryTool(tool, t)}</span>
+                        <span className="font-black text-brand-600">{count}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
-          </section>
+            )}
 
-          {/* API Key Management — Pro only */}
-          {user.plan === 'pro' && (
-            <section className="card rounded-[2rem] p-0">
-              <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
-                <div className="flex items-center gap-3">
-                  <KeyRound className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                  <div>
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                      {t('account.apiKeysTitle')}
-                    </h2>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
-                      {t('account.apiKeysSubtitle')}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4 p-6">
-                {/* Create key form */}
-                <form onSubmit={handleCreateApiKey} className="flex gap-2">
-                  <input
-                    type="text"
-                    value={newKeyName}
-                    onChange={(e) => setNewKeyName(e.target.value)}
-                    placeholder={t('account.apiKeyNamePlaceholder')}
-                    maxLength={100}
-                    className="input flex-1"
-                  />
-                  <button type="submit" className="btn-primary" disabled={newKeyCreating || !newKeyName.trim()}>
-                    {newKeyCreating ? '…' : t('account.apiKeyCreate')}
-                  </button>
-                </form>
-                {newKeyError && (
-                  <p className="text-sm text-red-600 dark:text-red-400">{newKeyError}</p>
-                )}
-                {/* Revealed key — shown once after creation */}
-                {revealedKey && (
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 dark:border-emerald-800/60 dark:bg-emerald-950/30">
-                    <code className="flex-1 break-all font-mono text-xs text-emerald-800 dark:text-emerald-200">
-                      {revealedKey}
-                    </code>
-                    <button type="button" onClick={handleCopyKey} className="shrink-0 text-emerald-700 dark:text-emerald-300">
-                      {copiedKey ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {activeTab === 'api-keys' && user.plan === 'pro' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-6">
+                <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{t('account.apiKeysTitle')}</h2>
+                
+                <div className="premium-card !p-6">
+                  <form onSubmit={handleCreateApiKey} className="flex gap-4">
+                    <input
+                      type="text"
+                      value={newKeyName}
+                      onChange={(e) => setNewKeyName(e.target.value)}
+                      placeholder={t('account.apiKeyNamePlaceholder')}
+                      className="input-field"
+                    />
+                    <button type="submit" className="btn-primary" disabled={newKeyCreating || !newKeyName.trim()}>
+                      {newKeyCreating ? '…' : t('account.apiKeyCreate')}
                     </button>
-                    <button type="button" onClick={() => setRevealedKey(null)} className="shrink-0 text-slate-400 hover:text-slate-600">
-                      ×
-                    </button>
-                  </div>
-                )}
-                {revealedKey && (
-                  <p className="text-xs text-amber-600 dark:text-amber-400">{t('account.apiKeyCopyWarning')}</p>
-                )}
-                {/* Key list */}
-                {apiKeysLoading ? (
-                  <p className="text-sm text-slate-500">{t('account.historyLoading')}</p>
-                ) : apiKeys.length === 0 ? (
-                  <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.apiKeysEmpty')}</p>
-                ) : (
-                  <ul className="space-y-2">
+                  </form>
+
+                  {revealedKey && (
+                    <div className="mt-6 space-y-3">
+                      <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100 dark:bg-emerald-950/20">
+                        <code className="flex-1 font-mono text-sm text-emerald-700">{revealedKey}</code>
+                        <button onClick={handleCopyKey} className="text-emerald-600">
+                          {copiedKey ? <Check className="h-5 w-5" /> : <Copy className="h-5 w-5" />}
+                        </button>
+                      </div>
+                      <p className="text-xs text-amber-600 font-bold">{t('account.apiKeyCopyWarning')}</p>
+                    </div>
+                  )}
+
+                  <div className="mt-10 space-y-4">
                     {apiKeys.map((key) => (
-                      <li
-                        key={key.id}
-                        className={`flex items-center justify-between rounded-xl border px-4 py-3 ${
-                          key.revoked_at
-                            ? 'border-slate-200 bg-slate-50 opacity-50 dark:border-slate-700 dark:bg-slate-900/40'
-                            : 'border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-900/70'
-                        }`}
-                      >
-                        <div className="space-y-0.5">
-                          <p className="text-sm font-semibold text-slate-900 dark:text-white">{key.name}</p>
-                          <p className="font-mono text-xs text-slate-400">{key.key_prefix}…</p>
-                          {key.revoked_at && (
-                            <p className="text-xs text-red-500">{t('account.apiKeyRevoked')}</p>
-                          )}
+                      <div key={key.id} className={cn(
+                        "flex items-center justify-between p-4 rounded-2xl ring-1",
+                        key.revoked_at ? "bg-zinc-50 ring-zinc-100 opacity-50" : "bg-white ring-zinc-200 shadow-sm dark:bg-zinc-900 dark:ring-zinc-800"
+                      )}>
+                        <div>
+                          <p className="font-bold text-zinc-900 dark:text-white">{key.name}</p>
+                          <p className="font-mono text-xs text-zinc-400">{key.key_prefix}…</p>
                         </div>
                         {!key.revoked_at && (
-                          <button
-                            type="button"
-                            onClick={() => handleRevokeApiKey(key.id)}
-                            className="ml-4 text-slate-400 hover:text-red-500 dark:hover:text-red-400"
-                            title={t('account.apiKeyRevoke')}
-                          >
-                            <Trash2 className="h-4 w-4" />
+                          <button onClick={() => handleRevokeApiKey(key.id)} className="text-zinc-400 hover:text-red-500">
+                            <Trash2 className="h-5 w-5" />
                           </button>
                         )}
-                      </li>
+                      </div>
                     ))}
-                  </ul>
-                )}
-              </div>
-            </section>
-          )}
-
-          <section id="history" className="card rounded-[2rem] p-0">
-            <div className="border-b border-slate-200 px-6 py-5 dark:border-slate-700">
-              <div className="flex items-center gap-3">
-                <FolderClock className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-900 dark:text-white">
-                    {t('account.historyTitle')}
-                  </h2>
-                  <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {t('account.historySubtitle')}
-                  </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            <div className="space-y-4 p-6">
-              {historyLoading ? (
-                <p className="text-sm text-slate-500 dark:text-slate-400">{t('account.historyLoading')}</p>
-              ) : historyError ? (
-                <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
-                  {historyError}
-                </div>
-              ) : historyItems.length === 0 ? (
-                <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-slate-50 px-6 py-10 text-center dark:border-slate-700 dark:bg-slate-900/60">
-                  <p className="text-base font-medium text-slate-700 dark:text-slate-200">{t('account.historyEmpty')}</p>
-                </div>
-              ) : (
-                historyItems.map((item) => {
-                  const metadataError =
-                    typeof item.metadata?.error === 'string' ? item.metadata.error : null;
-
-                  return (
-                    <article
-                      key={item.id}
-                      className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70"
-                    >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div className="space-y-2">
-                          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
-                            {formatHistoryTool(item.tool, t)}
-                          </p>
-                          <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
-                            {item.output_filename || item.original_filename || formatHistoryTool(item.tool, t)}
-                          </h3>
-                          <p className="text-sm text-slate-500 dark:text-slate-400">
-                            {t('account.createdAt')}: {dateFormatter.format(new Date(item.created_at))}
-                          </p>
+            {activeTab === 'settings' && (
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-8">
+                <h2 className="text-2xl font-black text-zinc-900 dark:text-white">{t('account.tabSettings')}</h2>
+                
+                <div className="premium-card !p-8">
+                  <div className="flex flex-col md:flex-row md:items-center gap-8 mb-10">
+                    <div className="relative group shrink-0">
+                      <div className="h-24 w-24 rounded-3xl bg-zinc-100 dark:bg-zinc-900 overflow-hidden flex items-center justify-center ring-4 ring-zinc-50 dark:ring-zinc-800">
+                        {profile?.profile_picture_url ? (
+                          <img src={profile.profile_picture_url} alt="Profile" className="h-full w-full object-cover" />
+                        ) : (
+                          <User className="h-12 w-12 text-zinc-400" />
+                        )}
+                      </div>
+                      <label className="absolute inset-0 flex items-center justify-center bg-black/40 text-white opacity-0 group-hover:opacity-100 cursor-pointer rounded-3xl transition-opacity">
+                        <input type="file" accept="image/*" className="hidden" onChange={handleProfilePictureChange} />
+                        <PartyPopper className="h-6 w-6" />
+                      </label>
+                      {profileSaving && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-zinc-950/60 rounded-3xl">
+                          <div className="h-6 w-6 animate-spin rounded-full border-2 border-brand-600 border-t-transparent" />
                         </div>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-2xl font-black text-zinc-900 dark:text-white">{user.email}</p>
+                      <p className="text-zinc-500 uppercase text-xs font-black tracking-widest">{user.plan} account</p>
+                      <button 
+                        onClick={() => document.querySelector<HTMLInputElement>('input[type="file"]')?.click()}
+                        className="mt-2 text-xs font-bold text-brand-600 hover:underline"
+                      >
+                        {t('account.changePhoto', 'Change photo')}
+                      </button>
+                    </div>
+                  </div>
 
-                        <span
-                          className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
-                            item.status === 'completed'
-                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
-                              : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300'
-                          }`}
-                        >
-                          {item.status === 'completed'
-                            ? t('account.statusCompleted')
-                            : t('account.statusFailed')}
+                  <form 
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      void handleUpdateProfile({
+                        first_name: formData.get('first_name') as string,
+                        last_name: formData.get('last_name') as string,
+                        bio: formData.get('bio') as string,
+                      });
+                    }}
+                    className="grid gap-6 md:grid-cols-2"
+                  >
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-zinc-400">{t('account.firstName', 'First Name')}</label>
+                      <input 
+                        name="first_name" 
+                        defaultValue={profile?.first_name || ''} 
+                        className="input-field" 
+                        placeholder="John"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-zinc-400">{t('account.lastName', 'Last Name')}</label>
+                      <input 
+                        name="last_name" 
+                        defaultValue={profile?.last_name || ''} 
+                        className="input-field" 
+                        placeholder="Doe"
+                      />
+                    </div>
+                    <div className="md:col-span-2 space-y-2">
+                      <label className="text-xs font-black uppercase tracking-widest text-zinc-400">{t('account.bio', 'Bio')}</label>
+                      <textarea 
+                        name="bio" 
+                        defaultValue={profile?.bio || ''} 
+                        className="input-field min-h-[100px] resize-none" 
+                        placeholder={t('account.bioPlaceholder', 'Tell us about yourself...')}
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex justify-end">
+                      <button type="submit" className="btn-primary" disabled={profileSaving}>
+                        {profileSaving ? '…' : t('common.saveChanges', 'Save Changes')}
+                      </button>
+                    </div>
+                  </form>
+
+                  <div className="mt-12 h-px bg-zinc-100 dark:bg-zinc-800" />
+
+                  <div className="mt-10 space-y-4">
+                    <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900/50">
+                      <p className="text-sm font-bold text-zinc-500 mb-1">{t('account.currentPlan')}</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg font-black text-zinc-900 dark:text-white uppercase">
+                          {user.plan === 'pro' ? t('account.plans.pro') : t('account.plans.free')}
                         </span>
+                        {user.plan === 'free' && (
+                          <a href="/pricing" className="btn-primary !py-2 !px-4 text-xs">
+                            {t('account.upgradeCta', 'Upgrade to Pro')}
+                          </a>
+                        )}
                       </div>
-
-                      <div className="mt-4 grid gap-3 text-sm text-slate-600 dark:text-slate-300 sm:grid-cols-2">
-                        <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80">
-                          <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                            {t('account.originalFile')}
-                          </p>
-                          <p className="mt-1 break-all font-medium text-slate-800 dark:text-slate-100">
-                            {item.original_filename || '—'}
-                          </p>
-                        </div>
-                        <div className="rounded-xl bg-slate-50 px-4 py-3 dark:bg-slate-800/80">
-                          <p className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">
-                            {t('account.outputFile')}
-                          </p>
-                          <p className="mt-1 break-all font-medium text-slate-800 dark:text-slate-100">
-                            {item.output_filename || '—'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {metadataError ? (
-                        <p className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/40 dark:text-red-300">
-                          {metadataError}
-                        </p>
-                      ) : null}
-
-                      {item.download_url && item.status === 'completed' ? (
-                        <a href={item.download_url} className="btn-primary mt-4 inline-flex">
-                          <Download className="h-4 w-4" />
-                          {t('account.downloadResult')}
-                        </a>
-                      ) : null}
-                    </article>
-                  );
-                })
-              )}
-            </div>
-          </section>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </main>
         </div>
       ) : (
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <section className="overflow-hidden rounded-[2rem] bg-gradient-to-br from-cyan-100 via-white to-amber-50 p-8 shadow-sm ring-1 ring-cyan-200 dark:from-cyan-950/50 dark:via-slate-950 dark:to-amber-950/30 dark:ring-cyan-900/40">
-            <div className="max-w-xl space-y-5">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-sm font-semibold text-cyan-900 ring-1 ring-cyan-200 dark:bg-cyan-400/10 dark:text-cyan-200 dark:ring-cyan-700/40">
-                <ShieldCheck className="h-4 w-4" />
-                {t('account.benefitsTitle')}
-              </div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-                {t('account.heroTitle')}
-              </h1>
-              <p className="text-base leading-7 text-slate-600 dark:text-slate-300">
-                {t('account.heroSubtitle')}
-              </p>
+        <div className="grid gap-12 lg:grid-cols-2 items-center min-h-[70vh]">
+          <section className="space-y-8">
+            <div className="inline-flex items-center gap-2 rounded-full bg-brand-50 px-4 py-2 text-xs font-black uppercase tracking-widest text-brand-700 dark:bg-brand-900/30 dark:text-brand-400">
+              <ShieldCheck className="h-4 w-4" />
+              {t('account.benefitsTitle')}
             </div>
+            <h1 className="text-5xl font-black tracking-tight text-zinc-950 dark:text-white leading-[1.1]">
+              {t('account.heroTitle')}
+            </h1>
+            <p className="text-lg text-zinc-600 dark:text-zinc-400 max-w-lg">
+              {t('account.heroSubtitle')}
+            </p>
 
-            <div className="mt-8 grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
               {[t('account.benefit1'), t('account.benefit2'), t('account.benefit3')].map((benefit) => (
-                <div
-                  key={benefit}
-                  className="flex items-start gap-3 rounded-[1.25rem] bg-white/80 px-4 py-4 shadow-sm ring-1 ring-white dark:bg-slate-900/80 dark:ring-slate-800"
-                >
-                  <KeyRound className="mt-0.5 h-5 w-5 text-primary-600 dark:text-primary-400" />
-                  <p className="text-sm font-medium leading-6 text-slate-700 dark:text-slate-200">{benefit}</p>
+                <div key={benefit} className="flex items-center gap-3 p-4 rounded-2xl bg-white shadow-sm ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-800">
+                  <div className="h-8 w-8 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 dark:bg-emerald-900/20">
+                    <Check className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <p className="text-sm font-bold text-zinc-700 dark:text-zinc-300">{benefit}</p>
                 </div>
               ))}
             </div>
           </section>
 
-          <section className="overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-            <div className="grid grid-cols-2 border-b border-slate-200 dark:border-slate-800">
+          <section className="premium-card !p-0 overflow-hidden">
+            <div className="flex border-b border-zinc-100 dark:border-zinc-800">
               <button
                 type="button"
-                onClick={() => {
-                  setMode('login');
-                  setSubmitError(null);
-                }}
-                className={`px-5 py-4 text-sm font-semibold transition-colors ${
-                  mode === 'login'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                    : 'text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/70'
-                }`}
+                onClick={() => { setMode('login'); setSubmitError(null); }}
+                className={cn(
+                  "flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all",
+                  mode === 'login' ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950" : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                )}
               >
                 {t('common.signIn')}
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  setMode('register');
-                  setSubmitError(null);
-                }}
-                className={`px-5 py-4 text-sm font-semibold transition-colors ${
-                  mode === 'register'
-                    ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                    : 'text-slate-500 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-800/70'
-                }`}
+                onClick={() => { setMode('register'); setSubmitError(null); }}
+                className={cn(
+                  "flex-1 py-5 text-sm font-black uppercase tracking-widest transition-all",
+                  mode === 'register' ? "bg-zinc-950 text-white dark:bg-white dark:text-zinc-950" : "text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                )}
               >
                 {t('account.createAccount')}
               </button>
             </div>
 
-            <div className="p-6 sm:p-8">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <div className="p-8 sm:p-12">
+              <div className="mb-8 text-center sm:text-left">
+                <h2 className="text-3xl font-black text-zinc-950 dark:text-white">
                   {mode === 'login' ? t('account.signInTitle') : t('account.registerTitle')}
                 </h2>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                  {t('account.formSubtitle')}
-                </p>
+                <p className="mt-2 text-zinc-500">{t('account.formSubtitle')}</p>
               </div>
 
-              <div className="space-y-5">
-                <div className="space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                    {t('account.socialTitle')}
-                  </p>
-                  <div className="grid gap-3">
-                    {socialProviders.map((provider) => {
-                      const disabled = authLoading || socialProvidersLoading || !provider.available;
-                      return (
-                        <a
-                          key={provider.id}
-                          href={provider.available ? provider.start_url : undefined}
-                          aria-disabled={disabled}
-                          className={`flex items-center justify-between rounded-[1.1rem] border px-4 py-3 text-sm font-semibold transition ${
-                            disabled
-                              ? 'cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900/80 dark:text-slate-500'
-                              : 'border-slate-200 bg-white text-slate-800 hover:border-primary-300 hover:bg-primary-50 dark:border-slate-700 dark:bg-slate-950/40 dark:text-slate-100 dark:hover:border-primary-700 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          <span className="flex items-center gap-3">
-                            <span className={`inline-flex h-9 w-9 items-center justify-center rounded-full ${
-                              provider.id === 'google'
-                                ? 'bg-white ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700'
-                                : provider.id === 'facebook'
-                                  ? 'bg-[#1877F2]/10 text-[#1877F2]'
-                                  : 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                            }`}>
-                              <SocialProviderIcon provider={provider.id} />
-                            </span>
-                            <span>{t('account.socialContinueWith', { provider: provider.label })}</span>
-                          </span>
-                          <span className="text-xs font-medium text-slate-400 dark:text-slate-500">
-                            {provider.available ? t('account.socialReady') : t('account.socialDisabled')}
-                          </span>
-                        </a>
-                      );
-                    })}
+              <div className="space-y-6">
+                <div className="grid gap-3">
+                  {socialProviders.map((provider) => {
+                    const disabled = authLoading || socialProvidersLoading || !provider.available;
+                    return (
+                      <a
+                        key={provider.id}
+                        href={provider.available ? provider.start_url : undefined}
+                        className={cn(
+                          "flex items-center justify-center gap-3 rounded-2xl border py-4 text-sm font-bold transition-all",
+                          disabled 
+                            ? "opacity-50 cursor-not-allowed bg-zinc-50 border-zinc-100"
+                            : "bg-white border-zinc-200 hover:border-brand-300 hover:bg-brand-50 dark:bg-zinc-900 dark:border-zinc-800 dark:hover:bg-brand-900/10"
+                        )}
+                      >
+                        <SocialProviderIcon provider={provider.id} />
+                        {t('account.socialContinueWith', { provider: provider.label })}
+                      </a>
+                    );
+                  })}
+                </div>
+
+                <div className="relative">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-zinc-100 dark:border-zinc-800" /></div>
+                  <div className="relative flex justify-center text-xs uppercase font-black tracking-widest text-zinc-400">
+                    <span className="bg-white px-4 dark:bg-zinc-900">{t('account.orContinueWithEmail')}</span>
                   </div>
-                  {!hasEnabledSocialProvider && !socialProvidersLoading ? (
-                    <p className="text-xs leading-5 text-slate-500 dark:text-slate-400">
-                      {t('account.socialConfigHint')}
-                    </p>
-                  ) : null}
                 </div>
 
-                <div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
-                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-                  <span>{t('account.orContinueWithEmail')}</span>
-                  <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
-                </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t('common.email')}
-                  </span>
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <input
                     type="email"
                     required
                     value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    placeholder={t('account.emailPlaceholder')}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder={t('common.email')}
                     className="input-field"
                   />
-                </label>
-
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                    {t('common.password')}
-                  </span>
                   <input
                     type="password"
                     required
                     minLength={8}
                     value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder={t('account.passwordPlaceholder')}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t('common.password')}
                     className="input-field"
                   />
-                </label>
-
-                {mode === 'register' ? (
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                      {t('account.confirmPassword')}
-                    </span>
+                  {mode === 'register' && (
                     <input
                       type="password"
                       required
                       minLength={8}
                       value={confirmPassword}
-                      onChange={(event) => setConfirmPassword(event.target.value)}
-                      placeholder={t('account.confirmPasswordPlaceholder')}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder={t('account.confirmPassword')}
                       className="input-field"
                     />
-                  </label>
-                ) : null}
-
-                {submitError ? (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-900/60 dark:bg-red-950/40 dark:text-red-300">
-                    {submitError}
-                  </div>
-                ) : null}
-
-                <button type="submit" className="btn-primary w-full" disabled={authLoading}>
-                  {mode === 'login' ? t('account.submitLogin') : t('account.submitRegister')}
-                </button>
-
-                {mode === 'login' && (
-                  <p className="text-center text-sm">
-                    <a href="/forgot-password" className="text-primary-600 hover:underline dark:text-primary-400">
-                      {t('auth.forgotPassword.link')}
-                    </a>
-                  </p>
-                )}
-              </form>
+                  )}
+                  {submitError && (
+                    <div className="p-4 rounded-xl bg-red-50 text-red-700 text-sm font-bold">{submitError}</div>
+                  )}
+                  <button type="submit" className="btn-primary w-full !py-4" disabled={authLoading}>
+                    {mode === 'login' ? t('common.signIn') : t('account.createAccount')}
+                  </button>
+                </form>
               </div>
             </div>
           </section>
@@ -1001,3 +967,4 @@ export default function AccountPage() {
     </>
   );
 }
+

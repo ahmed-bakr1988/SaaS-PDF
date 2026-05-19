@@ -125,24 +125,30 @@ export const colors = {
   light: {
     background: '#ffffff',
     surface: '#f8fafc',
+    surfacePremium: '#ffffff', // Clean white for premium cards
     surfaceHover: '#f1f5f9',
     text: '#0f172a',
     textSecondary: '#64748b',
     textTertiary: '#94a3b8',
     border: '#e2e8f0',
     borderHover: '#cbd5e1',
+    glass: 'rgba(255, 255, 255, 0.7)', // Translucent white
+    glassBorder: 'rgba(255, 255, 255, 0.3)',
   },
 
   // Semantic Colors (Dark mode)
   dark: {
     background: '#0f172a',
     surface: '#1e293b',
+    surfacePremium: '#1e293b', // Deep slate for premium cards
     surfaceHover: '#334155',
     text: '#f1f5f9',
     textSecondary: '#94a3b8',
     textTertiary: '#64748b',
     border: '#334155',
     borderHover: '#475569',
+    glass: 'rgba(15, 23, 42, 0.7)', // Translucent navy
+    glassBorder: 'rgba(255, 255, 255, 0.1)',
   },
 
   // Tool Category Colors (for visual differentiation)

@@ -229,7 +229,8 @@
       "categories": {
         "general": "General Inquiry",
         "bug": "Bug Report",
-        "feature": "Feature Request"
+        "feature": "Feature Request",
+        "business-plan": "pay Business Plan"
       },
       "bugPlaceholder": "Please describe the issue: what you did, what you expected, and what happened instead.",
       "featurePlaceholder": "Describe the feature you'd like to see and how it would help you.",
@@ -865,6 +866,18 @@
       "toSentenceCase": "Sentence case",
       "removeDiacritics": "Remove Arabic Diacritics",
       "copyResult": "Copy Result"
+    },
+    "fileToMarkdown": {
+      "title": "File to Markdown",
+      "description": "Convert documents, images, spreadsheets, slides, text files, archives, and videos into compact Markdown for AI workflows.",
+      "shortDesc": "File to MD",
+      "acceptLabel": "PDF, Office, images, video, text, HTML, CSV, JSON, XML, ZIP",
+      "outputTitle": "Markdown output",
+      "outputDesc": "The converter extracts readable content first, then tries one supported intermediate conversion when direct extraction is not enough.",
+      "convert": "Convert to Markdown",
+      "processing": "Converting file to Markdown...",
+      "preview": "Markdown Preview",
+      "charCount": "{{count}} characters"
     },
     "mergePdf": {
       "title": "Merge PDF",

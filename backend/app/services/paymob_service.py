@@ -38,7 +38,7 @@ _PAID_STATUSES = {"SUCCESS", "PAID"}
 # ---------------------------------------------------------------------------
 
 def _get_env() -> str:
-    return (current_app.config.get("PAYMOB_ENVIRONMENT") or os.getenv("PAYMOB_ENVIRONMENT", "sandbox")).lower()
+    return str(current_app.config.get("PAYMOB_ENVIRONMENT", "sandbox")).lower()
 
 
 def _get_base_url() -> str:
@@ -46,30 +46,30 @@ def _get_base_url() -> str:
 
 
 def get_paymob_secret_key() -> str:
-    val = current_app.config.get("PAYMOB_SECRET_KEY") or os.getenv("PAYMOB_SECRET_KEY", "")
+    val = current_app.config.get("PAYMOB_SECRET_KEY", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paymob_public_key() -> str:
-    val = current_app.config.get("PAYMOB_PUBLIC_KEY") or os.getenv("PAYMOB_PUBLIC_KEY", "")
+    val = current_app.config.get("PAYMOB_PUBLIC_KEY", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paymob_integration_id() -> str:
     """Return the PayMob integration (payment method) ID."""
-    val = current_app.config.get("PAYMOB_INTEGRATION_ID") or os.getenv("PAYMOB_INTEGRATION_ID", "")
+    val = current_app.config.get("PAYMOB_INTEGRATION_ID", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paymob_iframe_id() -> str:
     """Return the PayMob iframe ID for embedded checkout."""
-    val = current_app.config.get("PAYMOB_IFRAME_ID") or os.getenv("PAYMOB_IFRAME_ID", "")
+    val = current_app.config.get("PAYMOB_IFRAME_ID", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paymob_hmac_secret() -> str:
     """Return the HMAC secret for webhook verification."""
-    val = current_app.config.get("PAYMOB_HMAC_SECRET") or os.getenv("PAYMOB_HMAC_SECRET", "")
+    val = current_app.config.get("PAYMOB_HMAC_SECRET", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
@@ -374,6 +374,8 @@ def verify_webhook_signature(payload: dict) -> bool:
         logger.warning("PayMob webhook missing HMAC in payload.")
         return False
 
+    event_payload = payload.get("obj") if isinstance(payload.get("obj"), dict) else payload
+
     # Build the message to verify (PayMob's HMAC is computed over specific fields)
     # The fields are: amount_cents, created_at, currency, error_occured, has_parent_transaction,
     #                 id, integration_id, is_3d_secure, is_auth, is_capture, is_refunded,
@@ -388,7 +390,7 @@ def verify_webhook_signature(payload: dict) -> bool:
 
     message = ""
     for field in fields_to_verify:
-        value = payload.get(field, "")
+        value = event_payload.get(field, "")
         if isinstance(value, dict):
             value = json.dumps(value, sort_keys=True)
         message += str(value)
@@ -424,38 +426,45 @@ def _handle_payment_success(event: dict) -> dict:
     merchant_order_id = order_data.get("merchant_order_id", "")
     amount_cents = event.get("amount_cents", 0)
 
-    # Extract user_id and plan from merchant_order_id or special_reference
+    # Extract user_id and plan from special_reference / merchant_order_id
     # Format: user_{user_id}_plan_{plan}_{billing}
     user_id = None
     plan = "starter"
     billing = "monthly"
 
-    # Try to extract from special_reference
-    special_ref = event.get("source_data", {}).get("sub_type", "") or ""
-    # Also check order metadata
-    order_merchant_id = order_data.get("merchant_order_id", "")
+    special_ref = str(
+        event.get("special_reference")
+        or order_data.get("special_reference")
+        or event.get("merchant_order_id")
+        or order_data.get("merchant_order_id")
+        or ""
+    )
+    order_merchant_id = str(order_data.get("merchant_order_id", ""))
 
-    # Parse merchant_order_id: user_{user_id}_{timestamp}
-    # Or special_reference: user_{user_id}_plan_{plan}_{billing}
+    # Parse `special_reference`: user_{user_id}_plan_{plan}_{billing}
+    # Fallback to merchant_order_id: user_{user_id}_{timestamp}
     import re
-    match = re.search(r"user_(\d+)", order_merchant_id or special_ref or "")
+
+    ref_match = re.search(r"user_(\d+)_plan_([a-z]+)_([a-z]+)", special_ref.lower())
+    if ref_match:
+        user_id = int(ref_match.group(1))
+        plan = ref_match.group(2)
+        billing = ref_match.group(3)
+
+    match = re.search(r"user_(\d+)", order_merchant_id or special_ref)
     if match:
-        user_id = int(match.group(1))
-
-    # Try to get plan from special_reference
-    plan_match = re.search(r"plan_(\w+)", special_ref or "")
-    if plan_match:
-        plan = plan_match.group(1)
-
-    billing_match = re.search(r"plan_\w+_(\w+)", special_ref or "")
-    if billing_match:
-        billing = billing_match.group(1)
+        user_id = user_id or int(match.group(1))
 
     if user_id:
         _activate_user_plan(user_id, str(transaction_id), plan_type=plan)
         logger.info(
             "PayMob payment successful: user=%s, plan=%s, amount=%d cents, txn=%s",
             user_id, plan, amount_cents, transaction_id,
+        )
+    else:
+        logger.warning(
+            "PayMob payment success received without resolvable user reference: txn=%s, ref=%s",
+            transaction_id, special_ref,
         )
 
     return {"status": "ok", "event_type": "payment_success", "transaction_id": transaction_id}

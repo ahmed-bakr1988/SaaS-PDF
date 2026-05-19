@@ -33,6 +33,7 @@ export type {
   CreditInfo,
   UsageSummary,
   ApiKey,
+  UserProfile,
 } from './apiTypes';
 
 // Auth
@@ -66,6 +67,8 @@ export {
   estimateCost,
   getCreditInfo,
   getPublicStats,
+  getProfile,
+  updateProfile,
 } from './accountApi';
 
 // Assistant chat

@@ -264,6 +264,18 @@ def _init_postgres_tables(conn):
         )
     """)
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS user_profiles (
+            user_id INTEGER PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            profile_picture_url TEXT,
+            bio TEXT,
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+    """)
+
+    cursor.execute("""
         CREATE INDEX IF NOT EXISTS idx_ucw_user
         ON user_credit_windows(user_id)
     """)
@@ -410,6 +422,16 @@ def _init_sqlite_tables(conn):
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
         );
 
+        CREATE TABLE IF NOT EXISTS user_profiles (
+            user_id INTEGER PRIMARY KEY,
+            first_name TEXT,
+            last_name TEXT,
+            profile_picture_url TEXT,
+            bio TEXT,
+            updated_at TEXT NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+
         CREATE INDEX IF NOT EXISTS idx_ucw_user
         ON user_credit_windows(user_id);
         """
@@ -491,6 +513,64 @@ def authenticate_user(email: str, password: str) -> dict | None:
         return None
 
     return _serialize_user(row)
+
+
+def get_user_profile(user_id: int) -> dict:
+    """Return the extended profile for a user, or a default empty structure."""
+    with db_connection() as conn:
+        sql = "SELECT * FROM user_profiles WHERE user_id = ?"
+        if is_postgres():
+            sql = "SELECT * FROM user_profiles WHERE user_id = %s"
+        
+        cursor = execute_query(conn, sql, (user_id,))
+        row = cursor.fetchone()
+        if row:
+            return row_to_dict(row)
+            
+        return {
+            "user_id": user_id,
+            "first_name": None,
+            "last_name": None,
+            "profile_picture_url": None,
+            "bio": None,
+        }
+
+
+def update_user_profile(user_id: int, data: dict) -> dict:
+    """Update or create user profile data."""
+    now = _utc_now()
+    first_name = data.get("first_name")
+    last_name = data.get("last_name")
+    profile_picture_url = data.get("profile_picture_url")
+    bio = data.get("bio")
+
+    with db_connection() as conn:
+        if is_postgres():
+            sql = """
+                INSERT INTO user_profiles (user_id, first_name, last_name, profile_picture_url, bio, updated_at)
+                VALUES (%s, %s, %s, %s, %s, %s)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    first_name = EXCLUDED.first_name,
+                    last_name = EXCLUDED.last_name,
+                    profile_picture_url = EXCLUDED.profile_picture_url,
+                    bio = EXCLUDED.bio,
+                    updated_at = EXCLUDED.updated_at
+            """
+        else:
+            sql = """
+                INSERT INTO user_profiles (user_id, first_name, last_name, profile_picture_url, bio, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON CONFLICT (user_id) DO UPDATE SET
+                    first_name = excluded.first_name,
+                    last_name = excluded.last_name,
+                    profile_picture_url = excluded.profile_picture_url,
+                    bio = excluded.bio,
+                    updated_at = excluded.updated_at
+            """
+        
+        execute_query(conn, sql, (user_id, first_name, last_name, profile_picture_url, bio, now))
+        
+    return get_user_profile(user_id)
 
 
 def get_user_by_id(user_id: int) -> dict | None:

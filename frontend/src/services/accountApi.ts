@@ -6,10 +6,27 @@ import type {
   UsageSummary,
   ApiKey,
   PublicStatsSummary,
+  UserProfile,
 } from './apiTypes';
 
 interface HistoryResponse {
   items: HistoryEntry[];
+}
+
+/**
+ * Return the extended profile for the authenticated user.
+ */
+export async function getProfile(): Promise<UserProfile> {
+  const response = await api.get<UserProfile>('/account/profile');
+  return response.data;
+}
+
+/**
+ * Update user profile data.
+ */
+export async function updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
+  const response = await api.post<UserProfile>('/account/profile', data);
+  return response.data;
 }
 
 /**

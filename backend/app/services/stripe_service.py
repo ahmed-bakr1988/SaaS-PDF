@@ -31,7 +31,7 @@ def get_stripe_price_id(billing: str = "monthly") -> str:
         ("replace-with",),
     )
 
-    if billing == "yearly" and yearly:
+    if billing == "yearly":
         return yearly
     return monthly
 

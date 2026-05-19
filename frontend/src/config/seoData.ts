@@ -688,6 +688,26 @@ export const TOOLS_SEO: ToolSEO[] = [
       { question: 'Can I convert text to uppercase?', answer: 'Yes, you can convert text to uppercase, lowercase, or title case with a single click.' },
     ],
   },
+  {
+    i18nKey: 'fileToMarkdown',
+    slug: 'file-to-markdown',
+    titleSuffix: 'Free Online File to Markdown Converter for AI',
+    metaDescription: 'Convert files to Markdown online for AI tools. Extract compact Markdown from PDFs, Office files, images, spreadsheets, slides, text, HTML, archives, and video metadata.',
+    category: 'Convert',
+    relatedSlugs: ['ocr', 'pdf-to-word', 'html-to-pdf', 'text-cleaner'],
+    keywords: 'file to markdown, convert file to md, document to markdown, image to markdown, markdown converter for ai',
+    features: [
+      'Convert common document and media formats to Markdown',
+      'Extract text and metadata into AI-friendly output',
+      'Fallback through supported intermediate formats',
+      'Preview Markdown before downloading',
+      'Secure asynchronous processing',
+    ],
+    faqs: [
+      { question: 'What files can I convert to Markdown?', answer: 'The tool supports PDF, Office files, images, video metadata, HTML, text, CSV, JSON, XML, and ZIP archive indexes when readable content can be extracted safely.' },
+      { question: 'What happens if direct Markdown conversion fails?', answer: 'Dociva tries one supported intermediate conversion, such as Office to PDF or image re-encoding, then attempts Markdown extraction again.' },
+    ],
+  },
 
   // ─── PHASE 2 – PDF CONVERSION ──────────────────────────────
   {
@@ -943,6 +963,7 @@ const TOOL_WORKFLOWS: Record<string, string[]> = {
   'html-to-pdf': ['compress-pdf', 'merge-pdf', 'pdf-editor'],
   'qr-code': ['barcode-generator', 'html-to-pdf'],
   'barcode-generator': ['qr-code', 'html-to-pdf'],
+  'file-to-markdown': ['ocr', 'text-cleaner', 'pdf-to-word'],
 };
 
 function dedupeExistingToolSlugs(slugs: string[], excludeSlugs: string[] = []): string[] {

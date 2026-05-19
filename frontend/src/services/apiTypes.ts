@@ -95,6 +95,7 @@ export interface TaskResult {
   duration?: number;
   fps?: number;
   format?: string;
+  conversion_method?: string;
   edits_applied?: number;
   page_count?: number;
   // Flowchart-specific fields
@@ -283,4 +284,12 @@ export interface ApiKey {
   revoked_at: string | null;
   created_at: string;
   raw_key?: string; // only present on creation
+}
+
+export interface UserProfile {
+  user_id: number;
+  first_name?: string | null;
+  last_name?: string | null;
+  profile_picture_url?: string | null;
+  bio?: string | null;
 }

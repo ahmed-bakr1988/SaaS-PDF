@@ -14,12 +14,8 @@ Legacy alias:
 Docs: https://developer.paypal.com/docs/subscriptions/
 """
 
-import hashlib
-import hmac
 import json
 import logging
-import os
-from datetime import datetime, timezone
 
 import requests
 from flask import current_app
@@ -45,7 +41,7 @@ _ACTIVE_STATUSES = {"ACTIVE", "APPROVED"}
 # ---------------------------------------------------------------------------
 
 def _get_env() -> str:
-    return (current_app.config.get("PAYPAL_ENVIRONMENT") or os.getenv("PAYPAL_ENVIRONMENT", "sandbox")).lower()
+    return str(current_app.config.get("PAYPAL_ENVIRONMENT", "sandbox")).lower()
 
 
 def _get_base_url() -> str:
@@ -53,12 +49,12 @@ def _get_base_url() -> str:
 
 
 def get_paypal_client_id() -> str:
-    val = current_app.config.get("PAYPAL_CLIENT_ID") or os.getenv("PAYPAL_CLIENT_ID", "")
+    val = current_app.config.get("PAYPAL_CLIENT_ID", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
 def get_paypal_client_secret() -> str:
-    val = current_app.config.get("PAYPAL_CLIENT_SECRET") or os.getenv("PAYPAL_CLIENT_SECRET", "")
+    val = current_app.config.get("PAYPAL_CLIENT_SECRET", "")
     return normalize_optional_config(val, ("replace-with",))
 
 
@@ -82,29 +78,29 @@ def get_paypal_plan_id(
 
     # ── Starter plan ($4.99) ─────────────────────────────────────────────────
     if plan == "starter":
-        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_STARTER_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_STARTER_MONTHLY", "")
-        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_STARTER_YEARLY")  or os.getenv("PAYPAL_PLAN_ID_STARTER_YEARLY",  "")
+        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_STARTER_MONTHLY", "")
+        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_STARTER_YEARLY", "")
         monthly = normalize_optional_config(monthly_val, ("replace-with",))
         yearly  = normalize_optional_config(yearly_val,  ("replace-with",))
         # Fallback: try legacy MICRO env var if new starter vars are absent
         if not monthly:
-            micro_val = current_app.config.get("PAYPAL_PLAN_ID_MICRO") or os.getenv("PAYPAL_PLAN_ID_MICRO", "")
+            micro_val = current_app.config.get("PAYPAL_PLAN_ID_MICRO", "")
             monthly = normalize_optional_config(micro_val, ("replace-with",))
         return yearly if (billing == "yearly" and yearly) else monthly
 
     # ── Business plan ($29.99) ───────────────────────────────────────────────
     if plan == "business":
-        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_MONTHLY") or os.getenv("PAYPAL_PLAN_ID_BUSINESS_MONTHLY", "")
-        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_YEARLY")  or os.getenv("PAYPAL_PLAN_ID_BUSINESS_YEARLY",  "")
+        monthly_val = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_MONTHLY", "")
+        yearly_val  = current_app.config.get("PAYPAL_PLAN_ID_BUSINESS_YEARLY", "")
         monthly = normalize_optional_config(monthly_val, ("replace-with",))
         yearly  = normalize_optional_config(yearly_val,  ("replace-with",))
         return yearly if (billing == "yearly" and yearly) else monthly
 
     # ── Pro plan ($9.99) — default ───────────────────────────────────────────
-    monthly_val       = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY")       or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY",       "")
-    yearly_val        = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY")        or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY",        "")
-    monthly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL") or os.getenv("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
-    yearly_trial_val  = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL")  or os.getenv("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL",  "")
+    monthly_val       = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY", "")
+    yearly_val        = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY", "")
+    monthly_trial_val = current_app.config.get("PAYPAL_PLAN_ID_PRO_MONTHLY_TRIAL", "")
+    yearly_trial_val  = current_app.config.get("PAYPAL_PLAN_ID_PRO_YEARLY_TRIAL", "")
 
     monthly       = normalize_optional_config(monthly_val,       ("replace-with",))
     yearly        = normalize_optional_config(yearly_val,        ("replace-with",))
@@ -338,7 +334,7 @@ def verify_webhook_signature(
     Uses PayPal's server-side verification endpoint — more reliable than
     local signature verification because it does not require certificate pinning.
     """
-    webhook_val = current_app.config.get("PAYPAL_WEBHOOK_ID") or os.getenv("PAYPAL_WEBHOOK_ID", "")
+    webhook_val = current_app.config.get("PAYPAL_WEBHOOK_ID", "")
     webhook_id = normalize_optional_config(webhook_val, ("replace-with",))
     if not webhook_id:
         logger.warning("PAYPAL_WEBHOOK_ID not configured — cannot verify webhook.")
