@@ -87,17 +87,48 @@ export default function DownloadButton({ result, onStartOver }: DownloadButtonPr
 
       {/* Download button */}
       {user ? (
-        <a
-          href={result.download_url}
-          download={result.filename}
-          onClick={handleDownloadClick}
-          className="btn-success w-full"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Download className="h-5 w-5 shrink-0" />
-          <span className="truncate">{t('common.download')} — {result.filename}</span>
-        </a>
+        <div className="space-y-3">
+          <a
+            href={result.download_url}
+            download={result.filename}
+            onClick={handleDownloadClick}
+            className="btn-success w-full flex items-center justify-center gap-2"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Download className="h-5 w-5 shrink-0" />
+            <span className="truncate">
+              {t('common.downloadZip', 'Download ZIP Package')}
+            </span>
+          </a>
+
+          {result.download_url_md && result.download_url_json && (
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href={result.download_url_md}
+                download={result.filename_md}
+                onClick={handleDownloadClick}
+                className="btn-secondary flex items-center justify-center gap-1.5 py-2 px-3 text-xs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Download className="h-4 w-4 shrink-0" />
+                <span className="truncate">Markdown (.md)</span>
+              </a>
+              <a
+                href={result.download_url_json}
+                download={result.filename_json}
+                onClick={handleDownloadClick}
+                className="btn-secondary flex items-center justify-center gap-1.5 py-2 px-3 text-xs"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Download className="h-4 w-4 shrink-0" />
+                <span className="truncate">JSON (.json)</span>
+              </a>
+            </div>
+          )}
+        </div>
       ) : (
         <button
           onClick={() => setShowGateModal(true)}

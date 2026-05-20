@@ -98,6 +98,10 @@ export interface TaskResult {
   conversion_method?: string;
   edits_applied?: number;
   page_count?: number;
+  download_url_md?: string;
+  filename_md?: string;
+  download_url_json?: string;
+  filename_json?: string;
   // Flowchart-specific fields
   procedures?: Array<{ id: string; title: string; description: string; pages: number[]; step_count: number }>;
   flowcharts?: Array<{ id: string; procedureId: string; title: string; steps: Array<{ id: string; type: string; title: string; description: string; connections: string[] }> }>;

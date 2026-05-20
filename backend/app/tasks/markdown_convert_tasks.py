@@ -79,16 +79,64 @@ def _run_markdown_conversion(
         )
 
         self.update_state(state="PROCESSING", meta={"step": "Storing AI context..."})
-        s3_key = storage.upload_file(output_path, task_id, folder="outputs")
-        download_url = storage.generate_presigned_url(
-            s3_key,
-            original_filename=download_name,
+
+        # 1. Export JSON format
+        # Ensure the markdown file exists on disk (handles mock/analyzer fallbacks safely)
+        if not os.path.exists(output_path):
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(conversion.markdown)
+
+        json_path = os.path.join(output_dir, f"{task_id}.json")
+        from app.ai_pipeline.exporters import json_exporter
+        json_exporter.export(
+            markdown=conversion.markdown,
+            output_path=json_path,
+            source_title=name_without_ext,
+            method=conversion.method,
+            chunks=conversion.chunks or [],
+            prompt=conversion.prompt or "",
+            metrics=conversion.metrics,
         )
 
-        output_size = os.path.getsize(output_path)
+        # 2. Extract OCR images
+        ocr_images_dir = os.path.join(output_dir, "ocr_images")
+        from app.utils.ocr_image_extractor import extract_ocr_images
+        extract_ocr_images(input_path, ext, ocr_images_dir)
 
-        # Use AIContextResult.to_task_result() when available (pipeline path),
-        # otherwise fall back to the legacy dict shape (backward compat).
+        # 3. Create ZIP archive
+        import zipfile
+        zip_path = os.path.join(output_dir, f"{task_id}.zip")
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zip_f:
+            zip_f.write(output_path, f"{name_without_ext}.md")
+            zip_f.write(json_path, f"{name_without_ext}.json")
+            if os.path.exists(ocr_images_dir):
+                for root_dir, _, files in os.walk(ocr_images_dir):
+                    for file_name in files:
+                        file_path = os.path.join(root_dir, file_name)
+                        arc_name = os.path.join("ocr_images", file_name)
+                        zip_f.write(file_path, arc_name)
+
+        # 4. Upload and sign all three formats
+        s3_key_zip = storage.upload_file(zip_path, task_id, folder="outputs")
+        download_url_zip = storage.generate_presigned_url(
+            s3_key_zip,
+            original_filename=f"{name_without_ext}.zip",
+        )
+
+        s3_key_md = storage.upload_file(output_path, task_id, folder="outputs")
+        download_url_md = storage.generate_presigned_url(
+            s3_key_md,
+            original_filename=f"{name_without_ext}.md",
+        )
+
+        s3_key_json = storage.upload_file(json_path, task_id, folder="outputs")
+        download_url_json = storage.generate_presigned_url(
+            s3_key_json,
+            original_filename=f"{name_without_ext}.json",
+        )
+
+        output_size = os.path.getsize(zip_path)
+
         if hasattr(conversion, "metrics") and conversion.metrics is not None:
             from app.ai_pipeline.models.ai_context_result import AIContextResult
             ai_result = AIContextResult(
@@ -99,18 +147,24 @@ def _run_markdown_conversion(
                 prompt=conversion.prompt or "",
                 metrics=conversion.metrics,
             )
-            result = ai_result.to_task_result(download_url, download_name, output_size)
+            result = ai_result.to_task_result(download_url_zip, f"{name_without_ext}.zip", output_size)
         else:
             result = {
                 "status": "completed",
-                "download_url": download_url,
-                "filename": download_name,
+                "download_url": download_url_zip,
+                "filename": f"{name_without_ext}.zip",
                 "output_size": output_size,
                 "text": conversion.markdown[:5000],
                 "char_count": conversion.char_count,
-                "format": "md",
+                "format": "zip",
                 "conversion_method": conversion.method,
             }
+
+        result["download_url_md"] = download_url_md
+        result["filename_md"] = f"{name_without_ext}.md"
+        result["download_url_json"] = download_url_json
+        result["filename_json"] = f"{name_without_ext}.json"
+        result["format"] = "zip"
 
         logger.info(
             "Task %s: file-to-markdown completed via %s (%d chars)",
