@@ -13,6 +13,7 @@ import zipfile
 from pathlib import Path
 from xml.etree import ElementTree
 
+from app.ai_pipeline.utils.md_helpers import rows_to_md
 from app.services.markdown_convert_service import MarkdownConversionError
 
 logger = logging.getLogger(__name__)
@@ -39,6 +40,7 @@ def analyze(input_path: str, original_filename: str) -> str:
 
 
 def _docx(input_path: str) -> str:
+    """Extract structured content from DOCX with headings, formatting, and tables."""
     try:
         with zipfile.ZipFile(input_path) as archive:
             xml = archive.read("word/document.xml")
@@ -47,13 +49,21 @@ def _docx(input_path: str) -> str:
 
     root = ElementTree.fromstring(xml)
     ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
-    paragraphs: list[str] = []
-    for para in root.findall(".//w:p", ns):
-        text = "".join(n.text or "" for n in para.findall(".//w:t", ns))
-        if text.strip():
-            paragraphs.append(text.strip())
+    parts: list[str] = []
 
-    return _require("\n\n".join(paragraphs), "DOCX contains no readable text.")
+    for element in root.findall(".//{%s}body/*" % ns["w"]):
+        tag = element.tag.split("}")[-1] if "}" in element.tag else element.tag
+
+        if tag == "p":
+            md_line = _docx_paragraph(element, ns)
+            if md_line:
+                parts.append(md_line)
+        elif tag == "tbl":
+            md_table = _docx_table(element, ns)
+            if md_table:
+                parts.append(md_table)
+
+    return _require("\n\n".join(parts), "DOCX contains no readable text.")
 
 
 def _xlsx(input_path: str) -> str:
@@ -68,7 +78,7 @@ def _xlsx(input_path: str) -> str:
             if any(v.strip() for v in values):
                 rows.append(values)
         if rows:
-            parts.append(f"## {sheet.title}\n\n{_rows_to_md(rows)}")
+            parts.append(f"## {sheet.title}\n\n{rows_to_md(rows)}")
     workbook.close()
     return _require("\n\n".join(parts), "Spreadsheet contains no readable rows.")
 
@@ -94,21 +104,86 @@ def _pptx(input_path: str) -> str:
 
 # --- Helpers ---
 
-def _rows_to_md(rows: list[list[str]]) -> str:
-    width = max(len(r) for r in rows)
-    norm = [[_esc(c) for c in r + [""] * (width - len(r))] for r in rows]
-    header = norm[0]
-    body = norm[1:] or [[""] * width]
-    lines = [
-        "| " + " | ".join(header) + " |",
-        "| " + " | ".join("---" for _ in header) + " |",
-    ]
-    lines.extend("| " + " | ".join(r) + " |" for r in body)
-    return "\n".join(lines)
+# Mapping of common Word heading styles to Markdown heading levels
+_HEADING_STYLE_MAP = {
+    "heading1": 1, "heading 1": 1, "title": 1,
+    "heading2": 2, "heading 2": 2, "subtitle": 2,
+    "heading3": 3, "heading 3": 3,
+    "heading4": 4, "heading 4": 4,
+    "heading5": 5, "heading 5": 5,
+    "heading6": 6, "heading 6": 6,
+}
 
 
-def _esc(v: object) -> str:
-    return str(v).replace("|", "\\|").replace("\n", " ").strip()
+def _docx_paragraph(para, ns: dict) -> str:
+    """Convert a DOCX paragraph to Markdown with heading/list/formatting support."""
+    # Detect paragraph style
+    style = ""
+    ppr = para.find("w:pPr", ns)
+    if ppr is not None:
+        style_el = ppr.find("w:pStyle", ns)
+        if style_el is not None:
+            style = style_el.get(f"{{{ns['w']}}}val", "").lower()
+
+        # Check for numbered/bullet list
+        num_pr = ppr.find("w:numPr", ns)
+        if num_pr is not None:
+            text = _get_formatted_runs(para, ns)
+            return f"- {text}" if text else ""
+
+    text = _get_formatted_runs(para, ns)
+    if not text:
+        return ""
+
+    # Map style to heading
+    heading_level = _HEADING_STYLE_MAP.get(style, 0)
+    if heading_level:
+        return f"{'#' * heading_level} {text}"
+
+    return text
+
+
+def _get_formatted_runs(para, ns: dict) -> str:
+    """Extract text from paragraph runs, preserving bold and italic."""
+    parts: list[str] = []
+    for run in para.findall("w:r", ns):
+        text = "".join(t.text or "" for t in run.findall("w:t", ns))
+        if not text:
+            continue
+
+        # Check formatting properties
+        rpr = run.find("w:rPr", ns)
+        if rpr is not None:
+            is_bold = rpr.find("w:b", ns) is not None
+            is_italic = rpr.find("w:i", ns) is not None
+            if is_bold and is_italic:
+                text = f"***{text}***"
+            elif is_bold:
+                text = f"**{text}**"
+            elif is_italic:
+                text = f"*{text}*"
+
+        parts.append(text)
+
+    return "".join(parts).strip()
+
+
+def _docx_table(tbl, ns: dict) -> str:
+    """Extract a DOCX table and convert to Markdown."""
+    rows: list[list[str]] = []
+    for tr in tbl.findall("w:tr", ns):
+        cells: list[str] = []
+        for tc in tr.findall("w:tc", ns):
+            cell_text = " ".join(
+                "".join(t.text or "" for t in p.findall(".//w:t", ns))
+                for p in tc.findall("w:p", ns)
+            ).strip()
+            cells.append(cell_text)
+        if cells:
+            rows.append(cells)
+    if len(rows) >= 2:
+        return rows_to_md(rows)
+    return ""
 
 
 def _norm(value: str) -> str:

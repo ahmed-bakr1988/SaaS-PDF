@@ -13,6 +13,7 @@ import logging
 import os
 import zipfile
 
+from app.ai_pipeline.utils.md_helpers import rows_to_md
 from app.services.markdown_convert_service import MarkdownConversionError
 
 logger = logging.getLogger(__name__)
@@ -54,7 +55,7 @@ def analyze(input_path: str, original_filename: str) -> str:
 
     is_code = _looks_like_code_project(entries)
     if is_code:
-        return _code_project_index(entries, original_filename)
+        return _code_project_index(entries, input_path, original_filename)
     return _generic_index(entries, original_filename)
 
 
@@ -86,10 +87,22 @@ def _looks_like_code_project(entries: list[zipfile.ZipInfo]) -> bool:
     return bool(names & _CODE_INDICATORS)
 
 
+# Files whose content is worth reading for AI context
+_IMPORTANT_FILES = {
+    "readme.md", "readme.txt", "readme",
+    "package.json", "requirements.txt", "pyproject.toml",
+    "dockerfile", "docker-compose.yml", "docker-compose.yaml",
+    ".env.example", "config.json", "setup.py", "setup.cfg",
+    "cargo.toml", "go.mod", "pom.xml",
+}
+_MAX_FILE_CONTENT_SIZE = 10_000  # 10KB per file
+_MAX_FILES_TO_READ = 5
+
+
 def _code_project_index(
-    entries: list[zipfile.ZipInfo], original_filename: str
+    entries: list[zipfile.ZipInfo], archive_path: str, original_filename: str
 ) -> str:
-    """Produce an AI-friendly project structure summary."""
+    """Produce an AI-friendly project structure summary with key file contents."""
     dirs: dict[str, int] = {}
     files: list[str] = []
 
@@ -121,28 +134,51 @@ def _code_project_index(
     for f in sorted(files)[:200]:
         lines.append(f"- `{f}`")
 
+    # Read important files for richer AI context
+    key_contents = _read_important_files(entries, archive_path)
+    if key_contents:
+        lines += ["", "## Key File Contents", ""]
+        lines.extend(key_contents)
+
     return "\n".join(lines)
+
+
+def _read_important_files(
+    entries: list[zipfile.ZipInfo], archive_path: str
+) -> list[str]:
+    """Read the content of important project files (README, config, etc.)."""
+    sections: list[str] = []
+    read_count = 0
+
+    try:
+        with zipfile.ZipFile(archive_path) as archive:
+            for entry in entries:
+                if read_count >= _MAX_FILES_TO_READ:
+                    break
+                basename = os.path.basename(entry.filename).lower()
+                if (
+                    basename in _IMPORTANT_FILES
+                    and entry.file_size < _MAX_FILE_CONTENT_SIZE
+                    and not entry.filename.endswith("/")
+                ):
+                    try:
+                        raw = archive.read(entry.filename)
+                        content = raw.decode("utf-8", errors="replace").strip()
+                        if content:
+                            sections.append(
+                                f"### {entry.filename}\n\n```\n{content}\n```"
+                            )
+                            read_count += 1
+                    except Exception:
+                        continue
+    except Exception:
+        pass
+
+    return sections
 
 
 def _generic_index(entries: list[zipfile.ZipInfo], original_filename: str) -> str:
     rows = [["Path", "Size (bytes)"]]
     for entry in entries:
         rows.append([entry.filename, str(entry.file_size)])
-    return f"## Archive Contents: {original_filename}\n\n" + _rows_to_md(rows)
-
-
-def _rows_to_md(rows: list[list[str]]) -> str:
-    width = max(len(r) for r in rows)
-    norm = [[_esc(c) for c in r + [""] * (width - len(r))] for r in rows]
-    header = norm[0]
-    body = norm[1:] or [[""] * width]
-    lines = [
-        "| " + " | ".join(header) + " |",
-        "| " + " | ".join("---" for _ in header) + " |",
-    ]
-    lines.extend("| " + " | ".join(r) + " |" for r in body)
-    return "\n".join(lines)
-
-
-def _esc(v: object) -> str:
-    return str(v).replace("|", "\\|").replace("\n", " ").strip()
+    return f"## Archive Contents: {original_filename}\n\n" + rows_to_md(rows)

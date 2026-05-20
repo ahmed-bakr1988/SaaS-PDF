@@ -29,7 +29,8 @@ def chunk(markdown: str) -> list[Chunk]:
 
     # If only one section with no heading, fall back to token-based chunking
     if len(sections) == 1 and not sections[0].startswith("## "):
-        return _token_chunks(sections[0], "Content")
+        result = _token_chunks(sections[0], "Content")
+        return _assign_indices(result)
 
     chunks: list[Chunk] = []
     for section in sections:
@@ -41,7 +42,7 @@ def chunk(markdown: str) -> list[Chunk]:
         else:
             chunks.append(Chunk.from_markdown(heading, section))
 
-    return _merge_orphans(chunks)
+    return _assign_indices(_merge_orphans(chunks))
 
 
 def _extract_heading(section: str) -> str:
@@ -90,7 +91,19 @@ def _merge_orphans(chunks: list[Chunk]) -> list[Chunk]:
                 summary=prev.summary,
                 markdown=prev.markdown + "\n\n" + chunk_item.markdown,
                 token_estimate=prev.token_estimate + chunk_item.token_estimate,
+                has_table=prev.has_table or chunk_item.has_table,
+                has_code=prev.has_code or chunk_item.has_code,
             )
         else:
             merged.append(chunk_item)
     return merged
+
+
+def _assign_indices(chunks: list[Chunk]) -> list[Chunk]:
+    """Assign sequential index and total count to each chunk."""
+    total = len(chunks)
+    for idx, c in enumerate(chunks):
+        c.chunk_index = idx
+        c.total_chunks = total
+    return chunks
+

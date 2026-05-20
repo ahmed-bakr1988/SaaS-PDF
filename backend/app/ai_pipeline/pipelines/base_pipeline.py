@@ -10,7 +10,7 @@ import os
 
 from app.ai_pipeline.classifiers import content_classifier
 from app.ai_pipeline.chunkers import semantic_chunker
-from app.ai_pipeline.exporters import markdown_exporter
+from app.ai_pipeline.exporters import json_exporter, markdown_exporter
 from app.ai_pipeline.models.ai_context_result import AIContextMetrics, AIContextResult
 from app.ai_pipeline.models.file_class import FileClass
 from app.ai_pipeline.prompts import prompt_engine
@@ -33,15 +33,17 @@ def run(
     original_filename: str,
     ext: str,
     mime: str = "",
+    output_format: str = "md",
 ) -> AIContextResult:
     """Execute the full AI context optimization pipeline.
 
     Args:
         input_path:        Absolute path to the uploaded file.
-        output_path:       Where to write the final .md file.
+        output_path:       Where to write the final .md or .json file.
         original_filename: Original user-supplied filename (for display).
         ext:               File extension without leading dot.
         mime:              MIME type detected by the validator (optional).
+        output_format:     Output format: ``"md"`` (default) or ``"json"``.
 
     Returns:
         :class:`AIContextResult` with markdown, chunks, metrics, and prompt.
@@ -87,6 +89,18 @@ def run(
 
     # 9. Compute metrics
     output_size = os.path.getsize(output_path)
+
+    # 9b. If JSON format requested, also write a .json alongside the .md
+    if output_format == "json":
+        json_path = output_path.rsplit(".", 1)[0] + ".json"
+        metrics_pre = _compute_metrics(
+            original_size, output_size, final_markdown, noise_removed, method_label,
+        )
+        json_exporter.export(
+            final_markdown, json_path, source_title, method_label,
+            chunks=chunks, prompt=prompt, metrics=metrics_pre,
+        )
+        output_size = os.path.getsize(json_path)
     metrics = _compute_metrics(
         original_size=original_size,
         output_size=output_size,
@@ -181,6 +195,54 @@ def _intermediate_conversion(
     raise MarkdownConversionError(f"No intermediate conversion path for .{ext}.")
 
 
+def _compute_readability_score(markdown: str, noise_removed: list[str]) -> int:
+    """Multi-factor AI readability score (0-100).
+
+    Evaluates structural quality: headings, tables, lists, code formatting,
+    noise removal, content density, and overall length.
+    """
+    score = 0
+
+    # 1. Structure: headings (max 25)
+    h1 = markdown.count("\n# ")
+    h2 = markdown.count("\n## ")
+    h3 = markdown.count("\n### ")
+    score += min(25, (h1 * 3) + (h2 * 5) + (h3 * 3))
+
+    # 2. Tables present (max 15)
+    table_count = markdown.count("| --- |") + markdown.count("|---|")
+    score += min(15, table_count * 5)
+
+    # 3. Organized lists (max 10)
+    list_count = markdown.count("\n- ") + markdown.count("\n* ")
+    score += min(10, list_count // 3)
+
+    # 4. Code formatting (max 10)
+    code_blocks = markdown.count("```") // 2
+    score += min(10, code_blocks * 3)
+
+    # 5. Noise cleanup applied (max 15)
+    score += min(15, len(noise_removed) * 3)
+
+    # 6. Content density ratio (max 15)
+    lines = markdown.splitlines()
+    non_empty = sum(1 for line in lines if line.strip())
+    total = max(1, len(lines))
+    content_ratio = non_empty / total
+    score += int(content_ratio * 15)
+
+    # 7. Reasonable length (max 10)
+    char_count = len(markdown)
+    if 500 < char_count < 100_000:
+        score += 10
+    elif char_count >= 100_000:
+        score += 5
+    elif char_count > 100:
+        score += 3
+
+    return min(100, max(0, score))
+
+
 def _compute_metrics(
     original_size: int,
     output_size: int,
@@ -199,11 +261,8 @@ def _compute_metrics(
     tokens_saved = max(0, raw_tokens - output_tokens)
     cost_saved = (tokens_saved / 1000) * _COST_PER_1K_TOKENS
 
-    # Readability score: 0-100 heuristic
-    heading_count = final_markdown.count("\n## ") + final_markdown.count("\n# ")
-    has_structure = heading_count >= 2
-    noise_ratio = len(noise_removed)
-    score = min(100, max(0, 60 + (heading_count * 3) - (noise_ratio * 2) + (20 if has_structure else 0)))
+    # Readability score: 0-100 multi-factor heuristic
+    score = _compute_readability_score(final_markdown, noise_removed)
 
     return AIContextMetrics(
         original_size_bytes=original_size,

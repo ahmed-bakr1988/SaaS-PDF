@@ -1,6 +1,8 @@
-"""PromptEngine — generates suggested AI prompts based on FileClass and content."""
+"""PromptEngine — generates context-aware AI prompts based on FileClass and content."""
 
 from __future__ import annotations
+
+import re
 
 from app.ai_pipeline.models.file_class import FileClass
 
@@ -49,8 +51,63 @@ _PROMPT_TEMPLATES: dict[FileClass, str] = {
 
 
 def generate(file_class: FileClass, markdown: str = "") -> str:
-    """Return a suggested AI prompt for the given file class.
+    """Return a context-aware AI prompt for the given file class.
 
-    *markdown* is accepted for future context-aware prompt generation (v2).
+    Performs lightweight content analysis to generate specific hints
+    about tables, code, financial data, lists, and document length.
     """
-    return _PROMPT_TEMPLATES.get(file_class, _PROMPT_TEMPLATES[FileClass.UNKNOWN])
+    base_prompt = _PROMPT_TEMPLATES.get(file_class, _PROMPT_TEMPLATES[FileClass.UNKNOWN])
+
+    if not markdown:
+        return base_prompt
+
+    # Analyse first 8k chars — fast and sufficient for heuristics
+    context_hints = _analyze_content(markdown[:8000])
+
+    if context_hints:
+        hints = "\n".join(f"- {h}" for h in context_hints)
+        return f"{base_prompt}\n\nContent analysis hints:\n{hints}"
+
+    return base_prompt
+
+
+def _analyze_content(text: str) -> list[str]:
+    """Lightweight content analysis for dynamic prompt hints."""
+    hints: list[str] = []
+
+    # Tables detected
+    table_count = text.count("| --- |") + text.count("|---|")
+    if table_count > 0:
+        hints.append(
+            f"Document contains {table_count} table(s) — analyze the tabular data carefully."
+        )
+
+    # Code blocks detected
+    code_blocks = text.count("```") // 2
+    if code_blocks > 0:
+        hints.append(
+            f"Document contains {code_blocks} code block(s) — review the code logic and syntax."
+        )
+
+    # Financial data heuristic
+    numbers = re.findall(r"\$[\d,]+\.?\d*|\d{1,3}(?:,\d{3})+", text)
+    if len(numbers) > 10:
+        hints.append(
+            "Document appears to contain financial or numerical data — identify key figures and trends."
+        )
+
+    # List-heavy document
+    list_items = text.count("\n- ") + text.count("\n* ") + text.count("\n1. ")
+    if list_items > 15:
+        hints.append(
+            f"Document contains {list_items}+ listed items — organize and categorize them."
+        )
+
+    # Document length
+    word_count = len(text.split())
+    if word_count > 3000:
+        hints.append(
+            f"This is a long document (~{word_count:,} words) — prioritize key points and conclusions."
+        )
+
+    return hints

@@ -11,6 +11,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from xml.etree import ElementTree
 
+from app.ai_pipeline.utils.md_helpers import rows_to_md
 from app.services.markdown_convert_service import MarkdownConversionError
 
 logger = logging.getLogger(__name__)
@@ -20,25 +21,115 @@ _MAX_JSON_CHARS = 200_000
 
 
 class _HTMLTextExtractor(HTMLParser):
-    BLOCK_TAGS = {"p", "div", "section", "article", "br", "li", "tr", "h1", "h2", "h3"}
+    """Rich HTML→Markdown converter supporting tables, links, code, formatting."""
+
+    BLOCK_TAGS = {
+        "p", "div", "section", "article", "br", "li", "tr",
+        "h1", "h2", "h3", "h4", "h5", "h6",
+    }
 
     def __init__(self):
         super().__init__()
         self.parts: list[str] = []
+        self._in_pre = False
+        self._in_code = False
+        self._in_table = False
+        self._table_rows: list[list[str]] = []
+        self._current_row: list[str] = []
+        self._current_cell = ""
+        self._in_ol = False
+        self._ol_counter = 0
+        self._href = ""
 
     def handle_starttag(self, tag: str, attrs):
-        if tag in {"h1", "h2", "h3"}:
-            self.parts.append("\n\n" + "#" * int(tag[1]) + " ")
+        attrs_dict = dict(attrs)
+        if tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
+            level = int(tag[1])
+            self.parts.append("\n\n" + "#" * level + " ")
         elif tag == "li":
-            self.parts.append("\n- ")
+            if self._in_ol:
+                self._ol_counter += 1
+                self.parts.append(f"\n{self._ol_counter}. ")
+            else:
+                self.parts.append("\n- ")
+        elif tag == "ol":
+            self._in_ol = True
+            self._ol_counter = 0
+        elif tag == "ul":
+            self._in_ol = False
+        elif tag == "a":
+            self._href = attrs_dict.get("href", "")
+            self.parts.append("[")
+        elif tag == "pre":
+            self._in_pre = True
+            self.parts.append("\n```\n")
+        elif tag == "code" and not self._in_pre:
+            self._in_code = True
+            self.parts.append("`")
+        elif tag == "blockquote":
+            self.parts.append("\n> ")
+        elif tag == "table":
+            self._in_table = True
+            self._table_rows = []
+        elif tag == "tr":
+            self._current_row = []
+        elif tag in {"td", "th"}:
+            self._current_cell = ""
+        elif tag in {"strong", "b"}:
+            self.parts.append("**")
+        elif tag in {"em", "i"}:
+            self.parts.append("*")
+        elif tag == "img":
+            alt = attrs_dict.get("alt", "")
+            src = attrs_dict.get("src", "")
+            if alt or src:
+                self.parts.append(f"![{alt}]({src})")
 
     def handle_endtag(self, tag: str):
-        if tag in self.BLOCK_TAGS:
+        if tag == "a":
+            if self._href:
+                self.parts.append(f"]({self._href})")
+            else:
+                self.parts.append("]")
+            self._href = ""
+        elif tag == "pre":
+            self._in_pre = False
+            self.parts.append("\n```\n")
+        elif tag == "code" and not self._in_pre:
+            self._in_code = False
+            self.parts.append("`")
+        elif tag in {"td", "th"}:
+            self._current_row.append(self._current_cell.strip())
+        elif tag == "tr":
+            if self._current_row:
+                self._table_rows.append(self._current_row)
+        elif tag == "table":
+            self._in_table = False
+            if self._table_rows:
+                self.parts.append("\n" + rows_to_md(self._table_rows) + "\n")
+            self._table_rows = []
+        elif tag in {"strong", "b"}:
+            self.parts.append("**")
+        elif tag in {"em", "i"}:
+            self.parts.append("*")
+        elif tag == "ol":
+            self._in_ol = False
+        elif tag in self.BLOCK_TAGS:
             self.parts.append("\n")
 
     def handle_data(self, data: str):
         text = html.unescape(data).strip()
-        if text:
+        if not text:
+            return
+        if self._in_table:
+            self._current_cell += text + " "
+        elif self._in_pre:
+            # Preserve whitespace inside <pre>
+            self.parts.append(html.unescape(data))
+        elif self._href:
+            # Inside a link — no trailing space to avoid [text ] artifacts
+            self.parts.append(text)
+        else:
             self.parts.append(text + " ")
 
     def text(self) -> str:
@@ -88,7 +179,7 @@ def _csv(input_path: str) -> str:
         rows = [r for r in csv.reader(fh) if any(c.strip() for c in r)]
     if not rows:
         raise MarkdownConversionError("CSV file contains no rows.")
-    return _rows_to_md(rows[:_MAX_CSV_ROWS])
+    return rows_to_md(rows[:_MAX_CSV_ROWS])
 
 
 def _json(input_path: str) -> str:
@@ -109,25 +200,15 @@ def _html(input_path: str) -> str:
     return result
 
 
-def _rows_to_md(rows: list[list[str]]) -> str:
-    width = max(len(r) for r in rows)
-    norm = [[_esc(c) for c in r + [""] * (width - len(r))] for r in rows]
-    header = norm[0]
-    body = norm[1:] or [[""] * width]
-    lines = [
-        "| " + " | ".join(header) + " |",
-        "| " + " | ".join("---" for _ in header) + " |",
-    ]
-    lines.extend("| " + " | ".join(r) + " |" for r in body)
-    return "\n".join(lines)
-
-
-def _esc(v: object) -> str:
-    return str(v).replace("|", "\\|").replace("\n", " ").strip()
-
-
 def _normalize(parts: list[str]) -> str:
     text = "".join(parts)
     text = re.sub(r"[ \t]+", " ", text)
     text = re.sub(r"\n{3,}", "\n\n", text)
+    # Fix inline formatting: strip spaces inside markers
+    text = re.sub(r"\*\*\s+", "**", text)
+    text = re.sub(r"\s+\*\*", "**", text)
+    text = re.sub(r"(?<!\*)\*\s+(?!\*)", "*", text)
+    text = re.sub(r"(?<!\*)\s+\*(?!\*)", "*", text)
+    text = re.sub(r"`\s+", "`", text)
+    text = re.sub(r"\s+`", "`", text)
     return text.strip()
