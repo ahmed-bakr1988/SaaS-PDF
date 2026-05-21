@@ -70,3 +70,5 @@ backend/data/dociva.db
 docs/ 
 .gemini/
 gha-creds-*.json
+
+.env-backup/
