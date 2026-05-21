@@ -36,7 +36,7 @@ import {
   import AccountSidebar, { type AccountTab } from '@/components/layout/AccountSidebar';
   import { cn } from '@/utils/cn';
 
-  import type { UserProfile } from '@/services/apiTypes';
+  import type { UserProfile, SocialAuthProviderOption } from '@/services/apiTypes';
 
   type AuthMode = 'login' | 'register';
 
@@ -198,6 +198,7 @@ export default function AccountPage() {
   const [newKeyCreating, setNewKeyCreating] = useState(false);
   const [revealedKey, setRevealedKey] = useState<string | null>(null);
   const [copiedKey, setCopiedKey] = useState(false);
+  const [newKeyError, setNewKeyError] = useState<string | null>(null);
 
   // Profile state
   const [profile, setProfile] = useState<UserProfile | null>(null);

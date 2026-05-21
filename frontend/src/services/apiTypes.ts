@@ -126,6 +126,25 @@ export interface TaskResult {
   // Table extraction fields
   tables?: Array<{ page: number; table_index: number; headers: string[]; rows: string[][] }>;
   tables_found?: number;
+  // Markdown & AI Pipeline specific fields
+  metrics?: {
+    original_size_bytes?: number;
+    output_size_bytes?: number;
+    char_count?: number;
+    token_estimate?: number;
+    token_reduction_pct?: number;
+    estimated_cost_saved_usd?: number;
+    noise_removed?: string[];
+    ai_readability_score?: number;
+    conversion_method?: string;
+  };
+  chunks?: Array<{
+    index: number;
+    text: string;
+    char_count: number;
+    token_estimate: number;
+  }>;
+  prompt?: string;
 }
 
 export interface AuthUser {
