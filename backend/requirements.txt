@@ -86,3 +86,6 @@ httpx>=0.24.0
 
 # AI Integration
 google-generativeai>=0.1,<1.0
+
+# File to Markdown
+markitdown[pdf,docx,pptx,xlsx,xls]>=0.1.5,<0.2.0

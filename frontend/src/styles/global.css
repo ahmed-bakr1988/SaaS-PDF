@@ -5,18 +5,18 @@
 @layer base {
   :root {
     --color-bg: #ffffff;
-    --color-surface: #f8fafc;
-    --color-text: #0f172a;
-    --color-text-secondary: #64748b;
-    --color-border: #e2e8f0;
+    --color-surface: #fafafa;
+    --color-text: #171717;
+    --color-text-secondary: #737373;
+    --color-border: #e5e5e5;
   }
 
   .dark {
-    --color-bg: #0f172a;
-    --color-surface: #1e293b;
-    --color-text: #f1f5f9;
-    --color-text-secondary: #94a3b8;
-    --color-border: #334155;
+    --color-bg: #0a0a0a;
+    --color-surface: #171717;
+    --color-text: #fafafa;
+    --color-text-secondary: #a3a3a3;
+    --color-border: #262626;
   }
 
   html {
@@ -25,7 +25,7 @@
   }
 
   body {
-    @apply bg-white text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100;
+    @apply bg-white text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100;
     font-family: 'Inter', 'Tajawal', system-ui, sans-serif;
     text-rendering: optimizeLegibility;
   }
@@ -54,11 +54,11 @@
   }
 
   .card {
-    @apply rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md dark:bg-slate-800 dark:ring-slate-700;
+    @apply rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200 transition-shadow hover:shadow-md dark:bg-slate-800 dark:ring-slate-700;
   }
 
   .tool-card {
-    @apply card cursor-pointer hover:ring-primary-300 hover:shadow-lg transition-all duration-200 dark:hover:ring-primary-600;
+    @apply card cursor-pointer hover:ring-primary-300 hover:shadow-lg transition-all duration-300 dark:hover:ring-primary-600;
   }
 
   .input-field {
@@ -150,7 +150,15 @@
    Glassmorphism card utility
    ────────────────────────────────────────────────────────────────────────── */
 .glass-card {
-  @apply bg-white/70 backdrop-blur-md border border-white/50 shadow-sm dark:bg-slate-800/60 dark:border-slate-700/50;
+  @apply bg-white/70 backdrop-blur-xl border border-white/50 shadow-lg dark:bg-slate-900/60 dark:border-slate-800/50;
+}
+
+.premium-surface {
+  @apply rounded-[2.5rem] bg-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 dark:bg-slate-900 dark:border-slate-800 dark:shadow-none;
+}
+
+.premium-card {
+  @apply rounded-3xl border border-slate-100 bg-white/80 p-8 shadow-sm transition-all duration-300 hover:shadow-xl hover:shadow-primary-100/20 hover:-translate-y-1 dark:border-slate-800 dark:bg-slate-900/80 dark:hover:shadow-primary-900/20;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────

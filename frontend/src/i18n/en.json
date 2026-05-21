@@ -229,7 +229,8 @@
       "categories": {
         "general": "General Inquiry",
         "bug": "Bug Report",
-        "feature": "Feature Request"
+        "feature": "Feature Request",
+        "business-plan": "pay Business Plan"
       },
       "bugPlaceholder": "Please describe the issue: what you did, what you expected, and what happened instead.",
       "featurePlaceholder": "Describe the feature you'd like to see and how it would help you.",
@@ -865,6 +866,82 @@
       "toSentenceCase": "Sentence case",
       "removeDiacritics": "Remove Arabic Diacritics",
       "copyResult": "Copy Result"
+    },
+    "fileToMarkdown": {
+      "title": "AI Context & Markdown Engine",
+      "description": "Transform documents, images, spreadsheets, slides, and videos into optimized Markdown. Perfect for LLMs, RAG, and AI context windows.",
+      "shortDesc": "File to MD",
+      "acceptLabel": "PDF, Office, images, video, text, HTML, CSV, JSON, XML, ZIP",
+      "outputTitle": "Markdown Output",
+      "outputDesc": "The converter extracts readable content, cleans noise, and formats it for maximum LLM comprehension.",
+      "convert": "Optimize Context & Convert",
+      "processing": "Running optimization engine...",
+      "preview": "Markdown Preview",
+      "charCount": "{{count}} characters",
+      "steps": {
+        "upload": "Upload File",
+        "review": "Configure Options",
+        "processing": "Optimizing",
+        "result": "Ready for LLM"
+      },
+      "uploadSection": {
+        "cta": "Drag & drop your file here, or click to browse",
+        "subCta": "Supports PDF, Word, Excel, PowerPoint, Images, Video, CSV, ZIP up to {{maxSize}}MB",
+        "addFile": "Add File",
+        "cloudImports": "Or import from your favorite cloud storage:",
+        "googleDrive": "Google Drive",
+        "dropbox": "Dropbox",
+        "mockupTitle": "Cloud Storage Import",
+        "mockupDesc": "This is a visual integration demo. Select a mock file below to test the workflow:",
+        "mockPdf": "Annual_Report_2026.pdf (12.4 MB)",
+        "mockDocx": "Project_Specification.docx (1.8 MB)",
+        "mockPng": "Invoice_Receipt.png (540 KB)",
+        "importBtn": "Import File"
+      },
+      "reviewSection": {
+        "title": "Configure Processing Options",
+        "subtitle": "Optimize the extraction pipeline for your specific AI use case.",
+        "fileDetails": "File Details",
+        "fileName": "Name",
+        "fileSize": "Size",
+        "fileType": "Format",
+        "btnConfirm": "Start Extraction & Optimization",
+        "options": {
+          "piiShield": "Enable PII Shield",
+          "piiShieldDesc": "Automatically detect and redact emails, API keys, phone numbers, and secrets to protect data privacy.",
+          "ragChunking": "Semantic RAG Chunking",
+          "ragChunkingDesc": "Split the document into logical semantic blocks ready for Vector Database indexing.",
+          "ocrMode": "Deep OCR Processing",
+          "ocrModeDesc": "Perform high-fidelity Optical Character Recognition on scanned PDF pages or images."
+        }
+      },
+      "processingSection": {
+        "timeline": "Extraction Pipeline Stages",
+        "stageClassifying": "Classifying file format & structure...",
+        "stageExtracting": "Running document extraction engine...",
+        "stageSanitizing": "Applying PII Shield & sanitizing sensitive keys...",
+        "stageOptimizing": "Optimizing token usage & removing code noise...",
+        "stageChunking": "Generating semantic chunks for RAG...",
+        "stagePrompting": "Constructing LLM context prompt templates...",
+        "eta": "Estimated time remaining: {{time}}s"
+      },
+      "resultSection": {
+        "tabMarkdown": "Markdown Content",
+        "tabChunks": "RAG Chunks ({{count}})",
+        "tabPrompt": "AI Prompt Context",
+        "metricsTitle": "AI Token Metrics",
+        "readabilityScore": "AI Readability Score",
+        "tokenReduction": "Token Reduction",
+        "costSavings": "Estimated Cost Saved",
+        "costSavingsDesc": "Estimated savings per 100 LLM calls (input tokens).",
+        "noiseRemoved": "Noise Elements Cleansed",
+        "noiseRemovedNone": "No noise elements detected.",
+        "downloadZip": "Download Bundle (ZIP)",
+        "downloadMd": "Markdown (.md)",
+        "downloadJson": "Data Schema (.json)",
+        "actionCopy": "Copy to Clipboard",
+        "actionStartOver": "Convert Another File"
+      }
     },
     "mergePdf": {
       "title": "Merge PDF",

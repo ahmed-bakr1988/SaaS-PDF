@@ -2,7 +2,7 @@
 
 import logging
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, current_app, jsonify, request
 
 from app.extensions import limiter
 from app.services.paypal_service import (
@@ -60,9 +60,9 @@ def create_subscription_route():
     if not plan_id:
         return jsonify({"error": "Selected plan / billing cycle is not yet available."}), 503
 
-    base_url = request.host_url.rstrip("/")
-    success_url = f"{base_url}/account?paypal=success&plan={raw_plan}"
-    cancel_url  = f"{base_url}/pricing?paypal=cancel"
+    frontend_url = current_app.config.get("FRONTEND_URL", request.host_url.rstrip("/")).rstrip("/")
+    success_url = f"{frontend_url}/account?paypal=success&plan={raw_plan}"
+    cancel_url  = f"{frontend_url}/pricing?paypal=cancel"
 
     try:
         approval_url = create_subscription(user_id, plan_id, success_url, cancel_url)

@@ -13,7 +13,7 @@ export default function MarketingPageLayout({
   className,
   bodyClassName,
 }: MarketingPageLayoutProps) {
-  const rootClassName = ['marketing-shell relative isolate', className].filter(Boolean).join(' ');
+  const rootClassName = ['marketing-shell relative isolate pb-20 md:pb-0', className].filter(Boolean).join(' ');
   const contentClassName = ['relative', bodyClassName].filter(Boolean).join(' ');
 
   return (

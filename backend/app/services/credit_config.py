@@ -187,6 +187,7 @@ TOOL_CREDIT_COSTS: dict[str, int] = {
     "pptx-to-pdf": TIER_MEDIUM,
     "html-to-pdf": TIER_MEDIUM,
     "pdf-editor": TIER_MEDIUM,
+    "file-to-markdown": TIER_HEAVY,
 
     # ─── Image (light to medium) ────────────────────────────────
     "image-converter": TIER_LIGHT,

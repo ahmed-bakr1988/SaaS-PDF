@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { getToolSEO } from '@/config/seoData';
 import { streamAssistantChat, type AssistantHistoryMessage } from '@/services/api';
 import { trackEvent } from '@/services/analytics';
+import { cn } from '@/utils/cn';
 
 interface AssistantMessage {
   id: string;
@@ -68,15 +69,17 @@ function loadStoredState(): AssistantStorageState {
 export default function SiteAssistant() {
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const [storedState] = useState<AssistantStorageState>(() => loadStoredState());
+  const [isHovered, setIsHovered] = useState(false);
+
+  const [stored] = useState(() => loadStoredState());
+  const [sessionId, setSessionId] = useState(stored.sessionId);
+  const [fingerprint] = useState(stored.fingerprint);
+  const [messages, setMessages] = useState<AssistantMessage[]>(stored.messages);
   const [open, setOpen] = useState(false);
-  const [sessionId, setSessionId] = useState(storedState.sessionId);
-  const [fingerprint] = useState(storedState.fingerprint);
-  const [messages, setMessages] = useState<AssistantMessage[]>(storedState.messages);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const toolSlug = location.pathname.startsWith('/tools/')
     ? location.pathname.replace('/tools/', '').split('/')[0]
@@ -195,45 +198,45 @@ export default function SiteAssistant() {
   };
 
   return (
-    <div className="pointer-events-none fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex justify-end sm:bottom-6 sm:right-6 sm:left-auto">
-      <div className="pointer-events-auto w-full max-w-sm">
+    <div className="pointer-events-none fixed inset-x-4 bottom-[max(5rem,env(safe-area-inset-bottom)+4rem)] z-40 flex justify-end sm:bottom-8 sm:right-8 sm:left-auto">
+      <div className="pointer-events-auto flex flex-col items-end w-full max-w-[90vw] sm:max-w-sm">
         {open && (
-          <div className="mb-3 overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/95 shadow-[0_20px_80px_rgba(15,23,42,0.16)] backdrop-blur dark:border-slate-700/80 dark:bg-slate-950/95">
-            <div className="bg-[radial-gradient(circle_at_top_left,_rgba(56,189,248,0.28),_transparent_40%),linear-gradient(135deg,rgba(15,23,42,1),rgba(30,41,59,0.96))] p-5 text-white">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">
-                    <Sparkles className="h-3.5 w-3.5" />
-                    {t('assistant.badge')}
+          <div className="mb-4 w-full overflow-hidden rounded-[32px] border border-zinc-200 bg-white/95 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.15)] backdrop-blur-xl animate-in fade-in slide-in-from-bottom-4 duration-300 dark:border-zinc-800 dark:bg-zinc-950/95">
+            <div className="bg-zinc-900 p-6 text-white dark:bg-zinc-900">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-500 shadow-lg shadow-brand-500/30">
+                    <Bot className="h-6 w-6 text-white" />
                   </div>
-                  <h2 className="mt-3 text-lg font-semibold">{t('assistant.title')}</h2>
-                  <p className="mt-1 text-sm text-slate-200">{t('assistant.subtitle')}</p>
+                  <div>
+                    <h2 className="text-base font-black tracking-tight">{t('assistant.title')}</h2>
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{t('assistant.online', 'Online')}</p>
+                    </div>
+                  </div>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="rounded-full bg-white/10 p-2 text-slate-200 transition-colors hover:bg-white/20 hover:text-white"
+                  className="rounded-full bg-white/5 p-2 text-zinc-400 transition-colors hover:bg-white/10 hover:text-white"
                   aria-label={t('assistant.close')}
                 >
                   <X className="h-4 w-4" />
                 </button>
               </div>
-
-              <p className="mt-4 rounded-2xl bg-white/10 px-3 py-2 text-xs text-slate-100">
-                {t('assistant.dataNotice')}
-              </p>
             </div>
 
-            <div ref={scrollRef} className="max-h-[50dvh] space-y-3 overflow-y-auto overscroll-contain px-4 py-4 sm:max-h-[26rem]">
+            <div ref={scrollRef} className="max-h-[45vh] space-y-4 overflow-y-auto overscroll-contain px-5 py-6 sm:max-h-[24rem]">
               {messages.length === 0 && (
-                <div className="rounded-3xl border border-sky-100 bg-sky-50/80 p-4 text-sm text-slate-700 dark:border-sky-900/50 dark:bg-slate-900 dark:text-slate-200">
-                  <p className="font-medium text-slate-900 dark:text-slate-100">
+                <div className="rounded-3xl border border-zinc-100 bg-zinc-50/50 p-5 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/50 dark:text-zinc-400">
+                  <p className="font-bold text-zinc-950 dark:text-white">
                     {toolTitle
                       ? t('assistant.greetingWithTool', { tool: toolTitle })
                       : t('assistant.greeting')}
                   </p>
-                  <p className="mt-2 text-slate-600 dark:text-slate-400">{t('assistant.emptyState')}</p>
+                  <p className="mt-2 leading-relaxed">{t('assistant.emptyState')}</p>
                 </div>
               )}
 
@@ -243,9 +246,12 @@ export default function SiteAssistant() {
                   className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={message.role === 'user'
-                      ? 'max-w-[85%] rounded-[24px] rounded-br-md bg-slate-900 px-4 py-3 text-sm text-white dark:bg-sky-500'
-                      : 'max-w-[85%] rounded-[24px] rounded-bl-md bg-slate-100 px-4 py-3 text-sm text-slate-700 dark:bg-slate-800 dark:text-slate-200'}
+                    className={cn(
+                      'max-w-[85%] px-4 py-3 text-sm leading-relaxed',
+                      message.role === 'user'
+                        ? 'rounded-[24px] rounded-br-lg bg-zinc-900 text-white dark:bg-brand-600'
+                        : 'rounded-[24px] rounded-bl-lg bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200'
+                    )}
                   >
                     <p className="whitespace-pre-wrap">{message.content}</p>
                   </div>
@@ -254,34 +260,30 @@ export default function SiteAssistant() {
 
               {isSending && (
                 <div className="flex justify-start">
-                  <div className="rounded-[24px] rounded-bl-md bg-slate-100 px-4 py-3 text-sm text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                    {t('assistant.thinking')}
+                  <div className="flex items-center gap-1 rounded-full bg-zinc-100 px-4 py-2 dark:bg-zinc-800">
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:0.2s]" />
+                    <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-400 [animation-delay:0.4s]" />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="border-t border-slate-200 bg-slate-50/70 px-4 py-4 dark:border-slate-800 dark:bg-slate-950/70">
-              {error && (
-                <p className="mb-3 rounded-2xl bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-                  {error}
-                </p>
-              )}
-
-              <div className="mb-3 flex flex-wrap gap-2">
-                {quickPrompts.map((prompt) => (
+            <div className="border-t border-zinc-100 bg-zinc-50/30 p-5 dark:border-zinc-800 dark:bg-zinc-950/30">
+              <div className="mb-4 flex flex-wrap gap-2">
+                {quickPrompts.slice(0, 2).map((prompt) => (
                   <button
                     key={prompt}
                     type="button"
                     onClick={() => void sendMessage(prompt)}
-                    className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-sky-200 hover:text-sky-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-sky-800 dark:hover:text-sky-300"
+                    className="rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-bold text-zinc-600 transition-all hover:border-brand-300 hover:text-brand-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:text-brand-400"
                   >
                     {prompt}
                   </button>
                 ))}
               </div>
 
-              <div className="flex items-end gap-2 rounded-[24px] border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900">
+              <div className="flex items-end gap-2 rounded-3xl border border-zinc-200 bg-white p-2 shadow-sm ring-1 ring-zinc-100 focus-within:ring-brand-500/20 dark:border-zinc-700 dark:bg-zinc-900 dark:ring-zinc-800">
                 <textarea
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
@@ -293,38 +295,47 @@ export default function SiteAssistant() {
                   }}
                   placeholder={t('assistant.inputPlaceholder')}
                   rows={1}
-                  className="max-h-28 min-h-[2.75rem] flex-1 resize-none border-0 bg-transparent px-2 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400 dark:text-slate-200 dark:placeholder:text-slate-500"
+                  className="max-h-28 min-h-[2.5rem] flex-1 resize-none border-0 bg-transparent px-3 py-2.5 text-sm text-zinc-900 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-600"
                 />
                 <button
                   type="button"
                   onClick={() => void sendMessage(input)}
                   disabled={!input.trim() || isSending}
-                  className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-sky-500 text-white transition-colors hover:bg-sky-600 disabled:cursor-not-allowed disabled:bg-slate-300 dark:disabled:bg-slate-700"
-                  aria-label={t('assistant.send')}
+                  className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg shadow-brand-600/20 transition-all hover:scale-105 hover:bg-brand-700 disabled:opacity-50 disabled:grayscale"
                 >
-                  <SendHorizontal className="h-4 w-4" />
+                  <SendHorizontal className="h-5 w-5" />
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => {
-            setOpen((value) => !value);
-            trackEvent('assistant_toggled', { open: !open, tool: toolSlug || 'global' });
-          }}
-          className="ml-auto flex items-center gap-3 rounded-full bg-[linear-gradient(135deg,#0f172a,#0369a1)] px-5 py-3 text-left text-white shadow-[0_18px_48px_rgba(2,132,199,0.35)] transition-transform hover:-translate-y-0.5"
-        >
-          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/10">
-            <Bot className="h-5 w-5" />
-          </span>
-          <span>
-            <span className="block text-sm font-semibold">{t('assistant.fabTitle')}</span>
-            <span className="block text-xs text-sky-100">{t('assistant.fabSubtitle')}</span>
-          </span>
-        </button>
+        <div className="relative group">
+          {isHovered && !open && (
+            <div className="absolute bottom-full right-0 mb-4 whitespace-nowrap rounded-2xl bg-zinc-900 px-4 py-2.5 text-xs font-bold text-white shadow-2xl animate-in fade-in slide-in-from-right-4 dark:bg-white dark:text-zinc-950">
+              {t('assistant.fabHover', 'Can I help you?')}
+              <div className="absolute right-6 top-full h-2 w-2 -translate-y-1 rotate-45 bg-zinc-900 dark:bg-white" />
+            </div>
+          )}
+          
+          <button
+            type="button"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={() => {
+              setOpen((value) => !value);
+              trackEvent('assistant_toggled', { open: !open, tool: toolSlug || 'global' });
+            }}
+            className={cn(
+              "flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_20px_50px_rgba(37,99,235,0.3)] transition-all duration-500 hover:scale-110 active:scale-95 sm:h-16 sm:w-16",
+              open 
+                ? "bg-zinc-900 rotate-90 dark:bg-white dark:text-zinc-950" 
+                : "bg-brand-600 dark:bg-brand-500"
+            )}
+          >
+            {open ? <X className="h-6 w-6" /> : <Bot className="h-7 w-7 sm:h-8 sm:w-8" />}
+          </button>
+        </div>
       </div>
     </div>
   );

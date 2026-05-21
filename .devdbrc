@@ -2,5 +2,9 @@
   {
     "type": "sqlite",
     "path": "c:\\xampp\\htdocs\\SaaS-PDF\\backend\\data\\saas_pdf.db"
+  },
+  {
+    "type": "sqlite",
+    "path": "c:\\xampp\\htdocs\\SaaS-PDF\\backend\\data\\dociva.db"
   }
 ]

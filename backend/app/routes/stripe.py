@@ -31,12 +31,22 @@ def checkout():
         return jsonify({"error": "Authentication required."}), 401
 
     data = request.get_json(silent=True) or {}
-    billing = data.get("billing", "monthly")
+    billing = str(data.get("billing", "monthly")).lower()
+    if billing not in ("monthly", "yearly"):
+        return jsonify({"error": "Invalid billing. Must be 'monthly' or 'yearly'."}), 400
+
+    raw_plan = str(data.get("plan", "pro")).lower()
+    if raw_plan == "micro":
+        raw_plan = "starter"
+    if raw_plan not in ("starter", "pro", "business"):
+        return jsonify({"error": "Invalid plan. Must be one of: starter, pro, business."}), 400
+    if raw_plan != "pro":
+        return jsonify({"error": "Stripe checkout is currently available for the Pro plan only."}), 400
 
     price_id = get_stripe_price_id(billing)
 
     if not is_stripe_configured() or not price_id:
-        return jsonify({"error": "Payment is not configured yet."}), 503
+        return jsonify({"error": "Payment is not configured yet for the selected billing cycle."}), 503
 
     frontend_url = current_app.config.get("FRONTEND_URL", "http://localhost:5173")
     success_url = f"{frontend_url}/account?payment=success"

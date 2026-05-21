@@ -49,13 +49,13 @@ export default function AboutPage() {
 
       <div className="mx-auto max-w-6xl">
         {/* Hero Banner */}
-        <section className="relative mb-16 overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-primary-500 to-sky-400 px-8 py-14 text-white shadow-lg sm:px-12 sm:py-20">
-          <div className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-20 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
-          <h1 className="relative text-3xl font-extrabold uppercase tracking-wide sm:text-4xl lg:text-5xl">
+        <section className="premium-surface relative mb-16 overflow-hidden bg-gradient-to-br from-primary-600 via-primary-700 to-accent-700 px-8 py-16 text-white shadow-2xl sm:px-12 sm:py-24">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-white/10 blur-[100px]" />
+          <div className="pointer-events-none absolute -bottom-20 -left-10 h-64 w-64 rounded-full bg-sky-400/10 blur-[100px]" />
+          <h1 className="relative text-4xl font-black uppercase tracking-tight sm:text-5xl lg:text-6xl lg:leading-[1.1]">
             {t('pages.about.heroTitle', 'Empowering Document Productivity Worldwide')}
           </h1>
-          <p className="relative mt-4 max-w-2xl text-lg leading-relaxed text-white/90">
+          <p className="relative mt-6 max-w-2xl text-xl leading-relaxed text-primary-50">
             {t('pages.about.missionText')}
           </p>
         </section>
@@ -81,17 +81,17 @@ export default function AboutPage() {
 
         {/* Stats */}
         <section className="mb-16">
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-3">
             {STATS.map((stat, idx) => (
               <div
                 key={idx}
-                className="relative flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800"
+                className="premium-card flex flex-col items-center text-center"
               >
                 {/* Decorative ring */}
-                <div className="mb-4 flex h-28 w-28 items-center justify-center rounded-full border-4 border-primary-200 dark:border-primary-800">
-                  <span className="text-xl font-extrabold text-primary-700 dark:text-primary-300">{stat.value}</span>
+                <div className="mb-6 flex h-32 w-32 items-center justify-center rounded-full border-[6px] border-primary-50 bg-white shadow-inner dark:border-primary-900/20 dark:bg-slate-800">
+                  <span className="text-2xl font-black text-primary-700 dark:text-primary-400">{stat.value}</span>
                 </div>
-                <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                <p className="text-sm font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
                   {t(stat.labelKey, stat.labelDefault)}
                 </p>
               </div>
@@ -118,17 +118,19 @@ export default function AboutPage() {
 
         {/* Our Values */}
         <section className="mb-16">
-          <h2 className="mb-8 text-center text-2xl font-bold text-slate-900 dark:text-white">
+          <h2 className="mb-10 text-center text-3xl font-black tracking-tight text-slate-950 dark:text-white">
             {t('pages.about.valuesTitle', 'Our Values')}
           </h2>
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-3">
             {VALUES.map(({ icon: Icon, titleKey, titleDefault }, idx) => (
               <div
                 key={idx}
-                className="flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 shadow-sm transition-shadow hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
+                className="premium-card flex flex-col items-center"
               >
-                <Icon className="mb-4 h-10 w-10 text-primary-600 dark:text-primary-400" />
-                <h3 className="text-lg font-bold text-primary-700 dark:text-primary-300">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400">
+                  <Icon className="h-8 w-8" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                   {t(titleKey, titleDefault)}
                 </h3>
               </div>

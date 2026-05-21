@@ -1889,240 +1889,247 @@ export default function InternalAdminPage() {
   // ====================== MAIN RENDER ======================
 
   return (
-    <div dir={isRtl ? 'rtl' : 'ltr'} lang={lang} className="mx-auto max-w-7xl space-y-6">
+    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 ${isRtl ? 'font-arabic' : ''}`} dir={isRtl ? 'rtl' : 'ltr'}>
       <Helmet>
         <title>{t('pageTitle')}</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
 
-      {/* Header */}
-      <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary-600 dark:text-primary-300">
-              {t('internalOps')}
-            </p>
-            <h1 className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">{t('controlRoom')}</h1>
-            <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-600 dark:text-slate-300">
-              {t('controlRoomDesc')}
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Language toggle */}
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-200"
-            >
-              <Globe className="h-4 w-4" />
-              {lang === 'en' ? 'العربية' : 'English'}
-            </button>
-
-            {user && (
-              <div className="flex flex-col items-end gap-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm dark:border-slate-700 dark:bg-slate-950/50">
-                <span className="font-semibold text-slate-900 dark:text-white">{user.email}</span>
-                <span className="text-slate-600 dark:text-slate-300">{t('roleLabel')} {user.role}</span>
+      <div className="flex min-h-screen">
+        {/* Sidebar - only shown if admin */}
+        {isAdmin && (
+          <aside className="fixed inset-y-0 z-50 flex w-72 flex-col border-r border-slate-200 bg-white shadow-xl dark:border-slate-800 dark:bg-slate-900 lg:relative lg:translate-x-0">
+            <div className="flex h-20 items-center justify-between border-b border-slate-100 px-6 dark:border-slate-800">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary-600 to-accent-600 shadow-lg shadow-primary-500/20">
+                  <Activity className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white">Admin Hub</span>
               </div>
-            )}
-            {isAdmin && (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => void loadTab(activeTab)}
-                  className="inline-flex items-center gap-2 rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-200"
-                >
-                  <RefreshCcw className={`h-4 w-4${loading ? ' animate-spin' : ''}`} />
-                  {t('refresh')}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void handleLogout()}
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-                >
-                  <LogOut className="h-4 w-4" />
-                  {t('signOut')}
-                </button>
+            </div>
+
+            <nav className="flex-1 space-y-1.5 overflow-y-auto px-4 py-6">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setActiveTab(tab.key)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${
+                      isActive
+                        ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/25'
+                        : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'
+                    }`}
+                  >
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="border-t border-slate-100 p-4 dark:border-slate-800">
+              <button
+                onClick={handleLogout}
+                className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold text-red-500 transition-all hover:bg-red-50 dark:hover:bg-red-900/10"
+              >
+                <LogOut className="h-5 w-5" />
+                {t('signOut')}
+              </button>
+            </div>
+          </aside>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-x-hidden p-6 sm:p-10 lg:p-12">
+          {!initialized || authLoading ? (
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600" />
+            </div>
+          ) : !user ? (
+            <div className="mx-auto mt-20 max-w-md">
+              <div className="premium-card !p-8">
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">{t('adminSignIn')}</h2>
+                <p className="mt-3 text-sm font-medium text-slate-500 dark:text-slate-400">
+                  {t('adminSignInDesc')}
+                </p>
+                <form onSubmit={handleLogin} className="mt-8 space-y-4">
+                  <input
+                    type="email"
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@example.com"
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                  />
+                  <input
+                    type="password"
+                    autoComplete="current-password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder={t('passwordPlaceholder')}
+                    className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100"
+                  />
+                  {loginError && (
+                    <div className="rounded-xl bg-red-50 p-4 text-xs font-bold text-red-600 dark:bg-red-900/20 dark:text-red-400">
+                      {loginError}
+                    </div>
+                  )}
+                  <button
+                    type="submit"
+                    className="w-full rounded-2xl bg-slate-950 py-4 text-sm font-black text-white shadow-lg transition-all hover:bg-primary-600 dark:bg-white dark:text-slate-950 dark:hover:bg-primary-300"
+                  >
+                    {t('signInBtn')}
+                  </button>
+                </form>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {error && (
-        <div className="flex items-start gap-3 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
-          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Auth state */}
-      {!initialized || authLoading ? (
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 text-sm text-slate-600 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-300">
-          {t('checkingSession')}
-        </section>
-      ) : !user ? (
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-          <div className="max-w-lg">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('adminSignIn')}</h2>
-            <p className="mt-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
-              {t('adminSignInDesc')}
-            </p>
-          </div>
-          <form onSubmit={handleLogin} className="mt-6 grid gap-4 md:max-w-xl">
-            <input
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="admin@example.com"
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-primary-500/30"
-            />
-            <input
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('passwordPlaceholder')}
-              className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-950 dark:text-slate-100 dark:focus:ring-primary-500/30"
-            />
-            {loginError && (
-              <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
-                {loginError}
+            </div>
+          ) : !isAdmin ? (
+            <div className="mx-auto mt-20 max-w-lg">
+              <div className="premium-card !p-10 text-center">
+                <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-50 dark:bg-amber-900/20">
+                  <AlertTriangle className="h-10 w-10 text-amber-500" />
+                </div>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white">{t('noAdminPermission')}</h2>
+                <p className="mt-4 text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+                  {tr(t('notAdminDesc'), { email: user.email })}
+                </p>
+                <div className="mt-8 flex justify-center gap-4">
+                  <Link
+                    to="/account"
+                    className="rounded-full border border-slate-200 px-8 py-3 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    {t('backToAccount')}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => void handleLogout()}
+                    className="rounded-full bg-slate-950 px-8 py-3 text-sm font-bold text-white shadow-lg transition-all hover:bg-red-600 dark:bg-white dark:text-slate-950 dark:hover:bg-red-300"
+                  >
+                    {t('signOut')}
+                  </button>
+                </div>
               </div>
-            )}
-            <button
-              type="submit"
-              className="rounded-2xl bg-primary-600 px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
-            >
-              {t('signInBtn')}
-            </button>
-          </form>
-        </section>
-      ) : !isAdmin ? (
-        <section className="rounded-3xl border border-amber-200 bg-amber-50 p-8 shadow-sm dark:border-amber-500/30 dark:bg-amber-500/10">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{t('noAdminPermission')}</h2>
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700 dark:text-slate-300">
-            {tr(t('notAdminDesc'), { email: user.email })}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Link
-              to="/account"
-              className="rounded-2xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-200"
-            >
-              {t('backToAccount')}
-            </Link>
-            <button
-              type="button"
-              onClick={() => void handleLogout()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
-            >
-              <LogOut className="h-4 w-4" />
-              {t('signOut')}
-            </button>
-          </div>
-        </section>
-      ) : (
-        <>
-          {/* Tab navigation */}
-          <nav className="flex flex-wrap gap-2 rounded-2xl border border-slate-200 bg-white p-2 shadow-sm dark:border-slate-700 dark:bg-slate-900/70">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  key={tab.key}
-                  type="button"
-                  onClick={() => setActiveTab(tab.key)}
-                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
-                    activeTab === tab.key
-                      ? 'bg-primary-600 text-white'
-                      : 'text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  <Icon className="h-4 w-4" />
-                  {tab.label}
-                </button>
-              );
-            })}
-          </nav>
+            </div>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <header className="mb-12 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.25em] text-primary-600">
+                    {t('internalOps')}
+                  </p>
+                  <h1 className="mt-2 text-4xl font-black tracking-tight text-slate-900 dark:text-white">
+                    {tabs.find((t) => t.key === activeTab)?.label}
+                  </h1>
+                </div>
 
-          {/* Tab content */}
-          <div className="space-y-6">
-            {activeTab === 'overview' && renderOverviewTab()}
-            {activeTab === 'users' && renderUsersTab()}
-            {activeTab === 'tools' && renderToolsTab()}
-            {activeTab === 'ratings' && renderRatingsTab()}
-            {activeTab === 'contacts' && renderContactsTab()}
-            {activeTab === 'system' && renderSystemTab()}
-            {activeTab === 'database' && renderDatabaseTab()}
-            {activeTab === 'events' && renderEventsTab()}
-          </div>
-        </>
-      )}
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    onClick={toggleLang}
+                    className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700 shadow-sm transition-all hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-800"
+                  >
+                    <Globe className="me-2 inline h-4 w-4" />
+                    {lang === 'en' ? 'العربية' : 'English'}
+                  </button>
+                  <button
+                    onClick={() => void loadTab(activeTab)}
+                    disabled={loading}
+                    className="flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-lg transition-all hover:bg-slate-800 disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100"
+                  >
+                    <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                    {t('refresh')}
+                  </button>
+                </div>
+              </header>
+
+              {error && (
+                <div className="mb-8 flex items-start gap-4 rounded-2xl border border-red-100 bg-red-50 p-6 text-sm text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400">
+                  <AlertTriangle className="h-5 w-5 shrink-0" />
+                  <span className="font-bold">{error}</span>
+                </div>
+              )}
+
+              <div className="space-y-12">
+                {activeTab === 'overview' && renderOverviewTab()}
+                {activeTab === 'users' && renderUsersTab()}
+                {activeTab === 'tools' && renderToolsTab()}
+                {activeTab === 'ratings' && renderRatingsTab()}
+                {activeTab === 'contacts' && renderContactsTab()}
+                {activeTab === 'system' && renderSystemTab()}
+                {activeTab === 'database' && renderDatabaseTab()}
+                {activeTab === 'events' && renderEventsTab()}
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
 
       {/* Create User Modal */}
       {showCreateUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setShowCreateUser(false)}>
-          <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-xl dark:border-slate-700 dark:bg-slate-900" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">{t('createUserTitle')}</h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{t('createUserDesc')}</p>
-            <form onSubmit={handleCreateUser} className="mt-5 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('emailLabel')}</label>
-                <input
-                  type="email"
-                  value={newUserEmail}
-                  onChange={(e) => setNewUserEmail(e.target.value)}
-                  required
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('passwordLabel')}</label>
-                <input
-                  type="password"
-                  value={newUserPassword}
-                  onChange={(e) => setNewUserPassword(e.target.value)}
-                  required
-                  minLength={8}
-                  className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/40 backdrop-blur-sm p-4" onClick={() => setShowCreateUser(false)}>
+          <div className="premium-card w-full max-w-md !p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-2xl font-black text-slate-900 dark:text-white">{t('createUserTitle')}</h2>
+            <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400">{t('createUserDesc')}</p>
+            <form onSubmit={handleCreateUser} className="mt-8 space-y-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('planLabel')}</label>
-                  <select
-                    value={newUserPlan}
-                    onChange={(e) => setNewUserPlan(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-                  >
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('emailLabel')}</label>
+                  <input
+                    type="email"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    required
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-100"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('passwordLabel')}</label>
+                  <input
+                    type="password"
+                    value={newUserPassword}
+                    onChange={(e) => setNewUserPassword(e.target.value)}
+                    required
+                    minLength={8}
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-100"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('planLabel')}</label>
+                    <select
+                      value={newUserPlan}
+                      onChange={(e) => setNewUserPlan(e.target.value)}
+                      className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-100"
+                    >
                     <option value="free">Free</option>
                     <option value="pro">Pro</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">{t('roleLabel')}</label>
+                  <label className="text-xs font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{t('roleLabel')}</label>
                   <select
                     value={newUserRole}
                     onChange={(e) => setNewUserRole(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-2 focus:ring-primary-200 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm text-slate-900 outline-none transition focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 dark:border-slate-800 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
                   </select>
                 </div>
               </div>
-              <div className="flex gap-3 pt-2">
+            </div>
+            <div className="flex gap-4 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-700"
+                  className="flex-1 rounded-2xl bg-primary-600 py-4 text-sm font-black text-white shadow-lg shadow-primary-500/20 transition-all hover:bg-primary-700 hover:shadow-primary-500/40"
                 >
                   {t('createBtn')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowCreateUser(false)}
-                  className="flex-1 rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-400 dark:border-slate-600 dark:text-slate-200"
+                  className="flex-1 rounded-2xl border border-slate-200 py-4 text-sm font-bold text-slate-700 transition-all hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                 >
                   {t('cancelBtn')}
                 </button>

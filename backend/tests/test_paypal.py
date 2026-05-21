@@ -70,6 +70,21 @@ class TestPayPalSubscriptionRoute:
 
         assert response.status_code == 200
 
+    def test_create_subscription_uses_frontend_return_urls(self, client, app):
+        """Approval return/cancel URLs should target configured frontend domain."""
+        self._login(client, email="paypal-frontend-url@test.com")
+        app.config["FRONTEND_URL"] = "https://app.dociva.test"
+        with patch("app.routes.paypal.is_paypal_configured", return_value=True), \
+             patch("app.routes.paypal.get_paypal_plan_id", return_value="P-1234567890"), \
+             patch("app.routes.paypal.create_subscription") as mock_create:
+            mock_create.return_value = "https://www.sandbox.paypal.com/checkoutnow?token=TEST"
+            response = client.post("/api/paypal/create-subscription", json={"billing": "monthly", "plan": "pro"})
+
+        assert response.status_code == 200
+        _, _, success_url, cancel_url = mock_create.call_args.args
+        assert success_url.startswith("https://app.dociva.test/account")
+        assert cancel_url.startswith("https://app.dociva.test/pricing")
+
     def test_create_subscription_api_error_returns_500(self, client, app):
         """When PayPal API call fails, endpoint returns 500."""
         self._login(client, email="paypal-apierror@test.com")
@@ -171,3 +186,19 @@ class TestAccountSubscriptionProviderAgnostic:
         data = response.get_json()
         for key in ("plan", "payment_provider", "checkout_enabled", "subscription"):
             assert key in data, f"Missing key in subscription response: {key}"
+
+    def test_subscription_includes_payment_methods_and_pricing_metadata(self, client):
+        self._login(client, email="sub-methods@test.com")
+        with patch("app.routes.account.is_paypal_configured", return_value=True), \
+             patch("app.routes.account.is_stripe_configured", return_value=True), \
+             patch("app.routes.account.is_paymob_configured", return_value=False), \
+             patch("app.routes.account.get_paypal_plan_id", side_effect=lambda billing="monthly", plan="pro": f"paypal-{plan}-{billing}"), \
+             patch("app.routes.account.get_stripe_price_id", side_effect=lambda billing="monthly": f"stripe-{billing}"):
+            response = client.get("/api/account/subscription")
+
+        assert response.status_code == 200
+        data = response.get_json()
+        assert data["pricing"]["monthly_price_id"] == "stripe-monthly"
+        assert data["pricing"]["yearly_price_id"] == "stripe-yearly"
+        assert isinstance(data["payment_methods"], list)
+        assert {m["id"] for m in data["payment_methods"]} == {"paypal", "stripe", "paymob"}

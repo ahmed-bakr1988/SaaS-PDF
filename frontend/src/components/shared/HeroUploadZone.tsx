@@ -106,16 +106,16 @@ export default function HeroUploadZone() {
       <div className="mx-auto mt-8 max-w-2xl">
         <div
           {...getRootProps()}
-          className={`hero-upload-zone group ${isDragActive ? 'drag-active' : ''}`}
+          className={`hero-upload-zone group premium-surface !rounded-[2.5rem] ${isDragActive ? 'drag-active' : ''}`}
         >
           <input {...getInputProps()} aria-label={t('home.dragDropTitle', 'Drag & drop your file here')} />
 
           {/* Cloud icon with animated ring */}
           <div className="relative mb-6">
             {/* Outer glow ring */}
-            <div className={`absolute inset-0 rounded-3xl blur-xl transition-all duration-500 ${iconGlowClass}`} />
-            <div className={`relative flex h-20 w-20 items-center justify-center rounded-2xl transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-lg ${iconContainerClass}`}>
-              <UploadCloud className={`h-10 w-10 transition-colors duration-300 ${uploadIconClass}`} />
+            <div className={`absolute inset-0 rounded-[2rem] blur-2xl transition-all duration-700 ${iconGlowClass}`} />
+            <div className={`relative flex h-24 w-24 items-center justify-center rounded-[1.75rem] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary-500/20 ${iconContainerClass}`}>
+              <UploadCloud className={`h-12 w-12 transition-colors duration-500 ${uploadIconClass}`} />
             </div>
           </div>
 

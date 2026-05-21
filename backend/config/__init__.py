@@ -74,6 +74,13 @@ class BaseConfig:
         "ppt": ["application/vnd.ms-powerpoint"],
         "xlsx": ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
         "xls": ["application/vnd.ms-excel"],
+        "txt": ["text/plain"],
+        "md": ["text/markdown", "text/plain"],
+        "markdown": ["text/markdown", "text/plain"],
+        "csv": ["text/csv", "text/plain", "application/csv"],
+        "json": ["application/json", "text/plain"],
+        "xml": ["application/xml", "text/xml", "text/plain"],
+        "log": ["text/plain"],
     }
 
     # File size limits per type (bytes)
@@ -96,6 +103,13 @@ class BaseConfig:
         "ppt": 20 * 1024 * 1024,  # 20MB
         "xlsx": 15 * 1024 * 1024,  # 15MB
         "xls": 15 * 1024 * 1024,  # 15MB
+        "txt": 10 * 1024 * 1024,  # 10MB
+        "md": 10 * 1024 * 1024,  # 10MB
+        "markdown": 10 * 1024 * 1024,  # 10MB
+        "csv": 10 * 1024 * 1024,  # 10MB
+        "json": 10 * 1024 * 1024,  # 10MB
+        "xml": 10 * 1024 * 1024,  # 10MB
+        "log": 10 * 1024 * 1024,  # 10MB
     }
 
     # Redis

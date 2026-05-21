@@ -429,6 +429,18 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     demandTier: 'B',
   },
   {
+    slug: 'file-to-markdown',
+    i18nKey: 'fileToMarkdown',
+    component: () => import('@/components/tools/FileToMarkdown'),
+    category: 'conversion',
+    homepage: true,
+    homepageSection: 'other',
+    iconName: 'FileText',
+    iconColor: 'text-sky-600',
+    bgColor: 'bg-sky-50',
+    demandTier: 'B',
+  },
+  {
     slug: 'pdf-to-pptx',
     i18nKey: 'pdfToPptx',
     component: () => import('@/components/tools/PdfToPptx'),

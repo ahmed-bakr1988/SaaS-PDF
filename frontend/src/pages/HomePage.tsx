@@ -126,7 +126,6 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
-  const homepageQuickLinks = pdfTools.slice(0, 4);
   const stats = [
     {
       label: t('home.statsToolsLabel', 'Total tools'),
@@ -170,89 +169,44 @@ export default function HomePage() {
 
   return (
     <MarketingPageLayout
-      bodyClassName="pb-20"
+      bodyClassName="pb-24 md:pb-12"
       hero={
-        <section className="px-4 pb-10 pt-8 sm:px-6 lg:px-8 lg:pt-10">
-          <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.05fr_0.95fr] xl:gap-8">
-            <div className="marketing-panel relative overflow-hidden p-8 sm:p-10 lg:p-12">
-              <div className="pointer-events-none absolute -left-10 top-10 h-36 w-36 rounded-full bg-primary-200/60 blur-3xl dark:bg-primary-800/30" />
-              <div className="pointer-events-none absolute bottom-0 right-0 h-44 w-44 rounded-full bg-sky-200/50 blur-3xl dark:bg-sky-800/20" />
-              <div className="relative">
-                <span className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.22em] text-primary-700 dark:border-primary-800 dark:bg-primary-900/25 dark:text-primary-300">
-                  <Sparkles className="h-3.5 w-3.5" />
+        <section className="relative overflow-hidden px-4 pb-12 pt-8 sm:px-6 lg:px-8 lg:pt-16">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center xl:gap-12">
+              <div className="relative z-10 text-center lg:text-left">
+                <span className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50 px-4 py-2 text-[10px] font-black uppercase tracking-[0.25em] text-zinc-700 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-400">
+                  <Sparkles className="h-3.5 w-3.5 text-brand-500" />
                   {t('home.heroBadge', 'Modern document workflows')}
                 </span>
 
-                <h1 className="mt-6 max-w-3xl text-4xl font-black tracking-tight text-slate-950 dark:text-white sm:text-5xl lg:text-6xl lg:leading-[1.02]">
+                <h1 className="mt-8 text-4xl font-black tracking-tight text-zinc-950 dark:text-white sm:text-6xl lg:text-7xl leading-tight lg:leading-[1.15]">
                   {t('home.hero')}
                 </h1>
 
-                <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+                <p className="mt-6 max-w-2xl text-lg leading-relaxed text-zinc-600 dark:text-zinc-400 lg:mx-0 mx-auto">
                   {t('home.heroSub')}
                 </p>
 
-                <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
                   {[
-                    { icon: ShieldCheck, text: t('home.trustSecure', 'Files auto-deleted') },
-                    { icon: Zap, text: t('home.trustFast', 'Results in seconds') },
-                    { icon: Globe, text: t('home.trust30Tools', '30+ free tools') },
-                    { icon: Lock, text: t('home.trustNoSignup', 'No sign-up needed') },
-                  ].map(({ icon: Icon, text }) => (
-                    <div key={text} className="metric-card flex items-center gap-3 py-4">
-                      <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800">
-                        <Icon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
-                      </div>
-                      <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{text}</span>
+                    { icon: ShieldCheck, text: t('home.trustSecure', 'Files auto-deleted'), color: 'text-emerald-600 dark:text-emerald-400' },
+                    { icon: Zap, text: t('home.trustFast', 'Results in seconds'), color: 'text-amber-500 dark:text-amber-400' },
+                    { icon: Globe, text: t('home.trust30Tools', '30+ free tools'), color: 'text-brand-600 dark:text-brand-400' },
+                    { icon: Lock, text: t('home.trustNoSignup', 'No sign-up needed'), color: 'text-violet-600 dark:text-violet-400' },
+                  ].map(({ icon: Icon, text, color }) => (
+                    <div key={text} className="flex flex-col items-center gap-2 rounded-2xl bg-white/50 p-4 ring-1 ring-zinc-100 dark:bg-zinc-900/30 dark:ring-zinc-800 lg:items-start">
+                      <Icon className={`h-5 w-5 ${color}`} />
+                      <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-300">{text}</span>
                     </div>
                   ))}
                 </div>
-
-                <div className="mt-8 flex flex-wrap gap-3">
-                  <Link
-                    to="/tools"
-                    className="inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-primary-600 dark:bg-white dark:text-slate-950 dark:hover:bg-primary-300"
-                  >
-                    {t('home.ctaBrowseTools', 'Browse All Tools')}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/pricing"
-                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
-                  >
-                    {t('common.pricing')}
-                  </Link>
-                </div>
-
-                <div className="mt-8 rounded-[1.75rem] border border-slate-200/80 bg-white/85 p-5 dark:border-slate-700/70 dark:bg-slate-900/65">
-                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                    {t('home.quickStartLabel', 'Popular starting points')}
-                  </p>
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {homepageQuickLinks.map((tool) => (
-                      <Link
-                        key={tool.path}
-                        to={tool.path}
-                        className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-primary-300 hover:text-primary-700 dark:border-slate-700 dark:bg-slate-800/70 dark:text-slate-200 dark:hover:border-primary-600 dark:hover:text-primary-300"
-                      >
-                        <ManifestToolIcon iconName={tool.iconName} className={`h-4 w-4 ${tool.iconColor}`} />
-                        {t(`tools.${tool.key}.title`)}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
               </div>
-            </div>
 
-            <div className="marketing-panel p-6 sm:p-8">
-              <SectionIntro
-                eyebrow={t('home.heroUploadEyebrow', 'Upload and start')}
-                title={t('home.heroUploadTitle', 'Choose a file and jump straight into the right tool')}
-                description={t(
-                  'home.heroUploadDescription',
-                  'The smart upload zone keeps the current routing logic and suggests the best workflow automatically.'
-                )}
-              />
-              <HeroUploadZone />
+              <div className="relative mt-8 lg:mt-0">
+                <div className="pointer-events-none absolute -inset-4 rounded-[3rem] bg-gradient-to-tr from-brand-500/10 via-transparent to-amber-500/10 blur-2xl dark:from-brand-500/5 dark:to-amber-500/5" />
+                <HeroUploadZone />
+              </div>
             </div>
           </div>
         </section>
@@ -314,9 +268,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="marketing-panel p-6 sm:p-8 lg:p-10">
-          <div className="grid gap-8 xl:grid-cols-[280px_1fr]">
+      <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
+        <div className="premium-surface p-8 sm:p-12 lg:p-16">
+          <div className="grid gap-12 xl:grid-cols-[300px_1fr]">
             <div>
               <SectionIntro
                 eyebrow={t('common.search')}
@@ -361,9 +315,9 @@ export default function HomePage() {
             </div>
 
             <div>
-              <div className="mb-8 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-950 dark:text-white">{t('home.pdfTools')}</h2>
-                <Link to="/tools" className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
+              <div className="mb-10 flex items-center justify-between border-b border-slate-100 pb-4 dark:border-slate-800">
+                <h2 className="text-2xl font-black tracking-tight text-slate-950 dark:text-white">{t('home.pdfTools')}</h2>
+                <Link to="/tools" className="inline-flex items-center gap-2 text-sm font-bold text-primary-600 transition-colors hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300">
                   {t('common.allTools')}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -430,11 +384,11 @@ export default function HomePage() {
             const perks = panel.perks.map((perkKey, index) => t(perkKey, panel.fallbackPerks[index]));
 
             return (
-              <div key={panel.titleKey} className="marketing-card flex h-full flex-col p-7">
-                <div className={`mb-5 flex h-14 w-14 items-center justify-center rounded-2xl ${panel.bgClassName}`}>
-                  <Icon className={`h-7 w-7 ${panel.iconClassName}`} />
+              <div key={panel.titleKey} className="premium-card flex h-full flex-col">
+                <div className={`mb-6 flex h-16 w-16 items-center justify-center rounded-2xl shadow-sm ${panel.bgClassName}`}>
+                  <Icon className={`h-8 w-8 ${panel.iconClassName}`} />
                 </div>
-                <h3 className="text-lg font-bold text-slate-950 dark:text-white">
+                <h3 className="text-xl font-extrabold tracking-tight text-slate-950 dark:text-white">
                   {t(panel.titleKey, panel.titleDefault)}
                 </h3>
                 <p className="mt-3 text-sm leading-7 text-slate-600 dark:text-slate-300">
@@ -505,7 +459,7 @@ export default function HomePage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 to="/tools"
-                className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 text-sm font-bold text-primary-700 shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+                className="inline-flex items-center gap-3 rounded-full bg-white px-10 py-4 text-sm font-black text-primary-700 shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
               >
                 {t('home.ctaBrowseTools', 'Browse All Tools')}
                 <ArrowRight className="h-4 w-4" />

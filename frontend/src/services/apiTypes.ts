@@ -95,8 +95,13 @@ export interface TaskResult {
   duration?: number;
   fps?: number;
   format?: string;
+  conversion_method?: string;
   edits_applied?: number;
   page_count?: number;
+  download_url_md?: string;
+  filename_md?: string;
+  download_url_json?: string;
+  filename_json?: string;
   // Flowchart-specific fields
   procedures?: Array<{ id: string; title: string; description: string; pages: number[]; step_count: number }>;
   flowcharts?: Array<{ id: string; procedureId: string; title: string; steps: Array<{ id: string; type: string; title: string; description: string; connections: string[] }> }>;
@@ -121,6 +126,25 @@ export interface TaskResult {
   // Table extraction fields
   tables?: Array<{ page: number; table_index: number; headers: string[]; rows: string[][] }>;
   tables_found?: number;
+  // Markdown & AI Pipeline specific fields
+  metrics?: {
+    original_size_bytes?: number;
+    output_size_bytes?: number;
+    char_count?: number;
+    token_estimate?: number;
+    token_reduction_pct?: number;
+    estimated_cost_saved_usd?: number;
+    noise_removed?: string[];
+    ai_readability_score?: number;
+    conversion_method?: string;
+  };
+  chunks?: Array<{
+    index: number;
+    text: string;
+    char_count: number;
+    token_estimate: number;
+  }>;
+  prompt?: string;
 }
 
 export interface AuthUser {
@@ -283,4 +307,12 @@ export interface ApiKey {
   revoked_at: string | null;
   created_at: string;
   raw_key?: string; // only present on creation
+}
+
+export interface UserProfile {
+  user_id: number;
+  first_name?: string | null;
+  last_name?: string | null;
+  profile_picture_url?: string | null;
+  bio?: string | null;
 }

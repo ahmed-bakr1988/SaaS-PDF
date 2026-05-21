@@ -45,6 +45,28 @@ class TestStripeRoutes:
         })
         assert response.status_code == 503
 
+    def test_checkout_rejects_non_pro_plan(self, client, app):
+        self._login(client, email="stripe-non-pro@test.com")
+        app.config.update({
+            "STRIPE_SECRET_KEY": "sk_test_valid",
+            "STRIPE_PRICE_ID_PRO_MONTHLY": "price_monthly_valid",
+            "STRIPE_PRICE_ID_PRO_YEARLY": "price_yearly_valid",
+        })
+        response = client.post("/api/stripe/create-checkout-session", json={
+            "billing": "monthly",
+            "plan": "starter",
+        })
+        assert response.status_code == 400
+        assert "Pro plan only" in response.get_json().get("error", "")
+
+    def test_checkout_rejects_invalid_billing(self, client, app):
+        self._login(client, email="stripe-invalid-billing@test.com")
+        response = client.post("/api/stripe/create-checkout-session", json={
+            "billing": "weekly",
+            "plan": "pro",
+        })
+        assert response.status_code == 400
+
     def test_portal_requires_auth(self, client):
         response = client.post("/api/stripe/create-portal-session")
         assert response.status_code == 401

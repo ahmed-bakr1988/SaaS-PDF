@@ -6,10 +6,12 @@ from app.extensions import limiter
 from app.services.account_service import (
     create_api_key,
     get_user_by_id,
+    get_user_profile,
     has_task_access,
     list_api_keys,
     record_usage_event,
     revoke_api_key,
+    update_user_profile,
 )
 from app.services.policy_service import get_usage_summary_for_user
 from app.services.credit_config import (
@@ -46,6 +48,73 @@ import logging
 logger = logging.getLogger(__name__)
 
 account_bp = Blueprint("account", __name__)
+
+def _build_paymob_plans(paymob_ok: bool) -> dict | None:
+    if not paymob_ok:
+        return None
+    plans: dict[str, int] = {}
+    for plan in ("starter", "pro", "business"):
+        for billing in ("monthly", "yearly"):
+            plans[f"{plan}_{billing}"] = get_plan_amount_cents(plan, billing)
+    return plans
+
+
+def _build_pricing_metadata(paypal_ok: bool, stripe_ok: bool, paymob_ok: bool) -> dict:
+    return {
+        "monthly_plan_id": get_paypal_plan_id("monthly") if paypal_ok else None,
+        "yearly_plan_id": get_paypal_plan_id("yearly") if paypal_ok else None,
+        "monthly_price_id": get_stripe_price_id("monthly") if stripe_ok else None,
+        "yearly_price_id": get_stripe_price_id("yearly") if stripe_ok else None,
+        "paymob_plans": _build_paymob_plans(paymob_ok),
+    }
+
+
+def _build_payment_methods_metadata(paypal_ok: bool, stripe_ok: bool, paymob_ok: bool) -> list[dict]:
+    return [
+        {
+            "id": "paypal",
+            "label": "PayPal",
+            "enabled": paypal_ok,
+            "supports_plans": ["starter", "pro", "business"],
+        },
+        {
+            "id": "stripe",
+            "label": "Stripe",
+            "enabled": stripe_ok,
+            "supports_plans": ["pro"],
+        },
+        {
+            "id": "paymob",
+            "label": "PayMob",
+            "enabled": paymob_ok,
+            "supports_plans": ["starter", "pro", "business"],
+        },
+    ]
+
+
+@account_bp.route("/profile", methods=["GET"])
+@limiter.limit("60/hour")
+def get_profile_route():
+    """Return the extended profile for the authenticated user."""
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify({"error": "Authentication required."}), 401
+    
+    return jsonify(get_user_profile(user_id)), 200
+
+
+@account_bp.route("/profile", methods=["POST"])
+@limiter.limit("20/hour")
+def update_profile_route():
+    """Update user profile data (first name, last name, bio, etc.)."""
+    user_id = get_current_user_id()
+    if user_id is None:
+        return jsonify({"error": "Authentication required."}), 401
+    
+    data = request.get_json(silent=True) or {}
+    updated_profile = update_user_profile(user_id, data)
+    
+    return jsonify(updated_profile), 200
 
 
 @account_bp.route("/usage", methods=["GET"])
@@ -100,6 +169,9 @@ def get_subscription_status():
     paypal_ok = is_paypal_configured()
     stripe_ok = is_stripe_configured()
     paymob_ok = is_paymob_configured()
+    checkout_enabled = paypal_ok or stripe_ok or paymob_ok
+    pricing = _build_pricing_metadata(paypal_ok, stripe_ok, paymob_ok)
+    payment_methods = _build_payment_methods_metadata(paypal_ok, stripe_ok, paymob_ok)
 
     # Determine which provider this user is currently on
     billing_provider = user.get("billing_provider")
@@ -125,12 +197,10 @@ def get_subscription_status():
         return jsonify({
             "plan": user["plan"],
             "payment_provider": "paypal",
-            "checkout_enabled": paypal_ok,
+            "checkout_enabled": checkout_enabled,
             "subscription": subscription_info,
-            "pricing": {
-                "monthly_plan_id": get_paypal_plan_id("monthly"),
-                "yearly_plan_id": get_paypal_plan_id("yearly"),
-            },
+            "pricing": pricing,
+            "payment_methods": payment_methods,
         }), 200
 
     # --- Stripe path (legacy / existing subscribers) ---
@@ -156,31 +226,20 @@ def get_subscription_status():
         return jsonify({
             "plan": user["plan"],
             "payment_provider": "stripe",
-            "checkout_enabled": stripe_ok,
+            "checkout_enabled": checkout_enabled,
             "subscription": subscription_info,
-            "pricing": {
-                "monthly_price_id": get_stripe_price_id("monthly"),
-                "yearly_price_id": get_stripe_price_id("yearly"),
-            },
+            "pricing": pricing,
+            "payment_methods": payment_methods,
         }), 200
 
     # --- No active subscription (free plan or new user) ---
-    paymob_plans = {}
-    if paymob_ok:
-        for p in ("starter", "pro", "business"):
-            for b in ("monthly", "yearly"):
-                paymob_plans[f"{p}_{b}"] = get_plan_amount_cents(p, b)
-
     return jsonify({
         "plan": user["plan"],
         "payment_provider": None,
-        "checkout_enabled": paypal_ok or stripe_ok or paymob_ok,
+        "checkout_enabled": checkout_enabled,
         "subscription": None,
-        "pricing": {
-            "monthly_plan_id": get_paypal_plan_id("monthly") if paypal_ok else None,
-            "yearly_plan_id": get_paypal_plan_id("yearly") if paypal_ok else None,
-            "paymob_plans": paymob_plans if paymob_ok else None,
-        },
+        "pricing": pricing,
+        "payment_methods": payment_methods,
     }), 200
 
 
