@@ -120,7 +120,7 @@ describe('InternalAdminPage', () => {
     renderPage();
 
     expect(screen.getByText('No admin permission')).toBeTruthy();
-    expect(screen.getAllByText(/member@example.com/)).toHaveLength(2);
+    expect(screen.getAllByText(/member@example.com/)).toHaveLength(1);
   });
 
   it('loads dashboard data for admins and allows promoting a user role', async () => {

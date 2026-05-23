@@ -304,7 +304,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
       return (
         <iframe
           src={fileUrl}
-          className="h-full min-h-[400px] w-full rounded-xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950"
+          className="h-[300px] lg:h-full lg:min-h-[400px] w-full rounded-xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950"
           title="Original PDF Preview"
         />
       );
@@ -312,16 +312,16 @@ Task: Based on the context provided above, answer the query: [Insert your questi
 
     if (['png', 'jpg', 'jpeg', 'webp', 'tiff', 'bmp', 'gif'].includes(ext || '')) {
       return (
-        <div className="flex h-full min-h-[400px] items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-          <img src={fileUrl} alt="Original Image Preview" className="max-h-[380px] max-w-full rounded-lg object-contain shadow-sm" />
+        <div className="flex h-[300px] lg:h-full lg:min-h-[400px] items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+          <img src={fileUrl} alt="Original Image Preview" className="max-h-[260px] lg:max-h-[380px] max-w-full rounded-lg object-contain shadow-sm" />
         </div>
       );
     }
 
     if (['mp4', 'webm'].includes(ext || '')) {
       return (
-        <div className="flex h-full min-h-[400px] items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
-          <video src={fileUrl} controls className="max-h-[380px] max-w-full rounded-lg" />
+        <div className="flex h-[300px] lg:h-full lg:min-h-[400px] items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+          <video src={fileUrl} controls className="max-h-[260px] lg:max-h-[380px] max-w-full rounded-lg" />
         </div>
       );
     }
@@ -331,13 +331,13 @@ Task: Based on the context provided above, answer the query: [Insert your questi
         <textarea
           readOnly
           value={originalText}
-          className="h-full min-h-[400px] w-full resize-none rounded-xl border border-slate-100 bg-slate-50 p-4 font-mono text-xs text-slate-800 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
+          className="h-[300px] lg:h-full lg:min-h-[400px] w-full resize-none rounded-xl border border-slate-100 bg-slate-50 p-4 font-mono text-xs text-slate-800 focus:outline-none dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200"
         />
       );
     }
 
     return (
-      <div className="flex h-full min-h-[400px] flex-col items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-6 text-center dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex h-[300px] lg:h-full lg:min-h-[400px] flex-col items-center justify-center rounded-xl border border-slate-100 bg-slate-50 p-6 text-center dark:border-slate-800 dark:bg-slate-950">
         <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500 dark:bg-indigo-950/30 dark:text-indigo-400">
           <FileText className="h-8 w-8" />
         </div>

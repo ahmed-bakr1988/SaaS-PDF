@@ -117,13 +117,27 @@ export default function Header() {
         <div className="flex items-center gap-8">
           <Link to="/" className="group flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-gradient-to-br from-primary-500 via-primary-600 to-accent-600 shadow-xl shadow-primary-500/20 transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-primary-500/40 dark:shadow-primary-950/40">
-              <Layers3 className="h-6 w-6 text-white" />
+              <svg viewBox="0 0 32 32" className="h-7 w-7 text-white" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="logo-g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#c084fc" />
+                    <stop offset="100%" stopColor="#6366f1" />
+                  </linearGradient>
+                  <linearGradient id="logo-g2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#f43f5e" />
+                    <stop offset="100%" stopColor="#be123c" />
+                  </linearGradient>
+                </defs>
+                <path d="M6 3h12l8 8v18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z" fill="url(#logo-g1)" />
+                <path d="M18 3v8h8" fill="#ffffff" opacity="0.3" />
+                <path d="M21 13l-4 6.5h5L17 26" stroke="url(#logo-g2)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
             <div>
-              <span className="block text-lg font-black tracking-tight text-slate-950 dark:text-white">
+              <span className="block text-lg font-black tracking-tight bg-gradient-to-r from-primary-600 to-brand-600 bg-clip-text text-transparent dark:from-white dark:to-slate-200">
                 {t('common.appName')}
               </span>
-              <span className="hidden text-xs font-medium text-slate-500 dark:text-slate-400 sm:block">
+              <span className="hidden text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 sm:block">
                 {t('common.siteTagline')}
               </span>
             </div>
