@@ -73,8 +73,9 @@ function getGaugeState(score: number) {
     return {
       labelKey: 'tools.wordCounter.risk.high',
       messageKey: 'tools.wordCounter.risk.highMessage',
-      color: '#ff666f',
+      color: '#f43f5e', // Rose/Red
       track: '#ffe4e6',
+      wrapperClass: 'border-rose-100 bg-rose-50/30 text-rose-900 dark:border-rose-900/30 dark:bg-rose-950/10 dark:text-rose-200',
     };
   }
 
@@ -82,16 +83,18 @@ function getGaugeState(score: number) {
     return {
       labelKey: 'tools.wordCounter.risk.medium',
       messageKey: 'tools.wordCounter.risk.mediumMessage',
-      color: '#f59e0b',
+      color: '#f59e0b', // Amber
       track: '#fef3c7',
+      wrapperClass: 'border-amber-100 bg-amber-50/30 text-amber-900 dark:border-amber-900/30 dark:bg-amber-950/10 dark:text-amber-200',
     };
   }
 
   return {
     labelKey: 'tools.wordCounter.risk.low',
     messageKey: 'tools.wordCounter.risk.lowMessage',
-    color: '#10b981',
+    color: '#10b981', // Emerald
     track: '#dcfce7',
+    wrapperClass: 'border-emerald-100 bg-emerald-50/30 text-emerald-900 dark:border-emerald-900/30 dark:bg-emerald-950/10 dark:text-emerald-200',
   };
 }
 
@@ -125,12 +128,14 @@ function GaugeCard({
   label,
   color,
   track,
+  wrapperClass,
 }: {
   score: number;
   message: string;
   label: string;
   color: string;
   track: string;
+  wrapperClass: string;
 }) {
   const radius = 62;
   const circumference = Math.PI * radius;
@@ -138,8 +143,8 @@ function GaugeCard({
   const offset = circumference - (circumference * progress) / 100;
 
   return (
-    <div className="rounded-[20px] border border-[#f4dddd] bg-[#fff7f7] px-4 py-3.5">
-      <div className="grid items-center gap-3 sm:grid-cols-[160px_1fr]">
+    <div className={`rounded-2xl border px-4 py-4 transition-all duration-300 ${wrapperClass}`}>
+      <div className="grid items-center gap-4 sm:grid-cols-[160px_1fr]">
         <div className="relative mx-auto flex h-[82px] w-[146px] items-center justify-center">
           <svg viewBox="0 0 160 96" className="h-[82px] w-[136px]">
             <path
@@ -148,6 +153,7 @@ function GaugeCard({
               stroke={track}
               strokeWidth="18"
               strokeLinecap="round"
+              className="opacity-60 dark:opacity-20"
             />
             <path
               d="M 18 78 A 62 62 0 0 1 142 78"
@@ -160,11 +166,11 @@ function GaugeCard({
             />
           </svg>
           <div className="absolute bottom-2 text-center">
-            <div className="text-[28px] font-bold leading-none text-slate-900">{label}</div>
+            <div className="text-[28px] font-bold leading-none text-slate-900 dark:text-white">{label}</div>
           </div>
         </div>
 
-        <p className="max-w-[290px] text-sm leading-5 text-slate-700">{message}</p>
+        <p className="max-w-[290px] text-sm leading-5 opacity-90">{message}</p>
       </div>
     </div>
   );
@@ -365,39 +371,40 @@ export default function WordCounter() {
 
   return (
     <>
-      <section className="mx-auto max-w-[1032px] px-4 py-4 sm:px-6 sm:py-5">
-        <div className="rounded-[30px] bg-[linear-gradient(135deg,rgba(255,232,241,0.72),rgba(239,238,255,0.96)_55%,rgba(226,226,255,0.96))] px-4 py-4 sm:px-6 sm:py-6">
-          <div className="mx-auto max-w-[928px]">
-            <header className="mb-4 text-center">
-              <h1 className="mx-auto inline-block bg-[linear-gradient(90deg,rgba(163,120,255,0.28),rgba(163,120,255,0.08))] px-3 py-1 text-[28px] font-semibold tracking-tight text-slate-950 sm:text-[38px] sm:leading-[1.1]">
-                {t('tools.wordCounter.heroTitle')}
-              </h1>
-              <p className="mx-auto mt-2.5 max-w-[720px] text-sm text-slate-600 sm:text-base">
-                {t('tools.wordCounter.heroSubtitle')}
-              </p>
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-medium text-slate-600">
-                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustRealtime', 'Real-time feedback')}</span>
-                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustSocial', 'Built for social and ad copy')}</span>
-                <span className="rounded-full bg-white/80 px-3 py-1">{t('tools.wordCounter.trustDrafts', 'Local draft autosave')}</span>
-              </div>
-            </header>
+      <section className="mx-auto max-w-5xl px-4 py-4 sm:px-6 sm:py-8 animate-fade-up">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary-500 to-brand-600 shadow-lg shadow-primary-500/20">
+            <Goal className="h-8 w-8 text-white" />
+          </div>
+          <h1 className="bg-gradient-to-r from-slate-900 via-primary-600 to-brand-600 bg-clip-text text-3xl font-extrabold tracking-tight text-transparent dark:from-white dark:via-primary-300 dark:to-brand-400 sm:text-4xl">
+            {t('tools.wordCounter.heroTitle')}
+          </h1>
+          <p className="mx-auto mt-3 max-w-2xl text-base text-slate-500 dark:text-slate-400">
+            {t('tools.wordCounter.heroSubtitle')}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
+            <span className="rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3.5 py-1 text-slate-600 dark:text-slate-400">{t('tools.wordCounter.trustRealtime', 'Real-time feedback')}</span>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3.5 py-1 text-slate-600 dark:text-slate-400">{t('tools.wordCounter.trustSocial', 'Built for social and ad copy')}</span>
+            <span className="rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 px-3.5 py-1 text-slate-600 dark:text-slate-400">{t('tools.wordCounter.trustDrafts', 'Local draft autosave')}</span>
+          </div>
+        </div>
 
-            <div className="overflow-hidden rounded-[30px] border border-white/70 bg-white/92 shadow-[0_14px_40px_rgba(104,86,185,0.08)] backdrop-blur">
-              <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
-                <div className="flex min-h-[480px] flex-col border-b border-slate-200/80 p-5 sm:p-6 lg:h-[520px] lg:border-b-0 lg:border-r">
+        <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/25 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+          <div className="grid lg:grid-cols-[1.08fr_0.92fr]">
+            <div className="flex min-h-[440px] flex-col border-b border-slate-200/80 p-5 sm:p-6 lg:h-[530px] lg:border-b-0 lg:border-r dark:border-slate-800">
                   <div className="flex items-center justify-between gap-4">
                     <div>
-                      <h2 className="text-[22px] font-semibold text-slate-900">{t('tools.wordCounter.editorTitle')}</h2>
+                      <h2 className="text-[22px] font-semibold text-slate-900 dark:text-white">{t('tools.wordCounter.editorTitle')}</h2>
                       <p className="mt-1 text-sm text-slate-500">{t('tools.wordCounter.editorHint')}</p>
                     </div>
-                    {isLoading ? <LoaderCircle className="h-5 w-5 animate-spin text-violet-600" /> : null}
+                    {isLoading ? <LoaderCircle className="h-5 w-5 animate-spin text-primary-600 dark:text-primary-400" /> : null}
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <button type="button" onClick={() => setText(SAMPLE_POSTS[0])} className="rounded-full border border-violet-200 bg-violet-50 px-3.5 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-100">
+                    <button type="button" onClick={() => setText(SAMPLE_POSTS[0])} className="rounded-full border border-primary-200 bg-primary-50 px-3.5 py-1.5 text-xs font-medium text-primary-700 transition hover:bg-primary-100 dark:border-primary-900/50 dark:bg-primary-950/30 dark:text-primary-300 dark:hover:bg-primary-900/40">
                       {t('tools.wordCounter.sampleLaunch')}
                     </button>
-                    <button type="button" onClick={() => setText(SAMPLE_POSTS[1])} className="rounded-full border border-violet-200 bg-violet-50 px-3.5 py-1.5 text-xs font-medium text-violet-700 transition hover:bg-violet-100">
+                    <button type="button" onClick={() => setText(SAMPLE_POSTS[1])} className="rounded-full border border-primary-200 bg-primary-50 px-3.5 py-1.5 text-xs font-medium text-primary-700 transition hover:bg-primary-100 dark:border-primary-900/50 dark:bg-primary-950/30 dark:text-primary-300 dark:hover:bg-primary-900/40">
                       {t('tools.wordCounter.sampleArabic')}
                     </button>
                     {USE_CASE_PRESETS.map((preset) => (
@@ -405,7 +412,7 @@ export default function WordCounter() {
                         key={preset.id}
                         type="button"
                         onClick={() => setText(preset.text)}
-                        className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700"
+                        className="rounded-full border border-slate-200 bg-white px-3.5 py-1.5 text-xs font-medium text-slate-700 transition hover:border-primary-200 hover:bg-primary-50 hover:text-primary-700 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-primary-900/40 dark:hover:text-primary-300"
                       >
                         {preset.label}
                       </button>
@@ -413,7 +420,7 @@ export default function WordCounter() {
                   </div>
 
                   {restoredDraft && text.trim() && (
-                    <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-700">
+                    <div className="mt-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-xs text-emerald-700 dark:border-emerald-950/40 dark:bg-emerald-950/10 dark:text-emerald-300">
                       {t('tools.wordCounter.draftRestored', 'Your last draft was restored on this device.')}
                     </div>
                   )}
@@ -422,24 +429,24 @@ export default function WordCounter() {
                     value={text}
                     onChange={(event) => setText(event.target.value)}
                     placeholder={t('tools.wordCounter.placeholder')}
-                    className="mt-3 min-h-[280px] w-full flex-1 resize-none border-0 bg-transparent p-0 text-[16px] leading-7 text-slate-800 outline-none placeholder:text-slate-400 lg:min-h-0"
+                    className="mt-3 min-h-[260px] w-full flex-1 resize-none border-0 bg-transparent p-0 text-[16px] leading-7 text-slate-800 outline-none placeholder:text-slate-400 dark:text-slate-200 dark:placeholder:text-slate-600 lg:min-h-0"
                     dir="auto"
                   />
 
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-                    <div className="text-xs text-slate-400 sm:text-sm">
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-4 border-t border-slate-100 pt-4 dark:border-slate-800">
+                    <div className="text-xs text-slate-450 dark:text-slate-500 sm:text-sm">
                       {t('tools.wordCounter.maxLength', { count: analysis?.input.max_length ?? 20000 })}
                     </div>
-                    <div className="flex items-center gap-5 text-violet-700">
-                      <button type="button" onClick={() => setText('')} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-violet-900" disabled={!text}>
+                    <div className="flex items-center gap-5 text-primary-600 dark:text-primary-400">
+                      <button type="button" onClick={() => setText('')} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-primary-800 dark:hover:text-primary-300" disabled={!text}>
                         <RefreshCcw className="h-4 w-4" />
                         {t('tools.wordCounter.clear')}
                       </button>
-                      <button type="button" onClick={handleCopy} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-violet-900" disabled={!text.trim()}>
+                      <button type="button" onClick={handleCopy} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-primary-800 dark:hover:text-primary-300" disabled={!text.trim()}>
                         <Copy className="h-4 w-4" />
                         {t('tools.wordCounter.copy')}
                       </button>
-                      <button type="button" onClick={handleExportText} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-violet-900" disabled={!text.trim()}>
+                      <button type="button" onClick={handleExportText} className="inline-flex items-center gap-2 text-sm font-medium transition hover:text-primary-800 dark:hover:text-primary-300" disabled={!text.trim()}>
                         <Download className="h-4 w-4" />
                         {t('tools.wordCounter.export', 'Export')}
                       </button>
@@ -447,8 +454,8 @@ export default function WordCounter() {
                   </div>
                 </div>
 
-                <div className="p-5 sm:p-6">
-                  <h2 className="text-[22px] font-semibold text-slate-900">{t('tools.wordCounter.resultTitle')}</h2>
+                <div className="p-5 sm:p-6 bg-slate-50/30 dark:bg-slate-900/10">
+                  <h2 className="text-[22px] font-semibold text-slate-900 dark:text-white">{t('tools.wordCounter.resultTitle')}</h2>
 
                   <div className="mt-4">
                     <GaugeCard
@@ -457,28 +464,29 @@ export default function WordCounter() {
                       message={error ?? t(gaugeState.messageKey)}
                       color={gaugeState.color}
                       track={gaugeState.track}
+                      wrapperClass={gaugeState.wrapperClass}
                     />
                   </div>
 
                   <div className="mt-3 grid grid-cols-2 gap-2.5">
                     {resultGrid.map((item) => (
-                      <div key={item.label} className="rounded-[14px] bg-[#fbfbfb] px-3.5 py-3 shadow-[inset_0_0_0_1px_rgba(15,23,42,0.04)]">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-xs text-slate-600 sm:text-sm">{item.label}</span>
-                          <span className="text-xl font-semibold leading-none text-slate-900 sm:text-[26px]">{item.value}</span>
+                      <div key={item.label} className="rounded-2xl border border-slate-100 bg-slate-50/50 px-4 py-3 shadow-sm transition-colors hover:bg-slate-50 dark:border-slate-800/60 dark:bg-slate-950/40 dark:hover:bg-slate-950/60">
+                        <div className="flex flex-col gap-1">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{item.label}</span>
+                          <span className="text-xl font-bold leading-none text-slate-900 dark:text-white sm:text-2xl">{item.value}</span>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  <div className="mt-3 rounded-[22px] border border-violet-100 bg-violet-50/60 px-4 py-4">
+                  <div className="mt-3 rounded-2xl border border-primary-100 bg-primary-50/20 px-5 py-4 dark:border-primary-950/40 dark:bg-primary-950/10">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                          <Goal className="h-4 w-4 text-violet-600" />
+                        <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-white">
+                          <Goal className="h-4 w-4 text-primary-600 dark:text-primary-400" />
                           {t('tools.wordCounter.goalTitle', 'Character goal')}
                         </div>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
                           {goalRemaining > 0
                             ? t('tools.wordCounter.goalRemaining', '{{count}} characters remaining', { count: goalRemaining })
                             : t('tools.wordCounter.goalReached', 'Goal reached')}
@@ -491,15 +499,15 @@ export default function WordCounter() {
                         step={10}
                         value={goal}
                         onChange={(event) => setGoal(Math.max(50, Number(event.target.value) || 50))}
-                        className="w-24 rounded-xl border border-violet-200 bg-white px-3 py-2 text-sm text-slate-800 outline-none"
+                        className="w-24 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-850 outline-none focus:ring-2 focus:ring-primary-500 dark:border-slate-800 dark:bg-slate-950 dark:text-white"
                       />
                     </div>
-                    <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-violet-100">
-                      <div className="h-full rounded-full bg-violet-600 transition-all duration-300" style={{ width: `${goalProgress}%` }} />
+                    <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-primary-100 dark:bg-primary-950/60">
+                      <div className="h-full rounded-full bg-primary-600 dark:bg-primary-500 transition-all duration-300" style={{ width: `${goalProgress}%` }} />
                     </div>
                   </div>
 
-                  <div className="mt-3 rounded-[22px] bg-[#fafafa] px-4 py-4">
+                  <div className="mt-3 rounded-2xl border border-slate-100 bg-slate-50/50 px-5 py-4 dark:border-slate-800/40 dark:bg-slate-950/30">
                     <div className="grid grid-cols-4 gap-2 text-center">
                       {PLATFORM_LIMITS.map(({ id, label, limit }) => {
                         const Glyph = id === 'instagram'
@@ -512,17 +520,17 @@ export default function WordCounter() {
 
                         return (
                           <div key={id}>
-                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm">
+                            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-650 shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:text-slate-350">
                               <Glyph />
                             </div>
-                            <div className="mt-3 text-[14px] text-slate-500">{limit}</div>
+                            <div className="mt-3 text-[14px] font-semibold text-slate-500 dark:text-slate-400">{limit}</div>
                             <div className="sr-only">{label}</div>
                           </div>
                         );
                       })}
                     </div>
 
-                    <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-[#d7dbe6]">
+                    <div className="mt-3 h-[8px] overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{ width: `${barFillPercent}%`, backgroundColor: barColor }}
@@ -530,8 +538,8 @@ export default function WordCounter() {
                     </div>
                   </div>
 
-                  <div className="mt-3 rounded-[22px] bg-[linear-gradient(180deg,#5633ef,#4d2fe0)] p-4 text-white shadow-[0_16px_30px_rgba(86,51,239,0.35)]">
-                    <div className="mb-3 text-center text-[20px] font-semibold">{t('tools.wordCounter.actionsTitle')}</div>
+                  <div className="mt-3 rounded-2xl bg-gradient-to-tr from-primary-650 via-primary-600 to-brand-600 p-5 text-white shadow-lg shadow-primary-500/25 dark:shadow-none">
+                    <div className="mb-3 text-center text-lg font-bold">{t('tools.wordCounter.actionsTitle')}</div>
                     <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
                       {actions.map(({ key, icon: Icon, label }) => (
                         <button
@@ -539,36 +547,36 @@ export default function WordCounter() {
                           type="button"
                           disabled={!text.trim() || assistantLoading !== null}
                           onClick={() => void handleAssistantAction(key)}
-                          className="flex items-center gap-3 rounded-[15px] bg-white px-3.5 py-3 text-left text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60"
+                          className="flex items-center gap-3 rounded-xl bg-white/10 px-4 py-3 text-left text-white shadow-sm transition hover:bg-white/20 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:bg-white/10"
                         >
-                          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-50 text-violet-700">
+                          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/20 text-white">
                             {assistantLoading === key ? <LoaderCircle className="h-4.5 w-4.5 animate-spin" /> : <Icon className="h-4.5 w-4.5" />}
                           </span>
-                          <span className="text-sm font-medium">{label}</span>
+                          <span className="text-sm font-semibold">{label}</span>
                         </button>
                       ))}
                     </div>
                   </div>
 
                   {(assistantResult || assistantError) && (
-                    <div className="mt-3 rounded-[18px] border border-violet-100 bg-violet-50/60 px-4 py-4 text-sm text-slate-700">
+                    <div className="mt-3 rounded-2xl border border-primary-100 bg-primary-50/20 px-5 py-4 text-sm text-slate-700 dark:border-primary-950/40 dark:bg-primary-950/10">
                       <div className="flex items-start gap-3">
-                        <FileSearch className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
+                        <FileSearch className="mt-0.5 h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400" />
                         <div className="min-w-0 flex-1">
-                          <div className="font-medium text-slate-900">
+                          <div className="font-bold text-slate-900 dark:text-white">
                             {assistantResult
                               ? t(`tools.wordCounter.actions.${assistantResult.action}`)
                               : t('common.error')}
                           </div>
-                          <div className="mt-1 whitespace-pre-wrap leading-6">
+                          <div className="mt-1.5 whitespace-pre-wrap leading-6 text-slate-755 dark:text-slate-300">
                             {assistantError ?? assistantResult?.content}
                           </div>
                           {assistantResult && (assistantResult.action === 'paraphrase' || assistantResult.action === 'grammar') && (
-                            <div className="mt-3 flex flex-wrap gap-2">
+                            <div className="mt-3.5 flex flex-wrap gap-2">
                               <button
                                 type="button"
                                 onClick={applyAssistantResult}
-                                className="inline-flex items-center gap-2 rounded-full bg-violet-600 px-3.5 py-2 text-xs font-medium text-white transition hover:bg-violet-700"
+                                className="inline-flex items-center gap-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white px-4 py-2.5 text-xs font-semibold shadow-sm transition-all duration-300 hover:-translate-y-0.5"
                               >
                                 <Wand2 className="h-3.5 w-3.5" />
                                 {t('tools.wordCounter.applyToEditor')}
@@ -579,7 +587,7 @@ export default function WordCounter() {
                                   if (!assistantResult?.content) return;
                                   await navigator.clipboard.writeText(assistantResult.content);
                                 }}
-                                className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-white px-3.5 py-2 text-xs font-medium text-violet-700 transition hover:bg-violet-50"
+                                className="inline-flex items-center gap-2 rounded-xl border border-slate-205 bg-white text-slate-700 px-4 py-2.5 text-xs font-semibold shadow-sm transition-all duration-300 hover:bg-slate-50 hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-slate-950"
                               >
                                 <Copy className="h-3.5 w-3.5" />
                                 {t('tools.wordCounter.copyResult')}
@@ -591,19 +599,17 @@ export default function WordCounter() {
                     </div>
                   )}
 
-                  <div className="mt-3 flex items-start gap-3 rounded-[18px] border border-violet-100 bg-violet-50/60 px-4 py-4 text-sm text-slate-600">
-                    <FileSearch className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
+                  <div className="mt-3 flex items-start gap-3 rounded-2xl border border-primary-100 bg-primary-50/20 px-5 py-4 text-sm text-slate-600 dark:border-primary-950/40 dark:bg-primary-950/10 dark:text-slate-350">
+                    <FileSearch className="mt-0.5 h-5 w-5 shrink-0 text-primary-600 dark:text-primary-400" />
                     <div>
-                      <div className="font-medium text-slate-900">{t('tools.wordCounter.bestFit')}: {analysis?.suggestions.top_priority ?? 'X'}</div>
+                      <div className="font-semibold text-slate-900 dark:text-white">{t('tools.wordCounter.bestFit')}: {analysis?.suggestions.top_priority ?? 'X'}</div>
                       <div className="mt-1">{analysis?.suggestions.summary ?? t('tools.wordCounter.emptySummary')}</div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
+          </section>
+        </>
+      );
+    }

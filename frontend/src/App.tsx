@@ -159,7 +159,7 @@ export default function App() {
   }, [i18n, location.pathname]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950">
+    <div className="flex min-h-screen flex-col bg-slate-50 transition-colors duration-300 dark:bg-slate-950 pb-16 md:pb-0">
       <Header />
 
       <main className={isMarketingLayout ? 'flex-1' : 'container mx-auto flex-1 px-4 py-8 sm:px-6 lg:px-8'}>
@@ -212,6 +212,7 @@ export default function App() {
       </main>
 
       <Footer />
+      <MobileBottomNav />
       <Suspense fallback={null}>
         <IdleLoad>
           <SiteAssistant />
