@@ -1,0 +1,10 @@
+[core]
+	repositoryformatversion = 0
+	filemode = false
+	bare = true
+	symlinks = false
+	ignorecase = true
+[remote "origin"]
+	url = https://git.dociva.io/ahmed-bakr1988/saas-pdf.git
+	fetch = +refs/*:refs/*
+	mirror = true

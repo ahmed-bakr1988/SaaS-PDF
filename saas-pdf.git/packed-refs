@@ -1,0 +1,11 @@
+# pack-refs with: peeled fully-peeled sorted 
+0a0c069a58da3c13d941df56cec06e13b871775b refs/heads/feature/critical-maintenance-and-editor
+c167091399dbcaafc996fbcfe29577162249ecc7 refs/heads/feature/phase-1-production-readiness
+d4c7195eebd233b7e27df82a5035de307a367984 refs/heads/feature/seo-content
+b5606c2d2de97eb2f3d7df5b6c9c52834627942a refs/heads/feature/seo-system
+a6877c6dd7b10522fca9afabaea8c1ec52552f41 refs/heads/fixed-problem-1
+0913573c6c41462e1b85ecb044d44b20eccc1d19 refs/heads/main
+0f9b1fe26001794710ad59765fc845b6b2eb94c4 refs/heads/myself-ahmed/update-frontend-ui-modern-design
+b50d5320bfa280067d8c6a2f97b07ddedef71f30 refs/heads/new-project-UI/UX-Global-Competitiveness
+46bc0441b4fe90e213e96620c274c51b4d672530 refs/heads/perf-seo-hardening
+c40e49ec8c661db2cb8d9db0b7263ee5350c91e0 refs/heads/redesign-markdown-tool-ux
