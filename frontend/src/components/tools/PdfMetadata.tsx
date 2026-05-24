@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { FileText } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
@@ -67,9 +66,7 @@ export default function PdfMetadata() {
           </div>
           <h1 className="section-heading">{t('tools.pdfMetadata.title')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">{t('tools.pdfMetadata.description')}</p>
-        </div>
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-        {phase === 'upload' && (
+        </div>        {phase === 'upload' && (
           <div className="space-y-4">
             <FileUploader onFileSelect={setFile} file={file} accept={{ 'application/pdf': ['.pdf'] }} maxSizeMB={20} acceptLabel="PDF (.pdf)" />
             {file && (
@@ -96,9 +93,7 @@ export default function PdfMetadata() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

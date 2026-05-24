@@ -1,8 +1,7 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { GitBranch } from 'lucide-react';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { toast } from 'sonner';
 import { startTask, uploadFile } from '@/services/api';
@@ -261,9 +260,6 @@ export default function PdfFlowchart() {
 
         {/* Step Progress */}
         <StepProgress currentStep={step} className="mb-8" />
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {/* Step 0: Upload */}
         {step === 0 && (
           <FlowUpload
@@ -346,10 +342,7 @@ export default function PdfFlowchart() {
               </button>
             </div>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

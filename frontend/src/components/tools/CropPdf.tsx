@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, Scissors, ZoomIn, ZoomOut } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { useFileStore } from '@/stores/fileStore';
 import { toast } from 'sonner';
@@ -176,8 +175,6 @@ export default function CropPdf() {
             <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.cropPdf.trustRange', 'Apply to one page, all pages, or a range')}</span>
           </div>
         </div>
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {phase === 'upload' && (
           <div className="mx-auto max-w-2xl space-y-4">
             <FileUploader
@@ -366,9 +363,7 @@ export default function CropPdf() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

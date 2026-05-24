@@ -1,8 +1,7 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Eraser, Copy, Check } from 'lucide-react';
-import AdSlot from '@/components/layout/AdSlot';
 import { removeExtraSpaces, convertCase, removeDiacritics } from '@/utils/textTools';
 import { generateToolSchema } from '@/utils/seo';
 
@@ -82,9 +81,6 @@ export default function TextCleaner() {
           <h1 className="section-heading">{t('tools.textCleaner.title')}</h1>
           <p className="mt-2 text-slate-500">{t('tools.textCleaner.description')}</p>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {/* Input */}
         <textarea
           value={input}
@@ -137,10 +133,7 @@ export default function TextCleaner() {
               )}
             </button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

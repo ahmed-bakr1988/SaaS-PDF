@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Lock } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
@@ -87,9 +86,6 @@ export default function ProtectPdf() {
           <h1 className="section-heading">{t('tools.protectPdf.title')}</h1>
           <p className="mt-2 text-slate-500">{t('tools.protectPdf.description')}</p>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {phase === 'upload' && (
           <div className="space-y-4">
             <FileUploader
@@ -170,10 +166,7 @@ export default function ProtectPdf() {
               {t('common.startOver')}
             </button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

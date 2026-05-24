@@ -90,19 +90,17 @@ export default function ToolRating({ toolSlug }: ToolRatingProps) {
   useEffect(() => {
     if (!isOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
-
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         closeModal();
       }
     }
 
-    document.body.style.overflow = 'hidden';
+    document.body.classList.add('modal-open');
     document.addEventListener('keydown', handleKeyDown);
 
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.classList.remove('modal-open');
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [closeModal, isOpen]);

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * PdfEditor — full-featured visual PDF annotation editor.
  *
  * Uses react-pdf for rendering and Fabric.js for the interactive canvas
@@ -54,7 +54,6 @@ import { toast } from 'sonner';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import {
   useEditorSessionRecovery,
@@ -1104,9 +1103,6 @@ export default function PdfEditor() {
             <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.pdfEditor.trustAsync', 'Saving runs asynchronously')}</span>
           </div>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {/* ═══ SESSION RECOVERY BANNER ═══ */}
         {showRecoveryBanner && recoveryMeta && phase === 'upload' && (
           <div className="mx-auto mb-6 max-w-2xl animate-in fade-in slide-in-from-top-2 duration-300">
@@ -1551,10 +1547,7 @@ export default function PdfEditor() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

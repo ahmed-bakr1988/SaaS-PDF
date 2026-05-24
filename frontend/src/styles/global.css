@@ -94,9 +94,26 @@
   animation: progress-pulse 1.5s ease-in-out infinite;
 }
 
-/* Ad slot container */
+/* Ad slot container — deprecated, kept for backward compat if referenced */
 .ad-slot {
-  @apply flex items-center justify-center bg-slate-50 rounded-xl border border-slate-200 min-h-[90px] overflow-hidden dark:bg-slate-800 dark:border-slate-700;
+  display: none;
+}
+
+/* AI Workspace premium group styling */
+.ai-workspace-card {
+  @apply border-violet-200 bg-gradient-to-br from-white via-violet-50/30 to-purple-50/20 dark:border-violet-800/50 dark:from-slate-800/80 dark:via-violet-950/20 dark:to-purple-950/10;
+}
+
+.ai-workspace-card:hover {
+  @apply border-violet-400 shadow-violet-100 dark:border-violet-600 dark:shadow-violet-900/20;
+}
+
+/* Line clamp utility */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 /* Dropdown animation */
@@ -264,6 +281,16 @@
 
 .modal-content {
   animation: modalSlideUp 0.25s ease-out;
+}
+
+body.modal-open,
+html.modal-open {
+  overflow: hidden !important;
+}
+
+html:not(.modal-open),
+body:not(.modal-open) {
+  overflow: auto !important;
 }
 
 .deferred-section {

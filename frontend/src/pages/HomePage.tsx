@@ -18,7 +18,6 @@ import {
   Zap,
 } from 'lucide-react';
 import MarketingPageLayout from '@/components/layout/MarketingPageLayout';
-import AdSlot from '@/components/layout/AdSlot';
 import HeroUploadZone from '@/components/shared/HeroUploadZone';
 import ManifestToolIcon from '@/components/shared/ManifestToolIcon';
 import SectionIntro from '@/components/shared/SectionIntro';
@@ -225,9 +224,6 @@ export default function HomePage() {
         ]}
       />
 
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <AdSlot slot="home-top" format="horizontal" className="mb-8" />
-      </div>
 
       <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
         <SocialProofStrip className="mb-12" />
@@ -474,7 +470,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        <AdSlot slot="home-bottom" className="mt-12" />
       </section>
     </MarketingPageLayout>
   );

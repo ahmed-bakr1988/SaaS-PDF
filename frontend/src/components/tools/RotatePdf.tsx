@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+﻿import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { RotateCw, RotateCcw, ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { useFileStore } from '@/stores/fileStore';
 import { toast } from 'sonner';
@@ -173,9 +172,6 @@ export default function RotatePdf() {
           <h1 className="section-heading">{t('tools.rotatePdf.title')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">{t('tools.rotatePdf.description')}</p>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {phase === 'upload' && (
           <div className="mx-auto max-w-2xl space-y-4">
             <FileUploader
@@ -374,10 +370,7 @@ export default function RotatePdf() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

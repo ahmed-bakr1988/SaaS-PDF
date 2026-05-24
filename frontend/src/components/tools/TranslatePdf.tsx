@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { Languages, ShieldCheck, Sparkles, Loader2 } from 'lucide-react';
@@ -8,7 +8,6 @@ import DownloadButton from '@/components/shared/DownloadButton';
 import AiModelSelector from '@/components/shared/AiModelSelector';
 import TranslateModeSelector from '@/components/shared/TranslateModeSelector';
 import type { TranslateMode } from '@/components/shared/TranslateModeSelector';
-import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
@@ -132,9 +131,6 @@ export default function TranslatePdf() {
           <h1 className="section-heading">{t('tools.translatePdf.title')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">{t('tools.translatePdf.description')}</p>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {/* ── Phase: Upload ─────────────────────────────────────── */}
         {phase === 'upload' && (
           <div className="space-y-4">
@@ -258,10 +254,7 @@ export default function TranslatePdf() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

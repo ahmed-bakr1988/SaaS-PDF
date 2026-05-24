@@ -42,6 +42,7 @@ const ProcessingErrorPage = lazy(() => import('@/pages/ProcessingErrorPage'));
 const CookieConsent = lazy(() => import('@/components/layout/CookieConsent'));
 const SiteAssistant = lazy(() => import('@/components/layout/SiteAssistant'));
 const PwaUpdatePrompt = lazy(() => import('@/components/layout/PwaUpdatePrompt'));
+const FloatingUploadButton = lazy(() => import('@/components/shared/FloatingUploadButton'));
 
 // Tool components — derived from manifest using React.lazy
 const ToolComponents = Object.fromEntries(
@@ -100,6 +101,41 @@ export default function App() {
     initAnalytics();
     void refreshUser();
   }, [refreshUser]);
+
+  // Guard against third-party scripts (like Google Adsense) lock-blocking the main scrollbar.
+  // It resets overflow style to empty (letting CSS handle it) if no active modal is open.
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof MutationObserver === 'undefined') return;
+
+    const cleanupScroll = (el: HTMLElement) => {
+      if (el.classList.contains('modal-open')) return;
+      const overflow = el.style.overflow;
+      const overflowY = el.style.overflowY;
+      if (overflow === 'hidden' || overflowY === 'hidden') {
+        el.style.removeProperty('overflow');
+        el.style.removeProperty('overflow-y');
+      }
+    };
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'style' || mutation.attributeName === 'class') {
+          cleanupScroll(document.documentElement);
+          cleanupScroll(document.body);
+        }
+      });
+    });
+
+    const config = { attributes: true, attributeFilter: ['style', 'class'] };
+    observer.observe(document.documentElement, config);
+    observer.observe(document.body, config);
+
+    // Initial check
+    cleanupScroll(document.documentElement);
+    cleanupScroll(document.body);
+
+    return () => observer.disconnect();
+  }, []);
 
   // Microsoft Clarity: Run only in production and browser
   useEffect(() => {
@@ -216,6 +252,7 @@ export default function App() {
       <Suspense fallback={null}>
         <IdleLoad>
           <SiteAssistant />
+          <FloatingUploadButton />
         </IdleLoad>
         <CookieConsent />
         <PwaUpdatePrompt />

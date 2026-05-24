@@ -1,10 +1,9 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScanText } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { useFileStore } from '@/stores/fileStore';
@@ -150,9 +149,6 @@ export default function OcrTool() {
             <span className="rounded-full bg-white px-3 py-1 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-700">{t('tools.ocr.trustDownload', 'Preview text and download full output')}</span>
           </div>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {phase === 'upload' && (
           <div className="space-y-4">
             {/* Mode selector */}
@@ -320,10 +316,7 @@ export default function OcrTool() {
               {t('common.tryAgain')}
             </button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" format="horizontal" className="mt-6" />
-      </div>
+        )}      </div>
     </>
   );
 }

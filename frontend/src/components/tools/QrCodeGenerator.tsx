@@ -1,9 +1,8 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { QrCode } from 'lucide-react';
 import ProgressBar from '@/components/shared/ProgressBar';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { toast } from 'sonner';
@@ -72,9 +71,6 @@ export default function QrCodeGenerator() {
           <h1 className="section-heading">{t('tools.qrCode.title')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">{t('tools.qrCode.description')}</p>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {phase === 'input' && (
           <div className="space-y-4">
             <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700 space-y-4">
@@ -131,10 +127,7 @@ export default function QrCodeGenerator() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

@@ -6,13 +6,13 @@ import FileUploader from '@/components/shared/FileUploader';
 import CostEstimatePanel from '@/components/shared/CostEstimatePanel';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import ToolRating from '@/components/shared/ToolRating';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
 import UpgradeModal from '@/components/shared/UpgradeModal';
+import { getToolEntry } from '@/config/toolManifest';
 
 export interface ToolConfig {
   slug: string;
@@ -129,6 +129,11 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
     reset: handleReset,
   };
 
+  const manifestEntry = getToolEntry(config.slug);
+  const isAiTool = manifestEntry?.group === 'ai-workspace';
+  const creditHint = manifestEntry?.creditHint;
+  const speedTier = manifestEntry?.speedTier;
+
   return (
     <>
       <Helmet>
@@ -147,9 +152,35 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
           </div>
           <h1 className="section-heading">{title}</h1>
           <p className="mt-2 text-slate-600 dark:text-slate-400">{description}</p>
+
+          {/* Tool metadata badges */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {isAiTool && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-500 to-purple-500 px-3 py-1 text-xs font-bold text-white shadow-sm">
+                <svg className="h-3 w-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/></svg>
+                AI Powered
+              </span>
+            )}
+            {creditHint && creditHint !== '0' && (
+              <span className="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700 ring-1 ring-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:ring-amber-800">
+                ~{creditHint} {t('common.credits', 'credits')}
+              </span>
+            )}
+            {creditHint === '0' && (
+              <span className="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800">
+                {t('common.free', 'Free')}
+              </span>
+            )}
+            {speedTier && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700">
+                {speedTier === 'instant' ? '⚡' : speedTier === 'fast' ? '🚀' : '⏱️'}
+                {speedTier === 'instant' ? t('speed.instant', 'Instant') : speedTier === 'fast' ? t('speed.fast', 'Fast') : t('speed.moderate', 'Moderate')}
+              </span>
+            )}
+          </div>
         </div>
 
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
+
 
         <div className="space-y-6 min-h-[400px]">
           {phase === 'upload' && (
@@ -233,7 +264,6 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
           )}
         </div>
 
-        <AdSlot slot="bottom-banner" className="mt-8" />
       </div>
 
       {showUpgradeModal && (

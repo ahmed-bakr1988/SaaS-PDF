@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+﻿import { useEffect, useState, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
@@ -8,7 +8,6 @@ import {
   ArrowRight, ChevronRight, HelpCircle
 } from 'lucide-react';
 import ProgressBar from '@/components/shared/ProgressBar';
-import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { useFileStore } from '@/stores/fileStore';
@@ -430,9 +429,6 @@ Task: Based on the context provided above, answer the query: [Insert your questi
             })}
           </div>
         </div>
-
-        <AdSlot slot="top-banner" format="horizontal" className="mb-8" />
-
         {/* Phase 1: Upload */}
         {phase === 'upload' && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
@@ -984,10 +980,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
               {t('common.tryAgain')}
             </button>
           </div>
-        )}
-
-        <AdSlot slot="bottom-banner" format="horizontal" className="mt-8" />
-      </div>
+        )}      </div>
 
       {/* Dropbox & Google Drive visual picker simulation */}
       {cloudModal && (

@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { FileText } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
@@ -82,8 +81,6 @@ export default function PdfToWord() {
         </div>
 
         {/* Ad Slot - Top */}
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-
         {/* Upload Phase */}
         {phase === 'upload' && (
           <div className="space-y-4">
@@ -131,9 +128,7 @@ export default function PdfToWord() {
           </div>
         )}
 
-        {/* Ad Slot - Bottom */}
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        {/* Ad Slot - Bottom */}      </div>
     </>
   );
 }

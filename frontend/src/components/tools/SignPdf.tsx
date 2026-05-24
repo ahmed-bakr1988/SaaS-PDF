@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Helmet } from 'react-helmet-async';
 import { PenTool } from 'lucide-react';
 import FileUploader from '@/components/shared/FileUploader';
 import ProgressBar from '@/components/shared/ProgressBar';
 import DownloadButton from '@/components/shared/DownloadButton';
-import AdSlot from '@/components/layout/AdSlot';
 import { useTaskPolling } from '@/hooks/useTaskPolling';
 import { generateToolSchema } from '@/utils/seo';
 import { useFileStore } from '@/stores/fileStore';
@@ -73,9 +72,7 @@ export default function SignPdf() {
           </div>
           <h1 className="section-heading">{t('tools.signPdf.title')}</h1>
           <p className="mt-2 text-slate-500 dark:text-slate-400">{t('tools.signPdf.description')}</p>
-        </div>
-        <AdSlot slot="top-banner" format="horizontal" className="mb-6" />
-        {phase === 'upload' && (
+        </div>        {phase === 'upload' && (
           <div className="space-y-4">
             <div className="rounded-2xl bg-white p-5 ring-1 ring-slate-200 dark:bg-slate-800 dark:ring-slate-700 space-y-4">
               <div>
@@ -116,9 +113,7 @@ export default function SignPdf() {
             </div>
             <button onClick={handleReset} className="btn-secondary w-full">{t('common.startOver')}</button>
           </div>
-        )}
-        <AdSlot slot="bottom-banner" className="mt-8" />
-      </div>
+        )}      </div>
     </>
   );
 }

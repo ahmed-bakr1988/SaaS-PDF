@@ -11,6 +11,8 @@
 
 // ── Types ──────────────────────────────────────────────────────────
 export type ToolCategory = 'pdf-core' | 'pdf-extended' | 'image' | 'conversion' | 'ai' | 'utility';
+export type ToolGroup = 'quick-tools' | 'ai-workspace' | 'productivity' | 'developer';
+export type SpeedTier = 'instant' | 'fast' | 'moderate';
 
 export interface ToolEntry {
   /** URL slug under /tools/ — also used as the unique key */
@@ -33,6 +35,12 @@ export interface ToolEntry {
   bgColor: string;
   /** Demand tier from portfolio analysis */
   demandTier: 'A' | 'B' | 'C';
+  /** Strategic group for the new IA (Quick Tools / AI Workspace / Productivity / Developer) */
+  group: ToolGroup;
+  /** Approximate credit cost hint displayed on tool cards */
+  creditHint?: string;
+  /** Estimated processing speed tier */
+  speedTier?: SpeedTier;
 }
 
 // ── Manifest ───────────────────────────────────────────────────────
@@ -49,6 +57,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-rose-600',
     bgColor: 'bg-rose-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'pdf-to-word',
@@ -61,6 +70,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-red-600',
     bgColor: 'bg-red-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'word-to-pdf',
@@ -73,6 +83,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-blue-600',
     bgColor: 'bg-blue-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'compress-pdf',
@@ -85,6 +96,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-orange-600',
     bgColor: 'bg-orange-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'fast',
   },
   {
     slug: 'merge-pdf',
@@ -97,6 +109,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-violet-600',
     bgColor: 'bg-violet-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'split-pdf',
@@ -109,6 +122,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-pink-600',
     bgColor: 'bg-pink-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'rotate-pdf',
@@ -121,6 +135,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-teal-600',
     bgColor: 'bg-teal-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'pdf-to-images',
@@ -133,6 +148,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-amber-600',
     bgColor: 'bg-amber-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'images-to-pdf',
@@ -145,6 +161,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-lime-600',
     bgColor: 'bg-lime-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'watermark-pdf',
@@ -157,6 +174,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-cyan-600',
     bgColor: 'bg-cyan-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'protect-pdf',
@@ -169,6 +187,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-red-600',
     bgColor: 'bg-red-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'unlock-pdf',
@@ -181,6 +200,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-green-600',
     bgColor: 'bg-green-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'page-numbers',
@@ -193,6 +213,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-sky-600',
     bgColor: 'bg-sky-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
 
   // ─── PDF Extended ──────────────────────────────────────────────
@@ -207,6 +228,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
     demandTier: 'C',
+    group: 'ai-workspace', creditHint: '10', speedTier: 'moderate',
   },
   {
     slug: 'remove-watermark-pdf',
@@ -219,6 +241,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-rose-600',
     bgColor: 'bg-rose-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'reorder-pdf',
@@ -231,6 +254,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-violet-600',
     bgColor: 'bg-violet-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'extract-pages',
@@ -243,6 +267,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-amber-600',
     bgColor: 'bg-amber-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'sign-pdf',
@@ -255,6 +280,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-emerald-600',
     bgColor: 'bg-emerald-50',
     demandTier: 'A',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'crop-pdf',
@@ -267,6 +293,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-orange-600',
     bgColor: 'bg-orange-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'flatten-pdf',
@@ -279,6 +306,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-slate-600',
     bgColor: 'bg-slate-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'repair-pdf',
@@ -291,6 +319,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-yellow-600',
     bgColor: 'bg-yellow-50',
     demandTier: 'B',
+    group: 'quick-tools', creditHint: '1', speedTier: 'fast',
   },
   {
     slug: 'pdf-metadata',
@@ -303,6 +332,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-gray-600',
     bgColor: 'bg-gray-50',
     demandTier: 'C',
+    group: 'quick-tools', creditHint: '1', speedTier: 'instant',
   },
 
   // ─── Image ─────────────────────────────────────────────────────
@@ -317,6 +347,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-purple-600',
     bgColor: 'bg-purple-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'image-resize',
@@ -329,6 +360,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-teal-600',
     bgColor: 'bg-teal-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'compress-image',
@@ -341,6 +373,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-orange-600',
     bgColor: 'bg-orange-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'ocr',
@@ -353,6 +386,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-amber-600',
     bgColor: 'bg-amber-50',
     demandTier: 'A',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'moderate',
   },
   {
     slug: 'remove-background',
@@ -365,6 +399,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-fuchsia-600',
     bgColor: 'bg-fuchsia-50',
     demandTier: 'A',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'moderate',
   },
   {
     slug: 'image-to-svg',
@@ -377,6 +412,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'image-crop',
@@ -389,6 +425,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-pink-600',
     bgColor: 'bg-pink-50',
     demandTier: 'C',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'image-rotate-flip',
@@ -401,6 +438,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-cyan-600',
     bgColor: 'bg-cyan-50',
     demandTier: 'C',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
 
   // ─── Conversion ────────────────────────────────────────────────
@@ -415,6 +453,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-green-600',
     bgColor: 'bg-green-50',
     demandTier: 'A',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'html-to-pdf',
@@ -427,6 +466,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-sky-600',
     bgColor: 'bg-sky-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'moderate',
   },
   {
     slug: 'file-to-markdown',
@@ -439,6 +479,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-sky-600',
     bgColor: 'bg-sky-50',
     demandTier: 'B',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'fast',
   },
   {
     slug: 'pdf-to-pptx',
@@ -451,6 +492,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-orange-600',
     bgColor: 'bg-orange-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'excel-to-pdf',
@@ -463,6 +505,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-emerald-600',
     bgColor: 'bg-emerald-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
   {
     slug: 'pptx-to-pdf',
@@ -475,6 +518,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-red-600',
     bgColor: 'bg-red-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '2', speedTier: 'fast',
   },
 
   // ─── AI ────────────────────────────────────────────────────────
@@ -489,6 +533,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-blue-600',
     bgColor: 'bg-blue-50',
     demandTier: 'B',
+    group: 'ai-workspace', creditHint: '10', speedTier: 'moderate',
   },
   {
     slug: 'summarize-pdf',
@@ -501,6 +546,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-emerald-600',
     bgColor: 'bg-emerald-50',
     demandTier: 'A',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'moderate',
   },
   {
     slug: 'translate-pdf',
@@ -513,6 +559,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-purple-600',
     bgColor: 'bg-purple-50',
     demandTier: 'A',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'moderate',
   },
   {
     slug: 'extract-tables',
@@ -525,6 +572,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-teal-600',
     bgColor: 'bg-teal-50',
     demandTier: 'B',
+    group: 'ai-workspace', creditHint: '5', speedTier: 'moderate',
   },
 
   // ─── Utility ───────────────────────────────────────────────────
@@ -539,6 +587,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
     demandTier: 'B',
+    group: 'developer', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'barcode-generator',
@@ -551,6 +600,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-gray-600',
     bgColor: 'bg-gray-50',
     demandTier: 'B',
+    group: 'developer', creditHint: '1', speedTier: 'instant',
   },
   {
     slug: 'video-to-gif',
@@ -563,6 +613,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-emerald-600',
     bgColor: 'bg-emerald-50',
     demandTier: 'B',
+    group: 'productivity', creditHint: '5', speedTier: 'moderate',
   },
   {
     slug: 'word-counter',
@@ -575,6 +626,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-blue-600',
     bgColor: 'bg-blue-50',
     demandTier: 'C',
+    group: 'developer', creditHint: '0', speedTier: 'instant',
   },
   {
     slug: 'text-cleaner',
@@ -587,6 +639,7 @@ export const TOOL_MANIFEST: readonly ToolEntry[] = [
     iconColor: 'text-indigo-600',
     bgColor: 'bg-indigo-50',
     demandTier: 'C',
+    group: 'developer', creditHint: '0', speedTier: 'instant',
   },
 ] as const;
 
@@ -615,4 +668,9 @@ export function getToolEntry(slug: string): ToolEntry | undefined {
 /** All tool route paths — for the route registry */
 export function getManifestRoutePaths(): string[] {
   return TOOL_MANIFEST.map((t) => `/tools/${t.slug}`);
+}
+
+/** Tools filtered by strategic group (Quick Tools / AI Workspace / Productivity / Developer) */
+export function getToolsByGroup(group: ToolGroup): readonly ToolEntry[] {
+  return TOOL_MANIFEST.filter((t) => t.group === group);
 }
