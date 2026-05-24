@@ -54,13 +54,13 @@ export default function UpgradeModal({
     ),
     file_too_large: t(
       'upgrade.reason.fileTooLarge',
-      'This file exceeds your plan limit',
+      'Choose a plan that fits your file size requirements',
     ),
     feature_locked: t(
       'upgrade.reason.featureLocked',
-      'This feature requires Pro',
+      'Upgrade to unlock AI & advanced tools',
     ),
-    general: t('upgrade.reason.general', 'Unlock the full power of Dociva'),
+    general: t('upgrade.reason.general', 'Do more with a plan that fits your workflow'),
   };
 
   async function handleUpgrade() {
@@ -179,7 +179,7 @@ export default function UpgradeModal({
           {/* Trial notice */}
           <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-center text-sm dark:border-amber-800/40 dark:bg-amber-900/20">
             <span className="font-medium text-amber-800 dark:text-amber-200">
-              🎁 {t('upgrade.trialNotice', 'Start with a 7-day free trial — cancel anytime!')}
+              🎁 {t('upgrade.trialNotice', 'Start with a 2-day free trial — cancel anytime!')}
             </span>
           </div>
 

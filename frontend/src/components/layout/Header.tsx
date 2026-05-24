@@ -21,6 +21,7 @@ const languages: LangOption[] = [
 
 const NAV_LINKS = [
   { to: '/tools', key: 'common.allTools', fallback: 'All tools' },
+  { to: '/tools?group=ai-workspace', key: 'nav.ai', fallback: 'AI Workspace', premium: true },
   { to: '/pricing', key: 'common.pricing', fallback: 'Pricing' },
   { to: '/developers', key: 'common.developers', fallback: 'Developers' },
   { to: '/about', key: 'common.about', fallback: 'About' },
@@ -130,12 +131,34 @@ export default function Header() {
           </Link>
 
           <nav className="hidden items-center gap-1 rounded-full border border-slate-200/80 bg-white/80 p-1 shadow-sm lg:flex dark:border-slate-700/70 dark:bg-slate-900/70">
-            {NAV_LINKS.map((link) => (
-              <NavLink key={link.to} to={link.to} className={desktopNavClassName}>
-                {t(link.key, link.fallback)}
-              </NavLink>
-            ))}
+            {NAV_LINKS.map((link) => {
+              const isPremium = 'premium' in link && link.premium;
+              if (isPremium) {
+                const isActive = location.pathname + location.search === link.to;
+                return (
+                  <Link
+                    key={link.to}
+                    to={link.to}
+                    className={[
+                      'inline-flex items-center gap-1.5 rounded-full px-3 py-2 text-[13px] whitespace-nowrap font-semibold transition-all duration-300',
+                      isActive
+                        ? 'bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-[0_4px_16px_rgba(139,92,246,0.3)]'
+                        : 'text-violet-600 hover:bg-violet-50 dark:text-violet-400 dark:hover:bg-violet-950/30',
+                    ].join(' ')}
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {t(link.key, link.fallback)}
+                  </Link>
+                );
+              }
+              return (
+                <NavLink key={link.to} to={link.to} className={desktopNavClassName}>
+                  {t(link.key, link.fallback)}
+                </NavLink>
+              );
+            })}
           </nav>
+
         </div>
 
         <div className="flex items-center gap-2">

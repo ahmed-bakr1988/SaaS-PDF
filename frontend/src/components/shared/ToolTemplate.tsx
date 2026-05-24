@@ -264,6 +264,37 @@ export default function ToolTemplate({ config, onGetExtraData, children }: ToolT
           )}
         </div>
 
+        {/* Progressive Upgrade Prompt */}
+        {phase === 'upload' && (
+          <div className="mt-8 rounded-2xl border border-violet-100 bg-gradient-to-br from-violet-50/50 via-white to-purple-50/30 p-5 shadow-sm dark:border-violet-950/40 dark:from-violet-950/10 dark:via-slate-900 dark:to-purple-950/10">
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-md text-white">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-sm font-bold text-slate-800 dark:text-zinc-200">
+                  {isAiTool ? t('toolTemplate.aiUpgradeTitle', 'Power up your AI productivity') : t('toolTemplate.upgradeTitle', 'Need larger file limits?')}
+                </h4>
+                <p className="mt-1 text-xs text-slate-500 leading-relaxed dark:text-slate-400">
+                  {isAiTool 
+                    ? t('toolTemplate.aiUpgradeDesc', 'Get priority AI processing queue, up to 1GB file analysis, and 1,000 monthly credits with our Pro plan.')
+                    : t('toolTemplate.upgradeDesc', 'Upload files up to 1GB, process up to 20 files at once with batch actions, and remove all queue delays.')}
+                </p>
+              </div>
+              <div className="shrink-0 w-full sm:w-auto">
+                <a 
+                  href="/pricing"
+                  className="inline-flex w-full sm:w-auto justify-center items-center gap-1.5 rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-black text-white shadow hover:bg-violet-700 transition-colors"
+                >
+                  <span>{t('upgrade.cta', 'Try Pro')}</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
 
       {showUpgradeModal && (

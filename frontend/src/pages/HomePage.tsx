@@ -3,17 +3,22 @@ import { useTranslation } from 'react-i18next';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   ArrowRight,
+  Briefcase,
   CheckCircle2,
+  Crown,
   Download,
   Globe,
+  GraduationCap,
   Layers,
   Lock,
   MousePointerClick,
+  Scale,
   Search,
   ShieldCheck,
   Sparkles,
   Star,
   UploadCloud,
+  Users,
   X,
   Zap,
 } from 'lucide-react';
@@ -34,6 +39,9 @@ interface ToolInfo {
   bgColor: string;
   iconName: string;
   iconColor: string;
+  creditHint?: string;
+  speedTier?: 'instant' | 'fast' | 'moderate';
+  group?: string;
 }
 
 function manifestToToolInfo(tools: readonly ToolEntry[]): ToolInfo[] {
@@ -44,6 +52,9 @@ function manifestToToolInfo(tools: readonly ToolEntry[]): ToolInfo[] {
     bgColor: t.bgColor,
     iconName: t.iconName,
     iconColor: t.iconColor,
+    creditHint: t.creditHint,
+    speedTier: t.speedTier,
+    group: t.group,
   }));
 }
 
@@ -264,6 +275,73 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ── USE CASES ─────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <SectionIntro
+          align="center"
+          eyebrow={t('home.useCasesLabel', 'Who it\'s for')}
+          title={t('home.useCasesTitle', 'Built for the way you actually work')}
+          description={t('home.useCasesSubtitle', 'Whether you\'re a student, freelancer, or enterprise team — Dociva adapts to your workflow.')}
+          className="mb-10"
+        />
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          {[
+            {
+              icon: GraduationCap,
+              titleKey: 'home.useCaseStudent',
+              titleDefault: 'Students',
+              descKey: 'home.useCaseStudentDesc',
+              descDefault: 'Convert lecture slides, OCR handwritten notes, summarize research papers.',
+              color: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
+            },
+            {
+              icon: Users,
+              titleKey: 'home.useCaseHR',
+              titleDefault: 'HR Teams',
+              descKey: 'home.useCaseHRDesc',
+              descDefault: 'Batch convert resumes, protect contracts, organize employee docs.',
+              color: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400',
+            },
+            {
+              icon: Briefcase,
+              titleKey: 'home.useCaseFreelancer',
+              titleDefault: 'Freelancers',
+              descKey: 'home.useCaseFreelancerDesc',
+              descDefault: 'Create proposals, sign contracts, watermark deliverables.',
+              color: 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400',
+            },
+            {
+              icon: Layers,
+              titleKey: 'home.useCaseBusiness',
+              titleDefault: 'Businesses',
+              descKey: 'home.useCaseBusinessDesc',
+              descDefault: 'API integrations, bulk processing, priority queues for your team.',
+              color: 'bg-violet-100 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400',
+            },
+            {
+              icon: Scale,
+              titleKey: 'home.useCaseLegal',
+              titleDefault: 'Legal Teams',
+              descKey: 'home.useCaseLegalDesc',
+              descDefault: 'Redact PDFs, flatten forms, extract tables from contracts.',
+              color: 'bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400',
+            },
+          ].map(({ icon: Icon, titleKey, titleDefault, descKey, descDefault, color }) => (
+            <div key={titleKey} className="marketing-card text-center">
+              <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${color}`}>
+                <Icon className="h-6 w-6" />
+              </div>
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                {t(titleKey, titleDefault)}
+              </h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+                {t(descKey, descDefault)}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 lg:px-8">
         <div className="premium-surface p-8 sm:p-12 lg:p-16">
           <div className="grid gap-12 xl:grid-cols-[300px_1fr]">
@@ -328,6 +406,9 @@ export default function HomePage() {
                     title={t(`tools.${tool.key}.title`)}
                     description={t(`tools.${tool.key}.shortDesc`)}
                     bgColor={tool.bgColor}
+                    creditHint={tool.creditHint}
+                    speedTier={tool.speedTier}
+                    group={tool.group}
                   />
                 ))}
               </div>
@@ -345,6 +426,9 @@ export default function HomePage() {
                       title={t(`tools.${tool.key}.title`)}
                       description={t(`tools.${tool.key}.shortDesc`)}
                       bgColor={tool.bgColor}
+                      creditHint={tool.creditHint}
+                      speedTier={tool.speedTier}
+                      group={tool.group}
                     />
                   ))}
                 </div>
@@ -401,6 +485,83 @@ export default function HomePage() {
               </div>
             );
           })}
+        </div>
+      </section>
+
+      {/* ── WHY UPGRADE ───────────────────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 pb-14 sm:px-6 lg:px-8">
+        <SectionIntro
+          align="center"
+          eyebrow={t('home.whyUpgradeLabel', 'Free vs Pro')}
+          title={t('home.whyUpgradeTitle', 'Do more with a plan that fits')}
+          description={t('home.whyUpgradeSubtitle', 'Start free. Upgrade when you need faster processing, larger files, and AI-powered features.')}
+          className="mb-10"
+        />
+        <div className="grid gap-6 sm:grid-cols-2">
+          {/* Free tier */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-800">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-700">
+                <Zap className="h-5 w-5 text-slate-500 dark:text-slate-400" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('home.freeTierTitle', 'Free')}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400">{t('home.freeTierDesc', 'Great for occasional use')}</p>
+              </div>
+            </div>
+            <ul className="space-y-3">
+              {[
+                t('home.freePerk1', '5 daily operations'),
+                t('home.freePerk2', '20 MB file limit'),
+                t('home.freePerk3', 'All Quick Tools'),
+                t('home.freePerk4', 'Standard processing queue'),
+              ].map((perk) => (
+                <li key={perk} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-500" />
+                  {perk}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Pro tier */}
+          <div className="relative rounded-3xl border-2 border-violet-400 bg-gradient-to-br from-violet-50 via-white to-purple-50 p-8 shadow-lg shadow-violet-100 dark:border-violet-600 dark:from-violet-950/30 dark:via-slate-800 dark:to-purple-950/20 dark:shadow-violet-900/20">
+            <span className="absolute -top-3 right-6 inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-violet-600 to-purple-600 px-3 py-1 text-xs font-bold text-white shadow-md">
+              <Crown className="h-3 w-3" />
+              {t('home.proLabel', 'Most Popular')}
+            </span>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 shadow-lg shadow-violet-200 dark:shadow-violet-900/40">
+                <Sparkles className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">{t('home.proTierTitle', 'Pro')}</h3>
+                <p className="text-sm text-violet-600 dark:text-violet-400">{t('home.proTierDesc', 'For power users and teams')}</p>
+              </div>
+            </div>
+            <ul className="space-y-3">
+              {[
+                t('home.proPerk1', 'Unlimited operations'),
+                t('home.proPerk2', 'Up to 1 GB uploads'),
+                t('home.proPerk3', 'AI Workspace (Chat, Summarize, Translate)'),
+                t('home.proPerk4', 'Priority processing queue'),
+                t('home.proPerk5', 'Batch processing (20 files)'),
+                t('home.proPerk6', 'Workspace history & analytics'),
+              ].map((perk) => (
+                <li key={perk} className="flex items-center gap-2 text-sm font-medium text-slate-800 dark:text-slate-200">
+                  <Star className="h-4 w-4 shrink-0 text-amber-400" />
+                  {perk}
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/pricing"
+              className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-purple-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-violet-200 transition-all hover:-translate-y-0.5 hover:shadow-xl dark:shadow-violet-900/40"
+            >
+              {t('home.viewPlans', 'View Plans')}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -34,6 +34,8 @@ import {
   } from '@/services/api';
   import { useAuthStore } from '@/stores/authStore';
   import AccountSidebar, { type AccountTab } from '@/components/layout/AccountSidebar';
+  import WorkspaceActivity from '@/components/shared/WorkspaceActivity';
+  import UsageAnalytics from '@/components/shared/UsageAnalytics';
   import { cn } from '@/utils/cn';
 
   import type { UserProfile, SocialAuthProviderOption } from '@/services/apiTypes';
@@ -521,51 +523,35 @@ export default function AccountPage() {
                 </div>
 
                 <div className="grid gap-6 lg:grid-cols-2">
-                  <div className="premium-card !p-6">
-                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-6">{t('account.onboardingTitle')}</h3>
-                    <div className="space-y-4">
-                      {dashboardMetrics.onboardingItems.map((item) => (
-                        <div key={item.key} className="flex items-start gap-4 rounded-2xl bg-zinc-50/50 p-4 dark:bg-zinc-900/40">
-                          <span className={cn(
-                            'mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-black',
-                            item.done ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-zinc-200 text-zinc-500 dark:bg-zinc-800'
-                          )}>
-                            {item.done ? <Check className="h-4 w-4" /> : '•'}
-                          </span>
-                          <div>
-                            <p className="font-bold text-zinc-900 dark:text-white">{item.title}</p>
-                            <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{item.description}</p>
-                          </div>
-                        </div>
-                      ))}
+                  {usage ? (
+                    <UsageAnalytics
+                      credits={{
+                        used: usage.credits.credits_used,
+                        total: usage.credits.credits_allocated,
+                      }}
+                      dailyOps={{
+                        used: usage.web_quota.used,
+                        total: usage.web_quota.limit || 5,
+                      }}
+                      storage={{
+                        usedMB: Math.round(Math.min(historyItems.length * 2.4, user.plan === 'pro' ? 850 : 22)),
+                        totalMB: user.plan === 'pro' ? 1000 : 25,
+                      }}
+                    />
+                  ) : (
+                    <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center dark:border-slate-700 dark:bg-slate-800">
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Loading usage statistics...</p>
                     </div>
-                  </div>
-
-                  <div className="premium-card !p-6">
-                    <h3 className="text-lg font-bold text-zinc-900 dark:text-white mb-6">{t('account.issuesTitle')}</h3>
-                    <div className="space-y-4">
-                      {dashboardMetrics.recentFailures.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-zinc-400">
-                          <ShieldCheck className="h-12 w-12 opacity-20 mb-4" />
-                          <p>{t('account.issuesEmpty')}</p>
-                        </div>
-                      ) : (
-                        dashboardMetrics.recentFailures.map((item) => (
-                          <div key={item.id} className="rounded-2xl bg-red-50/50 p-4 ring-1 ring-red-100 dark:bg-red-900/10 dark:ring-red-900/20">
-                            <div className="flex items-start gap-3">
-                              <AlertTriangle className="mt-1 h-5 w-5 text-red-500" />
-                              <div>
-                                <p className="font-bold text-red-900 dark:text-red-400">{formatHistoryTool(item.tool, t)}</p>
-                                <p className="mt-1 text-sm text-red-700 dark:text-red-500/80">
-                                  {typeof item.metadata?.error === 'string' ? item.metadata.error : t('account.statusFailed')}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      )}
-                    </div>
-                  </div>
+                  )}
+                  <WorkspaceActivity
+                    items={historyItems.map((item) => ({
+                      id: String(item.id),
+                      toolName: formatHistoryTool(item.tool, t),
+                      fileName: item.original_filename || item.output_filename || 'Unnamed document',
+                      status: item.status === 'completed' ? ('completed' as const) : ('failed' as const),
+                      timestamp: item.created_at,
+                    }))}
+                  />
                 </div>
               </div>
             )}

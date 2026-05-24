@@ -2074,9 +2074,9 @@
     "badge": "PRO",
     "reason": {
       "creditsExhausted": "Your credits are running low",
-      "fileTooLarge": "This file exceeds your plan limit",
-      "featureLocked": "This feature requires Pro",
-      "general": "Unlock the full power of Dociva"
+      "fileTooLarge": "Choose a plan that fits your file size requirements",
+      "featureLocked": "Upgrade to unlock AI & advanced tools",
+      "general": "Do more with a plan that fits your workflow"
     },
     "creditsInfo": "{{remaining}} credits remaining, {{required}} required for this action.",
     "benefits": {

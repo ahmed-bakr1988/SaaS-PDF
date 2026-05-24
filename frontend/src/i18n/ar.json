@@ -3164,9 +3164,9 @@
     "badge": "PRO",
     "reason": {
       "creditsExhausted": "رصيدك على وشك النفاد",
-      "fileTooLarge": "هذا الملف يتجاوز حد خطتك",
-      "featureLocked": "هذه الميزة تتطلب خطة Pro",
-      "general": "أطلق العنان لكامل قوة Dociva"
+      "fileTooLarge": "اختر خطة تناسب متطلبات حجم ملفك",
+      "featureLocked": "قم بالترقية لفتح أدوات الذكاء الاصطناعي والميزات المتقدمة",
+      "general": "أنجز المزيد مع خطة تناسب سير عملك"
     },
     "creditsInfo": "{{remaining}} رصيد متبقٍ، مطلوب {{required}} لهذا الإجراء.",
     "benefits": {
