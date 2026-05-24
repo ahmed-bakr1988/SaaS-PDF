@@ -244,15 +244,15 @@ export default function PricingPage() {
 
         {/* ── Header ───────────────────────────────────────────────────── */}
         <div className="text-center">
-          <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-sm font-medium text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300">
+            <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-1.5 text-sm font-medium text-violet-700 dark:border-violet-800 dark:bg-violet-900/20 dark:text-violet-300">
             <Sparkles className="h-4 w-4" />
-            {t('pricing.simpleTransparent')}
+            {t('pages.pricing.features.simpleTransparent')}
           </div>
           <h1 className="mb-4 text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-5xl">
-            {t('pricing.chooseYourPlan')}
+            {t('pages.pricing.features.chooseYourPlan')}
           </h1>
           <p className="mx-auto max-w-xl text-lg text-slate-500 dark:text-slate-400">
-            {t('pricing.startFreeUpgrade')}
+            {t('pages.pricing.features.startFreeUpgrade')}
           </p>
 
           {/* Billing toggle */}
@@ -410,9 +410,9 @@ export default function PricingPage() {
               className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               {showFullTable ? (
-                <><ChevronUp className="h-4 w-4" /> {t('pricing.showLess')}</>
+                <><ChevronUp className="h-4 w-4" /> {t('pages.pricing.features.showLess')}</>
               ) : (
-                <><ChevronDown className="h-4 w-4" /> {t('pricing.showAllFeatures')}</>
+                <><ChevronDown className="h-4 w-4" /> {t('pages.pricing.features.showAllFeatures')}</>
               )}
             </button>
           </div>
@@ -531,9 +531,9 @@ export default function PricingPage() {
 
         {/* ── Bottom CTA banner ─────────────────────────────────────────── */}
         <div className="rounded-3xl bg-gradient-to-r from-violet-600 via-indigo-600 to-violet-700 p-10 text-center text-white shadow-2xl shadow-violet-200 dark:shadow-violet-900/30">
-          <h2 className="text-3xl font-extrabold">{t('pricing.startProcessingSmarter')}</h2>
+          <h2 className="text-3xl font-extrabold">{t('pages.pricing.features.startProcessingSmarter')}</h2>
           <p className="mt-3 text-violet-200">
-            {t('pricing.joinThousands')}
+            {t('pages.pricing.features.joinThousands')}
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
