@@ -2,6 +2,38 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { HelmetProvider } from 'react-helmet-async';
 import { describe, expect, it, vi } from 'vitest';
 import { useState, useEffect } from 'react';
+
+// Mock ResizeObserver globally for testing
+if (typeof window !== 'undefined') {
+  window.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
+// Mock react-pdf before component imports
+vi.mock('react-pdf', () => ({
+  pdfjs: {
+    GlobalWorkerOptions: {
+      workerSrc: '',
+    },
+  },
+  Document: ({ children, onLoadSuccess }: any) => {
+    useEffect(() => {
+      if (onLoadSuccess) {
+        onLoadSuccess({ numPages: 5 });
+      }
+    }, [onLoadSuccess]);
+    return <div data-testid="mock-pdf-document">{children}</div>;
+  },
+  Page: ({ pageNumber, width }: any) => (
+    <div data-testid="mock-pdf-page">
+      Mock PDF Page {pageNumber} (width: {width}px)
+    </div>
+  ),
+}));
+
 import FileToMarkdown from './FileToMarkdown';
 
 // Mock components

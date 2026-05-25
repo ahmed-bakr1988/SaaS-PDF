@@ -1,11 +1,11 @@
-﻿import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import {
   FileText, Copy, Check, Upload, Sparkles, Shield, Database, Cpu, RefreshCw, Layers,
   CheckCircle2, AlertCircle, File as FileIcon, Download, Eye, Lock, Clock, FileDown,
-  ArrowRight, ChevronRight, HelpCircle
+  ArrowRight, ChevronRight, HelpCircle, ChevronLeft, ZoomIn, ZoomOut
 } from 'lucide-react';
 import ProgressBar from '@/components/shared/ProgressBar';
 import { useFileUpload } from '@/hooks/useFileUpload';
@@ -16,6 +16,13 @@ import { useAuthStore } from '@/stores/authStore';
 import SignUpToDownloadModal from '@/components/shared/SignUpToDownloadModal';
 import { formatFileSize } from '@/utils/textTools';
 import { trackEvent } from '@/services/analytics';
+
+import { Document, Page, pdfjs } from 'react-pdf';
+import pdfWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorkerUrl;
 
 const ACCEPTED_TYPES = [
   'pdf', 'doc', 'docx', 'html', 'htm', 'zip',
@@ -74,6 +81,13 @@ export default function FileToMarkdown() {
 
   // Simulated pipeline progress index
   const [activeStageIdx, setActiveStageIdx] = useState(0);
+
+  // PDF Preview State & Refs
+  const [numPages, setNumPages] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const [previewWidth, setPreviewWidth] = useState(720);
+  const previewRef = useRef<HTMLDivElement | null>(null);
 
   const maxSize = Math.max(limits.pdf ?? 20, limits.video ?? 50, limits.word ?? 15);
 
@@ -164,6 +178,33 @@ export default function FileToMarkdown() {
       }, 2000);
     }
     return () => clearInterval(interval);
+  }, [phase]);
+
+  // Reset PDF preview state when file changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setNumPages(0);
+    setZoomLevel(100);
+  }, [file]);
+
+  // Track preview container width dynamically to scale PDF pages
+  useEffect(() => {
+    const updateWidth = () => {
+      if (!previewRef.current) return;
+      const nextWidth = Math.max(280, Math.min(previewRef.current.clientWidth - 24, 820));
+      setPreviewWidth(nextWidth);
+    };
+
+    updateWidth();
+    const observer = new ResizeObserver(updateWidth);
+    if (previewRef.current) {
+      observer.observe(previewRef.current);
+    }
+    window.addEventListener('resize', updateWidth);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateWidth);
+    };
   }, [phase]);
 
   const handleUpload = async () => {
@@ -300,12 +341,91 @@ Task: Based on the context provided above, answer the query: [Insert your questi
     const ext = file.name.split('.').pop()?.toLowerCase();
 
     if (ext === 'pdf') {
+      const effectivePreviewWidth = Math.round((previewWidth * zoomLevel) / 100);
       return (
-        <iframe
-          src={fileUrl}
-          className="h-[300px] lg:h-full lg:min-h-[400px] w-full rounded-xl border border-slate-100 bg-white dark:border-slate-800 dark:bg-slate-950"
-          title="Original PDF Preview"
-        />
+        <div className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-100/55 p-3 dark:border-slate-800 dark:bg-slate-900/40">
+          {/* Controls toolbar */}
+          <div className="flex items-center justify-between gap-3 rounded-xl bg-white px-3 py-1.5 shadow-sm dark:bg-slate-950">
+            <div className="text-xs font-semibold text-slate-505 dark:text-slate-400">
+              {t('tools.cropPdf.zoomLabel', 'Zoom')}: {zoomLevel}%
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setZoomLevel((prev) => Math.max(60, prev - 10))}
+                className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-350 dark:hover:bg-slate-900"
+                title={t('tools.cropPdf.zoomOut', 'Zoom Out')}
+              >
+                <ZoomOut className="h-4.5 w-4.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setZoomLevel((prev) => Math.min(160, prev + 10))}
+                className="rounded-lg border border-slate-200 p-1.5 text-slate-600 hover:bg-slate-50 dark:border-slate-800 dark:text-slate-350 dark:hover:bg-slate-900"
+                title={t('tools.cropPdf.zoomIn', 'Zoom In')}
+              >
+                <ZoomIn className="h-4.5 w-4.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* PDF Page View Area */}
+          <div
+            ref={previewRef}
+            className="flex min-h-[300px] lg:min-h-[400px] flex-col items-center justify-between overflow-auto rounded-xl bg-slate-200/50 p-3 dark:bg-slate-950/20"
+          >
+            <Document
+              file={fileUrl}
+              onLoadSuccess={({ numPages: loadedPages }) => {
+                setNumPages(loadedPages);
+                setCurrentPage((prev) => Math.min(prev, loadedPages || 1));
+              }}
+              loading={
+                <div className="flex items-center justify-center p-6 text-sm text-slate-500">
+                  <RefreshCw className="h-5 w-5 animate-spin mr-2" />
+                  Loading document...
+                </div>
+              }
+              className="max-w-full"
+            >
+              <div className="flex justify-center shadow-sm">
+                <Page
+                  pageNumber={currentPage}
+                  width={effectivePreviewWidth}
+                  renderTextLayer={false}
+                  renderAnnotationLayer={false}
+                />
+              </div>
+            </Document>
+
+            {/* Pagination footer */}
+            {numPages > 1 && (
+              <div className="mt-4 flex items-center gap-3 rounded-xl bg-slate-900 px-3.5 py-1.5 text-xs text-white shadow-md dark:bg-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                  disabled={currentPage <= 1}
+                  className="rounded-md p-1 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label={t('tools.cropPdf.previousPage', 'Previous page')}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="font-semibold select-none">
+                  {currentPage} / {numPages}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCurrentPage((prev) => Math.min(numPages || 1, prev + 1))}
+                  disabled={currentPage >= numPages}
+                  className="rounded-md p-1 hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  aria-label={t('tools.cropPdf.nextPage', 'Next page')}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       );
     }
 
@@ -525,7 +645,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
         {phase === 'review' && file && (
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
             {/* Left: Original Document Preview */}
-            <div className="flex flex-col lg:col-span-7">
+            <div className="order-2 lg:order-1 flex flex-col lg:col-span-7">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
                 <span className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
                   <Eye className="h-4 w-4 text-indigo-500" />
@@ -541,7 +661,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
             </div>
 
             {/* Right: Operations & Config options */}
-            <div className="lg:col-span-5">
+            <div className="order-1 lg:order-2 lg:col-span-5">
               <div className="rounded-2xl border border-slate-200/60 bg-white p-6 shadow-xl shadow-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
                 <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   {t('tools.fileToMarkdown.reviewSection.title')}
@@ -723,7 +843,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
             {/* Split dashboard screen */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
               {/* Left Column: AI Token Metrics */}
-              <div className="space-y-6 lg:col-span-4">
+              <div className="order-2 lg:order-1 space-y-6 lg:col-span-4">
                 <div className="rounded-2xl border border-slate-200/60 bg-white p-5 shadow-xl shadow-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
                     {t('tools.fileToMarkdown.resultSection.metricsTitle')}
@@ -826,7 +946,7 @@ Task: Based on the context provided above, answer the query: [Insert your questi
               </div>
 
               {/* Right Column: Tabbed Output Panel */}
-              <div className="flex flex-col lg:col-span-8">
+              <div className="order-1 lg:order-2 flex flex-col lg:col-span-8">
                 <div className="flex-1 rounded-2xl border border-slate-200/60 bg-white p-5 shadow-xl shadow-slate-100 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none flex flex-col">
                   {/* Tab Selector Header */}
                   <div className="mb-4 flex flex-col gap-4 border-b border-slate-100 pb-4 dark:border-slate-800 sm:flex-row sm:items-center sm:justify-between">
