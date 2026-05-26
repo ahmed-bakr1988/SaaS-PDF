@@ -100,8 +100,10 @@ def init_celery(app, *, import_tasks: bool = False):
         "app.tasks.markdown_convert_tasks.convert_file_to_markdown_task": {"queue": "pdf_processing"},
         "app.tasks.markdown_convert_tasks.convert_image_to_markdown_task": {"queue": "ocr_tasks"},
         "app.tasks.markdown_convert_tasks.convert_video_to_markdown_task": {"queue": "video_processing"},
-        "app.tasks.markdown_convert_tasks.convert_text_to_markdown_task": {"queue": "lightweight_queue"},
-        "app.tasks.markdown_convert_tasks.convert_code_to_markdown_task": {"queue": "code_analysis_queue"},
+        # light_tasks queue is listened to by celery_worker_light
+        "app.tasks.markdown_convert_tasks.convert_text_to_markdown_task": {"queue": "light_tasks"},
+        # ZIP/code archives are medium-weight; use default queue (celery_worker_default)
+        "app.tasks.markdown_convert_tasks.convert_code_to_markdown_task": {"queue": "default"},
 
         # Image processing
         "app.tasks.image_tasks.*": {"queue": "image_processing"},

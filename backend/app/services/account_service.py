@@ -27,7 +27,7 @@ from app.utils.database import (
 
 logger = logging.getLogger(__name__)
 
-VALID_PLANS = {"free", "micro", "pro"}
+VALID_PLANS = {"free", "starter", "micro", "pro", "business"}
 VALID_ROLES = {"user", "admin"}
 
 
@@ -40,8 +40,15 @@ def get_current_period_month() -> str:
 
 
 def normalize_plan(plan: str | None) -> str:
-    if plan in ("pro", "micro"):
-        return plan
+    """Normalize a plan slug for storage and entitlement checks.
+
+    ``micro`` is retained for legacy rows; ``get_credits_for_plan`` treats it as starter.
+    """
+    if not plan:
+        return "free"
+    normalized = str(plan).strip().lower()
+    if normalized in VALID_PLANS:
+        return normalized
     return "free"
 
 

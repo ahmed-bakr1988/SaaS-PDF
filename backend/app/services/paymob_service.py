@@ -410,13 +410,13 @@ def verify_webhook_signature(payload: dict) -> bool:
 
 def handle_webhook_event(event: dict) -> dict:
     """Process a verified PayMob webhook event. Returns a status dict."""
-    success = event.get("success", False)
-    obj = event.get("obj", event)  # PayMob wraps data in 'obj' sometimes
+    obj = event.get("obj") if isinstance(event.get("obj"), dict) else event
+    # PayMob puts transaction success on the nested obj, not the envelope.
+    success = bool(obj.get("success", event.get("success", False)))
 
     if success:
         return _handle_payment_success(obj)
-    else:
-        return _handle_payment_failure(obj)
+    return _handle_payment_failure(obj)
 
 
 def _handle_payment_success(event: dict) -> dict:

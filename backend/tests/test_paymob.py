@@ -5,7 +5,8 @@ import hmac
 import hashlib
 import json
 from unittest.mock import MagicMock, patch
-from app.services.paymob_service import verify_webhook_signature
+from app.services.paymob_service import handle_webhook_event, verify_webhook_signature
+from app.services.account_service import create_user, get_user_by_id, normalize_plan
 
 
 class TestPayMobIntentionRoute:
@@ -246,3 +247,53 @@ class TestPayMobSignatureVerification:
         payload = {"hmac": signature, "obj": event_obj}
         with app.app_context():
             assert verify_webhook_signature(payload) is True
+
+
+class TestPayMobWebhookProcessing:
+    """Integration tests for PayMob webhook business logic (no route mocks)."""
+
+    def test_handle_webhook_reads_success_from_nested_obj(self, app):
+        """PayMob transaction callbacks carry success on obj, not the envelope."""
+        with app.app_context():
+            with patch("app.services.paymob_service._activate_user_plan") as mock_activate:
+                result = handle_webhook_event({
+                    "type": "TRANSACTION",
+                    "obj": {
+                        "id": 999,
+                        "success": True,
+                        "amount_cents": 10000,
+                        "special_reference": "user_42_plan_pro_monthly",
+                    },
+                })
+
+            assert result["event_type"] == "payment_success"
+            mock_activate.assert_called_once_with(42, "999", plan_type="pro")
+
+    def test_handle_webhook_failure_when_obj_not_successful(self, app):
+        with app.app_context():
+            with patch("app.services.paymob_service._activate_user_plan") as mock_activate:
+                result = handle_webhook_event({
+                    "obj": {"id": 100, "success": False},
+                })
+
+            assert result["event_type"] == "payment_failure"
+            mock_activate.assert_not_called()
+
+
+class TestPlanNormalization:
+    def test_normalize_plan_preserves_paid_tiers(self):
+        assert normalize_plan("starter") == "starter"
+        assert normalize_plan("business") == "business"
+        assert normalize_plan("pro") == "pro"
+        assert normalize_plan("micro") == "micro"
+
+    def test_update_user_plan_persists_starter(self, app):
+        with app.app_context():
+            user = create_user("plan-norm@test.com", "testpass123")
+            from app.services.account_service import update_user_plan
+
+            update_user_plan(user["id"], "starter")
+            refreshed = get_user_by_id(user["id"])
+
+        assert refreshed is not None
+        assert refreshed["plan"] == "starter"
