@@ -177,6 +177,43 @@ class TestAuthRoutes:
         second_me_data = client.get('/api/auth/me').get_json()
         assert second_me_data['is_new_account'] is False
 
+    def test_social_callback_returns_to_requested_next_path(self, app, client, monkeypatch):
+        app.config.update({
+            'GOOGLE_OAUTH_CLIENT_ID': 'google-client',
+            'GOOGLE_OAUTH_CLIENT_SECRET': 'google-secret',
+            'BACKEND_PUBLIC_URL': 'http://localhost:5000',
+            'FRONTEND_URL': 'http://localhost:5173',
+        })
+
+        from urllib.parse import urlencode
+
+        next_path = '/account?redirect=payment&plan=pro&billing=monthly'
+        start_response = client.get(
+            f'/api/auth/social/google/start?{urlencode({"next": next_path})}'
+        )
+        assert start_response.status_code == 302
+
+        with client.session_transaction() as session_state:
+            state = session_state['social_auth_flow']['state']
+            assert session_state['social_auth_flow']['next'] == next_path
+
+        def fake_exchange(provider, *, code, redirect_uri, code_verifier=None):
+            return SocialProfile(
+                provider='google',
+                provider_user_id='google-user-next',
+                email='next@example.com',
+                email_is_verified=True,
+                display_name='Next User',
+            )
+
+        monkeypatch.setattr('app.routes.auth.exchange_code_for_profile', fake_exchange)
+
+        callback_response = client.get(
+            f'/api/auth/social/google/callback?state={state}&code=sample-code'
+        )
+        assert callback_response.status_code == 302
+        assert callback_response.location == f'http://localhost:5173{next_path}'
+
     def test_social_callback_links_existing_account_by_email(self, app, client, monkeypatch):
         app.config.update({
             'GOOGLE_OAUTH_CLIENT_ID': 'google-client',

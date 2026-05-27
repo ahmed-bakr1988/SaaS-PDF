@@ -83,6 +83,8 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = useAuthStore((s) => s.user);
+  const authInitialized = useAuthStore((s) => s.initialized);
+  const authLoading = useAuthStore((s) => s.isLoading);
 
   const rawPlan = (searchParams.get('plan') || 'starter').toLowerCase();
   const plan = Object.prototype.hasOwnProperty.call(PLAN_INFO, rawPlan) ? rawPlan : 'starter';
@@ -111,10 +113,21 @@ export default function PaymentPage() {
   const hasSelectableMethod = resolvedMethods.some((method) => method.selectable);
 
   useEffect(() => {
-    if (!user) {
-      navigate(`/account?redirect=payment&plan=${plan}&billing=${billing}`);
+    if (!authInitialized) {
+      return;
     }
-  }, [user, navigate, plan, billing]);
+    if (!user) {
+      const accountQuery = new URLSearchParams({
+        redirect: 'payment',
+        plan,
+        billing,
+      });
+      if (returnUrl && returnUrl !== '/account') {
+        accountQuery.set('return', returnUrl);
+      }
+      navigate(`/account?${accountQuery.toString()}`);
+    }
+  }, [user, authInitialized, navigate, plan, billing, returnUrl]);
 
   useEffect(() => {
     if (!user) return;
@@ -247,7 +260,7 @@ export default function PaymentPage() {
     }
   };
 
-  if (!user) {
+  if (!authInitialized || authLoading || !user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400" />

@@ -78,12 +78,27 @@ def _provider_label(provider: str) -> str:
     }[_normalize_social_provider(provider)]
 
 
-def _frontend_account_redirect(error_message: str | None = None) -> str:
+def _sanitize_frontend_next(raw: str | None) -> str | None:
+    """Allow only same-site relative paths for post-login redirects."""
+    if not raw:
+        return None
+    path = str(raw).strip()
+    if not path.startswith("/") or path.startswith("//"):
+        return None
+    return path
+
+
+def _frontend_account_redirect(
+    error_message: str | None = None,
+    next_path: str | None = None,
+) -> str:
     base_url = current_app.config["FRONTEND_URL"].rstrip("/")
-    account_url = f"{base_url}/account"
+    safe_next = _sanitize_frontend_next(next_path)
+    target_url = f"{base_url}{safe_next}" if safe_next else f"{base_url}/account"
     if not error_message:
-        return account_url
-    return f"{account_url}?{urlencode({'auth_error': error_message})}"
+        return target_url
+    separator = "&" if "?" in target_url else "?"
+    return f"{target_url}{separator}{urlencode({'auth_error': error_message})}"
 
 
 def _social_redirect_uri(provider: str) -> str:
@@ -213,6 +228,7 @@ def social_start_route(provider: str):
         "provider": normalized_provider,
         "state": state,
         "code_verifier": code_verifier,
+        "next": _sanitize_frontend_next(request.args.get("next")),
     }
     return redirect(authorization_url)
 
@@ -242,8 +258,12 @@ def social_callback_route(provider: str):
     code = str(request.args.get("code", "")).strip()
     state = str(request.args.get("state", "")).strip()
     stored_flow = session.pop(SOCIAL_AUTH_SESSION_KEY, None)
+    next_path = stored_flow.get("next") if isinstance(stored_flow, dict) else None
+
     if not code or not state:
-        return redirect(_frontend_account_redirect("Social sign-in could not be completed."))
+        return redirect(
+            _frontend_account_redirect("Social sign-in could not be completed.", next_path=next_path)
+        )
 
     if (
         not isinstance(stored_flow, dict)
@@ -251,7 +271,10 @@ def social_callback_route(provider: str):
         or not hmac.compare_digest(stored_flow.get("state", ""), state)
     ):
         return redirect(
-            _frontend_account_redirect("Your social sign-in session expired. Please try again.")
+            _frontend_account_redirect(
+                "Your social sign-in session expired. Please try again.",
+                next_path=next_path,
+            )
         )
 
     try:
@@ -269,10 +292,10 @@ def social_callback_route(provider: str):
             provider_username=profile.username,
         )
     except (SocialAuthError, ValueError) as exc:
-        return redirect(_frontend_account_redirect(str(exc)))
+        return redirect(_frontend_account_redirect(str(exc), next_path=next_path))
 
     login_user_session(int(user["id"]), mark_new_account=is_new_account)
-    return redirect(_frontend_account_redirect())
+    return redirect(_frontend_account_redirect(next_path=next_path))
 
 
 @auth_bp.route("/csrf", methods=["GET"])

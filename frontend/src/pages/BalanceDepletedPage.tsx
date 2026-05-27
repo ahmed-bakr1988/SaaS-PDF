@@ -85,6 +85,7 @@ export default function BalanceDepletedPage() {
   const [searchParams] = useSearchParams();
   const siteOrigin = getSiteOrigin(typeof window !== 'undefined' ? window.location.origin : '');
   const user = useAuthStore((s) => s.user);
+  const authInitialized = useAuthStore((s) => s.initialized);
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('yearly');
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
@@ -93,10 +94,18 @@ export default function BalanceDepletedPage() {
   const returnUrl = searchParams.get('return') || `/tools/${toolSlug}`;
 
   useEffect(() => {
-    if (!user) {
-      navigate(`/account?redirect=balance-depleted&return=${encodeURIComponent(returnUrl)}`);
+    if (!authInitialized) {
+      return;
     }
-  }, [user, navigate, returnUrl]);
+    if (!user) {
+      const accountQuery = new URLSearchParams({
+        redirect: 'balance-depleted',
+        return: returnUrl,
+        tool: toolSlug,
+      });
+      navigate(`/account?${accountQuery.toString()}`);
+    }
+  }, [user, authInitialized, navigate, returnUrl, toolSlug]);
 
   async function handleSelectPlan(plan: PlanOption) {
     if (!user) return;
@@ -116,7 +125,7 @@ export default function BalanceDepletedPage() {
     return billing === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice;
   }
 
-  if (!user) {
+  if (!authInitialized || !user) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary-200 border-t-primary-600 dark:border-primary-800 dark:border-t-primary-400" />

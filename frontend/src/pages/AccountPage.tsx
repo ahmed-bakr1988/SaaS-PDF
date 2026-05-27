@@ -37,6 +37,7 @@ import {
   import WorkspaceActivity from '@/components/shared/WorkspaceActivity';
   import UsageAnalytics from '@/components/shared/UsageAnalytics';
   import { cn } from '@/utils/cn';
+  import { resolvePostAuthRedirect } from '@/utils/postAuthRedirect';
 
   import type { UserProfile, SocialAuthProviderOption } from '@/services/apiTypes';
 
@@ -159,6 +160,17 @@ export default function AccountPage() {
       clearNewAccount();
     }
   }, [isNewAccount, user, t, clearNewAccount]);
+
+  useEffect(() => {
+    if (!initialized || !user) {
+      return;
+    }
+    const params = new URLSearchParams(location.search);
+    const destination = resolvePostAuthRedirect(params);
+    if (destination) {
+      void navigate(destination, { replace: true });
+    }
+  }, [initialized, user, location.search, navigate]);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -396,6 +408,11 @@ export default function AccountPage() {
 
       setPassword('');
       setConfirmPassword('');
+
+      const destination = resolvePostAuthRedirect(new URLSearchParams(location.search));
+      if (destination) {
+        void navigate(destination, { replace: true });
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : t('account.loadFailed');
       setSubmitError(msg);
@@ -885,10 +902,15 @@ export default function AccountPage() {
                 <div className="grid gap-3">
                   {socialProviders.map((provider) => {
                     const disabled = authLoading || socialProvidersLoading || !provider.available;
+                    const socialHref = provider.available
+                      ? `${provider.start_url}?${new URLSearchParams({
+                          next: `${location.pathname}${location.search}`,
+                        }).toString()}`
+                      : undefined;
                     return (
                       <a
                         key={provider.id}
-                        href={provider.available ? provider.start_url : undefined}
+                        href={socialHref}
                         className={cn(
                           "flex items-center justify-center gap-3 rounded-2xl border py-4 text-sm font-bold transition-all",
                           disabled 
