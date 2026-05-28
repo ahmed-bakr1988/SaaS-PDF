@@ -34,25 +34,10 @@ export default defineConfig({
         skipWaiting: false,
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api\//],
+        // Google Fonts are fetched by the browser only (not intercepted by the SW).
+        // Workbox CacheFirst on fonts.gstatic.com caused "no-response" when cache was cold
+        // or third-party requests were blocked (extensions / privacy tools).
         runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-stylesheets',
-              expiration: { maxEntries: 10, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
-          {
-            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'google-fonts-webfonts',
-              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 * 365 },
-              cacheableResponse: { statuses: [0, 200] },
-            },
-          },
           {
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'StaleWhileRevalidate',
